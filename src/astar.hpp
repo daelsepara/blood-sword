@@ -1,0 +1,294 @@
+#ifndef __ASTAR__HPP__
+#define __ASTAR__HPP__
+
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
+
+// A C++ version of A* pathfinding algorithm from https://dotnetcoretutorials.com/2020/07/25/a-search-pathfinding-algorithm-in-c/
+// Most of the comments from the original version are preserved and/or have minor modifications.
+namespace AStar
+{
+    // Cartesian coordinates (see Path class below)
+    class Point
+    {
+    public:
+        int X;
+
+        int Y;
+
+        Point()
+        {
+        }
+
+        Point(int x, int y)
+        {
+            X = x;
+
+            Y = y;
+        }
+    };
+
+    // Path found by A* algorithm
+    class Path
+    {
+    public:
+        // List of coordinates of the path
+        std::vector<AStar::Point> Points;
+
+        // String representation of the environment
+        std::vector<std::string> Map;
+
+        Path()
+        {
+        }
+
+        // Helper function to mark path on map
+        void Mark(const char c)
+        {
+            for (auto i = 0; i < Points.size(); i++)
+            {
+                if (i > 0 && i < Points.size() - 1)
+                {
+                    Map[Points[i].Y][Points[i].X] = c;
+                }
+            }
+        }
+    };
+
+    // Class representing a node in the graph
+    class Node
+    {
+    public:
+        int X;
+
+        int Y;
+
+        int Cost;
+
+        int Distance;
+
+        AStar::Node *Parent = NULL;
+
+        Node()
+        {
+        }
+
+        Node(int x, int y, int cost, AStar::Node *parent)
+        {
+            X = x;
+
+            Y = y;
+
+            Cost = cost;
+
+            Parent = parent;
+        }
+
+        // Total cost to traverse this node
+        int CostDistance()
+        {
+            return (Cost + Distance);
+        }
+
+        // The distance is essentially the estimated distance, ignoring obstacles to our target.
+        // So how many nodes left and right, up and down, ignoring obstacles, to get there.
+        //
+        // Computes the 2D Manhattan Distance
+        void SetDistance(Node *node)
+        {
+            Distance = std::abs(node->X - X) + std::abs(node->Y - Y);
+        }
+    };
+
+    // Get all traversible nodes from current node
+    std::vector<AStar::Node *> Nodes(std::vector<std::string> &map, AStar::Node *current, AStar::Node *target, const char &dst, const char &passable)
+    {
+        auto traversable = std::vector<AStar::Node *>();
+
+        if (map.size() > 0)
+        {
+            auto mapX = map.front().length() - 1;
+
+            auto mapY = map.size() - 1;
+
+            auto possible = std::vector<AStar::Node *>();
+
+            // Generate possible nodes
+            possible.push_back(new AStar::Node(current->X, current->Y - 1, current->Cost + 1, current));
+            possible.push_back(new AStar::Node(current->X, current->Y + 1, current->Cost + 1, current));
+            possible.push_back(new AStar::Node(current->X - 1, current->Y, current->Cost + 1, current));
+            possible.push_back(new AStar::Node(current->X + 1, current->Y, current->Cost + 1, current));
+
+            for (auto i = 0; i < possible.size(); i++)
+            {
+                // Check if within map boundaries and if passable and/or leads to destination
+                if (possible[i]->X >= 0 && possible[i]->X <= mapX && possible[i]->Y >= 0 && possible[i]->Y <= mapY && (map[possible[i]->Y][possible[i]->X] == passable || map[possible[i]->Y][possible[i]->X] == dst))
+                {
+                    possible[i]->SetDistance(target);
+
+                    traversable.push_back(possible[i]);
+                }
+            }
+        }
+
+        return traversable;
+    }
+
+    // Get index of node from a list
+    int Index(std::vector<AStar::Node *> nodes, AStar::Node *node)
+    {
+        auto index = -1;
+
+        for (auto i = 0; i < nodes.size(); i++)
+        {
+            if (nodes[i]->X == node->X && nodes[i]->Y == node->Y)
+            {
+                index = i;
+
+                break;
+            }
+        }
+
+        return index;
+    }
+
+    // Remove node from list
+    void Remove(std::vector<AStar::Node *> &nodes, AStar::Node *node)
+    {
+        auto index = AStar::Index(nodes, node);
+
+        if (index >= 0 && index < nodes.size())
+        {
+            nodes.erase(nodes.begin() + index);
+        }
+    }
+
+    // Check if node is on the list
+    bool Any(std::vector<AStar::Node *> nodes, AStar::Node *node)
+    {
+        auto index = AStar::Index(nodes, node);
+
+        return (index >= 0 && index < nodes.size());
+    }
+
+    // Get coordinates of an object on the map
+    void Coordinates(std::vector<std::string> &map, const char c, AStar::Node *node)
+    {
+        for (auto i = 0; i < map.size(); i++)
+        {
+            auto result = map[i].find(c);
+
+            if (result >= 0 && result < map[i].length())
+            {
+                node->X = result;
+
+                node->Y = i;
+
+                break;
+            }
+        }
+    }
+
+    // Find path from src to dst using the A* algorithm
+    AStar::Path FindPath(std::vector<std::string> &map, const char &src, const char &dst, const char &passable)
+    {
+        auto path = AStar::Path();
+
+        if (map.size() > 0)
+        {
+            auto start = new AStar::Node();
+
+            AStar::Coordinates(map, src, start);
+
+            auto end = new AStar::Node();
+
+            AStar::Coordinates(map, dst, end);
+
+            start->SetDistance(end);
+
+            // List of nodes to be checked
+            auto active = std::vector<AStar::Node *>();
+
+            // List of nodes already visited
+            auto visited = std::vector<AStar::Node *>();
+
+            active.push_back(start);
+
+            while (active.size() > 0)
+            {
+                // Sort based on CostDistance
+                std::sort(active.begin(), active.end(), [](AStar::Node *src, AStar::Node *dst)
+                          { return src->CostDistance() < dst->CostDistance(); });
+
+                auto check = active.front();
+
+                if (check->X == end->X && check->Y == end->Y)
+                {
+                    // We found the destination and we can be sure (because of the sort order above)
+                    // that it's the most low cost option.
+                    auto node = check;
+
+                    // Copy map
+                    path.Map = map;
+
+                    while (true)
+                    {
+                        path.Points.push_back(AStar::Point(node->X, node->Y));
+
+                        node = node->Parent;
+
+                        if (node == NULL)
+                        {
+                            // Reverse list of coordinates so path leads from src to dst
+                            std::reverse(path.Points.begin(), path.Points.end());
+
+                            break;
+                        }
+                    }
+
+                    return path;
+                }
+
+                visited.push_back(check);
+
+                AStar::Remove(active, check);
+
+                auto nodes = AStar::Nodes(map, check, end, dst, passable);
+
+                for (auto i = 0; i < nodes.size(); i++)
+                {
+                    auto node = nodes[i];
+
+                    // We have already visited this node so we don't need to do so again!
+                    if (AStar::Any(visited, node))
+                    {
+                        continue;
+                    }
+
+                    // It's already in the active list, but that's OK, maybe this new node has a better value (e.g. We might zigzag earlier but this is now straighter).
+                    if (AStar::Any(active, node))
+                    {
+                        auto existing = active[AStar::Index(active, node)];
+
+                        if (existing->CostDistance() > check->CostDistance())
+                        {
+                            AStar::Remove(active, existing);
+
+                            active.push_back(node);
+                        }
+                    }
+                    else
+                    {
+                        // We've never seen this node before so add it to the list.
+                        active.push_back(node);
+                    }
+                }
+            }
+        }
+
+        return path;
+    }
+}
+#endif
