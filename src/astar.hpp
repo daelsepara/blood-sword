@@ -1,5 +1,5 @@
-#ifndef __ASTAR__HPP__
-#define __ASTAR__HPP__
+#ifndef __ASTAR_HPP__
+#define __ASTAR_HPP__
 
 #include <algorithm>
 #include <iostream>
