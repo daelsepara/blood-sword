@@ -2,6 +2,7 @@
 #define __ENGINE_HPP__
 
 #include "character.hpp"
+#include "party.hpp"
 #include "random.hpp"
 
 namespace Engine
@@ -21,8 +22,8 @@ namespace Engine
         Defend,
         Shoot,
         Flee,
-        CallSpell,
-        CastSpell
+        Memorize,
+        Cast
     };
 
     int Find(Character::Base &character, Attributes::Type type)
@@ -54,6 +55,16 @@ namespace Engine
         }
     };
 
+    void Score(Character::Base &character, Attributes::Type type, int value)
+    {
+        auto index = Engine::Find(character, type);
+
+        if (index >= 0 && index < character.Attributes.size())
+        {
+            character.Attributes[index].Value = value;
+        }
+    };
+
     int Maximum(Character::Base &character, Attributes::Type type)
     {
         auto index = Engine::Find(character, type);
@@ -68,6 +79,17 @@ namespace Engine
         }
     };
 
+    void Maximum(Character::Base &character, Attributes::Type type, int value)
+    {
+        auto index = Engine::Find(character, type);
+
+        if (index >= 0 && index < character.Attributes.size())
+        {
+            character.Attributes[index].Maximum = value;
+        }
+    };
+
+    // For Die rolling
     int Roll(int count, int modifier)
     {
         auto result = 0;

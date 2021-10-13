@@ -2,7 +2,6 @@
 #define __ASTAR_HPP__
 
 #include <algorithm>
-#include <iostream>
 #include <string>
 #include <vector>
 
