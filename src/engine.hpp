@@ -13,6 +13,26 @@ namespace Engine
         Engine::Random.UniformDistribution(1, 6);
     }
 
+    // For Die rolling
+    int Roll(int count, int modifier)
+    {
+        auto result = 0;
+
+        for (auto i = 0; i < count; i++)
+        {
+            result += Engine::Random.NextInt();
+        }
+
+        result += modifier;
+
+        if (result < 0)
+        {
+            result = 0;
+        }
+
+        return result;
+    }
+
     enum class CombatActionType
     {
         None = 0,
@@ -88,24 +108,24 @@ namespace Engine
         }
     };
 
-    // For Die rolling
-    int Roll(int count, int modifier)
+    void Gain(Character::Base &character, Attributes::Type type, int value)
     {
-        auto result = 0;
+        auto index = Engine::Find(character, type);
 
-        for (auto i = 0; i < count; i++)
+        if (index >= 0 && index < character.Attributes.size())
         {
-            result += Engine::Random.NextInt();
+            character.Attributes[index].Value += value;
+
+            if (character.Attributes[index].Value > character.Attributes[index].Maximum)
+            {
+                character.Attributes[index].Value = character.Attributes[index].Maximum;
+            }
+
+            if (character.Attributes[index].Value < 0)
+            {
+                character.Attributes[index].Value = 0;
+            }
         }
-
-        result += modifier;
-
-        if (result < 0)
-        {
-            result = 0;
-        }
-
-        return result;
     }
 }
 #endif

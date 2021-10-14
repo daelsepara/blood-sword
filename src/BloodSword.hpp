@@ -25,6 +25,7 @@ namespace fs = std::filesystem;
 #include "constants.hpp"
 #include "input.hpp"
 #include "engine.hpp"
+#include "tactical_map.hpp"
 
 void createWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, const char *title);
 

@@ -40,6 +40,20 @@ void createWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, co
     }
 }
 
+bool Combat(SDL_Window *window, SDL_Renderer *renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> monsters)
+{
+    auto TacticalMap = TacticalMap::Base();
+
+    TacticalMap.Convert(map);
+
+    // Offsets used to display tactical map
+    auto MapX = 0;
+    
+    auto MapY = 0;
+
+    return false;
+}
+
 int main(int argc, const char **argv)
 {
     SDL_Window *window = NULL;
@@ -54,6 +68,7 @@ int main(int argc, const char **argv)
 
     if (window && renderer)
     {
+        // Main Screen
         if (renderer)
         {
             SDL_DestroyRenderer(renderer);
