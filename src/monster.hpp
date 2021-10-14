@@ -2,7 +2,6 @@
 #define __MONSTER_HPP__
 
 #include <string>
-#include <vector>
 
 namespace Monster
 {
@@ -18,6 +17,8 @@ namespace Monster
         
         std::string Name = "";
 
+        std::string Image = "";
+
         int FightingProwess = 0;
 
         int PsychicAbility = 0;
@@ -29,6 +30,32 @@ namespace Monster
         int Damage = 0;
 
         int DamageModifier = 0;
+
+        Base()
+        {
+
+        }
+
+        Base(Monster::Type type, const char *name, const char *image, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier)
+        {
+            Type = type;
+
+            Name = name;
+
+            Image = image;
+
+            FightingProwess = fightingProwess;
+
+            PsychicAbility = psychicAbility;
+
+            Awareness = awareness;
+
+            Endurance = endurance;
+
+            Damage = damage;
+
+            DamageModifier = damageModifier;
+        }
     };
 }
 #endif
