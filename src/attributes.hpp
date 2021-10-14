@@ -30,6 +30,15 @@ namespace Attributes
             Maximum = 0;
         }
 
+        Base(Attributes::Type type, int value)
+        {
+            Type = type;
+
+            Value = value;
+
+            Maximum = value;
+        }
+
         Base(Attributes::Type type, int value, int maximum)
         {
             Type = type;

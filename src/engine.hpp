@@ -1,7 +1,6 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
-#include "character.hpp"
 #include "party.hpp"
 #include "random.hpp"
 
@@ -13,7 +12,7 @@ namespace Engine
     {
         Engine::Random.UniformDistribution(1, 6);
     }
-  
+
     enum class CombatActionType
     {
         None = 0,
