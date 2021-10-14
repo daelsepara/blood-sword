@@ -11,10 +11,10 @@ namespace Party
     class Base
     {
     public:
-        std::vector<Character::Base> Members = std::vector<Character::Base>();
+        std::vector<Character::Base> Members = {};
 
         // This list is for tracking completed books
-        std::vector<Book::Type> Completed = std::vector<Book::Type>();
+        std::vector<Book::Type> Completed = {};
 
         Book::Type Type = Book::Type::None;
 

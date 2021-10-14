@@ -6,6 +6,7 @@
 #include "abilities.hpp"
 #include "attributes.hpp"
 #include "equipment.hpp"
+#include "spell.hpp"
 
 namespace Character
 {
@@ -21,11 +22,14 @@ namespace Character
     class Base
     {
     public:
-        std::vector<Abilities::Type> Abilities = std::vector<Abilities::Type>();
+        std::vector<Abilities::Type> Abilities = {};
 
-        std::vector<Attributes::Base> Attributes = std::vector<Attributes::Base>();
+        std::vector<Attributes::Base> Attributes = {};
 
-        std::vector<Equipment::Base> Equipment = std::vector<Equipment::Base>();
+        std::vector<Equipment::Base> Equipment = {};
+
+        // Spells called to mind (Only used by Enchanter Character Class)
+        std::vector<Spell::Base> Spells = {};
 
         Character::Class Class = Character::Class::None;
 
