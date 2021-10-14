@@ -1,6 +1,7 @@
 #ifndef __BLOOD_SWORD_HPP__
 #define __BLOOD_SWORD_HPP__
 
+// Standard Libraries
 #include <chrono>
 #include <cmath>
 #include <cstdio>
@@ -21,12 +22,28 @@ namespace fs = std::filesystem;
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
 
+// JSON Library for loading/saving games
+#include "nlohmann/json.hpp"
+
+// Blood Sword includes
+#include "globals.hpp"
+
+#include "abilities.hpp"
+#include "astar.hpp"
+#include "attributes.hpp"
+#include "book.hpp"
+#include "character.hpp"
 #include "controls.hpp"
-#include "constants.hpp"
+#include "combat.hpp"
+#include "equipment.hpp"
+#include "glyphs.hpp"
 #include "input.hpp"
-#include "engine.hpp"
+#include "monster.hpp"
+#include "party.hpp"
+#include "random.hpp"
+#include "spell.hpp"
 #include "tactical_map.hpp"
 
-void createWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, const char *title);
+#include "engine.hpp"
 
 #endif

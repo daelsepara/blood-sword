@@ -1,12 +1,7 @@
 #ifndef __CONTROLS__HPP__
 #define __CONTROLS__HPP__
 
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-
-#include <SDL.h>
-#include <SDL_image.h>
+#include "BloodSword.hpp"
 
 #if defined(_WIN32)
 #undef DELETE
