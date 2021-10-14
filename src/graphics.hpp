@@ -7,7 +7,16 @@ namespace Graphics
 {
     // Forward Declarations
     void CreateWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, const char *title);
+    void DrawRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
     void FillRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
+    void FillWindow(SDL_Renderer *renderer, Uint32 color);
+    void PutText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
+    void PutTextBox(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
+    void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y);
+    void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset);
+    void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset);
+    void SetWindowIcon(SDL_Window *window, const char *icon);
+    void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts);
 
     SDL_Surface *CreateImage(const char *image);
     SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
@@ -57,6 +66,19 @@ namespace Graphics
         }
     }
 
+    void DrawRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
+    {
+        SDL_Rect rect;
+
+        rect.w = w;
+        rect.h = h;
+        rect.x = x;
+        rect.y = y;
+
+        SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
+        SDL_RenderDrawRect(renderer, &rect);
+    }
+
     void FillRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
     {
         SDL_Rect rect;
@@ -68,6 +90,251 @@ namespace Graphics
 
         SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
         SDL_RenderFillRect(renderer, &rect);
+    }
+
+    void FillWindow(SDL_Renderer *renderer, Uint32 color)
+    {
+        SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
+        SDL_RenderClear(renderer);
+    }
+
+    void PutText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y)
+    {
+        if (renderer)
+        {
+            TTF_SetFontStyle(font, style);
+
+            auto surface = TTF_RenderText_Blended_Wrapped(font, text, fg, w - 2 * space);
+
+            if (surface)
+            {
+                auto height = (surface->h + 2 * space) < h ? h : (surface->h + 2 * space);
+
+                if (x < 0)
+                {
+                    Graphics::FillRect(renderer, w, height, (SCREEN_WIDTH - w) / 2, (SCREEN_HEIGHT - height) / 2, bg);
+                }
+                else
+                {
+                    Graphics::FillRect(renderer, w, height, x, y, bg);
+                }
+
+                if (space > 0)
+                {
+                    if (x < 0)
+                    {
+                        Graphics::RenderText(renderer, surface, 0, (SCREEN_WIDTH - surface->w) / 2 + space, (SCREEN_HEIGHT - height) / 2 + space, height - 2 * space, 0);
+                    }
+                    else
+                    {
+                        Graphics::RenderText(renderer, surface, 0, x + space, y + space, height - 2 * space, 0);
+                    }
+                }
+                else
+                {
+                    if (x < 0)
+                    {
+                        Graphics::RenderText(renderer, surface, 0, (SCREEN_WIDTH - surface->w) / 2 + (w - surface->w), (SCREEN_HEIGHT - surface->h) / 2 + (h - surface->h) / 2, height, 0);
+                    }
+                    else
+                    {
+                        Graphics::RenderText(renderer, surface, 0, x + (w - surface->w) / 2, y + (h - surface->h) / 2, height, 0);
+                    }
+                }
+
+                SDL_FreeSurface(surface);
+
+                surface = NULL;
+            }
+        }
+    }
+
+    void PutTextBox(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y)
+    {
+        if (renderer)
+        {
+            TTF_SetFontStyle(font, style);
+
+            auto surface = TTF_RenderText_Blended_Wrapped(font, text, fg, w - 2 * space);
+
+            if (surface)
+            {
+                auto height = (surface->h + 2 * space) < h ? h : (surface->h + 2 * space);
+
+                if (x < 0)
+                {
+                    Graphics::FillRect(renderer, w, height, (SCREEN_WIDTH - w) / 2, (SCREEN_HEIGHT - height) / 2, bg);
+                }
+                else
+                {
+                    Graphics::FillRect(renderer, w, height, x, y, bg);
+                }
+
+                if (space > 0)
+                {
+                    if (x < 0)
+                    {
+                        Graphics::RenderText(renderer, surface, 0, (SCREEN_WIDTH - surface->w) / 2 + space, y + (SCREEN_HEIGHT - surface->h) / 2, height - 2 * space, 0);
+                    }
+                    else
+                    {
+                        Graphics::RenderText(renderer, surface, 0, x + space, y + (h - surface->h) / 2, height - 2 * space, 0);
+                    }
+                }
+                else
+                {
+                    if (x < 0)
+                    {
+                        Graphics::RenderText(renderer, surface, 0, (SCREEN_WIDTH - surface->w) / 2, y + (SCREEN_HEIGHT - surface->h) / 2, height - 2 * space, 0);
+                    }
+                    else
+                    {
+                        Graphics::RenderText(renderer, surface, 0, x + (w - surface->w) / 2, y + (h - surface->h) / 2, height - 2 * space, 0);
+                    }
+                }
+
+                SDL_FreeSurface(surface);
+
+                surface = NULL;
+            }
+        }
+    }
+
+    void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y)
+    {
+        if (image && renderer)
+        {
+            SDL_Rect position;
+
+            position.w = image->w;
+            position.h = image->h;
+            position.x = x;
+            position.y = y;
+
+            auto texture = SDL_CreateTextureFromSurface(renderer, image);
+
+            if (texture)
+            {
+                SDL_Rect src;
+
+                src.w = image->w;
+                src.h = image->h;
+                src.x = 0;
+                src.y = 0;
+
+                SDL_RenderCopy(renderer, texture, &src, &position);
+
+                SDL_DestroyTexture(texture);
+
+                texture = NULL;
+            }
+        }
+    }
+
+    // Render a portion of the image on bounded surface within the specified window
+    void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset)
+    {
+        if (renderer)
+        {
+            if (text && renderer)
+            {
+                SDL_Rect dst;
+                SDL_Rect src;
+
+                src.w = text->w;
+                src.h = text->h < bounds ? text->h : bounds;
+                src.y = offset;
+                src.x = 0;
+
+                dst.w = text->w;
+                dst.h = text->h < bounds ? text->h : bounds;
+                dst.x = x;
+                dst.y = y;
+
+                auto texture = SDL_CreateTextureFromSurface(renderer, text);
+
+                if (texture)
+                {
+                    SDL_RenderCopy(renderer, texture, &src, &dst);
+
+                    SDL_DestroyTexture(texture);
+
+                    texture = NULL;
+                }
+            }
+        }
+    }
+
+    // Render a portion of the text (image) on bounded surface within the specified window
+    void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset)
+    {
+        if (renderer)
+        {
+            if (text && renderer)
+            {
+                SDL_Rect dst;
+                SDL_Rect src;
+
+                src.w = text->w;
+                src.h = text->h < bounds ? text->h : bounds;
+                src.y = offset;
+                src.x = 0;
+
+                dst.w = text->w;
+                dst.h = text->h < bounds ? text->h : bounds;
+                dst.x = x;
+                dst.y = y;
+
+                if (bg != 0)
+                {
+                    SDL_SetRenderDrawColor(renderer, R(bg), G(bg), B(bg), A(bg));
+                    SDL_RenderFillRect(renderer, &dst);
+                }
+
+                auto texture = SDL_CreateTextureFromSurface(renderer, text);
+
+                if (texture)
+                {
+                    SDL_RenderCopy(renderer, texture, &src, &dst);
+
+                    SDL_DestroyTexture(texture);
+
+                    texture = NULL;
+                }
+            }
+        }
+    }
+
+    void SetWindowIcon(SDL_Window *window, const char *icon)
+    {
+        auto surface = Graphics::CreateImage(icon);
+
+        if (surface)
+        {
+            SDL_SetWindowIcon(window, surface);
+
+            SDL_FreeSurface(surface);
+
+            surface = NULL;
+        }
+    }
+    
+    void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts)
+    {
+        SDL_Rect rect;
+
+        auto space = 2 * pts;
+
+        for (auto size = pts; size >= 0; size--)
+        {
+            rect.w = w + 2 * (space - size);
+            rect.h = h + 2 * (space - size);
+            rect.x = x - space + size;
+            rect.y = y - space + size;
+
+            SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
+            SDL_RenderDrawRect(renderer, &rect);
+        }
     }
 
     SDL_Surface *CreateImage(const char *image)

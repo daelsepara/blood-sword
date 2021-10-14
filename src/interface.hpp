@@ -25,7 +25,7 @@ namespace Interface
 
         if (window && renderer)
         {
-            Graphics::FillRect(renderer, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, intBE);
+            Graphics::FillWindow(renderer, intBE);
 
             if (MapX < 0)
             {

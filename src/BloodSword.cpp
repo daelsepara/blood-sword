@@ -1,6 +1,5 @@
 #include "BloodSword.hpp"
 
-#include "graphics.hpp"
 #include "interface.hpp"
 
 int main(int argc, const char **argv)
@@ -18,7 +17,7 @@ int main(int argc, const char **argv)
     if (window && renderer)
     {
         // Main Screen
-        
+
         if (renderer)
         {
             SDL_DestroyRenderer(renderer);
