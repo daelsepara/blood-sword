@@ -33,18 +33,6 @@ namespace Engine
         return result;
     }
 
-    enum class CombatActionType
-    {
-        None = 0,
-        Move,
-        Fight,
-        Defend,
-        Shoot,
-        Flee,
-        Memorize,
-        Cast
-    };
-
     int Find(Character::Base &character, Attributes::Type type)
     {
         auto found = -1;
