@@ -2,6 +2,7 @@
 #define __ASTAR_HPP__
 
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -9,7 +10,7 @@
 // A C++ version of A* pathfinding algorithm from https://dotnetcoretutorials.com/2020/07/25/a-search-pathfinding-algorithm-in-c/
 // Most of the comments from the original version are preserved and/or have minor modifications.
 //
-// This version also makes use of smart pointers
+// This version uses smart pointers
 namespace AStar
 {
     // Cartesian coordinates (see Path class below)
@@ -235,20 +236,15 @@ namespace AStar
                     // Copy map
                     path.Map = map;
 
-                    while (true)
+                    while (node)
                     {
                         path.Points.push_back(AStar::Point(node->X, node->Y));
 
                         node = node->Parent;
-
-                        if (node == nullptr)
-                        {
-                            // Reverse list of coordinates so path leads from src to dst
-                            std::reverse(path.Points.begin(), path.Points.end());
-
-                            break;
-                        }
                     }
+
+                    // Reverse list of coordinates so path leads from src to dst
+                    std::reverse(path.Points.begin(), path.Points.end());
 
                     return path;
                 }
