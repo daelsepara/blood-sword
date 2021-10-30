@@ -7,11 +7,11 @@
 
 namespace Interface
 {
-    bool Combat(SDL_Window *window, SDL_Renderer *renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> monsters)
+    bool Combat(SDL_Window *window, SDL_Renderer *renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
     {
         auto TacticalMap = TacticalMap::Base();
 
-        TacticalMap.Convert(map);
+        TacticalMap.Convert(map, party, monsters);
 
         // Offsets used to display tactical map
         auto MapX = 0;
@@ -46,6 +46,8 @@ namespace Interface
             {
                 MapY = (TacticalMap.SizeY - 1) - SizeY;
             }
+
+            Input::WaitForNext(renderer);
         }
 
         return false;

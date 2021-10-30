@@ -80,7 +80,7 @@ namespace Input
             }
             else if (result.type == SDL_WINDOWEVENT)
             {
-                if (result.window.event == SDL_WINDOWEVENT_RESTORED || result.window.event == SDL_WINDOWEVENT_MAXIMIZED || result.window.event == SDL_WINDOWEVENT_SHOWN || result.window.event == SDL_WINDOWEVENT_EXPOSED)
+                if (result.window.event == SDL_WINDOWEVENT_RESTORED || result.window.event == SDL_WINDOWEVENT_MAXIMIZED || result.window.event == SDL_WINDOWEVENT_SHOWN)
                 {
                     SDL_RenderPresent(renderer);
                 }
@@ -355,7 +355,7 @@ namespace Input
             }
             else if (result.type == SDL_WINDOWEVENT)
             {
-                if (result.window.event == SDL_WINDOWEVENT_RESTORED || result.window.event == SDL_WINDOWEVENT_MAXIMIZED || result.window.event == SDL_WINDOWEVENT_SHOWN || result.window.event == SDL_WINDOWEVENT_EXPOSED)
+                if (result.window.event == SDL_WINDOWEVENT_RESTORED || result.window.event == SDL_WINDOWEVENT_MAXIMIZED || result.window.event == SDL_WINDOWEVENT_SHOWN)
                 {
                     SDL_RenderPresent(renderer);
                 }

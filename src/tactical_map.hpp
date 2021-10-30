@@ -4,26 +4,30 @@
 #include <string>
 #include <vector>
 
+#include "party.hpp"
+
 namespace TacticalMap
 {
     const char HotCoals = '%';
     const char Wall = '#';
     const char Flee = 'F';
     const char Passable = ' ';
-    
+
     std::string Players = "1234";
     std::string Monsters = "ABCDEFGHIJ";
 
     enum class Object
     {
         None = 0,
-        Wall,
+        Warrior,
+        Sage,
+        Trickster,
+        Enchanter,
         Passable,
-        Flee,
-        Player,
+        Wall,
+        Exit,
         Monster,
-        HotCoals,
-        Exit
+        HotCoals
     };
 
     class Base
@@ -63,7 +67,7 @@ namespace TacticalMap
             }
         }
 
-        void Convert(std::vector<std::string> map)
+        void Convert(std::vector<std::string> map, Party::Base &party, std::vector<Monster::Base> &monsters)
         {
             if (map.size() > 0)
             {
@@ -95,13 +99,32 @@ namespace TacticalMap
                         {
                             Objects[y][x] = TacticalMap::Object::Passable;
                         }
-                        else if (player >= 0 && player < TacticalMap::Players.length())
+                        else if (player != std::string::npos && player >= 0 && player < party.Members.size())
                         {
-                            Objects[y][x] = TacticalMap::Object::Player;
+                            if (party.Members[player].Class == Character::Class::Warrior)
+                            {
+                                Objects[y][x] = TacticalMap::Object::Warrior;
+                            }
+                            else if (party.Members[player].Class == Character::Class::Sage)
+                            {
+                                Objects[y][x] = TacticalMap::Object::Sage;
+                            }
+                            else if (party.Members[player].Class == Character::Class::Trickster)
+                            {
+                                Objects[y][x] = TacticalMap::Object::Trickster;
+                            }
+                            else if (party.Members[player].Class == Character::Class::Enchanter)
+                            {
+                                Objects[y][x] = TacticalMap::Object::Enchanter;
+                            }
+                            else
+                            {
+                                Objects[y][x] = TacticalMap::Object::None;
+                            }
 
                             ObjectID[y][x] = player + 1;
                         }
-                        else if (monster >= 0 && monster < TacticalMap::Monsters.length())
+                        else if (monster != std::string::npos && monster >= 0 && monster < monsters.size())
                         {
                             Objects[y][x] = TacticalMap::Object::Monster;
 
@@ -121,7 +144,7 @@ namespace TacticalMap
             Initialize(sizex, sizey);
         }
 
-        Base(std::vector<std::string> map)
+        Base(std::vector<std::string> map, Party::Base &party, std::vector<Monster::Base> &monsters)
         {
             Map = map;
 
@@ -132,7 +155,7 @@ namespace TacticalMap
 
                 Initialize(sizex, sizey);
 
-                Convert(map);
+                Convert(map, party, monsters);
             }
         }
 

@@ -17,6 +17,12 @@ int main(int argc, const char **argv)
     if (window && renderer)
     {
         // Main Screen
+        auto party = Party::Base();
+        auto map = std::vector<std::string>();
+        auto monsters = std::vector<Monster::Base>();
+
+        // Combat Screen
+        Interface::Combat(window, renderer, map, party, monsters);
 
         if (renderer)
         {
