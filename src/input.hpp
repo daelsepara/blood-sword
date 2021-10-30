@@ -19,6 +19,7 @@ namespace Input
         }
 
         auto nJoysticks = SDL_NumJoysticks();
+        
         auto numGamepads = 0;
 
         // Count how many controllers there are
@@ -53,20 +54,22 @@ namespace Input
     template <typename T>
     bool GetInput(SDL_Renderer *renderer, std::vector<T> choices, int &current, bool &selected, bool &scrollUp, bool &scrollDown, bool &hold, int delay)
     {
-        // Update the renderer
-        SDL_RenderPresent(renderer);
+        auto start_ticks = SDL_GetTicks();
 
-        SDL_Event result;
+        auto sensitivity = 32000;
 
         auto quit = false;
 
         selected = false;
+
         scrollUp = false;
+
         scrollDown = false;
 
-        auto sensitivity = 32000;
+        SDL_Event result;
 
-        auto start_ticks = SDL_GetTicks();
+        // Update the renderer
+        SDL_RenderPresent(renderer);
 
         while (1)
         {
@@ -87,7 +90,7 @@ namespace Input
             }
             else if (result.type == SDL_CONTROLLERDEVICEADDED)
             {
-                InitializeGamePads();
+                Input::InitializeGamePads();
 
                 continue;
             }
@@ -96,6 +99,7 @@ namespace Input
                 if (result.key.keysym.sym == SDLK_PAGEUP)
                 {
                     scrollUp = true;
+
                     scrollDown = false;
 
                     current = -1;
@@ -105,6 +109,7 @@ namespace Input
                 else if (result.key.keysym.sym == SDLK_PAGEDOWN)
                 {
                     scrollDown = true;
+
                     scrollUp = false;
 
                     current = -1;
@@ -219,6 +224,7 @@ namespace Input
             else if (result.type == SDL_CONTROLLERBUTTONUP)
             {
                 selected = false;
+
                 hold = false;
 
                 if (current < 0)
@@ -253,9 +259,9 @@ namespace Input
             }
             else if (result.type == SDL_MOUSEMOTION)
             {
-                hold = false;
-
                 auto previous = current;
+
+                hold = false;
 
                 for (auto i = 0; i < choices.size(); i++)
                 {
@@ -306,11 +312,13 @@ namespace Input
                 if (result.wheel.y < 0 || result.wheel.x < 0)
                 {
                     scrollUp = false;
+
                     scrollDown = true;
                 }
                 else
                 {
                     scrollUp = true;
+
                     scrollDown = false;
                 }
 
@@ -362,7 +370,7 @@ namespace Input
             }
             else if (result.type == SDL_CONTROLLERDEVICEADDED)
             {
-                InitializeGamePads();
+                Input::InitializeGamePads();
             }
             else if (result.type == SDL_KEYDOWN)
             {
