@@ -1,6 +1,8 @@
 #ifndef __TACTICAL_MAP_HPP__
 #define __TACTICAL_MAP_HPP__
 
+#include <map>
+
 #include <string>
 #include <vector>
 
