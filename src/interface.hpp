@@ -7,93 +7,54 @@
 
 namespace Interface
 {
-    typedef std::pair<TacticalMap::Object, SDL_Surface *> AssetSurface;
+    typedef std::pair<TacticalMap::Object, std::shared_ptr<SDL_Surface *>> AssetSurface;
     typedef std::pair<TacticalMap::Object, std::string> AssetPath;
 
     std::vector<Interface::AssetPath> AssetPaths = {};
     std::vector<Interface::AssetSurface> AssetGraphics = {};
 
-    bool UnloadMapAssets()
+    bool LoadMapAssets(const char *file_name)
     {
         auto result = true;
 
-        try
+        AssetPaths.clear();
+
+        AssetGraphics.clear();
+
+        std::ifstream ifs(file_name);
+
+        if (ifs.good())
         {
-            for (auto i = 0; Interface::AssetGraphics.size(); i++)
+            auto data = nlohmann::json::parse(ifs);
+
+            if (!data["assets"].is_null() && data["assets"].is_array() && data["assets"].size() > 0)
             {
-                if (AssetGraphics[i].second)
+                for (auto i = 0; i < data["assets"].size(); i++)
                 {
-                    SDL_FreeSurface(AssetGraphics[i].second);
+                    auto object = !data["assets"][i]["id"].is_null() ? static_cast<TacticalMap::Object>((int)data["assets"][i]["id"]) : TacticalMap::Object::None;
+                    auto path = !data["assets"][i]["path"].is_null() ? std::string(data["assets"][i]["path"]) : "";
 
-                    AssetGraphics[i].second = NULL;
-                }
-            }
-
-            AssetGraphics.clear();
-
-            AssetPaths.clear();
-        }
-        catch (std::exception &ex)
-        {
-            result = false;
-        }
-
-        return result;
-    }
-
-    bool LoadMapAssets(const char *file_name)
-    {
-        bool result = true;
-
-        if (!AssetGraphics.empty())
-        {
-            if (!UnloadMapAssets())
-            {
-                result = false;
-            }
-        }
-
-        if (result)
-        {
-            AssetPaths.clear();
-
-            AssetGraphics.clear();
-
-            std::ifstream ifs(file_name);
-
-            if (ifs.good())
-            {
-                auto data = nlohmann::json::parse(ifs);
-
-                if (!data["assets"].is_null() && data["assets"].is_array() && data["assets"].size() > 0)
-                {
-                    for (auto i = 0; i < data["members"].size(); i++)
+                    if (!path.empty() && object != TacticalMap::Object::None)
                     {
-                        auto object = !data["assets"][i]["id"].is_null() ? static_cast<TacticalMap::Object>((int)data["assets"][i]["id"]) : TacticalMap::Object::None;
-                        auto path = !data["assets"][i]["path"].is_null() ? std::string(data["assets"][i]["path"]) : "";
+                        auto surface = std::make_shared<SDL_Surface *>(Graphics::CreateImage(path.c_str()));
 
-                        if (!path.empty() && object != TacticalMap::Object::None)
+                        if (surface)
                         {
-                            auto surface = Graphics::CreateImage(path.c_str());
+                            AssetPaths.push_back(std::make_pair(object, path));
 
-                            if (surface)
-                            {
-                                AssetPaths.push_back(std::make_pair(object, path));
-
-                                AssetGraphics.push_back(std::make_pair(object, surface));
-                            }
+                            AssetGraphics.push_back(std::make_pair(object, surface));
                         }
                     }
                 }
-
-                ifs.close();
-
-                result = !AssetPaths.empty() && !AssetGraphics.empty() && (AssetGraphics.size() == AssetPaths.size());
             }
-            else
-            {
-                result = false;
-            }
+
+            ifs.close();
+
+            result = !AssetPaths.empty() && !AssetGraphics.empty() && (AssetGraphics.size() == AssetPaths.size());
+        }
+        else
+        {
+            result = false;
         }
 
         return result;
@@ -110,12 +71,28 @@ namespace Interface
 
         auto MapY = 0;
 
+        auto ObjectSize = 64;
+
         // Size of viewable grid
-        auto SizeX = 10;
+        auto SizeX = (SCREEN_WIDTH - 2 * (2 * startx + ObjectSize)) / ObjectSize;
 
-        auto SizeY = 10;
+        auto SizeY = (SCREEN_HEIGHT - 2 * (3 * starty + ObjectSize)) / ObjectSize;
 
-        if (window && renderer)
+        if (SizeX > TacticalMap.SizeX)
+        {
+            SizeX = TacticalMap.SizeX;
+        }
+
+        if (SizeY > TacticalMap.SizeY)
+        {
+            SizeY = TacticalMap.SizeY;
+        }
+
+        auto DrawX = (SCREEN_WIDTH - SizeX * ObjectSize) / 2;
+
+        auto DrawY = (SCREEN_HEIGHT - SizeY * ObjectSize) / 2;
+
+        if (window && renderer && TacticalMap.SizeX > 0 && TacticalMap.SizeY > 0)
         {
             Graphics::FillWindow(renderer, intBE);
 
@@ -124,9 +101,9 @@ namespace Interface
                 MapX = 0;
             }
 
-            if (MapX > (TacticalMap.SizeX - 1) - SizeX)
+            if (MapX > TacticalMap.SizeX - SizeX)
             {
-                MapX = (TacticalMap.SizeX - 1) - SizeX;
+                MapX = TacticalMap.SizeX - SizeX;
             }
 
             if (MapY < 0)
@@ -134,9 +111,27 @@ namespace Interface
                 MapY = 0;
             }
 
-            if (MapY > (TacticalMap.SizeY - 1) - SizeX)
+            if (MapY > TacticalMap.SizeY - SizeY)
             {
-                MapY = (TacticalMap.SizeY - 1) - SizeY;
+                MapY = TacticalMap.SizeY - SizeY;
+            }
+
+            // Drap Map Window Borders
+            Graphics::FillRect(renderer, SCREEN_WIDTH - 4 * startx, ObjectSize, 2 * startx, 3 * starty, intBR);
+            Graphics::FillRect(renderer, SCREEN_WIDTH - 4 * startx, ObjectSize, 2 * startx, SCREEN_HEIGHT - 3 * starty - ObjectSize, intBR);
+            Graphics::FillRect(renderer, ObjectSize, SCREEN_HEIGHT - 6 * starty - 2 * ObjectSize, 2 * startx, 3 * starty + ObjectSize, intBR);
+            Graphics::FillRect(renderer, ObjectSize, SCREEN_HEIGHT - 6 * starty - 2 * ObjectSize, SCREEN_WIDTH - 2 * startx - ObjectSize, 3 * starty + ObjectSize, intBR);
+
+            // Render Objects within the Map Window
+            for (auto y = MapY; y < MapY + SizeY; y++)
+            {
+                for (auto x = MapX; x < MapX + SizeX; x++)
+                {
+                    if (TacticalMap.Objects[y][x] == TacticalMap::Object::Wall)
+                    {
+                        Graphics::FillRect(renderer, ObjectSize, ObjectSize, DrawX + (x - MapX) * ObjectSize, DrawY + (y - MapY) * ObjectSize, intBK);
+                    }
+                }
             }
 
             Input::WaitForNext(renderer);

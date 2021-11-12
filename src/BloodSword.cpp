@@ -18,8 +18,19 @@ int main(int argc, const char **argv)
     {
         // Main Screen
         auto party = Party::Base();
-        auto map = std::vector<std::string>();
         auto monsters = std::vector<Monster::Base>();
+
+        std::vector<std::string> map = {
+            "#############",
+            "#           #",
+            "#### ########",
+            "#           #",
+            "#   ######  #",
+            "#   #    #  #",
+            "#        #  #",
+            "#############"};
+
+        Interface::LoadMapAssets("assets.json");
 
         // Combat Screen
         Interface::Combat(window, renderer, map, party, monsters);

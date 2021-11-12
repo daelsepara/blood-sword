@@ -61,7 +61,7 @@ namespace TacticalMap
             ObjectID.clear();
             ObjectID.resize(sizey);
 
-            for (auto i = 0; i < sizex; i++)
+            for (auto i = 0; i < sizey; i++)
             {
                 Objects[i] = std::vector<TacticalMap::Object>(sizex);
 
@@ -69,7 +69,7 @@ namespace TacticalMap
             }
         }
 
-        void Convert(std::vector<std::string> map, Party::Base &party, std::vector<Monster::Base> &monsters)
+        void Convert(std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
         {
             if (map.size() > 0)
             {
@@ -165,7 +165,7 @@ namespace TacticalMap
         {
             if (X >= 0 && X < SizeX && Y >= 0 && Y < SizeY)
             {
-                return Objects[X][Y];
+                return Objects[Y][X];
             }
             else
             {

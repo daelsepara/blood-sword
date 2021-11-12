@@ -108,7 +108,7 @@ private:
         Color = color;
         Highlight = highlight;
 
-        Surface = createImage(file);
+        Surface = std::make_shared<SDL_Surface *>(createImage(file));
     }
 
     void construct(int id, int left, int right, int up, int down, int x, int y, Uint32 color, Uint32 highlight)
@@ -127,7 +127,7 @@ private:
 public:
     const char *File = NULL;
 
-    SDL_Surface *Surface = NULL;
+    std::shared_ptr<SDL_Surface *> Surface = nullptr;
 
     Button()
     {
@@ -149,13 +149,13 @@ public:
     {
         Type = type;
 
-        Surface = image;
+        Surface = std::make_shared<SDL_Surface *>(image);
 
         if (Surface)
         {
-            W = Surface->w;
+            W = (*Surface)->w;
 
-            H = Surface->h;
+            H = (*Surface)->h;
         }
 
         construct(id, left, right, up, down, x, y, color, highlight);
@@ -180,7 +180,7 @@ public:
 
         if (src.Surface)
         {
-            Surface = SDL_ConvertSurface(src.Surface, src.Surface->format, 0);
+            Surface = std::make_shared<SDL_Surface *>(SDL_ConvertSurface(*src.Surface, (*src.Surface)->format, 0));
         }
     }
 
@@ -206,14 +206,12 @@ public:
 
             if (Surface)
             {
-                SDL_FreeSurface(Surface);
-
-                Surface = NULL;
+                Surface = nullptr;
             }
 
             if (src.Surface)
             {
-                Surface = SDL_ConvertSurface(src.Surface, src.Surface->format, 0);
+                Surface = std::make_shared<SDL_Surface *>(SDL_ConvertSurface(*src.Surface, (*src.Surface)->format, 0));
             }
         }
 
@@ -225,9 +223,7 @@ public:
     {
         if (Surface)
         {
-            SDL_FreeSurface(Surface);
-
-            Surface = NULL;
+            Surface = nullptr;
         }
     }
 };

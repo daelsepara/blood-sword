@@ -265,6 +265,38 @@ namespace Graphics
         }
     }
 
+    // Stretch Image
+    void StretchImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int w, int h)
+    {
+        if (image && renderer)
+        {
+            SDL_Rect position;
+
+            position.w = w;
+            position.h = h;
+            position.x = x;
+            position.y = y;
+
+            auto texture = SDL_CreateTextureFromSurface(renderer, image);
+
+            if (texture)
+            {
+                SDL_Rect src;
+
+                src.w = image->w;
+                src.h = image->h;
+                src.x = 0;
+                src.y = 0;
+
+                SDL_RenderCopy(renderer, texture, &src, &position);
+
+                SDL_DestroyTexture(texture);
+
+                texture = NULL;
+            }
+        }
+    }
+
     // Render a portion of the text (image) on bounded surface within the specified window
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset)
     {
@@ -318,7 +350,7 @@ namespace Graphics
             surface = NULL;
         }
     }
-    
+
     void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts)
     {
         SDL_Rect rect;

@@ -1,0 +1,12 @@
+{
+    "assets": [
+        {
+            "id": 1,
+            "path": "images/players/warrior.png"
+        },
+        {
+            "id": 8,
+            "path": "images/monsters/barbarian.png"
+        }
+    ]
+}
