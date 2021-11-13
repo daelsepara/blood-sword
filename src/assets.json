@@ -5,6 +5,18 @@
             "path": "images/players/warrior.png"
         },
         {
+            "id": 5,
+            "path": "images/map/passable.png"
+        },
+        {
+            "id": 6,
+            "path": "images/map/wall.png"
+        },
+        {
+            "id": 8,
+            "path": "images/map/hot-coals.png"
+        },
+        {
             "id": 101,
             "path": "images/monsters/barbarian.png"
         }

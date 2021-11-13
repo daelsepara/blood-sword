@@ -91,11 +91,19 @@ namespace Interface
 
                     if (object == TacticalMap::Object::Wall)
                     {
-                        Graphics::FillRect(renderer, ObjectSize, ObjectSize, AssetX, AssetY, intBR);
+                        Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::Wall), AssetX, AssetY, ObjectSize, ObjectSize);
                     }
                     else if (object == TacticalMap::Object::Warrior)
                     {
                         Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::Warrior), AssetX, AssetY, ObjectSize, ObjectSize);
+                    }
+                    else if (object == TacticalMap::Object::HotCoals)
+                    {
+                        Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::HotCoals), AssetX, AssetY, ObjectSize, ObjectSize);
+                    }
+                    else
+                    {
+                        Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::Passable), AssetX, AssetY, ObjectSize, ObjectSize);
                     }
                 }
             }
