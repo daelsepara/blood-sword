@@ -12,6 +12,8 @@ int main(int argc, const char **argv)
 
     Input::InitializeGamePads();
 
+    IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
+
     TTF_Init();
 
     if (window && renderer)
@@ -54,6 +56,10 @@ int main(int argc, const char **argv)
 
     // Quit SDL Subsystems
 
+    TTF_Quit();
+
+    IMG_Quit();
+
     if (SDL_WasInit(SDL_INIT_GAMECONTROLLER))
     {
         SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
@@ -63,10 +69,6 @@ int main(int argc, const char **argv)
     {
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
     }
-
-    TTF_Quit();
-
-    IMG_Quit();
 
     SDL_Quit();
 
