@@ -108,7 +108,7 @@ private:
         Color = color;
         Highlight = highlight;
 
-        Surface = std::make_shared<SDL_Surface *>(createImage(file));
+        Surface = createImage(file);
     }
 
     void construct(int id, int left, int right, int up, int down, int x, int y, Uint32 color, Uint32 highlight)
@@ -124,10 +124,15 @@ private:
         Highlight = highlight;
     }
 
+    SDL_Surface *convert(const Button &src)
+    {
+        return SDL_ConvertSurface(src.Surface, src.Surface->format, 0);
+    }
+
 public:
     const char *File = NULL;
 
-    std::shared_ptr<SDL_Surface *> Surface = nullptr;
+    SDL_Surface *Surface = nullptr;
 
     Button()
     {
@@ -149,13 +154,13 @@ public:
     {
         Type = type;
 
-        Surface = std::make_shared<SDL_Surface *>(image);
+        Surface = image;
 
         if (Surface)
         {
-            W = (*Surface)->w;
+            W = Surface->w;
 
-            H = (*Surface)->h;
+            H = Surface->h;
         }
 
         construct(id, left, right, up, down, x, y, color, highlight);
@@ -178,9 +183,16 @@ public:
         Color = src.Color;
         Highlight = src.Highlight;
 
+        if (Surface)
+        {
+            SDL_FreeSurface(Surface);
+
+            Surface = NULL;
+        }
+
         if (src.Surface)
         {
-            Surface = std::make_shared<SDL_Surface *>(SDL_ConvertSurface(*src.Surface, (*src.Surface)->format, 0));
+            Surface = convert(src);
         }
     }
 
@@ -206,12 +218,12 @@ public:
 
             if (Surface)
             {
-                Surface = nullptr;
+                Surface = NULL;
             }
 
             if (src.Surface)
             {
-                Surface = std::make_shared<SDL_Surface *>(SDL_ConvertSurface(*src.Surface, (*src.Surface)->format, 0));
+                Surface = convert(src);
             }
         }
 
@@ -223,7 +235,9 @@ public:
     {
         if (Surface)
         {
-            Surface = nullptr;
+            SDL_FreeSurface(Surface);
+
+            Surface = NULL;
         }
     }
 };

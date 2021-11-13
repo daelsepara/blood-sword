@@ -7,7 +7,7 @@
 
 namespace Interface
 {
-    typedef std::pair<TacticalMap::Object, std::shared_ptr<SDL_Surface *>> AssetSurface;
+    typedef std::pair<TacticalMap::Object, SDL_Surface *> AssetSurface;
     typedef std::pair<TacticalMap::Object, std::string> AssetPath;
 
     std::vector<Interface::AssetPath> AssetPaths = {};
@@ -21,9 +21,9 @@ namespace Interface
             {
                 if (AssetGraphics[i].second && AssetGraphics[i].second)
                 {
-                    SDL_FreeSurface(*AssetGraphics[i].second);
+                    SDL_FreeSurface(AssetGraphics[i].second);
 
-                    AssetGraphics[i].second = nullptr;
+                    AssetGraphics[i].second = NULL;
                 }
             }
 
@@ -37,7 +37,7 @@ namespace Interface
     {
         Interface::UnloadMapAssets();
 
-        auto result = true;
+        auto result = false;
 
         AssetPaths.clear();
 
@@ -58,7 +58,7 @@ namespace Interface
 
                     if (!path.empty() && object != TacticalMap::Object::None)
                     {
-                        auto surface = std::make_shared<SDL_Surface *>(Graphics::CreateImage(path.c_str()));
+                        auto surface = Graphics::CreateImage(path.c_str());
 
                         if (surface)
                         {
@@ -82,9 +82,9 @@ namespace Interface
         return result;
     }
 
-    std::shared_ptr<SDL_Surface *> GetAsset(TacticalMap::Object object)
+    SDL_Surface *GetAsset(TacticalMap::Object object)
     {
-        std::shared_ptr<SDL_Surface *> surface = nullptr;
+        SDL_Surface *surface = NULL;
 
         if (AssetGraphics.size() > 0)
         {
@@ -92,7 +92,7 @@ namespace Interface
             {
                 if (AssetGraphics[i].first == object)
                 {
-                    surface = (AssetGraphics[i].second);
+                    surface = AssetGraphics[i].second;
 
                     break;
                 }
@@ -180,7 +180,7 @@ namespace Interface
 
                         if (surface)
                         {
-                            Graphics::StretchImage(renderer, *surface, DrawX + (x - MapX) * ObjectSize, DrawY + (y - MapY) * ObjectSize, ObjectSize, ObjectSize);
+                            Graphics::StretchImage(renderer, surface, DrawX + (x - MapX) * ObjectSize, DrawY + (y - MapY) * ObjectSize, ObjectSize, ObjectSize);
                         }
                     }
                 }
