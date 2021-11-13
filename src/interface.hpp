@@ -13,8 +13,30 @@ namespace Interface
     std::vector<Interface::AssetPath> AssetPaths = {};
     std::vector<Interface::AssetSurface> AssetGraphics = {};
 
+    void UnloadMapAssets()
+    {
+        if (AssetGraphics.size() > 0)
+        {
+            for (auto i = 0; i < AssetGraphics.size(); i++)
+            {
+                if (AssetGraphics[i].second && AssetGraphics[i].second)
+                {
+                    SDL_FreeSurface(*AssetGraphics[i].second);
+
+                    AssetGraphics[i].second = nullptr;
+                }
+            }
+
+            AssetGraphics.clear();
+
+            AssetPaths.clear();
+        }
+    }
+
     bool LoadMapAssets(const char *file_name)
     {
+        Interface::UnloadMapAssets();
+
         auto result = true;
 
         AssetPaths.clear();

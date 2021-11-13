@@ -35,6 +35,8 @@ int main(int argc, const char **argv)
         // Combat Screen
         Interface::Combat(window, renderer, map, party, monsters);
 
+        Interface::UnloadMapAssets();
+
         if (renderer)
         {
             SDL_DestroyRenderer(renderer);
