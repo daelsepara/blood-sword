@@ -47,6 +47,16 @@ namespace Character
 
         // If defending during a combat round
         bool IsDefending = false;
+
+        Base()
+        {
+
+        }
+
+        Base(Character::Class character)
+        {
+            Class = character;
+        }
     };
 
     void Warrior(Character::Base &character)
@@ -406,6 +416,15 @@ namespace Character
             character.Equipment = {Equipment::Sword, Equipment::Silver};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
         }
+    }
+
+    Character::Base Create(Character::Class type, int rank)
+    {
+        auto character = Character::Base(type);
+
+        Character::Initialize(character, rank);
+
+        return character;
     }
 }
 #endif

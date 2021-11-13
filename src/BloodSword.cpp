@@ -22,9 +22,11 @@ int main(int argc, const char **argv)
         auto party = Party::Base();
         auto monsters = std::vector<Monster::Base>();
 
+        party.Members.push_back(Character::Create(Character::Class::Warrior, 8));
+
         std::vector<std::string> map = {
             "#############",
-            "#           #",
+            "#1          #",
             "#### ########",
             "#           #",
             "#   ######  #",

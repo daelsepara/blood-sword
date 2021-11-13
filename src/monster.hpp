@@ -7,7 +7,8 @@ namespace Monster
 {
     enum class Type
     {
-        None = 0
+        None = 0,
+        Barbarian
     };
 
     class Base

@@ -28,8 +28,9 @@ namespace TacticalMap
         Passable,
         Wall,
         Exit,
-        Monster,
-        HotCoals
+        HotCoals,
+        Monster = 100,
+        Barbarian
     };
 
     class Base
@@ -128,9 +129,20 @@ namespace TacticalMap
                         }
                         else if (monster != std::string::npos && monster >= 0 && monster < monsters.size())
                         {
-                            Objects[y][x] = TacticalMap::Object::Monster;
+                            if (monsters[monster].Type == Monster::Type::Barbarian)
+                            {
+                                Objects[y][x] = TacticalMap::Object::Barbarian;
+                            }
+                            else
+                            {
+                                Objects[y][x] = TacticalMap::Object::Monster;
+                            }
 
                             ObjectID[y][x] = monster + 1;
+                        }
+                        else
+                        {
+                            Objects[y][x] = TacticalMap::Object::None;
                         }
                     }
                 }

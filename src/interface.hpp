@@ -82,6 +82,26 @@ namespace Interface
         return result;
     }
 
+    std::shared_ptr<SDL_Surface *> GetAsset(TacticalMap::Object object)
+    {
+        std::shared_ptr<SDL_Surface *> surface = nullptr;
+
+        if (AssetGraphics.size() > 0)
+        {
+            for (auto i = 0; i < AssetGraphics.size(); i++)
+            {
+                if (AssetGraphics[i].first == object)
+                {
+                    surface = (AssetGraphics[i].second);
+
+                    break;
+                }
+            }
+        }
+
+        return surface;
+    }
+
     bool Combat(SDL_Window *window, SDL_Renderer *renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
     {
         auto TacticalMap = TacticalMap::Base();
@@ -152,6 +172,16 @@ namespace Interface
                     if (TacticalMap.Objects[y][x] == TacticalMap::Object::Wall)
                     {
                         Graphics::FillRect(renderer, ObjectSize, ObjectSize, DrawX + (x - MapX) * ObjectSize, DrawY + (y - MapY) * ObjectSize, intBK);
+                    }
+
+                    if (TacticalMap.Objects[y][x] == TacticalMap::Object::Warrior)
+                    {
+                        auto surface = Interface::GetAsset(TacticalMap::Object::Warrior);
+
+                        if (surface)
+                        {
+                            Graphics::StretchImage(renderer, *surface, DrawX + (x - MapX) * ObjectSize, DrawY + (y - MapY) * ObjectSize, ObjectSize, ObjectSize);
+                        }
                     }
                 }
             }
