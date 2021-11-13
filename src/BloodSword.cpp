@@ -34,12 +34,12 @@ int main(int argc, const char **argv)
             "#        #  #",
             "#############"};
 
-        Interface::LoadMapAssets("assets.json");
+        Graphics::LoadMapAssets("assets.json");
 
         // Combat Screen
         Interface::Combat(window, renderer, map, party, monsters);
 
-        Interface::UnloadMapAssets();
+        Graphics::UnloadMapAssets();
 
         if (renderer)
         {

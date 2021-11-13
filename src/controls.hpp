@@ -132,7 +132,7 @@ private:
 public:
     const char *File = NULL;
 
-    SDL_Surface *Surface = nullptr;
+    SDL_Surface *Surface = NULL;
 
     Button()
     {

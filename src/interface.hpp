@@ -7,101 +7,6 @@
 
 namespace Interface
 {
-    typedef std::pair<TacticalMap::Object, SDL_Surface *> AssetSurface;
-    typedef std::pair<TacticalMap::Object, std::string> AssetPath;
-
-    std::vector<Interface::AssetPath> AssetPaths = {};
-    std::vector<Interface::AssetSurface> AssetGraphics = {};
-
-    void UnloadMapAssets()
-    {
-        if (AssetGraphics.size() > 0)
-        {
-            for (auto i = 0; i < AssetGraphics.size(); i++)
-            {
-                if (AssetGraphics[i].second && AssetGraphics[i].second)
-                {
-                    SDL_FreeSurface(AssetGraphics[i].second);
-
-                    AssetGraphics[i].second = NULL;
-                }
-            }
-
-            AssetGraphics.clear();
-
-            AssetPaths.clear();
-        }
-    }
-
-    bool LoadMapAssets(const char *file_name)
-    {
-        Interface::UnloadMapAssets();
-
-        auto result = false;
-
-        AssetPaths.clear();
-
-        AssetGraphics.clear();
-
-        std::ifstream ifs(file_name);
-
-        if (ifs.good())
-        {
-            auto data = nlohmann::json::parse(ifs);
-
-            if (!data["assets"].is_null() && data["assets"].is_array() && data["assets"].size() > 0)
-            {
-                for (auto i = 0; i < data["assets"].size(); i++)
-                {
-                    auto object = !data["assets"][i]["id"].is_null() ? static_cast<TacticalMap::Object>((int)data["assets"][i]["id"]) : TacticalMap::Object::None;
-                    auto path = !data["assets"][i]["path"].is_null() ? std::string(data["assets"][i]["path"]) : "";
-
-                    if (!path.empty() && object != TacticalMap::Object::None)
-                    {
-                        auto surface = Graphics::CreateImage(path.c_str());
-
-                        if (surface)
-                        {
-                            AssetPaths.push_back(std::make_pair(object, path));
-
-                            AssetGraphics.push_back(std::make_pair(object, surface));
-                        }
-                    }
-                }
-            }
-
-            ifs.close();
-
-            result = !AssetPaths.empty() && !AssetGraphics.empty() && (AssetGraphics.size() == AssetPaths.size());
-        }
-        else
-        {
-            result = false;
-        }
-
-        return result;
-    }
-
-    SDL_Surface *GetAsset(TacticalMap::Object object)
-    {
-        SDL_Surface *surface = NULL;
-
-        if (AssetGraphics.size() > 0)
-        {
-            for (auto i = 0; i < AssetGraphics.size(); i++)
-            {
-                if (AssetGraphics[i].first == object)
-                {
-                    surface = AssetGraphics[i].second;
-
-                    break;
-                }
-            }
-        }
-
-        return surface;
-    }
-
     bool Combat(SDL_Window *window, SDL_Renderer *renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
     {
         auto TacticalMap = TacticalMap::Base();
@@ -115,10 +20,14 @@ namespace Interface
 
         auto ObjectSize = 64;
 
-        // Size of viewable grid
-        auto SizeX = (SCREEN_WIDTH - 2 * (2 * startx + ObjectSize)) / ObjectSize;
+        auto PaddingX = 2 * startx + ObjectSize;
 
-        auto SizeY = (SCREEN_HEIGHT - 2 * (3 * starty + ObjectSize)) / ObjectSize;
+        auto PaddingY = 3 * starty + ObjectSize;
+
+        // Size of viewable grid
+        auto SizeX = (SCREEN_WIDTH - 2 * PaddingX) / ObjectSize;
+
+        auto SizeY = (SCREEN_HEIGHT - 2 * PaddingY) / ObjectSize;
 
         if (SizeX > TacticalMap.SizeX)
         {
@@ -130,9 +39,14 @@ namespace Interface
             SizeY = TacticalMap.SizeY;
         }
 
+        // Draw map at the center of the screen
         auto DrawX = (SCREEN_WIDTH - SizeX * ObjectSize) / 2;
 
         auto DrawY = (SCREEN_HEIGHT - SizeY * ObjectSize) / 2;
+
+        auto BorderW = SCREEN_WIDTH - 4 * startx;
+
+        auto BorderH = SCREEN_HEIGHT - 2 * PaddingY;
 
         if (window && renderer && TacticalMap.SizeX > 0 && TacticalMap.SizeY > 0)
         {
@@ -159,29 +73,29 @@ namespace Interface
             }
 
             // Drap Map Window Borders
-            Graphics::FillRect(renderer, SCREEN_WIDTH - 4 * startx, ObjectSize, 2 * startx, 3 * starty, intBR);
-            Graphics::FillRect(renderer, SCREEN_WIDTH - 4 * startx, ObjectSize, 2 * startx, SCREEN_HEIGHT - 3 * starty - ObjectSize, intBR);
-            Graphics::FillRect(renderer, ObjectSize, SCREEN_HEIGHT - 6 * starty - 2 * ObjectSize, 2 * startx, 3 * starty + ObjectSize, intBR);
-            Graphics::FillRect(renderer, ObjectSize, SCREEN_HEIGHT - 6 * starty - 2 * ObjectSize, SCREEN_WIDTH - 2 * startx - ObjectSize, 3 * starty + ObjectSize, intBR);
+            Graphics::FillRect(renderer, BorderW, ObjectSize, 2 * startx, 3 * starty, intBK);
+            Graphics::FillRect(renderer, BorderW, ObjectSize, 2 * startx, SCREEN_HEIGHT - PaddingY, intBK);
+            Graphics::FillRect(renderer, ObjectSize, BorderH, 2 * startx, PaddingY, intBK);
+            Graphics::FillRect(renderer, ObjectSize, BorderH, SCREEN_WIDTH - PaddingX, PaddingY, intBK);
 
             // Render Objects within the Map Window
             for (auto y = MapY; y < MapY + SizeY; y++)
             {
+                auto AssetY = DrawY + (y - MapY) * ObjectSize;
+
                 for (auto x = MapX; x < MapX + SizeX; x++)
                 {
-                    if (TacticalMap.Objects[y][x] == TacticalMap::Object::Wall)
+                    auto AssetX = DrawX + (x - MapX) * ObjectSize;
+
+                    auto object = TacticalMap.Objects[y][x];
+
+                    if (object == TacticalMap::Object::Wall)
                     {
-                        Graphics::FillRect(renderer, ObjectSize, ObjectSize, DrawX + (x - MapX) * ObjectSize, DrawY + (y - MapY) * ObjectSize, intBK);
+                        Graphics::FillRect(renderer, ObjectSize, ObjectSize, AssetX, AssetY, intBR);
                     }
-
-                    if (TacticalMap.Objects[y][x] == TacticalMap::Object::Warrior)
+                    else if (object == TacticalMap::Object::Warrior)
                     {
-                        auto surface = Interface::GetAsset(TacticalMap::Object::Warrior);
-
-                        if (surface)
-                        {
-                            Graphics::StretchImage(renderer, surface, DrawX + (x - MapX) * ObjectSize, DrawY + (y - MapY) * ObjectSize, ObjectSize, ObjectSize);
-                        }
+                        Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::Warrior), AssetX, AssetY, ObjectSize, ObjectSize);
                     }
                 }
             }

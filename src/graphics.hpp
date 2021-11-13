@@ -6,6 +6,17 @@
 namespace Graphics
 {
     // Forward Declarations
+    bool LoadMapAssets(const char *file_name);
+
+    SDL_Surface *CreateImage(const char *image);
+    SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
+    SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style);
+    SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style);
+    SDL_Surface *GetAsset(TacticalMap::Object object);
+
+    typedef std::pair<TacticalMap::Object, SDL_Surface *> AssetSurface;
+    typedef std::pair<TacticalMap::Object, std::string> AssetPath;
+
     void CreateWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, const char *title);
     void DrawRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
     void FillRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
@@ -16,12 +27,12 @@ namespace Graphics
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset);
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset);
     void SetWindowIcon(SDL_Window *window, const char *icon);
+    void StretchImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int w, int h);
     void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts);
+    void UnloadMapAssets();
 
-    SDL_Surface *CreateImage(const char *image);
-    SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
-    SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style);
-    SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style);
+    std::vector<Graphics::AssetPath> AssetPaths = {};
+    std::vector<Graphics::AssetSurface> AssetGraphics = {};
 
     // ---------------------------------------------------------------------------------------------
     // START - Implementations
@@ -265,10 +276,9 @@ namespace Graphics
         }
     }
 
-    // Stretch Image
     void StretchImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int w, int h)
     {
-        if (image && renderer)
+        if (renderer && image)
         {
             SDL_Rect position;
 
@@ -572,6 +582,96 @@ namespace Graphics
             SDL_FreeSurface(converted_text);
 
             converted_text = NULL;
+        }
+
+        return surface;
+    }
+
+    void UnloadMapAssets()
+    {
+        if (Graphics::AssetGraphics.size() > 0)
+        {
+            for (auto i = 0; i < Graphics::AssetGraphics.size(); i++)
+            {
+                if (Graphics::AssetGraphics[i].second && Graphics::AssetGraphics[i].second)
+                {
+                    SDL_FreeSurface(Graphics::AssetGraphics[i].second);
+
+                    Graphics::AssetGraphics[i].second = NULL;
+                }
+            }
+
+            Graphics::AssetGraphics.clear();
+
+            Graphics::AssetPaths.clear();
+        }
+    }
+
+    bool LoadMapAssets(const char *file_name)
+    {
+        auto result = false;
+
+        Graphics::UnloadMapAssets();
+
+        Graphics::AssetPaths.clear();
+
+        Graphics::AssetGraphics.clear();
+
+        std::ifstream ifs(file_name);
+
+        if (ifs.good())
+        {
+            auto data = nlohmann::json::parse(ifs);
+
+            if (!data["assets"].is_null() && data["assets"].is_array() && data["assets"].size() > 0)
+            {
+                for (auto i = 0; i < data["assets"].size(); i++)
+                {
+                    auto object = !data["assets"][i]["id"].is_null() ? static_cast<TacticalMap::Object>((int)data["assets"][i]["id"]) : TacticalMap::Object::None;
+
+                    auto path = !data["assets"][i]["path"].is_null() ? std::string(data["assets"][i]["path"]) : "";
+
+                    if (!path.empty() && object != TacticalMap::Object::None)
+                    {
+                        auto surface = Graphics::CreateImage(path.c_str());
+
+                        if (surface)
+                        {
+                            Graphics::AssetPaths.push_back(std::make_pair(object, path));
+
+                            Graphics::AssetGraphics.push_back(std::make_pair(object, surface));
+                        }
+                    }
+                }
+            }
+
+            ifs.close();
+
+            result = !AssetPaths.empty() && !AssetGraphics.empty() && (AssetGraphics.size() == AssetPaths.size());
+        }
+        else
+        {
+            result = false;
+        }
+
+        return result;
+    }
+
+    SDL_Surface *GetAsset(TacticalMap::Object object)
+    {
+        SDL_Surface *surface = NULL;
+
+        if (Graphics::AssetGraphics.size() > 0)
+        {
+            for (auto i = 0; i < AssetGraphics.size(); i++)
+            {
+                if (Graphics::AssetGraphics[i].first == object)
+                {
+                    surface = Graphics::AssetGraphics[i].second;
+
+                    break;
+                }
+            }
         }
 
         return surface;
