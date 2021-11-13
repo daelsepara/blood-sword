@@ -53,6 +53,19 @@ int main(int argc, const char **argv)
     }
 
     // Quit SDL Subsystems
+
+    if (SDL_WasInit(SDL_INIT_GAMECONTROLLER))
+    {
+        SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
+    }
+
+    if (SDL_WasInit(SDL_INIT_AUDIO))
+    {
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    }
+
+    SDL_AudioQuit();
+
     TTF_Quit();
 
     IMG_Quit();
