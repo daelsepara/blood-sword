@@ -64,8 +64,6 @@ int main(int argc, const char **argv)
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
     }
 
-    SDL_AudioQuit();
-
     TTF_Quit();
 
     IMG_Quit();
