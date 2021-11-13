@@ -26,7 +26,7 @@ int main(int argc, const char **argv)
 
         std::vector<std::string> map = {
             "#############",
-            "#1          #",
+            "# 1         #",
             "#### ########",
             "#           #",
             "#   ######  #",
