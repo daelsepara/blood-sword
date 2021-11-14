@@ -11,11 +11,17 @@ namespace Control
 {
     enum class Type
     {
+        NONE = -1,
         ANY = 0,
         SCROLL_UP,
         SCROLL_DOWN,
+        MAP_UP,
+        MAP_DOWN,
+        MAP_LEFT,
+        MAP_RIGHT,
         BACK,
-        EXIT
+        EXIT,
+        WARRIOR
     };
 
     class Base
@@ -113,6 +119,18 @@ private:
         Surface = createImage(file);
     }
 
+    void construct(int id, int left, int right, int up, int down, int x, int y, Uint32 highlight)
+    {
+        ID = id;
+        Left = left;
+        Right = right;
+        Up = up;
+        Down = down;
+        X = x;
+        Y = y;
+        Highlight = highlight;
+    }
+
     void construct(int id, const char *file, int left, int right, int up, int down, int x, int y, Uint32 highlight)
     {
         ID = id;
@@ -162,6 +180,11 @@ private:
         return SDL_ConvertSurface(src.Surface, src.Surface->format, 0);
     }
 
+    SDL_Surface *convert(SDL_Surface *src)
+    {
+        return SDL_ConvertSurface(src, src->format, 0);
+    }
+
 public:
     const char *File = NULL;
 
@@ -183,25 +206,18 @@ public:
         construct(id, file, left, right, up, down, x, y, color, highlight);
     }
 
-    Button(int id, const char *file, int left, int right, int up, int down, int x, int y, Control::Type type, Uint32 highlight)
+    Button(int id, const char *file, int left, int right, int up, int down, int x, int y, Uint32 highlight, Control::Type type)
     {
         Type = type;
 
         construct(id, file, left, right, up, down, x, y, highlight);
     }
 
-    Button(int id, const char *file, int left, int right, int up, int down, int x, int y, Uint32 highlight, Control::Type type)
+    Button(int id, SDL_Surface *image, int left, int right, int up, int down, int x, int y, const Uint32 highlight, Control::Type type)
     {
         Type = type;
 
-        construct(id, file, left, right, up, down, x, y, highlight, type);
-    }
-
-    Button(int id, SDL_Surface *image, int left, int right, int up, int down, int x, int y, Control::Type type, Uint32 color, Uint32 highlight)
-    {
-        Type = type;
-
-        Surface = image;
+        Surface = convert(image);
 
         if (Surface)
         {
@@ -210,7 +226,7 @@ public:
             H = Surface->h;
         }
 
-        construct(id, left, right, up, down, x, y, color, highlight);
+        construct(id, left, right, up, down, x, y, highlight);
     }
 
     // constructor for making deep copies of Button controls

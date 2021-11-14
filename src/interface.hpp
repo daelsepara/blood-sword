@@ -79,42 +79,95 @@ namespace Interface
                     MapY = TacticalMap.SizeY - SizeY;
                 }
 
-                auto num_controls = 0;
-
                 auto controls = std::vector<Button>();
 
-                controls.push_back(Button(num_controls, "icons/back-button.png", 0, 0, 0, 0, lastx, buttony, intGR, Control::Type::BACK));
+                controls.push_back(Button(0, "icons/up.png", 1, 2, 0, 5 + (SizeX / 2), (SCREEN_WIDTH - ObjectSize) / 2, DrawY - ObjectSize - 2 * border_space, MapY > 0 ? intLB : intGR, Control::Type::MAP_UP));
+                controls.push_back(Button(1, "icons/left.png", 1, 5 + (SizeY / 2 * SizeX) - SizeX, 0, 3, DrawX - (ObjectSize + 2 * border_space), (SCREEN_HEIGHT - ObjectSize) / 2, MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
+                controls.push_back(Button(2, "icons/right.png", 4 + (SizeX * SizeY / 2), 2, 0, 3, DrawX + (SizeX * ObjectSize + 2 * border_space), (SCREEN_HEIGHT - ObjectSize) / 2, (MapX < TacticalMap.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
+                controls.push_back(Button(3, "icons/down.png", 1, 2, 4 + (SizeX * SizeY) - SizeX / 2, 4, (SCREEN_WIDTH - ObjectSize) / 2, DrawY + (SizeY * ObjectSize + 2 * border_space), (MapY < TacticalMap.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
+                controls.push_back(Button(4, "icons/back-button.png", 3, 4, 3, 4, lastx, buttony, intGR, Control::Type::BACK));
+
+                int num_controls = controls.size();
 
                 // Render Objects within the Map Window
                 for (auto y = MapY; y < MapY + SizeY; y++)
                 {
                     auto AssetY = DrawY + (y - MapY) * ObjectSize;
 
+                    auto ctrl_y = (y - MapY);
+
+                    auto ctrl_up = num_controls;
+                    auto ctrl_dn = num_controls;
+                    auto ctrl_lt = num_controls;
+                    auto ctrl_rt = num_controls;
+
                     for (auto x = MapX; x < MapX + SizeX; x++)
                     {
+                        auto ctrl_x = (x - MapX);
+
+                        if (ctrl_y > 0)
+                        {
+                            ctrl_up = num_controls - SizeX;
+                        }
+                        else
+                        {
+                            ctrl_up = 0;
+                        }
+
+                        if (ctrl_y < SizeY - 1)
+                        {
+                            ctrl_dn = num_controls + SizeX;
+                        }
+                        else
+                        {
+                            ctrl_dn = 3;
+                        }
+
+                        if (ctrl_x > 0)
+                        {
+                            ctrl_lt = num_controls - 1;
+                        }
+                        else
+                        {
+                            ctrl_lt = 1;
+                        }
+
+                        if (ctrl_x < SizeX - 1)
+                        {
+                            ctrl_rt = num_controls + 1;
+                        }
+                        else
+                        {
+                            ctrl_rt = 2;
+                        }
+
                         auto AssetX = DrawX + (x - MapX) * ObjectSize;
 
                         auto object = TacticalMap.Objects[y][x];
 
                         auto objectID = TacticalMap.ObjectID[y][x] - 1;
 
-                        Graphics::StretchImage(renderer, Graphics::GetAsset(Graphics::AssetType::Passable), AssetX, AssetY, ObjectSize, ObjectSize);
-
                         if (object == TacticalMap::Object::Wall)
                         {
-                            Graphics::StretchImage(renderer, Graphics::GetAsset(Graphics::AssetType::Wall), AssetX, AssetY, ObjectSize, ObjectSize);
+                            controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::Wall), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intDB, Control::Type::NONE));
                         }
                         else if (object == TacticalMap::Object::Player)
                         {
                             if (party.Members[objectID].Class == Character::Class::Warrior)
                             {
-                                Graphics::StretchImage(renderer, Graphics::GetAsset(Graphics::AssetType::Warrior), AssetX, AssetY, ObjectSize, ObjectSize);
+                                controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::Warrior), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intDB, Control::Type::WARRIOR));
                             }
                         }
                         else if (object == TacticalMap::Object::HotCoals)
                         {
-                            Graphics::StretchImage(renderer, Graphics::GetAsset(Graphics::AssetType::Wall), AssetX, AssetY, ObjectSize, ObjectSize);
+                            controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::HotCoals), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intDB, Control::Type::NONE));
                         }
+                        else
+                        {
+                            controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::Passable), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intDB, Control::Type::NONE));
+                        }
+
+                        num_controls++;
                     }
                 }
 
@@ -129,6 +182,22 @@ namespace Interface
                         current = -1;
 
                         done = true;
+                    }
+                    else if (controls[current].Type == Control::Type::MAP_UP && !hold)
+                    {
+                        MapY--;
+                    }
+                    else if (controls[current].Type == Control::Type::MAP_DOWN && !hold)
+                    {
+                        MapY++;
+                    }
+                    else if (controls[current].Type == Control::Type::MAP_LEFT && !hold)
+                    {
+                        MapX--;
+                    }
+                    else if (controls[current].Type == Control::Type::MAP_RIGHT && !hold)
+                    {
+                        MapX++;
                     }
                 }
             }
