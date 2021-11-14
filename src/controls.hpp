@@ -13,7 +13,9 @@ namespace Control
     {
         ANY = 0,
         SCROLL_UP,
-        SCROLL_DOWN
+        SCROLL_DOWN,
+        BACK,
+        EXIT
     };
 
     class Base
@@ -111,6 +113,37 @@ private:
         Surface = createImage(file);
     }
 
+    void construct(int id, const char *file, int left, int right, int up, int down, int x, int y, Uint32 highlight)
+    {
+        ID = id;
+        File = file;
+        Left = left;
+        Right = right;
+        Up = up;
+        Down = down;
+        X = x;
+        Y = y;
+        Highlight = highlight;
+
+        Surface = createImage(file);
+    }
+
+    void construct(int id, const char *file, int left, int right, int up, int down, int x, int y, Uint32 highlight, Control::Type type)
+    {
+        ID = id;
+        File = file;
+        Left = left;
+        Right = right;
+        Up = up;
+        Down = down;
+        X = x;
+        Y = y;
+        Highlight = highlight;
+        Type = type;
+
+        Surface = createImage(file);
+    }
+
     void construct(int id, int left, int right, int up, int down, int x, int y, Uint32 color, Uint32 highlight)
     {
         ID = id;
@@ -148,6 +181,20 @@ public:
         Type = type;
 
         construct(id, file, left, right, up, down, x, y, color, highlight);
+    }
+
+    Button(int id, const char *file, int left, int right, int up, int down, int x, int y, Control::Type type, Uint32 highlight)
+    {
+        Type = type;
+
+        construct(id, file, left, right, up, down, x, y, highlight);
+    }
+
+    Button(int id, const char *file, int left, int right, int up, int down, int x, int y, Uint32 highlight, Control::Type type)
+    {
+        Type = type;
+
+        construct(id, file, left, right, up, down, x, y, highlight, type);
     }
 
     Button(int id, SDL_Surface *image, int left, int right, int up, int down, int x, int y, Control::Type type, Uint32 color, Uint32 highlight)

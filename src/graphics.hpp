@@ -226,6 +226,41 @@ namespace Graphics
         }
     }
 
+    void RenderButtons(SDL_Renderer *renderer, std::vector<Button> controls, int current, int space, int pts)
+    {
+        if (controls.size() > 0)
+        {
+            for (auto i = 0; i < controls.size(); i++)
+            {
+                auto fg = controls[i].Highlight;
+                
+                SDL_Rect rect;
+
+                if (controls[i].Type == Control::Type::SCROLL_UP || controls[i].Type == Control::Type::SCROLL_DOWN)
+                {
+                    Graphics::FillRect(renderer, controls[i].W + 2 * border_space, controls[i].H + 2 * border_space, controls[i].X - border_space, controls[i].Y - border_space, intWH);
+                }
+
+                Graphics::RenderImage(renderer, controls[i].Surface, controls[i].X, controls[i].Y);
+
+                if (i == current)
+                {
+                    for (auto size = pts; size >= 0; size--)
+                    {
+                        rect.w = controls[i].W + 2 * (space - size);
+                        rect.h = controls[i].H + 2 * (space - size);
+                        rect.x = controls[i].X - space + size;
+                        rect.y = controls[i].Y - space + size;
+
+                        SDL_SetRenderDrawColor(renderer, R(fg), G(fg), B(fg), A(fg));
+                        
+                        SDL_RenderDrawRect(renderer, &rect);
+                    }
+                }
+            }
+        }
+    }
+
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y)
     {
         if (image && renderer)
