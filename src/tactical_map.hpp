@@ -21,16 +21,12 @@ namespace TacticalMap
     enum class Object
     {
         None = 0,
-        Warrior,
-        Sage,
-        Trickster,
-        Enchanter,
+        Player,
         Passable,
         Wall,
         Exit,
         HotCoals,
-        Monster = 100,
-        Barbarian
+        Monster
     };
 
     class Base
@@ -104,39 +100,13 @@ namespace TacticalMap
                         }
                         else if (player != std::string::npos && player >= 0 && player < party.Members.size())
                         {
-                            if (party.Members[player].Class == Character::Class::Warrior)
-                            {
-                                Objects[y][x] = TacticalMap::Object::Warrior;
-                            }
-                            else if (party.Members[player].Class == Character::Class::Sage)
-                            {
-                                Objects[y][x] = TacticalMap::Object::Sage;
-                            }
-                            else if (party.Members[player].Class == Character::Class::Trickster)
-                            {
-                                Objects[y][x] = TacticalMap::Object::Trickster;
-                            }
-                            else if (party.Members[player].Class == Character::Class::Enchanter)
-                            {
-                                Objects[y][x] = TacticalMap::Object::Enchanter;
-                            }
-                            else
-                            {
-                                Objects[y][x] = TacticalMap::Object::None;
-                            }
+                            Objects[y][x] = TacticalMap::Object::Player;
 
                             ObjectID[y][x] = player + 1;
                         }
                         else if (monster != std::string::npos && monster >= 0 && monster < monsters.size())
                         {
-                            if (monsters[monster].Type == Monster::Type::Barbarian)
-                            {
-                                Objects[y][x] = TacticalMap::Object::Barbarian;
-                            }
-                            else
-                            {
-                                Objects[y][x] = TacticalMap::Object::Monster;
-                            }
+                            Objects[y][x] = TacticalMap::Object::Monster;
 
                             ObjectID[y][x] = monster + 1;
                         }

@@ -92,21 +92,25 @@ namespace Interface
                 {
                     auto AssetX = DrawX + (x - MapX) * ObjectSize;
 
-                    Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::Passable), AssetX, AssetY, ObjectSize, ObjectSize);
+                    Graphics::StretchImage(renderer, Graphics::GetAsset(Graphics::AssetType::Passable), AssetX, AssetY, ObjectSize, ObjectSize);
 
                     auto object = TacticalMap.Objects[y][x];
+                    auto objectID = TacticalMap.ObjectID[y][x] - 1;
 
                     if (object == TacticalMap::Object::Wall)
                     {
-                        Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::Wall), AssetX, AssetY, ObjectSize, ObjectSize);
+                        Graphics::StretchImage(renderer, Graphics::GetAsset(Graphics::AssetType::Wall), AssetX, AssetY, ObjectSize, ObjectSize);
                     }
-                    else if (object == TacticalMap::Object::Warrior)
+                    else if (object == TacticalMap::Object::Player)
                     {
-                        Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::Warrior), AssetX, AssetY, ObjectSize, ObjectSize);
+                        if (party.Members[objectID].Class == Character::Class::Warrior)
+                        {
+                            Graphics::StretchImage(renderer, Graphics::GetAsset(Graphics::AssetType::Warrior), AssetX, AssetY, ObjectSize, ObjectSize);
+                        }
                     }
                     else if (object == TacticalMap::Object::HotCoals)
                     {
-                        Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::HotCoals), AssetX, AssetY, ObjectSize, ObjectSize);
+                        Graphics::StretchImage(renderer, Graphics::GetAsset(Graphics::AssetType::Wall), AssetX, AssetY, ObjectSize, ObjectSize);
                     }
                 }
             }

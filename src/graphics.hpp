@@ -5,6 +5,21 @@
 
 namespace Graphics
 {
+    enum class AssetType
+    {
+        None = 0,
+        Warrior,
+        Trickster,
+        Sage,
+        Wizard,
+        Passable,
+        Wall,
+        Exit,
+        HotCoals,
+        Monster = 100,
+        Barbarian
+    };
+
     // Forward Declarations
     bool LoadMapAssets(const char *file_name);
 
@@ -12,10 +27,7 @@ namespace Graphics
     SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
     SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style);
     SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style);
-    SDL_Surface *GetAsset(TacticalMap::Object object);
-
-    typedef std::pair<TacticalMap::Object, SDL_Surface *> AssetSurface;
-    typedef std::pair<TacticalMap::Object, std::string> AssetPath;
+    SDL_Surface *GetAsset(Graphics::AssetType asset);
 
     void CreateWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, const char *title);
     void DrawRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
@@ -31,12 +43,15 @@ namespace Graphics
     void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts);
     void UnloadMapAssets();
 
-    std::vector<Graphics::AssetPath> AssetPaths = {};
-    std::vector<Graphics::AssetSurface> AssetGraphics = {};
-
     // ---------------------------------------------------------------------------------------------
     // START - Implementations
     // ---------------------------------------------------------------------------------------------
+    typedef std::pair<Graphics::AssetType, SDL_Surface *> AssetSurface;
+    typedef std::pair<Graphics::AssetType, std::string> AssetPath;
+
+    std::vector<Graphics::AssetPath> AssetPaths = {};
+    std::vector<Graphics::AssetSurface> AssetGraphics = {};
+
     void CreateWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, const char *title)
     {
         // The window and renderer we'll be rendering to
@@ -627,11 +642,11 @@ namespace Graphics
             {
                 for (auto i = 0; i < data["assets"].size(); i++)
                 {
-                    auto object = !data["assets"][i]["id"].is_null() ? static_cast<TacticalMap::Object>((int)data["assets"][i]["id"]) : TacticalMap::Object::None;
+                    auto object = !data["assets"][i]["id"].is_null() ? static_cast<Graphics::AssetType>((int)data["assets"][i]["id"]) : Graphics::AssetType::None;
 
                     auto path = !data["assets"][i]["path"].is_null() ? std::string(data["assets"][i]["path"]) : "";
 
-                    if (!path.empty() && object != TacticalMap::Object::None)
+                    if (!path.empty() && object != Graphics::AssetType::None)
                     {
                         auto surface = Graphics::CreateImage(path.c_str());
 
@@ -657,7 +672,7 @@ namespace Graphics
         return result;
     }
 
-    SDL_Surface *GetAsset(TacticalMap::Object object)
+    SDL_Surface *GetAsset(Graphics::AssetType asset)
     {
         SDL_Surface *surface = NULL;
 
@@ -665,7 +680,7 @@ namespace Graphics
         {
             for (auto i = 0; i < AssetGraphics.size(); i++)
             {
-                if (Graphics::AssetGraphics[i].first == object)
+                if (Graphics::AssetGraphics[i].first == asset)
                 {
                     surface = Graphics::AssetGraphics[i].second;
 
