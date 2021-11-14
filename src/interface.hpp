@@ -9,6 +9,8 @@ namespace Interface
 {
     bool Combat(SDL_Window *window, SDL_Renderer *renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
     {
+        auto borders = false;
+
         auto TacticalMap = TacticalMap::Base();
 
         TacticalMap.Convert(map, party, monsters);
@@ -73,10 +75,13 @@ namespace Interface
             }
 
             // Drap Map Window Borders
-            Graphics::FillRect(renderer, BorderW, ObjectSize, 2 * startx, 3 * starty, intBK);
-            Graphics::FillRect(renderer, BorderW, ObjectSize, 2 * startx, SCREEN_HEIGHT - PaddingY, intBK);
-            Graphics::FillRect(renderer, ObjectSize, BorderH, 2 * startx, PaddingY, intBK);
-            Graphics::FillRect(renderer, ObjectSize, BorderH, SCREEN_WIDTH - PaddingX, PaddingY, intBK);
+            if (borders)
+            {
+                Graphics::FillRect(renderer, BorderW, ObjectSize, 2 * startx, 3 * starty, intBK);
+                Graphics::FillRect(renderer, BorderW, ObjectSize, 2 * startx, SCREEN_HEIGHT - PaddingY, intBK);
+                Graphics::FillRect(renderer, ObjectSize, BorderH, 2 * startx, PaddingY, intBK);
+                Graphics::FillRect(renderer, ObjectSize, BorderH, SCREEN_WIDTH - PaddingX, PaddingY, intBK);
+            }
 
             // Render Objects within the Map Window
             for (auto y = MapY; y < MapY + SizeY; y++)
@@ -86,6 +91,8 @@ namespace Interface
                 for (auto x = MapX; x < MapX + SizeX; x++)
                 {
                     auto AssetX = DrawX + (x - MapX) * ObjectSize;
+
+                    Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::Passable), AssetX, AssetY, ObjectSize, ObjectSize);
 
                     auto object = TacticalMap.Objects[y][x];
 
@@ -100,10 +107,6 @@ namespace Interface
                     else if (object == TacticalMap::Object::HotCoals)
                     {
                         Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::HotCoals), AssetX, AssetY, ObjectSize, ObjectSize);
-                    }
-                    else
-                    {
-                        Graphics::StretchImage(renderer, Graphics::GetAsset(TacticalMap::Object::Passable), AssetX, AssetY, ObjectSize, ObjectSize);
                     }
                 }
             }
