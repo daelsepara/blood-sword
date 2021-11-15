@@ -29,6 +29,7 @@ namespace Control
         MOVE,
         HEAL,
         ATTACK,
+        DEFEND,
         SHOOT,
         MAGIC
     };

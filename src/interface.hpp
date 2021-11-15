@@ -58,14 +58,14 @@ namespace Interface
 
                 if (HotCoals)
                 {
-                    Map.Objects[srcX][srcY] = TacticalMap::Object::HotCoals;
+                    Map.Objects[srcY][srcX] = TacticalMap::Object::HotCoals;
                 }
                 else
                 {
-                    Map.Objects[srcX][srcY] = TacticalMap::Object::Passable;
+                    Map.Objects[srcY][srcX] = TacticalMap::Object::Passable;
                 }
 
-                Map.ObjectID[srcX][srcY] = 0;
+                Map.ObjectID[srcY][srcX] = 0;
 
                 result = true;
             }
@@ -250,8 +250,6 @@ namespace Interface
 
         auto CycleCombatants = [&]()
         {
-            CurrentCombatant++;
-
             if (CurrentCombatant >= Sequence.size())
             {
                 CurrentCombatant = 0;
@@ -260,11 +258,11 @@ namespace Interface
             ResetCurrent();
         };
 
-        auto FontSize = 32;
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
 
         auto TextX = DrawX;
 
-        auto TextY = DrawY - 3 * border_space - TTF_FontHeight(Fonts::Normal);
+        auto TextY = DrawY - 3 * border_space - FontSize;
 
         auto TextWidth = TacticalMap.SizeX * ObjectSize;
 
@@ -299,7 +297,7 @@ namespace Interface
 
                 auto Controls = std::vector<Button>();
 
-                auto MapButtonsX = DrawX - (ObjectSize + 5 * border_space);
+                auto MapButtonsX = DrawX - (ObjectSize + 2 * border_space);
                 auto MapButtonsY = DrawY + border_space;
                 auto MapButtonsGridSize = (SizeY * ObjectSize - border_space) / 4;
 
@@ -307,7 +305,7 @@ namespace Interface
                 auto ActionsY = DrawY + SizeY * ObjectSize + 4 * border_space;
                 auto ActionsGrid = ObjectSize + 2 * border_space;
 
-                auto StartMap = 12;
+                auto StartMap = 13;
                 auto BottomMapX = StartMap + (SizeX * (SizeY - 1));
                 auto MidMapY = StartMap + (SizeY / 2 * SizeX) - SizeX;
 
@@ -319,10 +317,11 @@ namespace Interface
                 Controls.push_back(Button(5, "icons/move.png", 3, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::MOVE));
                 Controls.push_back(Button(6, "icons/heal.png", 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::HEAL));
                 Controls.push_back(Button(7, "icons/swords.png", 6, 8, BottomMapX + 2, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
-                Controls.push_back(Button(8, "icons/shoot.png", 7, 9, BottomMapX + 3, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
-                Controls.push_back(Button(9, "icons/memorize.png", 8, 10, BottomMapX + 4, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::MEMORIZE));
-                Controls.push_back(Button(10, "icons/spell.png", 9, 11, BottomMapX + 5, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::MAGIC));
-                Controls.push_back(Button(11, "icons/exit-white.png", 10, 4, BottomMapX + 6, 4, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
+                Controls.push_back(Button(8, "icons/shield.png", 7, 9, BottomMapX + 3, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
+                Controls.push_back(Button(9, "icons/shoot.png", 8, 10, BottomMapX + 4, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
+                Controls.push_back(Button(10, "icons/memorize.png", 9, 11, BottomMapX + 5, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::MEMORIZE));
+                Controls.push_back(Button(11, "icons/spell.png", 10, 12, BottomMapX + 6, 11, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::MAGIC));
+                Controls.push_back(Button(12, "icons/exit-white.png", 11, 4, BottomMapX + 7, 4, ActionsX + 7 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
 
                 int NumControls = Controls.size();
 
@@ -358,7 +357,7 @@ namespace Interface
                         }
                         else
                         {
-                            if (CtrlX < 7)
+                            if (CtrlX < 8)
                             {
                                 CtrlDn = CtrlX + 5;
                             }
@@ -459,29 +458,6 @@ namespace Interface
 
                 Graphics::RenderButtons(renderer, Controls, current, border_space, border_pts);
 
-                if (CurrentMode == Combat::Mode::Move)
-                {
-                    auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
-
-                    if (CurrentMove[PlayerId] > 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
-                    {
-                        Graphics::PutText(renderer, "Select new destination or continue along current path", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                        auto TargetX = CurrentPath[PlayerId].Points.back().X - MapX;
-
-                        auto TargetY = CurrentPath[PlayerId].Points.back().Y - MapY;
-
-                        if (TargetX >= 0 && TargetX < SizeX && TargetY >= 0 && TargetY < SizeY)
-                        {
-                            Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + TargetX * ObjectSize + 2 * border_pts, DrawY + TargetY * ObjectSize + 2 * border_pts, intYW, border_pts);
-                        }
-                    }
-                    else
-                    {
-                        Graphics::PutText(renderer, "Select Destination", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-                    }
-                }
-
                 if (CurrentCombatant == SelectedCombatant)
                 {
                     auto SelectedX = 0;
@@ -498,6 +474,58 @@ namespace Interface
                 else if (BlinkCycle && BlinkX >= 0 && BlinkY >= 0 && (current == -1 || (current >= 0 && current < Controls.size() && (BlinkX != Controls[current].X || BlinkY != Controls[current].Y))))
                 {
                     Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, BlinkX + 2 * border_pts, BlinkY + 2 * border_pts, intRD, border_pts);
+                }
+
+                if (current >= 0 && current < Controls.size())
+                {
+                    auto control_type = Controls[current].Type;
+
+                    if (CurrentMode == Combat::Mode::Normal && control_type == Control::Type::PLAYER)
+                    {
+                        Graphics::PutText(renderer, "View party member", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                    }
+                    else if (CurrentMode == Combat::Mode::Normal && control_type == Control::Type::MONSTER)
+                    {
+                        Graphics::PutText(renderer, "View opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                    }
+                    else if (CurrentMode == Combat::Mode::Move)
+                    {
+                        auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
+
+                        if (CurrentMove[PlayerId] > 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
+                        {
+                            Graphics::PutText(renderer, "Move to location or continue along current path", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+
+                            auto TargetX = CurrentPath[PlayerId].Points.back().X - MapX;
+
+                            auto TargetY = CurrentPath[PlayerId].Points.back().Y - MapY;
+
+                            if (TargetX >= 0 && TargetX < SizeX && TargetY >= 0 && TargetY < SizeY)
+                            {
+                                Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + TargetX * ObjectSize + 2 * border_pts, DrawY + TargetY * ObjectSize + 2 * border_pts, intYW, border_pts);
+                            }
+                        }
+                        else
+                        {
+                            Graphics::PutText(renderer, "Move to location", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        }
+                    }
+                    else if (CurrentMode == Combat::Mode::Heal && control_type == Control::Type::PLAYER)
+                    {
+                        Graphics::PutText(renderer, "Heal party member", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                    }
+                    else if (CurrentMode == Combat::Mode::Attack && control_type == Control::Type::MONSTER)
+                    {
+                        Graphics::PutText(renderer, "Attack opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                    }
+                    else if (CurrentMode == Combat::Mode::Shoot && control_type == Control::Type::MONSTER)
+                    {
+                        Graphics::PutText(renderer, "Shoot at opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                    }
+                    else if (CurrentMode == Combat::Mode::Magic && control_type == Control::Type::MONSTER)
+                    {
+                        Graphics::PutText(renderer, "Cast a spell against opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                    }
                 }
 
                 if (flash_message)
@@ -554,9 +582,7 @@ namespace Interface
                                 {
                                     if (TacticalMap.Objects[SelectY][SelectX] == TacticalMap::Object::Player)
                                     {
-                                        auto id = TacticalMap.ObjectID[SelectY][SelectX] - 1;
-
-                                        SelectedCombatant = Find(Sequence, TacticalMap::Object::Player, id);
+                                        SelectedCombatant = Find(Sequence, TacticalMap::Object::Player, TacticalMap.ObjectID[SelectY][SelectX] - 1);
                                     }
                                     else
                                     {
@@ -681,39 +707,6 @@ namespace Interface
                             else if (CurrentMode == Combat::Mode::Move)
                             {
                                 DisplayMessage("You cannot move there!", intRD);
-                            }
-                        }
-                    }
-
-                    if (current >= 0 && current < Controls.size())
-                    {
-                        auto control_type = Controls[current].Type;
-
-                        if (control_type == Control::Type::PLAYER || control_type == Control::Type::MONSTER || control_type == Control::Type::DESTINATION)
-                        {
-                            if (CurrentMode == Combat::Mode::Move && control_type == Control::Type::DESTINATION)
-                            {
-                                SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
-
-                                SelectY = MapY + (Controls[current].Y - DrawY) / ObjectSize;
-
-                                // Selecting a location to move into
-                            }
-                            else if (CurrentMode == Combat::Mode::Heal && control_type == Control::Type::PLAYER)
-                            {
-                                // Selecting a location to move into
-                            }
-                            else if (CurrentMode == Combat::Mode::Attack && control_type == Control::Type::MONSTER)
-                            {
-                                // Selecting a target for an attack
-                            }
-                            else if (CurrentMode == Combat::Mode::Shoot && control_type == Control::Type::MONSTER)
-                            {
-                                // Selecting a target for a ranged attack
-                            }
-                            else if (CurrentMode == Combat::Mode::Magic && control_type == Control::Type::MONSTER)
-                            {
-                                // Selecting a target for a magic spell
                             }
                         }
                     }

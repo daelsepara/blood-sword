@@ -286,6 +286,10 @@ namespace Graphics
         {
             caption = "Attack";
         }
+        else if (control.Type == Control::Type::DEFEND)
+        {
+            caption = "Defend";
+        }
         else if (control.Type == Control::Type::SHOOT)
         {
             caption = "Ranged attack";
@@ -477,6 +481,7 @@ namespace Graphics
             rect.y = y - space + size;
 
             SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
+            
             SDL_RenderDrawRect(renderer, &rect);
         }
     }
