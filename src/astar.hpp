@@ -92,9 +92,9 @@ namespace AStar
         }
     };
 
-    bool IsPassable(TacticalMap::Base &map, int X, int Y, int mapX, int mapY, int dstX, int dstY)
+    bool IsPassable(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y)
     {
-        return (X >= 0 && X <= mapX && Y >= 0 && Y <= mapY && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == dstY && X == dstX)));
+        return (X >= 0 && X < map.SizeX && Y >= 0 && Y < map.SizeY && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == target->Y && X == target->X)));
     }
 
     // Get all traversible nodes from current node
@@ -105,18 +105,14 @@ namespace AStar
 
         auto traversable = std::vector<std::shared_ptr<AStar::Node>>();
 
-        if (map.SizeY > 0)
+        if (map.SizeX > 0 && map.SizeY > 0)
         {
-            auto mapX = map.SizeX - 1;
-
-            auto mapY = map.SizeY - 1;
-
             for (auto i = 0; i < neighbors.size(); i++)
             {
                 auto index = 0;
 
                 // Check if within map boundaries and if passable and/or leads to destination
-                if (AStar::IsPassable(map, current->X + neighbors[i].first, current->Y + neighbors[i].second, mapX, mapY, target->X, target->Y))
+                if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second))
                 {
                     traversable.push_back(std::make_shared<AStar::Node>(current->X + neighbors[i].first, current->Y + neighbors[i].second, current->Cost + 1, current));
 
@@ -168,7 +164,7 @@ namespace AStar
     }
 
     // Find path from src to dst using the A* algorithm
-    AStar::Path FindPath(TacticalMap::Base &map, int srcX, int srcY, int dstX, int dstY, const char passable)
+    AStar::Path FindPath(TacticalMap::Base &map, int srcX, int srcY, int dstX, int dstY)
     {
         auto path = AStar::Path();
 
