@@ -31,7 +31,6 @@ namespace fs = std::filesystem;
 #include "globals.hpp"
 
 #include "abilities.hpp"
-#include "astar.hpp"
 #include "attributes.hpp"
 #include "book.hpp"
 #include "character.hpp"
@@ -48,5 +47,7 @@ namespace fs = std::filesystem;
 #include "tactical_map.hpp"
 
 #include "engine.hpp"
+
+#include "astar.hpp"
 
 #endif

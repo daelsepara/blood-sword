@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "tactical_map.hpp"
+
 // A C++ version of A* pathfinding algorithm from https://dotnetcoretutorials.com/2020/07/25/a-search-pathfinding-algorithm-in-c/
 // Most of the comments from the original version are preserved and/or have minor modifications.
 //
@@ -40,23 +42,8 @@ namespace AStar
         // List of coordinates of the path
         std::vector<AStar::Point> Points;
 
-        // String representation of the environment
-        std::vector<std::string> Map;
-
         Path()
         {
-        }
-
-        // Helper function to mark path on map
-        void Mark(const char c)
-        {
-            for (auto i = 0; i < Points.size(); i++)
-            {
-                if (i > 0 && i < Points.size() - 1)
-                {
-                    Map[Points[i].Y][Points[i].X] = c;
-                }
-            }
         }
     };
 
@@ -68,9 +55,9 @@ namespace AStar
 
         int Y;
 
-        int Cost;
+        int Cost = 0.0;
 
-        int Distance;
+        int Distance = 0;
 
         std::shared_ptr<AStar::Node> Parent = nullptr;
 
@@ -105,31 +92,31 @@ namespace AStar
         }
     };
 
-    bool IsPassable(std::vector<std::string> &map, int X, int Y, int mapX, int mapY, const char dst, const char passable)
+    bool IsPassable(TacticalMap::Base &map, int X, int Y, int mapX, int mapY, int dstX, int dstY)
     {
-        return (X >= 0 && X <= mapX && Y >= 0 && Y <= mapY && (map[Y][X] == passable || map[Y][X] == dst));
+        return (X >= 0 && X <= mapX && Y >= 0 && Y <= mapY && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == dstY && X == dstX)));
     }
 
     // Get all traversible nodes from current node
-    std::vector<std::shared_ptr<AStar::Node>> Nodes(std::vector<std::string> &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target, const char dst, const char passable)
+    std::vector<std::shared_ptr<AStar::Node>> Nodes(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target)
     {
         // Define neighbors (X, Y): Up, Down, Left, Right
         std::vector<std::pair<int, int>> neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
 
         auto traversable = std::vector<std::shared_ptr<AStar::Node>>();
 
-        if (map.size() > 0)
+        if (map.SizeY > 0)
         {
-            auto mapX = map.front().length() - 1;
+            auto mapX = map.SizeX - 1;
 
-            auto mapY = map.size() - 1;
+            auto mapY = map.SizeY - 1;
 
             for (auto i = 0; i < neighbors.size(); i++)
             {
                 auto index = 0;
 
                 // Check if within map boundaries and if passable and/or leads to destination
-                if (AStar::IsPassable(map, current->X + neighbors[i].first, current->Y + neighbors[i].second, mapX, mapY, dst, passable))
+                if (AStar::IsPassable(map, current->X + neighbors[i].first, current->Y + neighbors[i].second, mapX, mapY, target->X, target->Y))
                 {
                     traversable.push_back(std::make_shared<AStar::Node>(current->X + neighbors[i].first, current->Y + neighbors[i].second, current->Cost + 1, current));
 
@@ -180,38 +167,22 @@ namespace AStar
         return (index >= 0 && index < nodes.size());
     }
 
-    // Get coordinates of an object on the map
-    void Coordinates(std::vector<std::string> &map, const char c, std::shared_ptr<AStar::Node> &node)
-    {
-        for (auto i = 0; i < map.size(); i++)
-        {
-            auto result = map[i].find(c);
-
-            if (result >= 0 && result < map[i].length())
-            {
-                node->X = result;
-
-                node->Y = i;
-
-                break;
-            }
-        }
-    }
-
     // Find path from src to dst using the A* algorithm
-    AStar::Path FindPath(std::vector<std::string> &map, const char src, const char dst, const char passable)
+    AStar::Path FindPath(TacticalMap::Base &map, int srcX, int srcY, int dstX, int dstY, const char passable)
     {
         auto path = AStar::Path();
 
-        if (map.size() > 0)
+        if (map.SizeX > 0 && map.SizeY > 0)
         {
             auto start = std::make_shared<AStar::Node>();
 
-            AStar::Coordinates(map, src, start);
+            start->X = srcX;
+            start->Y = srcY;
 
             auto end = std::make_shared<AStar::Node>();
 
-            AStar::Coordinates(map, dst, end);
+            end->X = dstX;
+            end->Y = dstY;
 
             start->SetDistance(end);
 
@@ -237,9 +208,6 @@ namespace AStar
                     // that it's the most low cost option.
                     auto node = check;
 
-                    // Copy map
-                    path.Map = map;
-
                     while (node)
                     {
                         path.Points.push_back(AStar::Point(node->X, node->Y));
@@ -257,7 +225,7 @@ namespace AStar
 
                 AStar::Remove(active, check);
 
-                auto nodes = AStar::Nodes(map, check, end, dst, passable);
+                auto nodes = AStar::Nodes(map, check, end);
 
                 for (auto i = 0; i < nodes.size(); i++)
                 {
