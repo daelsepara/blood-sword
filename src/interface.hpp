@@ -129,13 +129,13 @@ namespace Interface
 
                     auto ctrl_y = (y - MapY);
 
-                    auto ctrl_up = num_controls;
-                    auto ctrl_dn = num_controls;
-                    auto ctrl_lt = num_controls;
-                    auto ctrl_rt = num_controls;
-
                     for (auto x = MapX; x < MapX + SizeX; x++)
                     {
+                        auto ctrl_up = num_controls;
+                        auto ctrl_dn = num_controls;
+                        auto ctrl_lt = num_controls;
+                        auto ctrl_rt = num_controls;
+
                         auto ctrl_x = (x - MapX);
 
                         if (ctrl_y > 0)
@@ -269,20 +269,17 @@ namespace Interface
                     if (control_type == Control::Type::PLAYER || control_type == Control::Type::MONSTER || control_type == Control::Type::DESTINATION)
                     {
                         SelectX = MapX + (controls[current].X - DrawX) / ObjectSize;
-                        
+
                         SelectY = MapY + (controls[current].Y - DrawY) / ObjectSize;
 
                         if (current_mode == Combat::Mode::Move && control_type == Control::Type::DESTINATION)
                         {
-
                         }
                         else if (current_mode == Combat::Mode::Attack && control_type == Control::Type::MONSTER)
                         {
-
                         }
                         else if (current_mode == Combat::Mode::Magic && control_type == Control::Type::MONSTER)
                         {
-                            
                         }
                     }
                 }
