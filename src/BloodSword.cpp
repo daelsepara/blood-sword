@@ -16,10 +16,13 @@ int main(int argc, const char **argv)
 
     TTF_Init();
 
+    Fonts::Initialize();
+
     if (window && renderer)
     {
         // Main Screen
         auto party = Party::Base();
+
         auto monsters = std::vector<Monster::Base>();
 
         party.Members.push_back(Character::Create(Character::Class::Warrior, 8));
@@ -55,6 +58,8 @@ int main(int argc, const char **argv)
             window = NULL;
         }
     }
+
+    Fonts::Free();
 
     // Quit SDL Subsystems
 

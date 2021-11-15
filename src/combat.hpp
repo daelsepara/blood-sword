@@ -20,7 +20,9 @@ namespace Combat
         Normal = 0,
         Move,   // Selecting destination
         Attack, // Selecting attack target
-        Magic   // Selecting magic target
+        Shoot,  // Selecting a target for a ranged attack
+        Magic,  // Selecting magic target
+        Heal    // Selecting a to heal
     };
 }
 #endif

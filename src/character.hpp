@@ -48,6 +48,9 @@ namespace Character
         // If defending during a combat round
         bool IsDefending = false;
 
+        // If has escaped (flee from combat)
+        bool Escaped = false;
+
         Base()
         {
 

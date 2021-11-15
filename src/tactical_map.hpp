@@ -19,6 +19,8 @@ namespace TacticalMap
     std::string Players = "1234";
     std::string Monsters = "ABCDEFGHIJ";
 
+    typedef std::pair<int, int> Point;
+
     enum class Object
     {
         None = 0,
@@ -39,13 +41,12 @@ namespace TacticalMap
         // Object ID number
         std::vector<std::vector<int>> ObjectID = {};
 
-        // String representation for use with A*
-        std::vector<std::string> Map;
-
         // Tactical Map Dimensions
         int SizeX = 0;
 
         int SizeY = 0;
+
+        std::vector<TacticalMap::Point> HotCoals = {};
 
         void Initialize(int sizex, int sizey)
         {
@@ -90,6 +91,8 @@ namespace TacticalMap
                         else if (map[y][x] == TacticalMap::HotCoals)
                         {
                             Objects[y][x] = TacticalMap::Object::HotCoals;
+
+                            HotCoals.push_back(std::make_pair(x, y));
                         }
                         else if (map[y][x] == TacticalMap::Flee)
                         {
@@ -131,8 +134,6 @@ namespace TacticalMap
 
         Base(std::vector<std::string> map, Party::Base &party, std::vector<Monster::Base> &monsters)
         {
-            Map = map;
-
             if (map.size() > 0)
             {
                 auto sizey = map.size();

@@ -37,6 +37,7 @@ namespace fs = std::filesystem;
 #include "controls.hpp"
 #include "combat.hpp"
 #include "equipment.hpp"
+#include "fonts.hpp"
 #include "glyphs.hpp"
 #include "input.hpp"
 #include "monster.hpp"

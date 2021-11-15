@@ -92,13 +92,13 @@ namespace AStar
         }
     };
 
-    bool IsPassable(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y)
+    bool IsPassable(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool isMonster)
     {
-        return (X >= 0 && X < map.SizeX && Y >= 0 && Y < map.SizeY && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == target->Y && X == target->X)));
+        return (X >= 0 && X < map.SizeX && Y >= 0 && Y < map.SizeY && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == target->Y && X == target->X) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::HotCoals)));
     }
 
     // Get all traversible nodes from current node
-    std::vector<std::shared_ptr<AStar::Node>> Nodes(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target)
+    std::vector<std::shared_ptr<AStar::Node>> Nodes(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target, bool isMonster)
     {
         // Define neighbors (X, Y): Up, Down, Left, Right
         std::vector<std::pair<int, int>> neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
@@ -112,7 +112,7 @@ namespace AStar
                 auto index = 0;
 
                 // Check if within map boundaries and if passable and/or leads to destination
-                if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second))
+                if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second, isMonster))
                 {
                     traversable.push_back(std::make_shared<AStar::Node>(current->X + neighbors[i].first, current->Y + neighbors[i].second, current->Cost + 1, current));
 
@@ -190,6 +190,8 @@ namespace AStar
 
             active.push_back(start);
 
+            auto isMonster = map.Objects[srcY][srcX] == TacticalMap::Object::Monster;
+
             while (active.size() > 0)
             {
                 // Sort based on CostDistance
@@ -221,7 +223,7 @@ namespace AStar
 
                 AStar::Remove(active, check);
 
-                auto nodes = AStar::Nodes(map, check, end);
+                auto nodes = AStar::Nodes(map, check, end, isMonster);
 
                 for (auto i = 0; i < nodes.size(); i++)
                 {

@@ -35,6 +35,7 @@ namespace Graphics
     void FillWindow(SDL_Renderer *renderer, Uint32 color);
     void PutText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
     void PutTextBox(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
+    void RenderCaption(SDL_Renderer *renderer, Button &control);
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y);
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset);
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset);
@@ -265,6 +266,53 @@ namespace Graphics
                     SDL_RenderDrawRect(renderer, &rect);
                 }
             }
+        }
+    }
+
+    void RenderCaption(SDL_Renderer *renderer, Button &control)
+    {
+        auto caption_size = TTF_FontHeight(Fonts::Caption);
+        auto captiony = control.Y + control.H + border_space;
+        auto captionx = control.X - text_space;
+
+        std::string caption = "";
+
+        if (control.Type == Control::Type::MOVE)
+        {
+            caption = "Move";
+        }
+        else if (control.Type == Control::Type::HEAL)
+        {
+            caption = "Heal";
+        }
+        else if (control.Type == Control::Type::ATTACK)
+        {
+            caption = "Attack";
+        }
+        else if (control.Type == Control::Type::SHOOT)
+        {
+            caption = "Make a ranged attack";
+        }
+        else if (control.Type == Control::Type::MEMORIZE)
+        {
+            caption = "Call to mind a spell";
+        }
+        else if (control.Type == Control::Type::MAGIC)
+        {
+            caption = "Cast a spell";
+        }
+        else if (control.Type == Control::Type::FLEE)
+        {
+            caption = "Flee from combat";
+        }
+        else if (control.Type == Control::Type::EXIT)
+        {
+            caption = "Exit Battle";
+        }
+
+        if (caption.length() > 0)
+        {
+            Graphics::PutText(renderer, caption.c_str(), Fonts::Caption, border_pts, clrDB, intWH, TTF_STYLE_NORMAL, textwidth, caption_size, captionx, captiony);
         }
     }
 

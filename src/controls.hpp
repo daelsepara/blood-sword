@@ -23,7 +23,14 @@ namespace Control
         EXIT,
         PLAYER,
         MONSTER,
-        DESTINATION
+        DESTINATION,
+        MEMORIZE,
+        FLEE,
+        MOVE,
+        HEAL,
+        ATTACK,
+        SHOOT,
+        MAGIC
     };
 
     class Base
