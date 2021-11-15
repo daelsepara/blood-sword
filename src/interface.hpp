@@ -264,7 +264,7 @@ namespace Interface
 
         auto TextX = DrawX;
 
-        auto TextY = DrawY - 2 * border_space - TTF_FontHeight(Fonts::Normal);
+        auto TextY = DrawY - 3 * border_space - TTF_FontHeight(Fonts::Normal);
 
         auto TextWidth = TacticalMap.SizeX * ObjectSize;
 
@@ -473,7 +473,7 @@ namespace Interface
 
                         if (TargetX >= 0 && TargetX < SizeX && TargetY >= 0 && TargetY < SizeY)
                         {
-                            Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + TargetX * ObjectSize + 2 * border_pts, DrawY + TargetY * ObjectSize + 2 * border_pts, intWH, border_pts);
+                            Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + TargetX * ObjectSize + 2 * border_pts, DrawY + TargetY * ObjectSize + 2 * border_pts, intYW, border_pts);
                         }
                     }
                     else
@@ -492,12 +492,12 @@ namespace Interface
 
                     if (SelectedX - MapX >= 0 && SelectedX < SizeX && SelectedY - MapY >= 0 && SelectedY < SizeY)
                     {
-                        Graphics::ThickRect(renderer, ObjectSize, ObjectSize, DrawX + (SelectedX - MapX) * ObjectSize, DrawY + (SelectedY - MapY) * ObjectSize, intWH, border_pts);
+                        Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + (SelectedX - MapX) * ObjectSize + 2 * border_pts, DrawY + (SelectedY - MapY) * ObjectSize + 2 * border_pts, intYW, border_pts);
                     }
                 }
                 else if (BlinkCycle && BlinkX >= 0 && BlinkY >= 0 && (current == -1 || (current >= 0 && current < Controls.size() && (BlinkX != Controls[current].X || BlinkY != Controls[current].Y))))
                 {
-                    Graphics::ThickRect(renderer, ObjectSize, ObjectSize, BlinkX, BlinkY, intRD, border_pts);
+                    Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, BlinkX + 2 * border_pts, BlinkY + 2 * border_pts, intRD, border_pts);
                 }
 
                 if (flash_message)

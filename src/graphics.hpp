@@ -237,7 +237,7 @@ namespace Graphics
             {
                 if (controls[i].Type == Control::Type::SCROLL_UP || controls[i].Type == Control::Type::SCROLL_DOWN)
                 {
-                    Graphics::FillRect(renderer, controls[i].W + 2 * border_space, controls[i].H + 2 * border_space, controls[i].X - border_space, controls[i].Y - border_space, intWH);
+                    Graphics::FillRect(renderer, controls[i].W + 2 * border_space, controls[i].H + 2 * border_space, controls[i].X - border_space, controls[i].Y - border_space, controls[i].Color);
                 }
 
                 Graphics::RenderImage(renderer, controls[i].Surface, controls[i].X, controls[i].Y);
@@ -250,20 +250,17 @@ namespace Graphics
 
             if (highlight >= 0 && highlight < controls.size())
             {
-                SDL_Rect rect;
-
                 auto fg = controls[highlight].Highlight;
 
-                for (auto size = pts; size >= 0; size--)
+                auto map_object = (controls[highlight].Type == Control::Type::PLAYER || controls[highlight].Type == Control::Type::MONSTER || controls[highlight].Type == Control::Type::NONE || controls[highlight].Type == Control::Type::DESTINATION);
+
+                if (map_object)
                 {
-                    rect.w = controls[highlight].W + 2 * (space - size);
-                    rect.h = controls[highlight].H + 2 * (space - size);
-                    rect.x = controls[highlight].X - space + size;
-                    rect.y = controls[highlight].Y - space + size;
-
-                    SDL_SetRenderDrawColor(renderer, R(fg), G(fg), B(fg), A(fg));
-
-                    SDL_RenderDrawRect(renderer, &rect);
+                    Graphics::ThickRect(renderer, controls[highlight].W - 4 * pts, controls[highlight].W - 4 * pts, controls[highlight].X + 2 * pts, controls[highlight].Y + 2 * pts, fg, pts);
+                }
+                else
+                {
+                    Graphics::ThickRect(renderer, controls[highlight].W, controls[highlight].H, controls[highlight].X, controls[highlight].Y, fg, pts);
                 }
             }
         }
