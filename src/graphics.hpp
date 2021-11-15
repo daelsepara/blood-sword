@@ -291,23 +291,23 @@ namespace Graphics
         }
         else if (control.Type == Control::Type::SHOOT)
         {
-            caption = "Make a ranged attack";
+            caption = "Ranged attack";
         }
         else if (control.Type == Control::Type::MEMORIZE)
         {
-            caption = "Call to mind a spell";
+            caption = "Memorize spell";
         }
         else if (control.Type == Control::Type::MAGIC)
         {
-            caption = "Cast a spell";
+            caption = "Cast spell";
         }
         else if (control.Type == Control::Type::FLEE)
         {
-            caption = "Flee from combat";
+            caption = "Flee";
         }
         else if (control.Type == Control::Type::EXIT)
         {
-            caption = "Exit Battle";
+            caption = "Exit";
         }
 
         if (caption.length() > 0)

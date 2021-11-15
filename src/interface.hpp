@@ -264,7 +264,7 @@ namespace Interface
 
         auto TextX = DrawX;
 
-        auto TextY = DrawY - border_space - TTF_FontHeight(Fonts::Normal);
+        auto TextY = DrawY - 2 * border_space - TTF_FontHeight(Fonts::Normal);
 
         auto TextWidth = TacticalMap.SizeX * ObjectSize;
 
@@ -315,7 +315,7 @@ namespace Interface
                 Controls.push_back(Button(1, "icons/left.png", 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + MapButtonsGridSize + border_space, MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
                 Controls.push_back(Button(2, "icons/right.png", 2, MidMapY + SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + border_space), (MapX < TacticalMap.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
                 Controls.push_back(Button(3, "icons/down.png", 3, BottomMapX, 2, 4, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + border_space), (MapY < TacticalMap.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
-                Controls.push_back(Button(4, "icons/back-button-white.png", 10, 4, 10, 4, lastx, buttony, intLB, Control::Type::BACK));
+                Controls.push_back(Button(4, "icons/back-button-white.png", 10, 4, 10, 4, lastx, buttony, intLB, Control::Type::EXIT));
                 Controls.push_back(Button(5, "icons/move.png", 3, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::MOVE));
                 Controls.push_back(Button(6, "icons/heal.png", 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::HEAL));
                 Controls.push_back(Button(7, "icons/swords.png", 6, 8, BottomMapX + 2, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
@@ -484,7 +484,16 @@ namespace Interface
 
                 if (CurrentCombatant == SelectedCombatant)
                 {
-                    Graphics::ThickRect(renderer, ObjectSize, ObjectSize, BlinkX, BlinkY, intWH, border_pts);
+                    auto SelectedX = 0;
+
+                    auto SelectedY = 0;
+
+                    Find(TacticalMap, std::get<0>(Sequence[SelectedCombatant]), std::get<1>(Sequence[SelectedCombatant]) + 1, SelectedX, SelectedY);
+
+                    if (SelectedX - MapX >= 0 && SelectedX < SizeX && SelectedY - MapY >= 0 && SelectedY < SizeY)
+                    {
+                        Graphics::ThickRect(renderer, ObjectSize, ObjectSize, DrawX + (SelectedX - MapX) * ObjectSize, DrawY + (SelectedY - MapY) * ObjectSize, intWH, border_pts);
+                    }
                 }
                 else if (BlinkCycle && BlinkX >= 0 && BlinkY >= 0 && (current == -1 || (current >= 0 && current < Controls.size() && (BlinkX != Controls[current].X || BlinkY != Controls[current].Y))))
                 {
@@ -511,7 +520,7 @@ namespace Interface
 
                     if ((selected && current >= 0 && current < Controls.size()) || scroll_up || scroll_down || hold)
                     {
-                        if (Controls[current].Type == Control::Type::BACK && !hold)
+                        if (Controls[current].Type == Control::Type::EXIT && !hold)
                         {
                             current = -1;
 
