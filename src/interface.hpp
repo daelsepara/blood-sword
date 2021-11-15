@@ -7,11 +7,12 @@
 
 namespace Interface
 {
+    // (Player/Monster, Id, Awareness)
+    typedef std::tuple<TacticalMap::Object, int, int> Combatants;
+
     bool Combat(SDL_Window *window, SDL_Renderer *renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
     {
-        auto TacticalMap = TacticalMap::Base();
-
-        TacticalMap.Convert(map, party, monsters);
+        auto TacticalMap = TacticalMap::Base(map, party, monsters);
 
         // Offsets used to display tactical map
         auto MapX = 0;
@@ -53,6 +54,34 @@ namespace Interface
 
         auto done = false;
 
+        std::vector<Interface::Combatants> Sequence = {};
+
+        // Sort combatants based on Awareness
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            auto awareness = Engine::Score(party.Members[i], Attributes::Type::Awareness);
+
+            Sequence.push_back(std::make_tuple(TacticalMap::Object::Player, i, awareness));
+        }
+
+        for (auto i = 0; i < monsters.size(); i++)
+        {
+            auto awareness = monsters[i].Awareness;
+
+            Sequence.push_back(std::make_tuple(TacticalMap::Object::Monster, i, awareness));
+        }
+
+        std::sort(Sequence.begin(), Sequence.end(), [](Combatants &a, Combatants &b) -> bool
+                  { return std::get<2>(a) > std::get<2>(b); });
+
+        auto current_mode = Combat::Mode::Normal;
+
+        auto combatant_selected = -1;
+
+        auto SelectX = 0;
+
+        auto SelectY = 0;
+
         if (window && renderer && TacticalMap.SizeX > 0 && TacticalMap.SizeY > 0)
         {
             while (!done)
@@ -81,11 +110,15 @@ namespace Interface
 
                 auto controls = std::vector<Button>();
 
-                controls.push_back(Button(0, "icons/up.png", 1, 2, 0, 5 + (SizeX / 2), (SCREEN_WIDTH - ObjectSize) / 2, DrawY - ObjectSize - 2 * border_space, MapY > 0 ? intLB : intGR, Control::Type::MAP_UP));
-                controls.push_back(Button(1, "icons/left.png", 1, 5 + (SizeY / 2 * SizeX) - SizeX, 0, 3, DrawX - (ObjectSize + 2 * border_space), (SCREEN_HEIGHT - ObjectSize) / 2, MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
-                controls.push_back(Button(2, "icons/right.png", 4 + (SizeX * SizeY / 2), 2, 0, 3, DrawX + (SizeX * ObjectSize + 2 * border_space), (SCREEN_HEIGHT - ObjectSize) / 2, (MapX < TacticalMap.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
-                controls.push_back(Button(3, "icons/down.png", 1, 2, 4 + (SizeX * SizeY) - SizeX / 2, 4, (SCREEN_WIDTH - ObjectSize) / 2, DrawY + (SizeY * ObjectSize + 2 * border_space), (MapY < TacticalMap.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
-                controls.push_back(Button(4, "icons/back-button.png", 3, 4, 3, 4, lastx, buttony, intGR, Control::Type::BACK));
+                auto MapButtonsX = DrawX - (ObjectSize + 5 * border_space);
+                auto MapButtonsY = DrawY + border_space;
+                auto MapButtonsGridSize = (SizeY * ObjectSize - border_space) / 4;
+
+                controls.push_back(Button(0, "icons/up.png", 0, 5, 0, 1, MapButtonsX, MapButtonsY, MapY > 0 ? intLB : intGR, Control::Type::MAP_UP));
+                controls.push_back(Button(1, "icons/left.png", 1, 5 + (SizeY / 2 * SizeX) - SizeX, 0, 2, MapButtonsX, MapButtonsY + MapButtonsGridSize + border_space, MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
+                controls.push_back(Button(2, "icons/right.png", 2, 5 + (SizeY / 2 * SizeX), 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + border_space), (MapX < TacticalMap.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
+                controls.push_back(Button(3, "icons/down.png", 3, 5 + (SizeX * (SizeY - 1)), 2, 4, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + border_space), (MapY < TacticalMap.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
+                controls.push_back(Button(4, "icons/back-button.png", 3, 4, 3, 4, lastx, buttony, intLB, Control::Type::BACK));
 
                 int num_controls = controls.size();
 
@@ -109,18 +142,10 @@ namespace Interface
                         {
                             ctrl_up = num_controls - SizeX;
                         }
-                        else
-                        {
-                            ctrl_up = 0;
-                        }
 
                         if (ctrl_y < SizeY - 1)
                         {
                             ctrl_dn = num_controls + SizeX;
-                        }
-                        else
-                        {
-                            ctrl_dn = 3;
                         }
 
                         if (ctrl_x > 0)
@@ -129,16 +154,33 @@ namespace Interface
                         }
                         else
                         {
-                            ctrl_lt = 1;
+                            if (ctrl_y < SizeY / 2)
+                            {
+                                if (ctrl_y == 0)
+                                {
+                                    ctrl_lt = 0;
+                                }
+                                else
+                                {
+                                    ctrl_lt = 1;
+                                }
+                            }
+                            else
+                            {
+                                if (ctrl_y == SizeY - 1)
+                                {
+                                    ctrl_lt = 3;
+                                }
+                                else
+                                {
+                                    ctrl_lt = 2;
+                                }
+                            }
                         }
 
                         if (ctrl_x < SizeX - 1)
                         {
                             ctrl_rt = num_controls + 1;
-                        }
-                        else
-                        {
-                            ctrl_rt = 2;
                         }
 
                         auto AssetX = DrawX + (x - MapX) * ObjectSize;
@@ -149,27 +191,34 @@ namespace Interface
 
                         if (object == TacticalMap::Object::Wall)
                         {
-                            controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::Wall), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intDB, Control::Type::NONE));
+                            controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::Wall), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intYW, Control::Type::NONE));
                         }
                         else if (object == TacticalMap::Object::Player)
                         {
                             if (party.Members[objectID].Class == Character::Class::Warrior)
                             {
-                                controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::Warrior), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intDB, Control::Type::WARRIOR));
+                                controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::Warrior), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intYW, Control::Type::PLAYER));
                             }
                         }
                         else if (object == TacticalMap::Object::HotCoals)
                         {
-                            controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::HotCoals), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intDB, Control::Type::NONE));
+                            controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::HotCoals), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intYW, Control::Type::NONE));
                         }
                         else
                         {
-                            controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::Passable), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intDB, Control::Type::NONE));
+                            controls.push_back(Button(num_controls, Graphics::GetAsset(Graphics::AssetType::Passable), ctrl_lt, ctrl_rt, ctrl_up, ctrl_dn, AssetX, AssetY, intYW, Control::Type::DESTINATION));
                         }
 
                         num_controls++;
                     }
                 }
+
+                if (combatant_selected >= 0 && combatant_selected < Sequence.size())
+                {
+                    // Render statistics for currently selected / highlighted player or monster
+                }
+
+                Graphics::FillRect(renderer, SizeX * ObjectSize + 4 * border_space, SizeY * ObjectSize + 4 * border_space, DrawX - 2 * border_space, DrawY - 2 * border_space, intBK);
 
                 Graphics::RenderButtons(renderer, controls, current, border_space, border_pts);
 
@@ -198,6 +247,43 @@ namespace Interface
                     else if (controls[current].Type == Control::Type::MAP_RIGHT && !hold)
                     {
                         MapX++;
+                    }
+                    else if (controls[current].Type == Control::Type::PLAYER && !hold)
+                    {
+                        if (current_mode == Combat::Mode::Normal)
+                        {
+                        }
+                    }
+                    else if (controls[current].Type == Control::Type::DESTINATION && !hold)
+                    {
+                        if (current_mode == Combat::Mode::Normal)
+                        {
+                        }
+                    }
+                }
+
+                if (current >= 0 && current < controls.size())
+                {
+                    auto control_type = controls[current].Type;
+
+                    if (control_type == Control::Type::PLAYER || control_type == Control::Type::MONSTER || control_type == Control::Type::DESTINATION)
+                    {
+                        SelectX = MapX + (controls[current].X - DrawX) / ObjectSize;
+                        
+                        SelectY = MapY + (controls[current].Y - DrawY) / ObjectSize;
+
+                        if (current_mode == Combat::Mode::Move && control_type == Control::Type::DESTINATION)
+                        {
+
+                        }
+                        else if (current_mode == Combat::Mode::Attack && control_type == Control::Type::MONSTER)
+                        {
+
+                        }
+                        else if (current_mode == Combat::Mode::Magic && control_type == Control::Type::MONSTER)
+                        {
+                            
+                        }
                     }
                 }
             }

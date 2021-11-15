@@ -7,13 +7,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <tuple>
 #include <vector>
-#include <filesystem>
 
 namespace fs = std::filesystem;
 
@@ -43,6 +44,7 @@ namespace fs = std::filesystem;
 #include "party.hpp"
 #include "random.hpp"
 #include "spell.hpp"
+
 #include "tactical_map.hpp"
 
 #include "engine.hpp"

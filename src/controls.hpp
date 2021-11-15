@@ -21,7 +21,9 @@ namespace Control
         MAP_RIGHT,
         BACK,
         EXIT,
-        WARRIOR
+        PLAYER,
+        MONSTER,
+        DESTINATION
     };
 
     class Base

@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "monster.hpp"
 #include "party.hpp"
 
 namespace TacticalMap
@@ -140,18 +141,6 @@ namespace TacticalMap
                 Initialize(sizex, sizey);
 
                 Convert(map, party, monsters);
-            }
-        }
-
-        TacticalMap::Object Object(int X, int Y)
-        {
-            if (X >= 0 && X < SizeX && Y >= 0 && Y < SizeY)
-            {
-                return Objects[Y][X];
-            }
-            else
-            {
-                return TacticalMap::Object::None;
             }
         }
     };
