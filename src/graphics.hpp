@@ -35,7 +35,7 @@ namespace Graphics
     void FillWindow(SDL_Renderer *renderer, Uint32 color);
     void PutText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
     void PutTextBox(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
-    void RenderCaption(SDL_Renderer *renderer, Button &control);
+    void RenderCaption(SDL_Renderer *renderer, Button &control, SDL_Color color, Uint32 bg);
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y);
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset);
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset);
@@ -269,7 +269,7 @@ namespace Graphics
         }
     }
 
-    void RenderCaption(SDL_Renderer *renderer, Button &control)
+    void RenderCaption(SDL_Renderer *renderer, Button &control, SDL_Color color, Uint32 bg)
     {
         auto caption_size = TTF_FontHeight(Fonts::Caption);
         auto captiony = control.Y + control.H + border_space;
@@ -312,7 +312,7 @@ namespace Graphics
 
         if (caption.length() > 0)
         {
-            Graphics::PutText(renderer, caption.c_str(), Fonts::Caption, border_pts, clrDB, intWH, TTF_STYLE_NORMAL, textwidth, caption_size, captionx, captiony);
+            Graphics::PutText(renderer, caption.c_str(), Fonts::Caption, border_pts, color, bg, TTF_STYLE_NORMAL, textwidth, caption_size, captionx, captiony);
         }
     }
 

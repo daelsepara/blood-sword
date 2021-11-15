@@ -18,11 +18,12 @@ namespace Combat
     enum class Mode
     {
         Normal = 0,
-        Move,   // Selecting destination
-        Attack, // Selecting attack target
-        Shoot,  // Selecting a target for a ranged attack
-        Magic,  // Selecting magic target
-        Heal    // Selecting a to heal
+        Animation, // Animation
+        Move,      // Selecting destination
+        Attack,    // Selecting attack target
+        Shoot,     // Selecting a target for a ranged attack
+        Magic,     // Selecting magic target
+        Heal       // Selecting a to heal
     };
 }
 #endif

@@ -255,15 +255,15 @@ public:
         Color = src.Color;
         Highlight = src.Highlight;
 
-        if (Surface)
-        {
-            SDL_FreeSurface(Surface);
-
-            Surface = NULL;
-        }
-
         if (src.Surface)
         {
+            if (Surface)
+            {
+                SDL_FreeSurface(Surface);
+
+                Surface = NULL;
+            }
+
             Surface = convert(src);
         }
     }
@@ -288,13 +288,15 @@ public:
             Color = src.Color;
             Highlight = src.Highlight;
 
-            if (Surface)
-            {
-                Surface = NULL;
-            }
-
             if (src.Surface)
             {
+                if (Surface)
+                {
+                    SDL_FreeSurface(Surface);
+
+                    Surface = NULL;
+                }
+
                 Surface = convert(src);
             }
         }

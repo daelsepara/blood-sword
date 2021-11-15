@@ -13,7 +13,7 @@ namespace Fonts
     void Initialize()
     {
         Caption = TTF_OpenFont(FONT_BOOKMAN, 22);
-        Normal = TTF_OpenFont(FONT_BOOKMAN, 32);
+        Normal = TTF_OpenFont(FONT_BOOKMAN, 24);
     }
 
     void Free()
