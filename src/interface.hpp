@@ -82,6 +82,8 @@ namespace Interface
 
         auto SelectY = 0;
 
+        auto current_combatant = 0;
+
         if (window && renderer && TacticalMap.SizeX > 0 && TacticalMap.SizeY > 0)
         {
             while (!done)
@@ -222,65 +224,78 @@ namespace Interface
 
                 Graphics::RenderButtons(renderer, controls, current, border_space, border_pts);
 
-                Input::GetInput(renderer, controls, current, selected, scroll_up, scroll_down, hold);
-
-                if ((selected && current >= 0 && current < controls.size()) || scroll_up || scroll_down || hold)
+                if (std::get<0>(Sequence[current_combatant]) == TacticalMap::Object::Player)
                 {
-                    if (controls[current].Type == Control::Type::BACK && !hold)
-                    {
-                        current = -1;
+                    Input::GetInput(renderer, controls, current, selected, scroll_up, scroll_down, hold);
 
-                        done = true;
-                    }
-                    else if (controls[current].Type == Control::Type::MAP_UP && !hold)
+                    if ((selected && current >= 0 && current < controls.size()) || scroll_up || scroll_down || hold)
                     {
-                        MapY--;
-                    }
-                    else if (controls[current].Type == Control::Type::MAP_DOWN && !hold)
-                    {
-                        MapY++;
-                    }
-                    else if (controls[current].Type == Control::Type::MAP_LEFT && !hold)
-                    {
-                        MapX--;
-                    }
-                    else if (controls[current].Type == Control::Type::MAP_RIGHT && !hold)
-                    {
-                        MapX++;
-                    }
-                    else if (controls[current].Type == Control::Type::PLAYER && !hold)
-                    {
-                        if (current_mode == Combat::Mode::Normal)
+                        if (controls[current].Type == Control::Type::BACK && !hold)
                         {
+                            current = -1;
+
+                            done = true;
+                        }
+                        else if (controls[current].Type == Control::Type::MAP_UP && !hold)
+                        {
+                            MapY--;
+                        }
+                        else if (controls[current].Type == Control::Type::MAP_DOWN && !hold)
+                        {
+                            MapY++;
+                        }
+                        else if (controls[current].Type == Control::Type::MAP_LEFT && !hold)
+                        {
+                            MapX--;
+                        }
+                        else if (controls[current].Type == Control::Type::MAP_RIGHT && !hold)
+                        {
+                            MapX++;
+                        }
+                        else if (controls[current].Type == Control::Type::PLAYER && !hold)
+                        {
+                            if (current_mode == Combat::Mode::Normal)
+                            {
+                            }
+                        }
+                        else if (controls[current].Type == Control::Type::DESTINATION && !hold)
+                        {
+                            if (current_mode == Combat::Mode::Normal)
+                            {
+                            }
                         }
                     }
-                    else if (controls[current].Type == Control::Type::DESTINATION && !hold)
+
+                    if (current >= 0 && current < controls.size())
                     {
-                        if (current_mode == Combat::Mode::Normal)
+                        auto control_type = controls[current].Type;
+
+                        if (control_type == Control::Type::PLAYER || control_type == Control::Type::MONSTER || control_type == Control::Type::DESTINATION)
                         {
+                            SelectX = MapX + (controls[current].X - DrawX) / ObjectSize;
+
+                            SelectY = MapY + (controls[current].Y - DrawY) / ObjectSize;
+
+                            if (current_mode == Combat::Mode::Move && control_type == Control::Type::DESTINATION)
+                            {
+                            }
+                            else if (current_mode == Combat::Mode::Attack && control_type == Control::Type::MONSTER)
+                            {
+                            }
+                            else if (current_mode == Combat::Mode::Magic && control_type == Control::Type::MONSTER)
+                            {
+                            }
                         }
                     }
                 }
-
-                if (current >= 0 && current < controls.size())
+                else if (std::get<0>(Sequence[current_combatant]) == TacticalMap::Object::Monster)
                 {
-                    auto control_type = controls[current].Type;
+                    // Do Monster Actions
+                    current_combatant++;
 
-                    if (control_type == Control::Type::PLAYER || control_type == Control::Type::MONSTER || control_type == Control::Type::DESTINATION)
+                    if (current_combatant >= Sequence.size())
                     {
-                        SelectX = MapX + (controls[current].X - DrawX) / ObjectSize;
-
-                        SelectY = MapY + (controls[current].Y - DrawY) / ObjectSize;
-
-                        if (current_mode == Combat::Mode::Move && control_type == Control::Type::DESTINATION)
-                        {
-                        }
-                        else if (current_mode == Combat::Mode::Attack && control_type == Control::Type::MONSTER)
-                        {
-                        }
-                        else if (current_mode == Combat::Mode::Magic && control_type == Control::Type::MONSTER)
-                        {
-                        }
+                        current_combatant = 0;
                     }
                 }
             }
