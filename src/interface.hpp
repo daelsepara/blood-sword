@@ -490,7 +490,7 @@ namespace Interface
 
                     Find(TacticalMap, std::get<0>(Sequence[SelectedCombatant]), std::get<1>(Sequence[SelectedCombatant]) + 1, SelectedX, SelectedY);
 
-                    if (SelectedX - MapX >= 0 && SelectedX < SizeX && SelectedY - MapY >= 0 && SelectedY < SizeY)
+                    if ((SelectedX - MapX) >= 0 && (SelectedX - MapX) < SizeX && (SelectedY - MapY) >= 0 && (SelectedY - MapY) < SizeY)
                     {
                         Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + (SelectedX - MapX) * ObjectSize + 2 * border_pts, DrawY + (SelectedY - MapY) * ObjectSize + 2 * border_pts, intYW, border_pts);
                     }
