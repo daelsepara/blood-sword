@@ -21,11 +21,11 @@ namespace Character
     };
 
     std::map<Character::Class, const char *> Description = {
-        {Class::None, "Unknown"},
-        {Class::Warrior, "Warrior"},
-        {Class::Trickster, "Trickster"},
-        {Class::Trickster, "Sage"},
-        {Class::Trickster, "Enchanter"}};
+        {Class::None, "UNKNOWN"},
+        {Class::Warrior, "WARRIOR"},
+        {Class::Trickster, "TRICKSTER"},
+        {Class::Sage, "SAGE"},
+        {Class::Enchanter, "ENCHANTER"}};
 
     class Base
     {

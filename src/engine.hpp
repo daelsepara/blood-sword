@@ -115,5 +115,21 @@ namespace Engine
             }
         }
     }
+
+    int Armour(Character::Base &character)
+    {
+        auto armour = 0;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            if (character.Equipment[i].Type == Equipment::Type::Armour && character.Equipment[i].Rating > armour)
+            {
+                armour = character.Equipment[i].Rating;
+            }
+        }
+
+        return armour;
+    }
+
 }
 #endif

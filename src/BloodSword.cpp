@@ -20,12 +20,14 @@ int main(int argc, const char **argv)
 
     if (window && renderer)
     {
-        // Main Screen
+        // Setup party, monsters, and map
         auto party = Party::Base();
+
+        party.Members.push_back(Character::Create(Character::Class::Warrior, 8));
 
         auto monsters = std::vector<Monster::Base>();
 
-        party.Members.push_back(Character::Create(Character::Class::Warrior, 8));
+        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN", 8, 5, 7, 12, 1, 2, 1));
 
         std::vector<std::string> map = {
             "#############",
@@ -34,7 +36,7 @@ int main(int argc, const char **argv)
             "#           #",
             "#  %######  #",
             "#  %#    #  #",
-            "#        #  #",
+            "#        # A#",
             "#############"};
 
         Graphics::LoadMapAssets("assets.json");

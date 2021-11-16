@@ -18,8 +18,6 @@ namespace Monster
         
         std::string Name = "";
 
-        std::string Image = "";
-
         int FightingProwess = 0;
 
         int PsychicAbility = 0;
@@ -32,18 +30,18 @@ namespace Monster
 
         int DamageModifier = 0;
 
+        int Armour = 0;
+
         Base()
         {
 
         }
 
-        Base(Monster::Type type, const char *name, const char *image, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier)
+        Base(Monster::Type type, const char *name, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier, int armour)
         {
             Type = type;
 
             Name = name;
-
-            Image = image;
 
             FightingProwess = fightingProwess;
 
@@ -56,6 +54,8 @@ namespace Monster
             Damage = damage;
 
             DamageModifier = damageModifier;
+
+            Armour = armour;
         }
     };
 }

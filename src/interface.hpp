@@ -9,6 +9,7 @@ namespace Interface
 {
     // (Player/Monster, Id, Awareness)
     typedef std::tuple<TacticalMap::Object, int, int> Combatants;
+    typedef std::tuple<int, int, int> Targets;
 
     bool ValidX(TacticalMap::Base &Map, int x)
     {
@@ -80,7 +81,7 @@ namespace Interface
 
         for (auto i = 0; i < Sequence.size(); i++)
         {
-            if (std::get<0>(Sequence[i]) == TacticalMap::Object::Player && std::get<1>(Sequence[i]) == id)
+            if (std::get<0>(Sequence[i]) == object && std::get<1>(Sequence[i]) == id)
             {
                 found = i;
 
@@ -198,20 +199,40 @@ namespace Interface
         // Sort combatants based on Awareness
         for (auto i = 0; i < party.Members.size(); i++)
         {
-            auto awareness = Engine::Score(party.Members[i], Attributes::Type::Awareness);
+            auto Awareness = Engine::Score(party.Members[i], Attributes::Type::Awareness);
 
-            Sequence.push_back(std::make_tuple(TacticalMap::Object::Player, i, awareness));
+            Sequence.push_back(std::make_tuple(TacticalMap::Object::Player, i, Awareness));
         }
 
         for (auto i = 0; i < monsters.size(); i++)
         {
-            auto awareness = monsters[i].Awareness;
+            auto Awareness = monsters[i].Awareness;
 
-            Sequence.push_back(std::make_tuple(TacticalMap::Object::Monster, i, awareness));
+            Sequence.push_back(std::make_tuple(TacticalMap::Object::Monster, i, Awareness));
         }
 
         std::sort(Sequence.begin(), Sequence.end(), [](Combatants &a, Combatants &b) -> bool
-                  { return std::get<2>(a) > std::get<2>(b); });
+                  {
+                      if (std::get<2>(a) > std::get<2>(b))
+                      {
+                          return true;
+                      }
+                      else if (std::get<2>(a) == std::get<2>(b))
+                      {
+                          if (std::get<0>(a) == TacticalMap::Object::Player && std::get<0>(b) == TacticalMap::Object::Monster)
+                          {
+                              return true;
+                          }
+                          else
+                          {
+                              return false;
+                          }
+                      }
+                      else
+                      {
+                          return false;
+                      }
+                  });
 
         auto CurrentMode = Combat::Mode::Normal;
 
@@ -246,10 +267,14 @@ namespace Interface
             CurrentX = -1;
 
             CurrentY = -1;
+
+            SelectedCombatant = -1;
         };
 
         auto CycleCombatants = [&]()
         {
+            CurrentCombatant++;
+
             if (CurrentCombatant >= Sequence.size())
             {
                 CurrentCombatant = 0;
@@ -263,6 +288,8 @@ namespace Interface
         auto TextX = DrawX;
 
         auto TextR = DrawX + (ObjectSize * SizeX + border_space);
+
+        auto TextWidthR = SCREEN_WIDTH - TextR;
 
         auto TextY = DrawY - 3 * border_space - FontSize;
 
@@ -439,6 +466,13 @@ namespace Interface
                         {
                             Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MAP_NONE));
                         }
+                        else if (Object == TacticalMap::Object::Monster)
+                        {
+                            if (monsters[ObjectId].Type == Monster::Type::Barbarian)
+                            {
+                                Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::Barbarian), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MONSTER));
+                            }
+                        }
                         else
                         {
                             Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::DESTINATION));
@@ -457,10 +491,38 @@ namespace Interface
                     {
                         auto PlayerId = std::get<1>(Combatant);
 
-                        Graphics::PutText(renderer, Character::Description[party.Members[PlayerId].Class], Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY);
+                        auto FightingProwess = Engine::Score(party.Members[PlayerId], Attributes::Type::FightingProwess);
+                        auto PsychicAbility = Engine::Score(party.Members[PlayerId], Attributes::Type::PsychicAbility);
+                        auto Awareness = Engine::Score(party.Members[PlayerId], Attributes::Type::Awareness);
+                        auto Endurance = Engine::Score(party.Members[PlayerId], Attributes::Type::Endurance);
+                        auto Armour = Engine::Armour(party.Members[PlayerId]);
+
+                        Graphics::PutText(renderer, Character::Description[party.Members[PlayerId].Class], Fonts::Fixed, 0, clrLB, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY);
+                        Graphics::PutText(renderer, std::string("RNK: " + std::to_string(party.Members[PlayerId].Rank)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("FP: " + std::to_string(FightingProwess)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 2 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("PA: " + std::to_string(PsychicAbility)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 3 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("AW: " + std::to_string(Awareness)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 4 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("EN: " + std::to_string(Endurance)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 5 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("AR: " + std::to_string(Armour)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 6 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("DM: " + std::to_string(party.Members[PlayerId].Damage) + "D+" + std::to_string(party.Members[PlayerId].DamageModifier)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 7 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("XP: " + std::to_string(party.Members[PlayerId].ExperiencePoints)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 8 * (FontSize + 2));
+
+                        if (party.Members[PlayerId].IsDefending)
+                        {
+                            Graphics::PutText(renderer, "DEFENDING", Fonts::Fixed, 0, clrLG, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 9 * (FontSize + 2));
+                        }
                     }
                     else if (std::get<0>(Combatant) == TacticalMap::Object::Monster)
                     {
+                        auto MonsterId = std::get<1>(Combatant);
+
+                        Graphics::PutText(renderer, monsters[MonsterId].Name.c_str(), Fonts::Fixed, 0, clrRD, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY);
+                        Graphics::PutText(renderer, std::string("FP: " + std::to_string(monsters[MonsterId].FightingProwess)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("PA: " + std::to_string(monsters[MonsterId].PsychicAbility)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 2 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("AW: " + std::to_string(monsters[MonsterId].Awareness)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + +3 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("EN: " + std::to_string(monsters[MonsterId].Endurance)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + +4 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("AR: " + std::to_string(monsters[MonsterId].Armour)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + +5 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("DM: " + std::to_string(monsters[MonsterId].Damage) + "D+" + std::to_string(monsters[MonsterId].DamageModifier)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 6 * (FontSize + 2));
                     }
                 }
 
@@ -471,7 +533,7 @@ namespace Interface
 
                 Graphics::RenderButtons(renderer, Controls, current, border_space, border_pts);
 
-                if (CurrentCombatant == SelectedCombatant)
+                if (SelectedCombatant >= 0 && SelectedCombatant < Sequence.size())
                 {
                     auto SelectedX = 0;
 
@@ -515,6 +577,23 @@ namespace Interface
 
                             if (TargetX >= 0 && TargetX < SizeX && TargetY >= 0 && TargetY < SizeY)
                             {
+                                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+                                Uint32 Color = ((intYW & ((Uint32)0x00FFFFFF)) | ((Uint32)0x66000000));
+
+                                for (auto i = CurrentMove[PlayerId]; i < CurrentPath[PlayerId].Points.size(); i++)
+                                {
+                                    auto X = CurrentPath[PlayerId].Points[i].X - MapX;
+                                    auto Y = CurrentPath[PlayerId].Points[i].Y - MapY;
+
+                                    if (X >= 0 && X < SizeX && Y >= 0 && Y < SizeY)
+                                    {
+                                        Graphics::FillRect(renderer, ObjectSize, ObjectSize, DrawX + X * ObjectSize, DrawY + Y * ObjectSize, Color);
+                                    }
+                                }
+
+                                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+
                                 Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + TargetX * ObjectSize + 2 * border_pts, DrawY + TargetY * ObjectSize + 2 * border_pts, intYW, border_pts);
                             }
                         }
@@ -607,7 +686,16 @@ namespace Interface
                                 {
                                     if (TacticalMap.Objects[SelectY][SelectX] == TacticalMap::Object::Player)
                                     {
-                                        SelectedCombatant = Find(Sequence, TacticalMap::Object::Player, TacticalMap.ObjectID[SelectY][SelectX] - 1);
+                                        auto result = Find(Sequence, TacticalMap::Object::Player, TacticalMap.ObjectID[SelectY][SelectX] - 1);
+
+                                        if (result != SelectedCombatant)
+                                        {
+                                            SelectedCombatant = result;
+                                        }
+                                        else
+                                        {
+                                            ResetSelection();
+                                        }
                                     }
                                     else
                                     {
@@ -723,6 +811,44 @@ namespace Interface
                                 }
                             }
                         }
+                        else if (Controls[current].Type == Control::Type::MONSTER && !hold)
+                        {
+                            if (CurrentMode == Combat::Mode::Normal)
+                            {
+                                SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
+
+                                SelectY = MapY + (Controls[current].Y - DrawY) / ObjectSize;
+
+                                if (ValidX(TacticalMap, SelectX) && ValidY(TacticalMap, SelectY))
+                                {
+                                    if (TacticalMap.Objects[SelectY][SelectX] == TacticalMap::Object::Monster)
+                                    {
+                                        auto result = Find(Sequence, TacticalMap::Object::Monster, TacticalMap.ObjectID[SelectY][SelectX] - 1);
+
+                                        if (result != SelectedCombatant)
+                                        {
+                                            SelectedCombatant = result;
+                                        }
+                                        else
+                                        {
+                                            ResetSelection();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        ResetSelection();
+                                    }
+                                }
+                                else
+                                {
+                                    ResetSelection();
+                                }
+                            }
+                            else if (CurrentMode == Combat::Mode::Move)
+                            {
+                                DisplayMessage("You cannot move there!", intRD);
+                            }
+                        }
                         else if (Controls[current].Type == Control::Type::MAP_NONE && !hold)
                         {
                             if (CurrentMode == Combat::Mode::Normal)
@@ -738,7 +864,83 @@ namespace Interface
                 }
                 else if (std::get<0>(Sequence[CurrentCombatant]) == TacticalMap::Object::Monster)
                 {
+                    // PlayerId, Distance, Endurance
+                    std::vector<Targets> Distances = {};
+
+                    auto MonsterX = 0;
+
+                    auto MonsterY = 0;
+
+                    auto MonsterId = std::get<1>(Sequence[CurrentCombatant]);
+
+                    Find(TacticalMap, TacticalMap::Object::Monster, MonsterId + 1, MonsterX, MonsterY);
+
                     // Do Monster Actions
+                    for (auto i = 0; i < party.Members.size(); i++)
+                    {
+                        auto Endurance = Engine::Score(party.Members[i], Attributes::Type::Endurance);
+
+                        auto LocationX = 0;
+
+                        auto LocationY = 0;
+
+                        Find(TacticalMap, TacticalMap::Object::Player, i + 1, LocationX, LocationY);
+
+                        if (Endurance > 0 && !party.Members[i].Escaped)
+                        {
+                            Distances.push_back(std::make_tuple(i, Distance(MonsterX, MonsterY, LocationX, LocationY), Endurance));
+                        }
+                    }
+
+                    if (Distances.size() > 0)
+                    {
+                        // sort players based on distance and endurance
+                        std::sort(Distances.begin(), Distances.end(), [](Targets &a, Targets &b) -> bool
+                                  {
+                                      if (std::get<1>(a) < std::get<1>(b))
+                                      {
+                                          return true;
+                                      }
+                                      else if (std::get<1>(a) == std::get<1>(b))
+                                      {
+                                          if (std::get<2>(a) < std::get<2>(b))
+                                          {
+                                              return true;
+                                          }
+                                          else
+                                          {
+                                              return false;
+                                          }
+                                      }
+                                      else
+                                      {
+                                          return false;
+                                      }
+                                  });
+
+                        auto NearestPlayer = Distances.front();
+
+                        if (std::get<1>(NearestPlayer) <= 1)
+                        {
+                            // Do Attack
+                        }
+                        else
+                        {
+                            // Close distance
+                            auto LocationX = 0;
+
+                            auto LocationY = 0;
+
+                            Find(TacticalMap, TacticalMap::Object::Player, std::get<0>(NearestPlayer) + 1, LocationX, LocationY);
+
+                            auto MonsterPath = AStar::FindPath(TacticalMap, MonsterX, MonsterY, LocationX, LocationY);
+
+                            if (MonsterPath.Points.size() > 2)
+                            {
+                                Move(TacticalMap, MonsterX, MonsterY, MonsterPath.Points[1].X, MonsterPath.Points[1].Y);
+                            }
+                        }
+                    }
 
                     CycleCombatants();
                 }

@@ -129,12 +129,14 @@ namespace Graphics
         rect.y = y;
 
         SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
+        
         SDL_RenderFillRect(renderer, &rect);
     }
 
     void FillWindow(SDL_Renderer *renderer, Uint32 color)
     {
         SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
+        
         SDL_RenderClear(renderer);
     }
 
@@ -178,7 +180,7 @@ namespace Graphics
                     }
                     else
                     {
-                        Graphics::RenderText(renderer, surface, 0, x + (w - surface->w) / 2, y + (h - surface->h) / 2, height, 0);
+                        Graphics::RenderText(renderer, surface, 0, x, y, height, 0);
                     }
                 }
 

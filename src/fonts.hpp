@@ -9,11 +9,15 @@ namespace Fonts
 {
     TTF_Font *Caption = NULL;
     TTF_Font *Normal = NULL;
+    TTF_Font *Fixed = NULL;
 
     void Initialize()
     {
         Caption = TTF_OpenFont(FONT_BOOKMAN, 22);
         Normal = TTF_OpenFont(FONT_BOOKMAN, 24);
+        Fixed = TTF_OpenFont(FONT_BOOKMAN, 24);
+
+        TTF_SetFontKerning(Fixed, 0);
     }
 
     void Free()
@@ -30,6 +34,13 @@ namespace Fonts
             TTF_CloseFont(Normal);
 
             Normal = NULL;
+        }
+
+        if (Fixed)
+        {
+            TTF_CloseFont(Fixed);
+
+            Fixed = NULL;
         }
     }
 }

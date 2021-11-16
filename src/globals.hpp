@@ -16,6 +16,7 @@ const SDL_Color clrLY = {247, 237, 7, 0};
 const SDL_Color clrMG = {191, 0, 191, 0};
 const SDL_Color clrLM = {255, 0, 255, 0};
 const SDL_Color clrBR = {132, 85, 62, 0};
+const SDL_Color clrRD = {255, 0, 0, 0};
 
 const Uint32 intBK = 0x00000000;
 const Uint32 intRD = 0xFFFF0000;
