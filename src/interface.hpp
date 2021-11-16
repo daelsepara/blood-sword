@@ -262,6 +262,8 @@ namespace Interface
 
         auto TextX = DrawX;
 
+        auto TextR = DrawX + (ObjectSize * SizeX + border_space);
+
         auto TextY = DrawY - 3 * border_space - FontSize;
 
         auto TextWidth = TacticalMap.SizeX * ObjectSize;
@@ -410,7 +412,7 @@ namespace Interface
 
                         if (Object == TacticalMap::Object::Wall)
                         {
-                            Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::NONE));
+                            Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MAP_NONE));
                         }
                         else if (Object == TacticalMap::Object::Player)
                         {
@@ -435,7 +437,7 @@ namespace Interface
                         }
                         else if (Object == TacticalMap::Object::HotCoals)
                         {
-                            Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::NONE));
+                            Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MAP_NONE));
                         }
                         else
                         {
@@ -448,7 +450,18 @@ namespace Interface
 
                 if (SelectedCombatant >= 0 && SelectedCombatant < Sequence.size())
                 {
+                    auto Combatant = Sequence[SelectedCombatant];
+
                     // Render statistics for currently selected / highlighted player or monster
+                    if (std::get<0>(Combatant) == TacticalMap::Object::Player)
+                    {
+                        auto PlayerId = std::get<1>(Combatant);
+
+                        Graphics::PutText(renderer, Character::Description[party.Members[PlayerId].Class], Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY);
+                    }
+                    else if (std::get<0>(Combatant) == TacticalMap::Object::Monster)
+                    {
+                    }
                 }
 
                 if (current >= 0 && current < Controls.size())
@@ -525,6 +538,18 @@ namespace Interface
                     else if (CurrentMode == Combat::Mode::Magic && control_type == Control::Type::MONSTER)
                     {
                         Graphics::PutText(renderer, "Cast a spell against opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                    }
+                    else if ((control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION) && (SelectedCombatant < 0 || SelectedCombatant > Sequence.size()))
+                    {
+                        SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
+
+                        SelectY = MapY + (Controls[current].Y - DrawY) / ObjectSize;
+
+                        std::string Coordinates = "(" + std::to_string(SelectX) + ", " + std::to_string(SelectY) + ")";
+
+                        Graphics::PutText(renderer, Coordinates.c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY);
+
+                        Graphics::PutText(renderer, TacticalMap::Description[TacticalMap.Objects[SelectY][SelectX]], Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY + (FontSize + text_space));
                     }
                 }
 
@@ -698,7 +723,7 @@ namespace Interface
                                 }
                             }
                         }
-                        else if (Controls[current].Type == Control::Type::NONE && !hold)
+                        else if (Controls[current].Type == Control::Type::MAP_NONE && !hold)
                         {
                             if (CurrentMode == Combat::Mode::Normal)
                             {

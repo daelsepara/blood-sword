@@ -2,7 +2,6 @@
 #define __TACTICAL_MAP_HPP__
 
 #include <map>
-
 #include <string>
 #include <vector>
 
@@ -31,6 +30,15 @@ namespace TacticalMap
         HotCoals,
         Monster
     };
+
+    std::map<TacticalMap::Object, const char *> Description = {
+        {TacticalMap::Object::None, "None"},
+        {TacticalMap::Object::Player, "Player"},
+        {TacticalMap::Object::Passable, "Passable"},
+        {TacticalMap::Object::Wall, "Wall"},
+        {TacticalMap::Object::Exit, "Exit"},
+        {TacticalMap::Object::HotCoals, "Hot Coals"},
+        {TacticalMap::Object::Monster, "Monster"}};
 
     class Base
     {

@@ -265,7 +265,7 @@ namespace Graphics
             {
                 auto fg = controls[highlight].Highlight;
 
-                auto map_object = (controls[highlight].Type == Control::Type::PLAYER || controls[highlight].Type == Control::Type::MONSTER || controls[highlight].Type == Control::Type::NONE || controls[highlight].Type == Control::Type::DESTINATION);
+                auto map_object = (controls[highlight].Type == Control::Type::PLAYER || controls[highlight].Type == Control::Type::MONSTER || controls[highlight].Type == Control::Type::MAP_NONE || controls[highlight].Type == Control::Type::DESTINATION);
 
                 if (map_object)
                 {

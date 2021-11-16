@@ -1,6 +1,7 @@
 #ifndef __CHARACTER_HPP__
 #define __CHARACTER_HPP__
 
+#include <map>
 #include <vector>
 
 #include "abilities.hpp"
@@ -18,6 +19,13 @@ namespace Character
         Sage,
         Enchanter
     };
+
+    std::map<Character::Class, const char *> Description = {
+        {Class::None, "Unknown"},
+        {Class::Warrior, "Warrior"},
+        {Class::Trickster, "Trickster"},
+        {Class::Trickster, "Sage"},
+        {Class::Trickster, "Enchanter"}};
 
     class Base
     {
@@ -53,7 +61,6 @@ namespace Character
 
         Base()
         {
-
         }
 
         Base(Character::Class character)

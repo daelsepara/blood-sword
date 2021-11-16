@@ -15,6 +15,7 @@ namespace Control
         ANY = 0,
         SCROLL_UP,
         SCROLL_DOWN,
+        MAP_NONE,
         MAP_UP,
         MAP_DOWN,
         MAP_LEFT,
