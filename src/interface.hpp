@@ -131,6 +131,39 @@ namespace Interface
         return std::abs(dstX - srcX) + std::abs(dstY - srcY);
     }
 
+    void RenderPath(SDL_Renderer *renderer, AStar::Path &CurrentPath, int CurrentMove, int SizeX, int SizeY, int MapX, int MapY, int DrawX, int DrawY, int ObjectSize, Uint32 c, Uint8 a)
+    {
+        if (CurrentMove > 0 && CurrentMove < CurrentPath.Points.size())
+        {
+            auto TargetX = CurrentPath.Points.back().X - MapX;
+
+            auto TargetY = CurrentPath.Points.back().Y - MapY;
+
+            if (TargetX >= 0 && TargetX < SizeX && TargetY >= 0 && TargetY < SizeY)
+            {
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+                Uint32 Color = O(c, a);
+
+                for (auto i = CurrentMove; i < CurrentPath.Points.size(); i++)
+                {
+                    auto X = CurrentPath.Points[i].X - MapX;
+                    
+                    auto Y = CurrentPath.Points[i].Y - MapY;
+
+                    if (X >= 0 && X < SizeX && Y >= 0 && Y < SizeY)
+                    {
+                        Graphics::FillRect(renderer, ObjectSize, ObjectSize, DrawX + X * ObjectSize, DrawY + Y * ObjectSize, Color);
+                    }
+                }
+
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+
+                Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + TargetX * ObjectSize + 2 * border_pts, DrawY + TargetY * ObjectSize + 2 * border_pts, c, border_pts);
+            }
+        }
+    }
+
     bool Combat(SDL_Window *window, SDL_Renderer *renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
     {
         auto flash_message = false;
@@ -576,35 +609,19 @@ namespace Interface
                     {
                         auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
 
+                        auto TargetX = -1;
+                        
+                        auto TargetY = -1;
+
                         if (CurrentMove[PlayerId] > 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
                         {
+                            TargetX = CurrentPath[PlayerId].Points.back().X - MapX;
+                            
+                            TargetY = CurrentPath[PlayerId].Points.back().Y - MapY;
+
                             Graphics::PutText(renderer, "Move to location or continue along current path", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
-                            auto TargetX = CurrentPath[PlayerId].Points.back().X - MapX;
-
-                            auto TargetY = CurrentPath[PlayerId].Points.back().Y - MapY;
-
-                            if (TargetX >= 0 && TargetX < SizeX && TargetY >= 0 && TargetY < SizeY)
-                            {
-                                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-                                Uint32 Color = O(intYW, 0x66);
-
-                                for (auto i = CurrentMove[PlayerId]; i < CurrentPath[PlayerId].Points.size(); i++)
-                                {
-                                    auto X = CurrentPath[PlayerId].Points[i].X - MapX;
-                                    auto Y = CurrentPath[PlayerId].Points[i].Y - MapY;
-
-                                    if (X >= 0 && X < SizeX && Y >= 0 && Y < SizeY)
-                                    {
-                                        Graphics::FillRect(renderer, ObjectSize, ObjectSize, DrawX + X * ObjectSize, DrawY + Y * ObjectSize, Color);
-                                    }
-                                }
-
-                                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-
-                                Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + TargetX * ObjectSize + 2 * border_pts, DrawY + TargetY * ObjectSize + 2 * border_pts, intYW, border_pts);
-                            }
+                            RenderPath(renderer, CurrentPath[PlayerId], CurrentMove[PlayerId], SizeX, SizeY, MapX, MapY, DrawX, DrawY, ObjectSize, intYW, 0x66);
                         }
                         else
                         {
@@ -622,6 +639,25 @@ namespace Interface
                             Graphics::PutText(renderer, Coordinates.c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY);
 
                             Graphics::PutText(renderer, TacticalMap::Description[TacticalMap.Objects[SelectY][SelectX]], Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY + (FontSize + text_space));
+
+                            if ((TargetX != SelectX || TargetY != SelectY) && control_type == Control::Type::DESTINATION)
+                            {
+                                auto PlayerX = -1;
+
+                                auto PlayerY = -1;
+                                
+                                Find(TacticalMap, TacticalMap::Object::Player, PlayerId + 1, PlayerX, PlayerY);
+
+                                if (ValidX(TacticalMap, PlayerX) && ValidY(TacticalMap, PlayerY) && Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
+                                {
+                                    auto TempPath = AStar::FindPath(TacticalMap, PlayerX, PlayerY, SelectX, SelectY);
+
+                                    if (TempPath.Points.size() > 2)
+                                    {
+                                        RenderPath(renderer, TempPath, 1, SizeX, SizeY, MapX, MapY, DrawX, DrawY, ObjectSize, intMG, 0x66);
+                                    }
+                                }
+                            }
                         }
                     }
                     else if (CurrentMode == Combat::Mode::Heal && control_type == Control::Type::PLAYER)
