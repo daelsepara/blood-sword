@@ -827,7 +827,11 @@ namespace Interface
                 {
                     if ((SDL_GetTicks() - start_ticks) < duration)
                     {
-                        Graphics::PutTextBox(renderer, message.c_str(), Fonts::Normal, -1, clrWH, flash_color, TTF_STYLE_NORMAL, MapSizeX / 2, infoh * 2, DrawX + (MapSizeX) / 4, DrawY + (MapSizeY - 2 * infoh) / 2);
+                        auto FlashW = 3 * MapSizeX / 5;
+                        
+                        auto FlashH = 2 * infoh;
+
+                        Graphics::PutTextBox(renderer, message.c_str(), Fonts::Normal, -1, clrWH, flash_color, TTF_STYLE_NORMAL, FlashW, infoh * 2, DrawX + (MapSizeX - FlashW) / 2, DrawY + (MapSizeY - FlashH) / 2);
                     }
                     else
                     {
