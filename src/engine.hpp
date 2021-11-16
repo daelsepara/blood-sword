@@ -131,5 +131,60 @@ namespace Engine
         return armour;
     }
 
+    bool IsAlive(Character::Base &character)
+    {
+        return (Engine::Score(character, Attributes::Type::Endurance) > 0);
+    }
+
+    bool IsAlive(Party::Base &party)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]))
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool Escaped(Party::Base &party)
+    {
+        auto result = true;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]) && !party.Members[i].Escaped)
+            {
+                result = false;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool IsAlive(std::vector<Monster::Base> &monsters)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < monsters.size(); i++)
+        {
+            if (monsters[i].Endurance > 0)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
 }
 #endif

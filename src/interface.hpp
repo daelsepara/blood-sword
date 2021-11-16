@@ -32,9 +32,11 @@ namespace Interface
                 if (Map.Objects[dstY][dstX] == TacticalMap::Object::Passable)
                 {
                     Map.Objects[dstY][dstX] = Map.Objects[srcY][srcX];
+
                     Map.ObjectID[dstY][dstX] = Map.ObjectID[srcY][srcX];
 
                     Map.Objects[srcY][srcX] = TacticalMap::Object::Passable;
+
                     Map.ObjectID[srcY][srcX] = 0;
 
                     result = true;
@@ -55,6 +57,7 @@ namespace Interface
                 }
 
                 Map.Objects[dstY][dstX] = Map.Objects[srcY][srcX];
+
                 Map.ObjectID[dstY][dstX] = Map.ObjectID[srcY][srcX];
 
                 if (HotCoals)
@@ -94,10 +97,11 @@ namespace Interface
 
     void Find(TacticalMap::Base &Map, TacticalMap::Object object, int id, int &LocationX, int &LocationY)
     {
-        LocationX = -1;
-        LocationY = -1;
-
         bool found = false;
+
+        LocationX = -1;
+
+        LocationY = -1;
 
         for (auto y = 0; y < Map.SizeY; y++)
         {
@@ -159,9 +163,9 @@ namespace Interface
 
         auto ObjectSize = 64;
 
-        auto PaddingX = 2 * startx + ObjectSize;
+        auto PaddingX = 2 * startx + 2 * ObjectSize;
 
-        auto PaddingY = 3 * starty + ObjectSize;
+        auto PaddingY = starty + ObjectSize;
 
         // size of viewable grid
         auto SizeX = (SCREEN_WIDTH - 2 * PaddingX) / ObjectSize;
@@ -179,9 +183,9 @@ namespace Interface
         }
 
         // map at the center of the screen
-        auto DrawX = (SCREEN_WIDTH - SizeX * ObjectSize) / 2;
+        auto DrawX = PaddingX / 2;
 
-        auto DrawY = (SCREEN_HEIGHT - SizeY * ObjectSize) / 2;
+        auto DrawY = ObjectSize;
 
         // player input
         auto hold = false;
@@ -328,7 +332,7 @@ namespace Interface
 
                 auto MapButtonsX = DrawX - (ObjectSize + 2 * border_space);
                 auto MapButtonsY = DrawY + border_space;
-                auto MapButtonsGridSize = (SizeY * ObjectSize - border_space) / 4;
+                auto MapButtonsGridSize = (ObjectSize + 2 * border_space) + ((SizeY * ObjectSize) - ((ObjectSize + 2 * border_space) * 4)) / 4;
 
                 auto ActionsX = DrawX;
                 auto ActionsY = DrawY + SizeY * ObjectSize + 4 * border_space;
@@ -339,9 +343,9 @@ namespace Interface
                 auto MidMapY = StartMap + (SizeY / 2 * SizeX) - SizeX;
 
                 Controls.push_back(Button(0, Graphics::GetAsset(Graphics::AssetType::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, MapY > 0 ? intLB : intGR, Control::Type::MAP_UP));
-                Controls.push_back(Button(1, Graphics::GetAsset(Graphics::AssetType::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + MapButtonsGridSize + border_space, MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
-                Controls.push_back(Button(2, Graphics::GetAsset(Graphics::AssetType::Right), 2, MidMapY + SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + border_space), (MapX < TacticalMap.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
-                Controls.push_back(Button(3, Graphics::GetAsset(Graphics::AssetType::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + border_space), (MapY < TacticalMap.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
+                Controls.push_back(Button(1, Graphics::GetAsset(Graphics::AssetType::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * border_space), MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
+                Controls.push_back(Button(2, Graphics::GetAsset(Graphics::AssetType::Right), 2, MidMapY + SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (MapX < TacticalMap.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
+                Controls.push_back(Button(3, Graphics::GetAsset(Graphics::AssetType::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (MapY < TacticalMap.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
                 Controls.push_back(Button(4, Graphics::GetAsset(Graphics::AssetType::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intLB, Control::Type::EXIT));
                 Controls.push_back(Button(5, Graphics::GetAsset(Graphics::AssetType::Items), 3, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::ITEMS));
                 Controls.push_back(Button(6, Graphics::GetAsset(Graphics::AssetType::Move), 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::MOVE));
@@ -499,14 +503,14 @@ namespace Interface
                         auto Armour = Engine::Armour(party.Members[PlayerId]);
 
                         Graphics::PutText(renderer, Character::Description[party.Members[PlayerId].Class], Fonts::Fixed, 0, clrLB, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY);
-                        Graphics::PutText(renderer, std::string("RNK: " + std::to_string(party.Members[PlayerId].Rank)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("FP: " + std::to_string(FightingProwess)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 2 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("PA: " + std::to_string(PsychicAbility)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 3 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("AW: " + std::to_string(Awareness)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 4 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("EN: " + std::to_string(Endurance)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 5 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("AR: " + std::to_string(Armour)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 6 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("DM: " + std::to_string(party.Members[PlayerId].Damage) + "D+" + std::to_string(party.Members[PlayerId].DamageModifier)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 7 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("XP: " + std::to_string(party.Members[PlayerId].ExperiencePoints)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 8 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("RANK: " + std::to_string(party.Members[PlayerId].Rank)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("FIGHTING PROWESS: " + std::to_string(FightingProwess)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 2 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("PSYCHIC ABILITY: " + std::to_string(PsychicAbility)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 3 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("AWARENESS: " + std::to_string(Awareness)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 4 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("ENDURANCE: " + std::to_string(Endurance)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 5 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("ARMOUR RATING: " + std::to_string(Armour)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 6 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("DAMAGE: " + std::to_string(party.Members[PlayerId].Damage) + "D+" + std::to_string(party.Members[PlayerId].DamageModifier)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 7 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("EXPERIENCE: " + std::to_string(party.Members[PlayerId].ExperiencePoints)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 8 * (FontSize + 2));
 
                         if (party.Members[PlayerId].IsDefending)
                         {
@@ -518,12 +522,12 @@ namespace Interface
                         auto MonsterId = std::get<1>(Combatant);
 
                         Graphics::PutText(renderer, monsters[MonsterId].Name.c_str(), Fonts::Fixed, 0, clrRD, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY);
-                        Graphics::PutText(renderer, std::string("FP: " + std::to_string(monsters[MonsterId].FightingProwess)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("PA: " + std::to_string(monsters[MonsterId].PsychicAbility)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 2 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("AW: " + std::to_string(monsters[MonsterId].Awareness)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + +3 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("EN: " + std::to_string(monsters[MonsterId].Endurance)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + +4 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("AR: " + std::to_string(monsters[MonsterId].Armour)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + +5 * (FontSize + 2));
-                        Graphics::PutText(renderer, std::string("DM: " + std::to_string(monsters[MonsterId].Damage) + "D+" + std::to_string(monsters[MonsterId].DamageModifier)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 6 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("FIGHTING PROWESS: " + std::to_string(monsters[MonsterId].FightingProwess)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("PSYCHIC ABILITY: " + std::to_string(monsters[MonsterId].PsychicAbility)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 2 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("AWARENESS: " + std::to_string(monsters[MonsterId].Awareness)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + +3 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("ENDURANCE: " + std::to_string(monsters[MonsterId].Endurance)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + +4 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("ARMOUR RATING: " + std::to_string(monsters[MonsterId].Armour)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + +5 * (FontSize + 2));
+                        Graphics::PutText(renderer, std::string("DAMAGE: " + std::to_string(monsters[MonsterId].Damage) + "D+" + std::to_string(monsters[MonsterId].DamageModifier)).c_str(), Fonts::Fixed, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidthR, FontSize, TextR, DrawY + 6 * (FontSize + 2));
                     }
                 }
 
@@ -637,7 +641,7 @@ namespace Interface
                 {
                     if ((SDL_GetTicks() - start_ticks) < duration)
                     {
-                        Graphics::PutTextBox(renderer, message.c_str(), Fonts::Normal, text_space, clrWH, flash_color, TTF_STYLE_NORMAL, splashw, infoh * 2, -1, -1);
+                        Graphics::PutTextBox(renderer, message.c_str(), Fonts::Normal, -1, clrWH, flash_color, TTF_STYLE_NORMAL, splashw, infoh * 2, DrawX + (SizeX * ObjectSize - splashw) / 2, DrawY + (SizeY * ObjectSize - 2 * infoh) / 2);
                     }
                     else
                     {
@@ -944,6 +948,11 @@ namespace Interface
                     }
 
                     CycleCombatants();
+                }
+
+                if (!Engine::IsAlive(party) || Engine::Escaped(party) || !Engine::IsAlive(monsters))
+                {
+                    done = true;
                 }
             }
         }
