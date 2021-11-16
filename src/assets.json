@@ -17,7 +17,59 @@
             "path": "images/map/hot-coals.png"
         },
         {
+            "id": 100,
+            "path": "icons/up.png"
+        },
+        {
             "id": 101,
+            "path": "icons/left.png"
+        },
+        {
+            "id": 102,
+            "path": "icons/right.png"
+        },
+        {
+            "id": 103,
+            "path": "icons/down.png"
+        },
+        {
+            "id": 104,
+            "path": "icons/back-button-white.png"
+        },
+        {
+            "id": 105,
+            "path": "icons/move.png"
+        },
+        {
+            "id": 106,
+            "path": "icons/heal.png"
+        },
+        {
+            "id": 107,
+            "path": "icons/swords.png"
+        },
+        {
+            "id": 108,
+            "path": "icons/shield.png"
+        },
+        {
+            "id": 109,
+            "path": "icons/shoot.png"
+        },
+        {
+            "id": 110,
+            "path": "icons/memorize.png"
+        },
+        {
+            "id": 111,
+            "path": "icons/spell.png"
+        },
+        {
+            "id": 112,
+            "path": "icons/exit-white.png"
+        },
+        {
+            "id": 201,
             "path": "images/monsters/barbarian.png"
         }
     ]

@@ -309,19 +309,19 @@ namespace Interface
                 auto BottomMapX = StartMap + (SizeX * (SizeY - 1));
                 auto MidMapY = StartMap + (SizeY / 2 * SizeX) - SizeX;
 
-                Controls.push_back(Button(0, "icons/up.png", 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, MapY > 0 ? intLB : intGR, Control::Type::MAP_UP));
-                Controls.push_back(Button(1, "icons/left.png", 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + MapButtonsGridSize + border_space, MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
-                Controls.push_back(Button(2, "icons/right.png", 2, MidMapY + SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + border_space), (MapX < TacticalMap.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
-                Controls.push_back(Button(3, "icons/down.png", 3, BottomMapX, 2, 4, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + border_space), (MapY < TacticalMap.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
-                Controls.push_back(Button(4, "icons/back-button-white.png", 10, 4, 10, 4, lastx, buttony, intLB, Control::Type::EXIT));
-                Controls.push_back(Button(5, "icons/move.png", 3, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::MOVE));
-                Controls.push_back(Button(6, "icons/heal.png", 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::HEAL));
-                Controls.push_back(Button(7, "icons/swords.png", 6, 8, BottomMapX + 2, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
-                Controls.push_back(Button(8, "icons/shield.png", 7, 9, BottomMapX + 3, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
-                Controls.push_back(Button(9, "icons/shoot.png", 8, 10, BottomMapX + 4, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
-                Controls.push_back(Button(10, "icons/memorize.png", 9, 11, BottomMapX + 5, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::MEMORIZE));
-                Controls.push_back(Button(11, "icons/spell.png", 10, 12, BottomMapX + 6, 11, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::MAGIC));
-                Controls.push_back(Button(12, "icons/exit-white.png", 11, 4, BottomMapX + 7, 4, ActionsX + 7 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
+                Controls.push_back(Button(0, Graphics::GetAsset(Graphics::AssetType::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, MapY > 0 ? intLB : intGR, Control::Type::MAP_UP));
+                Controls.push_back(Button(1, Graphics::GetAsset(Graphics::AssetType::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + MapButtonsGridSize + border_space, MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
+                Controls.push_back(Button(2, Graphics::GetAsset(Graphics::AssetType::Right), 2, MidMapY + SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + border_space), (MapX < TacticalMap.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
+                Controls.push_back(Button(3, Graphics::GetAsset(Graphics::AssetType::Down), 3, BottomMapX, 2, 4, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + border_space), (MapY < TacticalMap.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
+                Controls.push_back(Button(4, Graphics::GetAsset(Graphics::AssetType::Back), 10, 4, 10, 4, lastx, buttony, intLB, Control::Type::EXIT));
+                Controls.push_back(Button(5, Graphics::GetAsset(Graphics::AssetType::Move), 3, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::MOVE));
+                Controls.push_back(Button(6, Graphics::GetAsset(Graphics::AssetType::Heal), 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::HEAL));
+                Controls.push_back(Button(7, Graphics::GetAsset(Graphics::AssetType::Attack), 6, 8, BottomMapX + 2, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
+                Controls.push_back(Button(8, Graphics::GetAsset(Graphics::AssetType::Defend), 7, 9, BottomMapX + 3, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
+                Controls.push_back(Button(9, Graphics::GetAsset(Graphics::AssetType::Shoot), 8, 10, BottomMapX + 4, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
+                Controls.push_back(Button(10, Graphics::GetAsset(Graphics::AssetType::Memorize), 9, 11, BottomMapX + 5, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::MEMORIZE));
+                Controls.push_back(Button(11, Graphics::GetAsset(Graphics::AssetType::Magic), 10, 12, BottomMapX + 6, 11, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::MAGIC));
+                Controls.push_back(Button(12, Graphics::GetAsset(Graphics::AssetType::Flee), 11, 4, BottomMapX + 7, 4, ActionsX + 7 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
 
                 int NumControls = Controls.size();
 
