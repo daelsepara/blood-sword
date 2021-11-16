@@ -636,7 +636,7 @@ namespace Interface
                 {
                     if ((SDL_GetTicks() - start_ticks) < duration)
                     {
-                        Graphics::PutTextBox(renderer, message.c_str(), Fonts::Normal, text_space, clrWH, flash_color, TTF_STYLE_NORMAL, splashw * 2, infoh * 2, -1, -1);
+                        Graphics::PutTextBox(renderer, message.c_str(), Fonts::Normal, text_space, clrWH, flash_color, TTF_STYLE_NORMAL, splashw, infoh * 2, -1, -1);
                     }
                     else
                     {
