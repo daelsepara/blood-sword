@@ -145,7 +145,7 @@ namespace Interface
 
                 Uint32 Color = O(c, a);
 
-                for (auto i = CurrentMove; i < CurrentPath.Points.size(); i++)
+                for (auto i = CurrentMove; i < CurrentPath.Points.size() - 1; i++)
                 {
                     auto X = CurrentPath.Points[i].X - MapX;
 
