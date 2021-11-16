@@ -628,7 +628,7 @@ namespace Interface
                             Graphics::PutText(renderer, "Move to location", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                         }
 
-                        if (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size() && (control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION))
+                        if ((SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()) && (control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION))
                         {
                             SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
 
