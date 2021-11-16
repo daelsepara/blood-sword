@@ -268,6 +268,13 @@ namespace Interface
         return NearestPlayer;
     }
 
+    void RenderCombatScreen(SDL_Renderer *renderer, std::vector<Button> &Controls, Uint32 bg, int current)
+    {
+        Graphics::FillWindow(renderer, bg);
+
+        Graphics::RenderButtons(renderer, Controls, current, border_space, border_pts);
+    }
+
     bool Combat(SDL_Window *window, SDL_Renderer *renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
     {
         auto flash_message = false;
@@ -332,6 +339,7 @@ namespace Interface
         auto current = 0;
 
         auto CurrentPath = std::vector<AStar::Path>(party.Members.size());
+
         auto CurrentMove = std::vector<int>(party.Members.size());
 
         // round sequence
@@ -471,8 +479,6 @@ namespace Interface
                 {
                     MapY = Map.SizeY - SizeY;
                 }
-
-                Graphics::FillWindow(renderer, intBK);
 
                 auto Controls = std::vector<Button>();
 
@@ -636,12 +642,12 @@ namespace Interface
                     }
                 }
 
+                Interface::RenderCombatScreen(renderer, Controls, intBK, current);
+
                 if (current >= 0 && current < Controls.size())
                 {
                     Graphics::RenderCaption(renderer, Controls[current], clrWH, intBK);
                 }
-
-                Graphics::RenderButtons(renderer, Controls, current, border_space, border_pts);
 
                 // Blink current party member
                 if (SelectedCombatant != CurrentCombatant && Blink && BlinkX >= 0 && BlinkY >= 0 && (current == -1 || (current >= 0 && current < Controls.size() && (BlinkX != Controls[current].X || BlinkY != Controls[current].Y))))
