@@ -44,6 +44,7 @@ Uint8 R(Uint32 c) { return (Uint8)((c & 0xFF0000) >> 16); }
 Uint8 G(Uint32 c) { return (Uint8)((c & 0x00FF00) >> 8); }
 Uint8 B(Uint32 c) { return (Uint8)(c & 0x0000FF); }
 Uint8 A(Uint32 c) { return (Uint8)(c >> 24); }
+Uint32 O(Uint32 c, Uint8 a) { return ((c & ((Uint32)0x00FFFFFF)) | ((Uint32)(a << 24))); }
 
 // Screen dimension constants
 int SCREEN_WIDTH = 1024;

@@ -330,13 +330,16 @@ namespace Interface
 
                 auto Controls = std::vector<Button>();
 
-                auto MapButtonsX = DrawX - (ObjectSize + 2 * border_space);
+                auto MapButtonSize = ObjectSize + 2 * border_space;
+                auto MapSizeX = SizeX * ObjectSize;
+                auto MapSizeY = SizeY * ObjectSize;
+                auto MapButtonsX = DrawX - MapButtonSize;
                 auto MapButtonsY = DrawY + border_space;
-                auto MapButtonsGridSize = (ObjectSize + 2 * border_space) + ((SizeY * ObjectSize) - ((ObjectSize + 2 * border_space) * 4)) / 4;
+                auto MapButtonsGridSize = MapSizeY / 4;
 
                 auto ActionsX = DrawX;
-                auto ActionsY = DrawY + SizeY * ObjectSize + 4 * border_space;
-                auto ActionsGrid = ObjectSize + 2 * border_space;
+                auto ActionsY = DrawY + MapSizeY + 4 * border_space;
+                auto ActionsGrid = MapButtonSize;
 
                 auto StartMap = 14;
                 auto BottomMapX = StartMap + (SizeX * (SizeY - 1));
@@ -551,7 +554,8 @@ namespace Interface
                         Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, DrawX + (SelectedX - MapX) * ObjectSize + 2 * border_pts, DrawY + (SelectedY - MapY) * ObjectSize + 2 * border_pts, intYW, border_pts);
                     }
                 }
-                else if (BlinkCycle && BlinkX >= 0 && BlinkY >= 0 && (current == -1 || (current >= 0 && current < Controls.size() && (BlinkX != Controls[current].X || BlinkY != Controls[current].Y))))
+
+                if (SelectedCombatant != CurrentCombatant && BlinkCycle && BlinkX >= 0 && BlinkY >= 0 && (current == -1 || (current >= 0 && current < Controls.size() && (BlinkX != Controls[current].X || BlinkY != Controls[current].Y))))
                 {
                     Graphics::ThickRect(renderer, ObjectSize - 4 * border_pts, ObjectSize - 4 * border_pts, BlinkX + 2 * border_pts, BlinkY + 2 * border_pts, intRD, border_pts);
                 }
@@ -584,7 +588,7 @@ namespace Interface
                             {
                                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-                                Uint32 Color = ((intYW & ((Uint32)0x00FFFFFF)) | ((Uint32)0x66000000));
+                                Uint32 Color = O(intYW, 0x66);
 
                                 for (auto i = CurrentMove[PlayerId]; i < CurrentPath[PlayerId].Points.size(); i++)
                                 {
@@ -606,6 +610,19 @@ namespace Interface
                         {
                             Graphics::PutText(renderer, "Move to location", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                         }
+
+                        if ((control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION) && (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()))
+                        {
+                            SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
+
+                            SelectY = MapY + (Controls[current].Y - DrawY) / ObjectSize;
+
+                            std::string Coordinates = "(" + std::to_string(SelectX) + ", " + std::to_string(SelectY) + ")";
+
+                            Graphics::PutText(renderer, Coordinates.c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY);
+
+                            Graphics::PutText(renderer, TacticalMap::Description[TacticalMap.Objects[SelectY][SelectX]], Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY + (FontSize + text_space));
+                        }
                     }
                     else if (CurrentMode == Combat::Mode::Heal && control_type == Control::Type::PLAYER)
                     {
@@ -623,7 +640,7 @@ namespace Interface
                     {
                         Graphics::PutText(renderer, "Cast a spell against opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                     }
-                    else if ((control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION) && (SelectedCombatant < 0 || SelectedCombatant > Sequence.size()))
+                    else if ((control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION) && (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()))
                     {
                         SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
 
@@ -641,7 +658,7 @@ namespace Interface
                 {
                     if ((SDL_GetTicks() - start_ticks) < duration)
                     {
-                        Graphics::PutTextBox(renderer, message.c_str(), Fonts::Normal, -1, clrWH, flash_color, TTF_STYLE_NORMAL, splashw, infoh * 2, DrawX + (SizeX * ObjectSize - splashw) / 2, DrawY + (SizeY * ObjectSize - 2 * infoh) / 2);
+                        Graphics::PutTextBox(renderer, message.c_str(), Fonts::Normal, -1, clrWH, flash_color, TTF_STYLE_NORMAL, splashw, infoh * 2, DrawX + (MapSizeX - splashw) / 2, DrawY + (MapSizeY - 2 * infoh) / 2);
                     }
                     else
                     {
