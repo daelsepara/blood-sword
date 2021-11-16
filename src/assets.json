@@ -69,6 +69,10 @@
             "path": "icons/exit-white.png"
         },
         {
+            "id": 113,
+            "path": "icons/items.png"
+        },
+        {
             "id": 201,
             "path": "images/monsters/barbarian.png"
         }

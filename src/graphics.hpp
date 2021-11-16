@@ -29,12 +29,14 @@ namespace Graphics
         Memorize,
         Magic,
         Flee,
+        Items,
+        Spellbook,
         Monster = 200,
         Barbarian
     };
 
     // Forward Declarations
-    bool LoadMapAssets(const char *file_name);
+    bool LoadAssets(const char *file_name);
 
     SDL_Surface *CreateImage(const char *image);
     SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
@@ -55,7 +57,7 @@ namespace Graphics
     void SetWindowIcon(SDL_Window *window, const char *icon);
     void StretchImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int w, int h);
     void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts);
-    void UnloadMapAssets();
+    void UnloadAssets();
 
     // ---------------------------------------------------------------------------------------------
     // START - Implementations
@@ -289,7 +291,11 @@ namespace Graphics
 
         std::string caption = "";
 
-        if (control.Type == Control::Type::MOVE)
+        if (control.Type == Control::Type::ITEMS)
+        {
+            caption = "Items";
+        }
+        else if (control.Type == Control::Type::MOVE)
         {
             caption = "Move";
         }
@@ -709,7 +715,7 @@ namespace Graphics
         return surface;
     }
 
-    void UnloadMapAssets()
+    void UnloadAssets()
     {
         if (Graphics::AssetGraphics.size() > 0)
         {
@@ -729,11 +735,11 @@ namespace Graphics
         }
     }
 
-    bool LoadMapAssets(const char *file_name)
+    bool LoadAssets(const char *file_name)
     {
         auto result = false;
 
-        Graphics::UnloadMapAssets();
+        Graphics::UnloadAssets();
 
         Graphics::AssetPaths.clear();
 

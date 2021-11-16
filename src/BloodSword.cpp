@@ -39,12 +39,12 @@ int main(int argc, const char **argv)
             "#        # A#",
             "#############"};
 
-        Graphics::LoadMapAssets("assets.json");
+        Graphics::LoadAssets("assets.json");
 
         // Combat Screen
         Interface::Combat(window, renderer, map, party, monsters);
 
-        Graphics::UnloadMapAssets();
+        Graphics::UnloadAssets();
 
         if (renderer)
         {
