@@ -609,10 +609,6 @@ namespace Interface
                     {
                         auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
 
-                        SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
-
-                        SelectY = MapY + (Controls[current].Y - DrawY) / ObjectSize;
-
                         auto TargetX = -1;
 
                         auto TargetY = -1;
@@ -632,8 +628,12 @@ namespace Interface
                             Graphics::PutText(renderer, "Move to location", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                         }
 
-                        if (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size())
+                        if (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size() && (control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION))
                         {
+                            SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
+
+                            SelectY = MapY + (Controls[current].Y - DrawY) / ObjectSize;
+
                             std::string Coordinates = "(" + std::to_string(SelectX) + ", " + std::to_string(SelectY) + ")";
 
                             Graphics::PutText(renderer, Coordinates.c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY);
@@ -641,8 +641,12 @@ namespace Interface
                             Graphics::PutText(renderer, TacticalMap::Description[TacticalMap.Objects[SelectY][SelectX]], Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY + (FontSize + text_space));
                         }
 
-                        if ((control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION))
+                        if (control_type == Control::Type::DESTINATION)
                         {
+                            SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
+
+                            SelectY = MapY + (Controls[current].Y - DrawY) / ObjectSize;
+
                             if ((TargetX != SelectX || TargetY != SelectY) && control_type == Control::Type::DESTINATION)
                             {
                                 auto PlayerX = -1;
