@@ -14,7 +14,7 @@ namespace Graphics
         Wizard,
         Passable,
         Wall,
-        Exit,        
+        Exit,
         HotCoals,
         Up = 100,
         Left,
@@ -131,14 +131,14 @@ namespace Graphics
         rect.y = y;
 
         SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
-        
+
         SDL_RenderFillRect(renderer, &rect);
     }
 
     void FillWindow(SDL_Renderer *renderer, Uint32 color)
     {
         SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
-        
+
         SDL_RenderClear(renderer);
     }
 
@@ -285,9 +285,8 @@ namespace Graphics
 
     void RenderCaption(SDL_Renderer *renderer, Button &control, SDL_Color color, Uint32 bg)
     {
-        auto caption_size = TTF_FontHeight(Fonts::Caption);
-        auto captiony = control.Y + control.H + border_space;
         auto captionx = control.X - text_space;
+        auto captiony = control.Y + control.H + border_space;
 
         std::string caption = "";
 
@@ -334,7 +333,13 @@ namespace Graphics
 
         if (caption.length() > 0)
         {
-            Graphics::PutText(renderer, caption.c_str(), Fonts::Caption, border_pts, color, bg, TTF_STYLE_NORMAL, textwidth, caption_size, captionx, captiony);
+            auto captionw = 0;
+
+            auto captionh = 0;
+
+            TTF_SizeText(Fonts::Caption, caption.c_str(), &captionw, &captionh);
+
+            Graphics::PutText(renderer, caption.c_str(), Fonts::Caption, border_pts, color, bg, TTF_STYLE_NORMAL, captionw + 2 * text_space, captionh, captionx, captiony);
         }
     }
 
@@ -502,7 +507,7 @@ namespace Graphics
             rect.y = y - space + size;
 
             SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
-            
+
             SDL_RenderDrawRect(renderer, &rect);
         }
     }

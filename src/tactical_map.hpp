@@ -1,12 +1,7 @@
 #ifndef __TACTICAL_MAP_HPP__
 #define __TACTICAL_MAP_HPP__
 
-#include <map>
-#include <string>
-#include <vector>
-
-#include "monster.hpp"
-#include "party.hpp"
+#include "BloodSword.hpp"
 
 namespace TacticalMap
 {
