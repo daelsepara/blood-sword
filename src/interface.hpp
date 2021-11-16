@@ -152,6 +152,25 @@ namespace Interface
         return IsValidX && IsValidY && Interface::Distance(PlayerX, PlayerY, MonsterX, MonsterY) <= 1;
     }
 
+    bool AttackedUponMoving(TacticalMap::Base &Map, std::vector<Monster::Base> &monsters, Character::Base &character, int PlayerId)
+    {
+        auto WasAttacked = false;
+
+        for (auto i = 0; i < monsters.size(); i++)
+        {
+            Monster::Base &monster = monsters[i];
+
+            if (monster.Endurance > 0 && Interface::IsAdjacent(Map, PlayerId, i) && monster.Awareness >= Engine::Score(character, Attributes::Type::Awareness))
+            {
+                WasAttacked = true;
+
+                // do damages
+            }
+        }
+
+        return WasAttacked;
+    }
+
     void RenderPath(SDL_Renderer *renderer, AStar::Path &CurrentPath, int CurrentMove, int SizeX, int SizeY, int MapX, int MapY, int DrawX, int DrawY, int ObjectSize, Uint32 c, Uint8 a)
     {
         if (CurrentMove > 0 && CurrentMove < CurrentPath.Points.size())
@@ -828,7 +847,7 @@ namespace Interface
                     if ((SDL_GetTicks() - start_ticks) < duration)
                     {
                         auto FlashW = 3 * MapSizeX / 5;
-                        
+
                         auto FlashH = 2 * infoh;
 
                         Graphics::PutTextBox(renderer, message.c_str(), Fonts::Normal, -1, clrWH, flash_color, TTF_STYLE_NORMAL, FlashW, infoh * 2, DrawX + (MapSizeX - FlashW) / 2, DrawY + (MapSizeY - FlashH) / 2);
@@ -917,29 +936,22 @@ namespace Interface
                             {
                                 Character::Base &character = party.Members[PlayerId];
 
-                                auto CurrentX = -1;
-
-                                auto CurrentY = -1;
-
-                                Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
-
                                 // Get attacked by a nearby enemy that has a higher awareness
-                                auto WasAttacked = false;
+                                auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId);
 
-                                for (auto i = 0; i < monsters.size(); i++)
+                                if (WasAttacked)
                                 {
-                                    Monster::Base &monster = monsters[i];
-
-                                    if (monster.Endurance > 0 && Interface::IsAdjacent(Map, PlayerId, i) && monster.Awareness >= Engine::Score(character, Attributes::Type::Awareness))
-                                    {
-                                        WasAttacked = true;
-
-                                        DisplayMessage((monster.Name + " attacks the " + std::string(Character::Description[character.Class]) + "!").c_str(), intRD);
-                                    }
+                                    DisplayMessage(("The " + std::string(Character::Description[character.Class]) + " was attacked!").c_str(), intRD);
                                 }
 
                                 if (Engine::IsAlive(character))
                                 {
+                                    auto CurrentX = -1;
+
+                                    auto CurrentY = -1;
+
+                                    Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
+
                                     if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                     {
                                         if (Interface::ValidX(Map, CurrentX) && Interface::ValidY(Map, CurrentY))
@@ -1017,22 +1029,39 @@ namespace Interface
                             {
                                 if (CurrentPath[PlayerId].Points.size() > 1 && CurrentMove[PlayerId] >= 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
                                 {
-                                    auto CurrentX = -1;
+                                    Character::Base &character = party.Members[PlayerId];
 
-                                    auto CurrentY = -1;
+                                    // Get attacked by a nearby enemy that has a higher awareness
+                                    auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId);
 
-                                    Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
-
-                                    auto result = Interface::Move(Map, CurrentX, CurrentY, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y);
-
-                                    if (!result)
+                                    if (WasAttacked)
                                     {
-                                        DisplayMessage("Path Blocked!", intRD);
+                                        DisplayMessage(("The " + std::string(Character::Description[character.Class]) + " was attacked!").c_str(), intRD);
+                                    }
+
+                                    if (Engine::IsAlive(character))
+                                    {
+                                        auto CurrentX = -1;
+
+                                        auto CurrentY = -1;
+
+                                        Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
+
+                                        auto result = Interface::Move(Map, CurrentX, CurrentY, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y);
+
+                                        if (!result)
+                                        {
+                                            DisplayMessage("Path Blocked!", intRD);
+                                        }
+                                        else
+                                        {
+                                            CurrentMove[PlayerId]++;
+
+                                            CycleCombatants();
+                                        }
                                     }
                                     else
                                     {
-                                        CurrentMove[PlayerId]++;
-
                                         CycleCombatants();
                                     }
                                 }
