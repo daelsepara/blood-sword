@@ -746,6 +746,10 @@ namespace Interface
                     {
                         Graphics::PutText(renderer, "View opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                     }
+                    else if (CurrentMode == Combat::Mode::Normal)
+                    {
+                        Graphics::PutText(renderer, (std::string("Combat Round: " + std::to_string(CombatRound + 1))).c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                    }
                     else if (CurrentMode == Combat::Mode::Move)
                     {
                         auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
