@@ -795,10 +795,22 @@ namespace Interface
                     if (CurrentMode == Combat::Mode::Normal && ControlType == Control::Type::PLAYER)
                     {
                         Graphics::PutText(Renderer, "View party member", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+
+                        auto SelectX = MapX + (Controls[Current].X - DrawX) / ObjectSize;
+
+                        auto SelectY = MapY + (Controls[Current].Y - DrawY) / ObjectSize;
+
+                        Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::Normal && ControlType == Control::Type::MONSTER)
                     {
                         Graphics::PutText(Renderer, "View opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+
+                        auto SelectX = MapX + (Controls[Current].X - DrawX) / ObjectSize;
+
+                        auto SelectY = MapY + (Controls[Current].Y - DrawY) / ObjectSize;
+
+                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::Normal)
                     {
