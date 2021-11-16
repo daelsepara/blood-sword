@@ -369,27 +369,87 @@ namespace Interface
                   });
     }
 
-    bool Combat(SDL_Window *window, SDL_Renderer *Renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
+    // fight encounter between PlayerId and MonsterId
+    void Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &Party, std::vector<Monster::Base> Monsters, int PlayerId, int MonsterId, int SizeX, int SizeY, int ObjectSize, int DrawX, int DrawY)
     {
-        auto flash_message = false;
+        auto FlashMessage = false;
 
-        auto flash_color = intRD;
+        auto FlashColor = intRD;
 
-        std::string message = "";
+        std::string Message = "";
 
-        Uint32 start_ticks = 0;
+        Uint32 StartTicks = 0;
 
-        Uint32 duration = 3000;
+        Uint32 Duration = 3000;
+
+        auto MapSizeX = SizeX * ObjectSize;
+
+        auto MapSizeY = SizeY * ObjectSize;
 
         auto DisplayMessage = [&](std::string msg, Uint32 color)
         {
-            flash_message = true;
+            FlashMessage = true;
 
-            message = msg;
+            Message = msg;
 
-            flash_color = color;
+            FlashColor = color;
 
-            start_ticks = SDL_GetTicks();
+            StartTicks = SDL_GetTicks();
+        };
+
+        auto RenderFlashMessage = [&]()
+        {
+            if (FlashMessage)
+            {
+                if ((SDL_GetTicks() - StartTicks) < Duration)
+                {
+                    auto FlashW = 3 * MapSizeX / 5;
+
+                    auto FlashH = 2 * infoh;
+
+                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, DrawX + (MapSizeX - FlashW) / 2, DrawY + (MapSizeY - FlashH) / 2);
+                }
+                else
+                {
+                    FlashMessage = false;
+                }
+            }
+        };
+
+        auto done = false;
+
+        DisplayMessage("Under Construction!", intLB);
+
+        while (!done)
+        {
+            // render current combat screen
+            RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+            RenderFlashMessage();
+        }
+    }
+
+    bool CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
+    {
+        auto FlashMessage = false;
+
+        auto FlashColor = intRD;
+
+        std::string Message = "";
+
+        Uint32 StartTicks = 0;
+
+        Uint32 Duration = 3000;
+
+        auto DisplayMessage = [&](std::string msg, Uint32 color)
+        {
+            FlashMessage = true;
+
+            Message = msg;
+
+            FlashColor = color;
+
+            StartTicks = SDL_GetTicks();
         };
 
         auto Map = TacticalMap::Base(map, party, monsters);
@@ -526,7 +586,37 @@ namespace Interface
 
         auto TextWidth = Map.SizeX * ObjectSize;
 
-        if (window && Renderer && Map.SizeX > 0 && Map.SizeY > 0)
+        auto MapButtonSize = ObjectSize + 2 * border_space;
+        auto MapSizeX = SizeX * ObjectSize;
+        auto MapSizeY = SizeY * ObjectSize;
+        auto MapButtonsX = DrawX - MapButtonSize;
+        auto MapButtonsY = DrawY + border_space;
+        auto MapButtonsGridSize = MapSizeY / 4;
+
+        auto ActionsX = DrawX;
+        auto ActionsY = DrawY + MapSizeY + 2 * border_space;
+        auto ActionsGrid = MapButtonSize;
+
+        auto RenderFlashMessage = [&]()
+        {
+            if (FlashMessage)
+            {
+                if ((SDL_GetTicks() - StartTicks) < Duration)
+                {
+                    auto FlashW = 3 * MapSizeX / 5;
+
+                    auto FlashH = 2 * infoh;
+
+                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, DrawX + (MapSizeX - FlashW) / 2, DrawY + (MapSizeY - FlashH) / 2);
+                }
+                else
+                {
+                    FlashMessage = false;
+                }
+            }
+        };
+
+        if (Window && Renderer && Map.SizeX > 0 && Map.SizeY > 0)
         {
             auto done = false;
 
@@ -554,17 +644,6 @@ namespace Interface
                 }
 
                 auto Controls = std::vector<Button>();
-
-                auto MapButtonSize = ObjectSize + 2 * border_space;
-                auto MapSizeX = SizeX * ObjectSize;
-                auto MapSizeY = SizeY * ObjectSize;
-                auto MapButtonsX = DrawX - MapButtonSize;
-                auto MapButtonsY = DrawY + border_space;
-                auto MapButtonsGridSize = MapSizeY / 4;
-
-                auto ActionsX = DrawX;
-                auto ActionsY = DrawY + MapSizeY + 2 * border_space;
-                auto ActionsGrid = MapButtonSize;
 
                 auto StartMap = 14;
                 auto BottomMapX = StartMap + (SizeX * (SizeY - 1));
@@ -899,21 +978,7 @@ namespace Interface
                     }
                 }
 
-                if (flash_message)
-                {
-                    if ((SDL_GetTicks() - start_ticks) < duration)
-                    {
-                        auto FlashW = 3 * MapSizeX / 5;
-
-                        auto FlashH = 2 * infoh;
-
-                        Graphics::PutTextBox(Renderer, message.c_str(), Fonts::Normal, -1, clrWH, flash_color, TTF_STYLE_NORMAL, FlashW, infoh * 2, DrawX + (MapSizeX - FlashW) / 2, DrawY + (MapSizeY - FlashH) / 2);
-                    }
-                    else
-                    {
-                        flash_message = false;
-                    }
-                }
+                RenderFlashMessage();
 
                 // get player input
                 if (std::get<0>(Sequence[CurrentCombatant]) == TacticalMap::Object::Player)

@@ -42,7 +42,7 @@ int main(int argc, const char **argv)
         Graphics::LoadAssets("assets.json");
 
         // Combat Screen
-        Interface::Combat(window, renderer, map, party, monsters);
+        Interface::CombatScreen(window, renderer, map, party, monsters);
 
         Graphics::UnloadAssets();
 
