@@ -305,7 +305,7 @@ namespace Graphics
         }
         else if (control.Type == Control::Type::ATTACK)
         {
-            caption = "Attack";
+            caption = "Fight";
         }
         else if (control.Type == Control::Type::DEFEND)
         {
@@ -313,7 +313,7 @@ namespace Graphics
         }
         else if (control.Type == Control::Type::SHOOT)
         {
-            caption = "Ranged attack";
+            caption = "Shoot";
         }
         else if (control.Type == Control::Type::MEMORIZE)
         {
