@@ -148,7 +148,7 @@ namespace Interface
                 for (auto i = CurrentMove; i < CurrentPath.Points.size(); i++)
                 {
                     auto X = CurrentPath.Points[i].X - MapX;
-                    
+
                     auto Y = CurrentPath.Points[i].Y - MapY;
 
                     if (X >= 0 && X < SizeX && Y >= 0 && Y < SizeY)
@@ -609,14 +609,18 @@ namespace Interface
                     {
                         auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
 
+                        SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
+
+                        SelectY = MapY + (Controls[current].Y - DrawY) / ObjectSize;
+
                         auto TargetX = -1;
-                        
+
                         auto TargetY = -1;
 
                         if (CurrentMove[PlayerId] > 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
                         {
                             TargetX = CurrentPath[PlayerId].Points.back().X - MapX;
-                            
+
                             TargetY = CurrentPath[PlayerId].Points.back().Y - MapY;
 
                             Graphics::PutText(renderer, "Move to location or continue along current path", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
@@ -628,24 +632,23 @@ namespace Interface
                             Graphics::PutText(renderer, "Move to location", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                         }
 
-                        if ((control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION) && (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()))
+                        if (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size())
                         {
-                            SelectX = MapX + (Controls[current].X - DrawX) / ObjectSize;
-
-                            SelectY = MapY + (Controls[current].Y - DrawY) / ObjectSize;
-
                             std::string Coordinates = "(" + std::to_string(SelectX) + ", " + std::to_string(SelectY) + ")";
 
                             Graphics::PutText(renderer, Coordinates.c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY);
 
                             Graphics::PutText(renderer, TacticalMap::Description[TacticalMap.Objects[SelectY][SelectX]], Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, DrawY + (FontSize + text_space));
+                        }
 
+                        if ((control_type == Control::Type::MAP_NONE || control_type == Control::Type::DESTINATION))
+                        {
                             if ((TargetX != SelectX || TargetY != SelectY) && control_type == Control::Type::DESTINATION)
                             {
                                 auto PlayerX = -1;
 
                                 auto PlayerY = -1;
-                                
+
                                 Find(TacticalMap, TacticalMap::Object::Player, PlayerId + 1, PlayerX, PlayerY);
 
                                 if (ValidX(TacticalMap, PlayerX) && ValidY(TacticalMap, PlayerY) && Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
