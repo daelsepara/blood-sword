@@ -736,7 +736,7 @@ namespace Interface
 
                                             if (!result)
                                             {
-                                                DisplayMessage("Movement Blocked!", intRD);
+                                                DisplayMessage("Path Blocked!", intRD);
                                             }
                                             else
                                             {
@@ -749,7 +749,7 @@ namespace Interface
                                         }
                                         else
                                         {
-                                            DisplayMessage("Movement Blocked!", intRD);
+                                            DisplayMessage("Path Blocked!", intRD);
                                         }
                                     }
                                 }
@@ -763,7 +763,7 @@ namespace Interface
 
                                     if (!result)
                                     {
-                                        DisplayMessage("You cannot move there!", intRD);
+                                        DisplayMessage("Path Blocked!", intRD);
                                     }
                                     else
                                     {
@@ -794,7 +794,7 @@ namespace Interface
 
                                     if (!result)
                                     {
-                                        DisplayMessage("Movement Blocked!", intRD);
+                                        DisplayMessage("Path Blocked!", intRD);
                                     }
                                     else
                                     {
@@ -880,14 +880,14 @@ namespace Interface
                     {
                         auto Endurance = Engine::Score(party.Members[i], Attributes::Type::Endurance);
 
-                        auto LocationX = 0;
-
-                        auto LocationY = 0;
-
-                        Find(TacticalMap, TacticalMap::Object::Player, i + 1, LocationX, LocationY);
-
                         if (Endurance > 0 && !party.Members[i].Escaped)
                         {
+                            auto LocationX = 0;
+
+                            auto LocationY = 0;
+
+                            Find(TacticalMap, TacticalMap::Object::Player, i + 1, LocationX, LocationY);
+
                             Distances.push_back(std::make_tuple(i, Distance(MonsterX, MonsterY, LocationX, LocationY), Endurance));
                         }
                     }
