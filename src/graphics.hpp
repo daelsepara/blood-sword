@@ -31,6 +31,8 @@ namespace Graphics
         Flee,
         Items,
         Spellbook,
+        Ok = 150,
+        Cancel,
         Monster = 200,
         Barbarian
     };
@@ -44,6 +46,9 @@ namespace Graphics
     SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style);
     SDL_Surface *GetAsset(Graphics::AssetType asset);
 
+std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony);
+    std::vector<TextButton> CreateTextButtons(const char **choices, int num, int text_buttonh, int text_x, int text_buttony, int window_width, int window_height);
+
     void CreateWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, const char *title);
     void DrawRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
     void FillRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
@@ -54,6 +59,7 @@ namespace Graphics
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y);
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset);
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset);
+    void RenderTextButtons(SDL_Renderer *renderer, std::vector<TextButton> controls, const char *ttf, int current, int fontsize, int style);
     void SetWindowIcon(SDL_Window *window, const char *icon);
     void StretchImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int w, int h);
     void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts);
@@ -479,6 +485,51 @@ namespace Graphics
         }
     }
 
+    void RenderTextButtons(SDL_Renderer *renderer, std::vector<TextButton> controls, const char *ttf, int current, int fontsize, int style)
+    {
+        if (controls.size() > 0)
+        {
+            for (auto i = 0; i < controls.size(); i++)
+            {
+                auto text = Graphics::CreateText(controls[i].Text, ttf, fontsize, controls[i].Fg, controls[i].W, style);
+
+                auto x = controls[i].X + (controls[i].W - text->w) / 2;
+                auto y = controls[i].Y + (controls[i].H - text->h) / 2;
+
+                SDL_Rect rect;
+
+                rect.w = controls[i].W;
+                rect.h = controls[i].H;
+                rect.x = controls[i].X;
+                rect.y = controls[i].Y;
+
+                if (i == current)
+                {
+                    SDL_SetRenderDrawColor(renderer, R(controls[i].Highlight), G(controls[i].Highlight), B(controls[i].Highlight), A(controls[i].Highlight));
+                }
+                else
+                {
+                    SDL_SetRenderDrawColor(renderer, R(controls[i].Color), G(controls[i].Color), B(controls[i].Color), A(controls[i].Color));
+                }
+
+                SDL_RenderFillRect(renderer, &rect);
+
+                if (i == current)
+                {
+                    Graphics::RenderText(renderer, text, controls[i].Highlight, x, y, 2 * fontsize, 0);
+                }
+                else
+                {
+                    Graphics::RenderText(renderer, text, controls[i].Color, x, y, 2 * fontsize, 0);
+                }
+
+                SDL_FreeSurface(text);
+
+                text = NULL;
+            }
+        }
+    }
+
     void SetWindowIcon(SDL_Window *window, const char *icon)
     {
         auto surface = Graphics::CreateImage(icon);
@@ -809,5 +860,64 @@ namespace Graphics
 
         return surface;
     }
+
+    std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony)
+    {
+        auto controls = std::vector<TextButton>();
+
+        if (num > 0)
+        {
+            for (auto i = 0; i < num; i++)
+            {
+                auto left = i > 0 ? i - 1 : i;
+                auto right = i < num - 1 ? i + 1 : i;
+                auto up = i;
+                auto down = i;
+
+                auto x = text_x + i * (text_buttonw + textbutton_space);
+
+                auto button = TextButton(i, choices[i], left, right, up, down, x, text_buttony, text_buttonw, text_buttonh);
+
+                controls.push_back(button);
+            }
+        }
+
+        return controls;
+    }
+
+    std::vector<TextButton> CreateTextButtons(const char **choices, int num, int text_buttonh, int text_x, int text_buttony, int window_width, int window_height)
+    {
+        auto controls = std::vector<TextButton>();
+
+        if (num > 0)
+        {
+            auto margin2 = (2.0 * Margin);
+            auto marginleft = (1.0 - margin2);
+
+            auto pixels = (int)(window_width * Margin) / 2;
+            auto width = (int)(window_height * marginleft);
+
+            auto text_spacew = width / num;
+            auto htext_buttonw = text_spacew - pixels;
+            auto text_space = pixels / 2;
+
+            for (auto i = 0; i < num; i++)
+            {
+                auto left = i > 0 ? i - 1 : i;
+                auto right = i < num - 1 ? i + 1 : i;
+                auto up = i;
+                auto down = i;
+
+                auto x = text_x + i * (htext_buttonw + text_space * 2) + text_space;
+
+                auto button = TextButton(i, choices[i], left, right, up, down, x, text_buttony, htext_buttonw, text_buttonh);
+
+                controls.push_back(button);
+            }
+        }
+
+        return controls;
+    }
+
 }
 #endif

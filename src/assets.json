@@ -73,6 +73,14 @@
             "path": "icons/items.png"
         },
         {
+            "id": 150,
+            "path": "icons/yes.png"
+        },
+        {
+            "id": 151,
+            "path": "icons/no.png"
+        },
+        {
             "id": 201,
             "path": "images/monsters/barbarian.png"
         }

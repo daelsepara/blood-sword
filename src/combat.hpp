@@ -5,25 +5,40 @@ namespace Combat
 {
     enum class Action
     {
-        None = 0,
-        Move,
-        Fight,
-        Defend,
-        Shoot,
-        Flee,
-        Memorize,
-        Cast
+        NONE = 0,
+        ACTION,
+        FIGHT,
+        DEFEND,
+        SHOOT,
+        FLEE,
+        MEMORIZE,
+        CAST
     };
 
     enum class Mode
     {
-        Normal = 0,
-        Animation, // Animation
-        Move,      // Selecting destination
-        Attack,    // Selecting attack target
-        Shoot,     // Selecting a target for a ranged attack
-        Magic,     // Selecting magic target
-        Heal       // Selecting a to heal
+        NORMAL = 0,
+        MOVE,      // Selecting destination
+        ATTACK,    // Selecting attack target
+        SHOOT,     // Selecting a target for a ranged attack
+        MAGIC,     // Selecting magic target
+        HEAL       // Selecting a to heal
+    };
+
+    enum class Result
+    {
+        NONE = 0,
+        FIGHT,
+        VICTORY,
+        DEFEAT,
+        ESCAPED
+    };
+
+    enum class Stage
+    {
+        FIRST,  // combatant with higher awareness attacks
+        SECOND, // opponenent retaliates
+        END     // end of attack
     };
 }
 #endif

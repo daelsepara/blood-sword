@@ -4,11 +4,11 @@
 
 int main(int argc, const char **argv)
 {
-    SDL_Window *window = NULL;
+    SDL_Window *Window = NULL;
 
-    SDL_Renderer *renderer = NULL;
+    SDL_Renderer *Renderer = NULL;
 
-    Graphics::CreateWindow(SDL_INIT_VIDEO | SDL_INIT_AUDIO, &window, &renderer, "Blood Sword");
+    Graphics::CreateWindow(SDL_INIT_VIDEO | SDL_INIT_AUDIO, &Window, &Renderer, "Blood Sword");
 
     Input::InitializeGamePads();
 
@@ -18,7 +18,7 @@ int main(int argc, const char **argv)
 
     Fonts::Initialize();
 
-    if (window && renderer)
+    if (Window && Renderer)
     {
         // Setup party, monsters, and map
         auto party = Party::Base();
@@ -31,33 +31,33 @@ int main(int argc, const char **argv)
 
         std::vector<std::string> map = {
             "#############",
-            "# 1         #",
-            "#### ########",
             "#           #",
+            "#### ########",
+            "#   1  A    #",
             "#% %######  #",
             "#% %#%%  #  #",
-            "#        # A#",
+            "#        #  #",
             "#############"};
 
         Graphics::LoadAssets("assets.json");
 
         // Combat Screen
-        Interface::CombatScreen(window, renderer, map, party, monsters);
+        Interface::CombatScreen(Window, Renderer, map, party, monsters);
 
         Graphics::UnloadAssets();
 
-        if (renderer)
+        if (Renderer)
         {
-            SDL_DestroyRenderer(renderer);
+            SDL_DestroyRenderer(Renderer);
 
-            renderer = NULL;
+            Renderer = NULL;
         }
 
-        if (window)
+        if (Window)
         {
-            SDL_DestroyWindow(window);
+            SDL_DestroyWindow(Window);
 
-            window = NULL;
+            Window = NULL;
         }
     }
 

@@ -52,7 +52,7 @@ namespace Input
     }
 
     template <typename T>
-    bool GetInput(SDL_Renderer *renderer, std::vector<T> choices, int &current, bool &selected, bool &scrollUp, bool &scrollDown, bool &hold, int delay)
+    bool GetInput(SDL_Renderer *renderer, std::vector<T> &choices, int &current, bool &selected, bool &scrollUp, bool &scrollDown, bool &hold, int delay)
     {
         auto start_ticks = SDL_GetTicks();
 
@@ -344,13 +344,15 @@ namespace Input
     }
 
     template <typename T>
-    bool GetInput(SDL_Renderer *renderer, std::vector<T> choices, int &current, bool &selected, bool &scrollUp, bool &scrollDown, bool &hold)
+    bool GetInput(SDL_Renderer *renderer, std::vector<T> &choices, int &current, bool &selected, bool &scrollUp, bool &scrollDown, bool &hold)
     {
         return Input::GetInput(renderer, choices, current, selected, scrollUp, scrollDown, hold, 1000);
     }
 
     void WaitForNext(SDL_Renderer *renderer)
     {
+        SDL_RenderPresent(renderer);
+
         SDL_Event result;
 
         while (1)

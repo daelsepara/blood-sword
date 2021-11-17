@@ -54,6 +54,9 @@ namespace Control
         int W = 0;
         int H = 0;
 
+        // font color, mostly used by text buttons
+        SDL_Color Fg;
+
         // Background color, mostly used by text buttons
         Uint32 Color;
 
