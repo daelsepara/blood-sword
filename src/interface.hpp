@@ -136,9 +136,9 @@ namespace Interface
         // do not render off screen animations
         if ((srcX < MapX) || (srcX >= SizeX + MapX) || (srcY < MapY) || (srcY >= SizeY + MapY))
         {
-            Move(Map, srcX, srcY, dstX, dstY);
-
             SDL_Delay(300);
+
+            return Move(Map, srcX, srcY, dstX, dstY);
         }
 
         auto Animate = [&](SDL_Surface *passable, SDL_Surface *asset)
@@ -147,7 +147,7 @@ namespace Interface
 
             auto DeltaY = (dstY - srcY);
 
-            for (auto i = 0; i < ObjectSize; i++)
+            for (auto i = 0; i < ObjectSize; i += 5)
             {
                 RenderCombatScreen(Renderer, BattleScreen, -1, bg);
 
@@ -157,7 +157,7 @@ namespace Interface
 
                 SDL_RenderPresent(Renderer);
 
-                SDL_Delay(3);
+                SDL_Delay(10);
             }
         };
 
