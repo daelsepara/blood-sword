@@ -19,6 +19,34 @@ namespace Interface
         return (y >= 0 && y < Map.SizeY);
     }
 
+    void RenderCombatScreen(SDL_Renderer *Renderer, std::vector<Button> &Controls, int Current, Uint32 bg)
+    {
+        Graphics::FillWindow(Renderer, bg);
+
+        Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+    }
+
+    void RenderMessage(SDL_Renderer *Renderer, std::vector<Button> &Controls, Uint32 bg, int SizeX, int SizeY, int DrawX, int DrawY, int ObjectSize, std::string Message, Uint32 FlashColor)
+    {
+        Uint32 Duration = 1500;
+
+        auto MapSizeX = SizeX * ObjectSize;
+
+        auto MapSizeY = SizeY * ObjectSize;
+
+        RenderCombatScreen(Renderer, Controls, -1, bg);
+
+        auto FlashW = 3 * MapSizeX / 5;
+
+        auto FlashH = 2 * infoh;
+
+        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, DrawX + (MapSizeX - FlashW) / 2, DrawY + (MapSizeY - FlashH) / 2);
+
+        SDL_RenderPresent(Renderer);
+
+        SDL_Delay(Duration);
+    }
+
     void Remove(TacticalMap::Base &Map, int srcX, int srcY)
     {
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY))
@@ -103,15 +131,16 @@ namespace Interface
         return result;
     }
 
-    void RenderCombatScreen(SDL_Renderer *Renderer, std::vector<Button> &Controls, int Current, Uint32 bg)
+    bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, int srcX, int srcY, int dstX, int dstY, int ObjectSize, int MapX, int MapY, int DrawX, int DrawY, int SizeX, int SizeY)
     {
-        Graphics::FillWindow(Renderer, bg);
+        // do not render off screen animations
+        if ((srcX < MapX) || (srcX >= SizeX + MapX) || (srcY < MapY) || (srcY >= SizeY + MapY))
+        {
+            Move(Map, srcX, srcY, dstX, dstY);
 
-        Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
-    }
+            SDL_Delay(300);
+        }
 
-    bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, int srcX, int srcY, int dstX, int dstY, int ObjectSize, int MapX, int MapY, int DrawX, int DrawY)
-    {
         auto Animate = [&](SDL_Surface *passable, SDL_Surface *asset)
         {
             auto DeltaX = (dstX - srcX);
@@ -128,7 +157,7 @@ namespace Interface
 
                 SDL_RenderPresent(Renderer);
 
-                SDL_Delay(5);
+                SDL_Delay(3);
             }
         };
 
@@ -269,9 +298,11 @@ namespace Interface
         return IsValidX && IsValidY && Interface::Distance(PlayerX, PlayerY, MonsterX, MonsterY) <= 1;
     }
 
-    bool AttackedUponMoving(TacticalMap::Base &Map, std::vector<Monster::Base> &monsters, Character::Base &character, int PlayerId)
+    bool AttackedUponMoving(TacticalMap::Base &Map, std::vector<Monster::Base> &monsters, Character::Base &character, int PlayerId, int &Damages)
     {
         auto WasAttacked = false;
+
+        Damages = 0;
 
         for (auto i = 0; i < monsters.size(); i++)
         {
@@ -281,7 +312,7 @@ namespace Interface
             {
                 WasAttacked = true;
 
-                // do damages
+                Damages -= 2;
             }
         }
 
@@ -483,66 +514,24 @@ namespace Interface
     Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, int SizeX, int SizeY, int ObjectSize, int DrawX, int DrawY, bool Attacked)
     {
         auto Result = Combat::Result::NONE;
-
-        auto FlashMessage = false;
-
-        auto FlashColor = intRD;
-
-        std::string Message = "";
-
-        Uint32 StartTicks = 0;
-
-        Uint32 Duration = 1500;
-
         auto MapSizeX = SizeX * ObjectSize;
-
         auto MapSizeY = SizeY * ObjectSize;
-
-        auto DisplayMessage = [&](std::string msg, Uint32 color)
-        {
-            FlashMessage = true;
-
-            Message = msg;
-
-            FlashColor = color;
-
-            StartTicks = SDL_GetTicks();
-        };
-
-        auto RenderFlashMessage = [&]()
-        {
-            if (FlashMessage)
-            {
-                if ((SDL_GetTicks() - StartTicks) < Duration)
-                {
-                    auto FlashW = 3 * MapSizeX / 5;
-
-                    auto FlashH = 2 * infoh;
-
-                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, DrawX + (MapSizeX - FlashW) / 2, DrawY + (MapSizeY - FlashH) / 2);
-                }
-                else
-                {
-                    FlashMessage = false;
-                }
-            }
-        };
-
         auto WindowW = 4 * MapSizeX / 5;
         auto WindowH = 4 * MapSizeY / 5;
         auto WindowX = DrawX + (MapSizeX - WindowW) / 2;
         auto WindowY = DrawY + (MapSizeY - WindowH) / 2;
         auto MidWindow = WindowX + (WindowW / 2) + text_space;
-        auto ColumnWidth = WindowH / 2 - 2 * text_space;
-        auto RowHeight = TTF_FontHeight(Fonts::Normal) + text_space;
+        auto ColumnWidth = WindowH / 2 - 4 * text_space;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto TextY = WindowY + 2 * text_space;
 
-        auto TextButtonX = WindowX + text_space;
-        auto TextButtonY = (WindowY + WindowH) - (text_buttonh + text_space);
+        auto TextButtonX = WindowX + 2 * text_space;
+        auto TextButtonY = (WindowY + WindowH) - (text_buttonh + 2 * text_space);
         auto TextWidth = WindowW - 2 * text_space;
-        auto ResultsY = (10 * RowHeight + 2 * text_space);
+        auto ResultsY = 12 * RowHeight + 4 * text_space;
 
         const char *FightChoices1[2] = {"FIGHT", "CANCEL"}; // player attacks
-        auto FightControls1 = Graphics::CreateFixedTextButtons(FightChoices1, 2, text_buttonw, text_buttonh, text_space, WindowX + text_space, (WindowY + WindowH) - (text_buttonh + text_space));
+        auto FightControls1 = Graphics::CreateFixedTextButtons(FightChoices1, 2, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         FightControls1[0].Fg = clrWH;
         FightControls1[0].Highlight = Attacked ? intMG : intLB;
         FightControls1[0].Color = Attacked ? intRD : intDB;
@@ -631,24 +620,24 @@ namespace Interface
             // render current combat screen
             Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
 
-            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBE);
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
 
-            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
             // Character Stats
             auto Endurance = Engine::Score(Character, Attributes::Type::Endurance);
-            Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrLB, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + text_space);
-            Graphics::PutText(Renderer, ("FP " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + (RowHeight + text_space));
-            Graphics::PutText(Renderer, ("EN " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + (2 * RowHeight + text_space));
-            Graphics::PutText(Renderer, ("DMG " + std::to_string(Damage) + "D+" + std::to_string(DamageModifier)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + (3 * RowHeight + text_space));
-            Graphics::PutText(Renderer, ("ARM " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + (4 * RowHeight + text_space));
+            Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
+            Graphics::PutText(Renderer, ("FP: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
+            Graphics::PutText(Renderer, ("EN: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, ("DMG: " + std::to_string(Damage) + "D+" + std::to_string(DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
+            Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 4 * RowHeight);
 
             // MonsterStats
-            Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrRD, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + text_space);
-            Graphics::PutText(Renderer, ("FP " + std::to_string(Monster.FightingProwess)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + (RowHeight + text_space));
-            Graphics::PutText(Renderer, ("EN " + std::to_string(Monster.Endurance)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + (2 * RowHeight + text_space));
-            Graphics::PutText(Renderer, ("DMG " + std::to_string(Monster.Damage) + "D+" + std::to_string(Monster.DamageModifier)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + (3 * RowHeight + text_space));
-            Graphics::PutText(Renderer, ("ARM " + std::to_string(Monster.Armour)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + (4 * RowHeight + text_space));
+            Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrRD, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
+            Graphics::PutText(Renderer, ("FP: " + std::to_string(Monster.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + RowHeight);
+            Graphics::PutText(Renderer, ("EN: " + std::to_string(Monster.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, ("DMG: " + std::to_string(Monster.Damage) + "D+" + std::to_string(Monster.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
+            Graphics::PutText(Renderer, ("ARM: " + std::to_string(Monster.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 4 * RowHeight);
 
             if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
             {
@@ -671,30 +660,12 @@ namespace Interface
 
                 if (FightResult)
                 {
-                    if (!Attacked)
-                    {
-                        DisplayMessage("Attack was successful", intLB);
-                    }
-                    else
-                    {
-                        DisplayMessage("Attack was successful", intRD);
-                    }
-
                     Result = Combat::Result::FIGHT;
 
                     CurrentStage = Combat::Stage::DAMAGE;
                 }
                 else
                 {
-                    if (!Attacked)
-                    {
-                        DisplayMessage("Attack was unsuccessful", intRD);
-                    }
-                    else
-                    {
-                        DisplayMessage("Attack was unsuccessful", intLB);
-                    }
-
                     Result = Combat::Result::UNSUCCESSFUL;
 
                     CurrentStage = Combat::Stage::END;
@@ -707,14 +678,23 @@ namespace Interface
                 // show fight results
                 for (auto i = 0; i < FightRolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], WindowX + border_space + i * (ObjectSize + 2 * border_space), WindowY + (5 * RowHeight + 2 * text_space), ObjectSize, ObjectSize);
+                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (ObjectSize + 2 * border_space), TextY + 6 * RowHeight, ObjectSize, ObjectSize);
                 }
 
-                Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, TextWidth, RowHeight, WindowX + text_space, ResultsY);
+                Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrYW, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+
+                if (Attacked)
+                {
+                    Graphics::PutText(Renderer, (Monster.Name + " hits the " + std::string(Character::Description[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrRD, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                }
+                else
+                {
+                    Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + " hits " + Monster.Name + "!").c_str(), Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                }
 
                 if (!CalculatedDamage)
                 {
-                    // Compute Damage
+                    // compute damage
                     for (auto i = 0; i < DamageRolls; i++)
                     {
                         Damages[i] = Engine::Roll(1, 0);
@@ -735,23 +715,32 @@ namespace Interface
             {
                 if (Result == Combat::Result::UNSUCCESSFUL)
                 {
-                    // show fight resultsS
+                    // show fight results
                     for (auto i = 0; i < FightRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], WindowX + border_space + i * (ObjectSize + 2 * border_space), WindowY + (5 * RowHeight + 2 * text_space), ObjectSize, ObjectSize);
+                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (ObjectSize + 2 * border_space), TextY + 6 * RowHeight, ObjectSize, ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, TextWidth, RowHeight, WindowX + text_space, ResultsY);
+                    Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrYW, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+
+                    if (Attacked)
+                    {
+                        Graphics::PutText(Renderer, (Monster.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                    }
+                    else
+                    {
+                        Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrRD, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                    }
                 }
                 else
                 {
-                    // Show Damage Reults
+                    // show damage results
                     for (auto i = 0; i < DamageRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Damages[i] - 1], WindowX + border_space + i * (ObjectSize + 2 * border_space), WindowY + (5 * RowHeight + 2 * text_space), ObjectSize, ObjectSize);
+                        Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (ObjectSize + 2 * border_space), TextY + 6 * RowHeight, ObjectSize, ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Damages: " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, TextWidth, RowHeight, WindowX + text_space, ResultsY);
+                    Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, clrRD, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                     if (!AssignedDamage)
                     {
@@ -770,8 +759,6 @@ namespace Interface
             }
 
             Graphics::RenderTextButtons(Renderer, Controls, FONT_BOOKMAN, Current, 24, TTF_STYLE_NORMAL);
-
-            RenderFlashMessage();
 
             Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
 
@@ -1453,82 +1440,83 @@ namespace Interface
                             {
                                 Character::Base &character = party.Members[PlayerId];
 
-                                // Get attacked by a nearby enemy that has a higher awareness
-                                auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId);
+                                auto CurrentX = -1;
 
-                                if (WasAttacked)
+                                auto CurrentY = -1;
+
+                                Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
+
+                                if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                 {
-                                    DisplayMessage(("The " + std::string(Character::Description[character.Class]) + " was attacked!").c_str(), intRD);
-                                }
+                                    CurrentPath[PlayerId] = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
 
-                                if (Engine::IsAlive(character))
-                                {
-                                    auto CurrentX = -1;
+                                    CurrentMove[PlayerId] = 1;
 
-                                    auto CurrentY = -1;
+                                    auto Damages = 0;
 
-                                    Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
+                                    // Get attacked by a nearby enemy that has a higher awareness
+                                    auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId, Damages);
 
-                                    if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
+                                    if (CurrentPath[PlayerId].Points.size() > 2)
                                     {
-                                        if (Interface::ValidX(Map, CurrentX) && Interface::ValidY(Map, CurrentY))
+                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, CurrentPath[PlayerId].Points[1].X, CurrentPath[PlayerId].Points[1].Y, ObjectSize, MapX, MapY, DrawX, DrawY, SizeX, SizeY))
                                         {
-                                            CurrentPath[PlayerId] = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
-
-                                            CurrentMove[PlayerId] = 1;
-
-                                            if (CurrentPath[PlayerId].Points.size() > 2)
-                                            {
-                                                if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, CurrentPath[PlayerId].Points[1].X, CurrentPath[PlayerId].Points[1].Y, ObjectSize, MapX, MapY, DrawX, DrawY))
-                                                {
-                                                    DisplayMessage("Path Blocked!", intRD);
-                                                }
-                                                else
-                                                {
-                                                    CurrentMove[PlayerId] = 2;
-
-                                                    CycleCombatants();
-                                                }
-                                            }
-                                            else
-                                            {
-                                                DisplayMessage("Path Blocked!", intRD);
-
-                                                if (WasAttacked)
-                                                {
-                                                    CycleCombatants();
-                                                }
-                                            }
+                                            DisplayMessage("Path Blocked!", intRD);
                                         }
-                                        else if (WasAttacked)
+                                        else
                                         {
+                                            if (WasAttacked)
+                                            {
+                                                RenderMessage(Renderer, Controls, intBK, SizeX, SizeY, DrawX, DrawY, ObjectSize, ("The " + std::string(Character::Description[character.Class]) + " was attacked!"), intRD);
+
+                                                Engine::Gain(character, Attributes::Type::Endurance, Damages);
+
+                                                if (!Engine::IsAlive(character))
+                                                {
+                                                    Remove(Map, CurrentPath[PlayerId].Points[1].X, CurrentPath[PlayerId].Points[1].Y);
+                                                }
+                                            }
+
+                                            CurrentMove[PlayerId] = 2;
+
                                             CycleCombatants();
                                         }
                                     }
                                     else
                                     {
-                                        CurrentMove[PlayerId] = 0;
-
-                                        CurrentPath[PlayerId].Points.clear();
-
-                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, SelectX, SelectY, ObjectSize, MapX, MapY, DrawX, DrawY))
-                                        {
-                                            DisplayMessage("Path Blocked!", intRD);
-
-                                            if (WasAttacked)
-                                            {
-                                                CycleCombatants();
-                                            }
-                                        }
-                                        else
-                                        {
-                                            CycleCombatants();
-                                        }
+                                        DisplayMessage("Path Blocked!", intRD);
                                     }
                                 }
                                 else
                                 {
-                                    CycleCombatants();
+                                    CurrentMove[PlayerId] = 0;
+
+                                    CurrentPath[PlayerId].Points.clear();
+
+                                    auto Damages = 0;
+
+                                    auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId, Damages);
+
+                                    if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, SelectX, SelectY, ObjectSize, MapX, MapY, DrawX, DrawY, SizeX, SizeY))
+                                    {
+                                        DisplayMessage("Path Blocked!", intRD);
+                                    }
+                                    else
+                                    {
+                                        if (WasAttacked)
+                                        {
+                                            RenderMessage(Renderer, Controls, intBK, SizeX, SizeY, DrawX, DrawY, ObjectSize, ("The " + std::string(Character::Description[character.Class]) + " was attacked!"), intRD);
+
+                                            Engine::Gain(character, Attributes::Type::Endurance, Damages);
+
+                                            if (!Engine::IsAlive(character))
+                                            {
+                                                Remove(Map, SelectX, SelectY);
+                                            }
+                                        }
+
+                                        CycleCombatants();
+                                    }
                                 }
                             }
                         }
@@ -1548,14 +1536,6 @@ namespace Interface
                                 {
                                     Character::Base &character = party.Members[PlayerId];
 
-                                    // Get attacked by a nearby enemy that has a higher awareness
-                                    auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId);
-
-                                    if (WasAttacked)
-                                    {
-                                        DisplayMessage(("The " + std::string(Character::Description[character.Class]) + " was attacked!").c_str(), intRD);
-                                    }
-
                                     if (Engine::IsAlive(character))
                                     {
                                         auto CurrentX = -1;
@@ -1564,12 +1544,29 @@ namespace Interface
 
                                         Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
 
-                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y, ObjectSize, MapX, MapY, DrawX, DrawY))
+                                        auto Damages = 0;
+
+                                        auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId, Damages);
+
+                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y, ObjectSize, MapX, MapY, DrawX, DrawY, SizeX, SizeY))
                                         {
                                             DisplayMessage("Path Blocked!", intRD);
                                         }
                                         else
                                         {
+                                            // Get attacked by a nearby enemy that has a higher awareness
+                                            if (WasAttacked)
+                                            {
+                                                RenderMessage(Renderer, Controls, intBK, SizeX, SizeY, DrawX, DrawY, ObjectSize, ("The " + std::string(Character::Description[character.Class]) + " was attacked!"), intRD);
+
+                                                Engine::Gain(character, Attributes::Type::Endurance, Damages);
+
+                                                if (!Engine::IsAlive(character))
+                                                {
+                                                    Remove(Map, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y);
+                                                }
+                                            }
+
                                             CurrentMove[PlayerId]++;
 
                                             CycleCombatants();
@@ -1740,7 +1737,7 @@ namespace Interface
 
                             if (MonsterPath.Points.size() > 2)
                             {
-                                Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, MonsterX, MonsterY,  MonsterPath.Points[1].X, MonsterPath.Points[1].Y, ObjectSize, MapX, MapY, DrawX, DrawY);
+                                Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, MonsterX, MonsterY, MonsterPath.Points[1].X, MonsterPath.Points[1].Y, ObjectSize, MapX, MapY, DrawX, DrawY, SizeX, SizeY);
                             }
                         }
                     }
