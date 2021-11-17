@@ -94,7 +94,7 @@ namespace AStar
 
     bool IsPassable(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool isMonster)
     {
-        return (X >= 0 && X < map.SizeX && Y >= 0 && Y < map.SizeY && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == target->Y && X == target->X) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::HotCoals)));
+        return (X >= 0 && X < map.SizeX && Y >= 0 && Y < map.SizeY && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == target->Y && X == target->X) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::HotCoals) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::Monster)));
     }
 
     // Get all traversible nodes from current node
@@ -114,7 +114,18 @@ namespace AStar
                 // Check if within map boundaries and if passable and/or leads to destination
                 if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second, isMonster))
                 {
-                    traversable.push_back(std::make_shared<AStar::Node>(current->X + neighbors[i].first, current->Y + neighbors[i].second, current->Cost + 1, current));
+                    auto X = current->X + neighbors[i].first;
+                    auto Y = current->Y + neighbors[i].second;
+
+                    auto Cost = current->Cost + 1;
+
+                    if (X >= 0 && X < map.SizeX && Y >= 0 && Y < map.SizeY && isMonster && map.Objects[Y][X] == TacticalMap::Object::Monster)
+                    {
+                        // Monsters avoid other monsters as much as possible
+                        Cost += 1;
+                    }
+
+                    traversable.push_back(std::make_shared<AStar::Node>(X, Y, Cost, current));
 
                     traversable[index]->SetDistance(target);
 

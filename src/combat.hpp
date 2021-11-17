@@ -31,16 +31,16 @@ namespace Combat
         FIGHT,
         VICTORY,
         DEFEAT,
-        ESCAPED
+        ESCAPED,
+        UNSUCCESSFUL
     };
 
     enum class Stage
     {
         START,
-        FIRST,  // combatant with higher awareness attacks
-        DAMAGE, // assign damage
-        SECOND, // opponenent retaliates
-        END     // end of attack
+        FIGHT,
+        DAMAGE,
+        END // end of attack
     };
 }
 #endif

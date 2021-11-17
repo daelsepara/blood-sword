@@ -11,7 +11,7 @@ namespace Engine
 
     void Randomize()
     {
-        Engine::Random.UniformDistribution(1, 6);
+        Engine::Random.UniformIntDistribution(1, 6);
     }
 
     // For Die rolling
@@ -104,17 +104,16 @@ namespace Engine
         if (index >= 0 && index < character.Attributes.size())
         {
             character.Attributes[index].Value += value;
-
-            if (character.Attributes[index].Value > character.Attributes[index].Maximum)
-            {
-                character.Attributes[index].Value = character.Attributes[index].Maximum;
-            }
-
-            if (character.Attributes[index].Value < 0)
-            {
-                character.Attributes[index].Value = 0;
-            }
+            std::min(character.Attributes[index].Value, character.Attributes[index].Maximum);
+            std::max(0, character.Attributes[index].Value);
         }
+    }
+
+    void Gain(Monster::Base &monster, int damage)
+    {
+        monster.Endurance += damage;
+
+        monster.Endurance = std::max(0, monster.Endurance);
     }
 
     int Armour(Character::Base &character)
