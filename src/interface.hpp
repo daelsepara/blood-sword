@@ -919,9 +919,16 @@ namespace Interface
                     CurrentCombatant = 0;
 
                     CombatRound++;
+
+                    // clear defensive stance
+                    for (auto i = 0; i < party.Members.size(); i++)
+                    {
+                        party.Members[i].IsDefending = false;
+                    }
                 }
 
                 auto obj = std::get<0>(Sequence[CurrentCombatant]);
+
                 auto id = std::get<1>(Sequence[CurrentCombatant]);
 
                 if (obj == TacticalMap::Object::Player)
@@ -1384,6 +1391,16 @@ namespace Interface
                         {
                             MapX++;
                         }
+                        else if (Controls[Current].Type == Control::Type::DEFEND)
+                        {
+                            party.Members[PlayerId].IsDefending = true;
+
+                            CycleCombatants();
+
+                            Selected = false;
+
+                            Current = -1;
+                        }
                         else if (Controls[Current].Type == Control::Type::PLAYER && !Hold)
                         {
                             if (CurrentMode == Combat::Mode::NORMAL)
@@ -1662,6 +1679,10 @@ namespace Interface
                                     {
                                         DisplayMessage("Attack canceled", intLB);
                                     }
+
+                                    Selected = false;
+
+                                    Current = -1;
                                 }
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
@@ -1685,6 +1706,8 @@ namespace Interface
                             }
                         }
                     }
+
+                    Selected = false;
                 }
                 else if (std::get<0>(Sequence[CurrentCombatant]) == TacticalMap::Object::Monster)
                 {
