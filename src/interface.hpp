@@ -1325,6 +1325,12 @@ namespace Interface
                     else if (CurrentMode == Combat::Mode::ATTACK && ControlType == Control::Type::MONSTER)
                     {
                         Graphics::PutText(Renderer, "Fight target", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+
+                        auto SelectX = MapX + (Controls[Current].X - DrawX) / ObjectSize;
+
+                        auto SelectY = MapY + (Controls[Current].Y - DrawY) / ObjectSize;
+
+                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::ATTACK)
                     {
@@ -1333,10 +1339,22 @@ namespace Interface
                     else if (CurrentMode == Combat::Mode::SHOOT && ControlType == Control::Type::MONSTER)
                     {
                         Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+
+                        auto SelectX = MapX + (Controls[Current].X - DrawX) / ObjectSize;
+
+                        auto SelectY = MapY + (Controls[Current].Y - DrawY) / ObjectSize;
+
+                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::MAGIC && ControlType == Control::Type::MONSTER)
                     {
                         Graphics::PutText(Renderer, "Cast a spell", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+
+                        auto SelectX = MapX + (Controls[Current].X - DrawX) / ObjectSize;
+
+                        auto SelectY = MapY + (Controls[Current].Y - DrawY) / ObjectSize;
+
+                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, DrawY);
                     }
                     else if ((ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION) && (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()))
                     {
