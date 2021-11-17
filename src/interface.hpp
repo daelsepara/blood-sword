@@ -157,7 +157,7 @@ namespace Interface
 
                 SDL_RenderPresent(Renderer);
 
-                SDL_Delay(10);
+                SDL_Delay(5);
             }
         };
 
