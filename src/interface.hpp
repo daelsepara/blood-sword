@@ -3,8 +3,6 @@
 
 #include "BloodSword.hpp"
 
-#include "graphics.hpp"
-
 namespace Interface
 {
     // (Player/Monster, Id, Awareness)
@@ -422,6 +420,9 @@ namespace Interface
         auto WindowH = 4 * MapSizeY / 5;
         auto WindowX = DrawX + (MapSizeX - WindowW) / 2;
         auto WindowY = DrawY + (MapSizeY - WindowH) / 2;
+        auto MidWindow = WindowX + (WindowW / 2) + text_space;
+        auto ColumnWidth = WindowH / 2 - 2 * text_space;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal) + text_space;
 
         auto TextButtonX = WindowX + text_space;
         auto TextButtonY = (WindowY + WindowH) - (text_buttonh + text_space);
@@ -451,6 +452,22 @@ namespace Interface
         DoneControls[0].Color = intDB;
         DoneControls[0].Type = Control::Type::BACK;
 
+        const char *DamageChoices[1] = {"DAMAGE"}; // end of fighting
+        auto DamageControls = Graphics::CreateFixedTextButtons(DamageChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+        DamageControls[0].Fg = clrWH;
+        DamageControls[0].Highlight = intLB;
+        DamageControls[0].Color = intDB;
+        DamageControls[0].Type = Control::Type::DAMAGE;
+
+        SDL_Surface *dice[6];
+
+        dice[0] = Assets::Copy(Assets::Type::Dice1);
+        dice[1] = Assets::Copy(Assets::Type::Dice2);
+        dice[2] = Assets::Copy(Assets::Type::Dice3);
+        dice[3] = Assets::Copy(Assets::Type::Dice4);
+        dice[4] = Assets::Copy(Assets::Type::Dice5);
+        dice[5] = Assets::Copy(Assets::Type::Dice6);
+
         auto Hold = false;
         auto Selected = false;
         auto ScrollUp = false;
@@ -463,7 +480,19 @@ namespace Interface
 
         auto done = false;
 
-        auto CurrentStage = Combat::Stage::FIRST;
+        auto CurrentStage = Combat::Stage::START;
+
+        auto FightingProwess = Engine::Score(Character, Attributes::Type::FightingProwess);
+        auto Damage = Character.Damage;
+        auto DamageModifier = Character.DamageModifier;
+        auto Armour = Engine::Armour(Character);
+
+        if (!Engine::HasWeapon(Character))
+        {
+            FightingProwess = std::max(0, FightingProwess - 2);
+
+            DamageModifier -= -2;
+        }
 
         while (!done)
         {
@@ -473,6 +502,26 @@ namespace Interface
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBE);
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            // Character Stats
+            auto Endurance = Engine::Score(Character, Attributes::Type::Endurance);
+            Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrLB, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + text_space);
+            Graphics::PutText(Renderer, ("FP " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + (RowHeight + text_space));
+            Graphics::PutText(Renderer, ("EN " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + (2 * RowHeight + text_space));
+            Graphics::PutText(Renderer, ("DMG " + std::to_string(Damage) + "D" + std::to_string(DamageModifier)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + (3 * RowHeight + text_space));
+            Graphics::PutText(Renderer, ("ARM " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, WindowX + text_space, WindowY + (4 * RowHeight + text_space));
+
+            // MonsterStats
+            Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrRD, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + text_space);
+            Graphics::PutText(Renderer, ("FP " + std::to_string(Monster.FightingProwess)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + (RowHeight + text_space));
+            Graphics::PutText(Renderer, ("EN " + std::to_string(Monster.Endurance)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + (2 * RowHeight + text_space));
+            Graphics::PutText(Renderer, ("DMG " + std::to_string(Monster.Damage) + "D" + std::to_string(Monster.DamageModifier)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + (3 * RowHeight + text_space));
+            Graphics::PutText(Renderer, ("ARM " + std::to_string(Monster.Armour)).c_str(), Fonts::Normal, 0, clrBK, intBE, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, WindowY + (4 * RowHeight + text_space));
+
+            if (CurrentStage == Combat::Stage::END)
+            {
+                Controls = DoneControls;
+            }
 
             Graphics::RenderTextButtons(Renderer, Controls, FONT_BOOKMAN, Current, 24, TTF_STYLE_NORMAL);
 
@@ -484,40 +533,34 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::ATTACK && !Hold)
                 {
+                    if (CurrentStage == Combat::Stage::START)
+                    {
+                        CurrentStage = Combat::Stage::FIRST;
+                    
+                        Controls = DamageControls;
+                    }
+                    else if (CurrentStage == Combat::Stage::SECOND)
+                    {
+                        Controls = DamageControls;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::DAMAGE && !Hold)
+                {
                     if (CurrentStage == Combat::Stage::FIRST)
                     {
-                        if (First)
-                        {
-                            DisplayMessage(("The " + std::string(Character::Description[Character.Class]) + " attacks the " + Monster.Name + "!").c_str(), intLB);
-                        }
-                        else
-                        {
-                            DisplayMessage(("The " + Monster.Name + " attacks the " + std::string(Character::Description[Character.Class]) + "!").c_str(), intRD);
-                        }
-
-                        // player does not get to cancel attack if awareness is lower
-                        Controls = FightControls2;
-
                         CurrentStage = Combat::Stage::SECOND;
+
+                        Controls = FightControls2;
 
                         Result = Combat::Result::FIGHT;
                     }
                     else if (CurrentStage == Combat::Stage::SECOND)
                     {
-                        if (First)
-                        {
-                            DisplayMessage(("The " + Monster.Name + " attacks the " + std::string(Character::Description[Character.Class]) + "!").c_str(), intRD);
-                        }
-                        else
-                        {
-                            DisplayMessage(("The " + std::string(Character::Description[Character.Class]) + " attacks the " + Monster.Name + "!").c_str(), intLB);
-                        }
-
                         CurrentStage = Combat::Stage::END;
 
-                        Result = Combat::Result::FIGHT;
-
                         Controls = DoneControls;
+
+                        Result = Combat::Result::FIGHT;
                     }
                 }
                 else if (Controls[Current].Type == Control::Type::BACK && !Hold)
@@ -529,6 +572,16 @@ namespace Interface
 
                     done = true;
                 }
+            }
+        }
+
+        for (auto i = 0; i < 6; i++)
+        {
+            if (dice[i])
+            {
+                SDL_FreeSurface(dice[i]);
+
+                dice[i] = NULL;
             }
         }
 
@@ -755,20 +808,20 @@ namespace Interface
                 auto BottomMapX = StartMap + (SizeX * (SizeY - 1));
                 auto MidMapY = StartMap + (SizeY / 2 * SizeX) - SizeX;
 
-                Controls.push_back(Button(0, Graphics::GetAsset(Graphics::AssetType::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, MapY > 0 ? intLB : intGR, Control::Type::MAP_UP));
-                Controls.push_back(Button(1, Graphics::GetAsset(Graphics::AssetType::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * border_space), MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
-                Controls.push_back(Button(2, Graphics::GetAsset(Graphics::AssetType::Right), 2, MidMapY + SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (MapX < Map.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
-                Controls.push_back(Button(3, Graphics::GetAsset(Graphics::AssetType::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (MapY < Map.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
-                Controls.push_back(Button(4, Graphics::GetAsset(Graphics::AssetType::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intLB, Control::Type::EXIT));
-                Controls.push_back(Button(5, Graphics::GetAsset(Graphics::AssetType::Items), 3, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::ITEMS));
-                Controls.push_back(Button(6, Graphics::GetAsset(Graphics::AssetType::Move), 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::MOVE));
-                Controls.push_back(Button(7, Graphics::GetAsset(Graphics::AssetType::Heal), 6, 8, BottomMapX + 2, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::HEAL));
-                Controls.push_back(Button(8, Graphics::GetAsset(Graphics::AssetType::Attack), 7, 9, BottomMapX + 3, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
-                Controls.push_back(Button(9, Graphics::GetAsset(Graphics::AssetType::Defend), 8, 10, BottomMapX + 4, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
-                Controls.push_back(Button(10, Graphics::GetAsset(Graphics::AssetType::Shoot), 9, 11, BottomMapX + 5, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
-                Controls.push_back(Button(11, Graphics::GetAsset(Graphics::AssetType::Memorize), 10, 12, BottomMapX + 6, 11, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::MEMORIZE));
-                Controls.push_back(Button(12, Graphics::GetAsset(Graphics::AssetType::Magic), 11, 13, BottomMapX + 7, 12, ActionsX + 7 * ActionsGrid, ActionsY, intLB, Control::Type::MAGIC));
-                Controls.push_back(Button(13, Graphics::GetAsset(Graphics::AssetType::Flee), 12, 4, BottomMapX + 8, 4, ActionsX + 8 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
+                Controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, MapY > 0 ? intLB : intGR, Control::Type::MAP_UP));
+                Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * border_space), MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
+                Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (MapX < Map.SizeX - SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
+                Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (MapY < Map.SizeY - SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
+                Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intLB, Control::Type::EXIT));
+                Controls.push_back(Button(5, Assets::Get(Assets::Type::Items), 3, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::ITEMS));
+                Controls.push_back(Button(6, Assets::Get(Assets::Type::Move), 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::MOVE));
+                Controls.push_back(Button(7, Assets::Get(Assets::Type::Heal), 6, 8, BottomMapX + 2, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::HEAL));
+                Controls.push_back(Button(8, Assets::Get(Assets::Type::Attack), 7, 9, BottomMapX + 3, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
+                Controls.push_back(Button(9, Assets::Get(Assets::Type::Defend), 8, 10, BottomMapX + 4, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
+                Controls.push_back(Button(10, Assets::Get(Assets::Type::Shoot), 9, 11, BottomMapX + 5, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
+                Controls.push_back(Button(11, Assets::Get(Assets::Type::Memorize), 10, 12, BottomMapX + 6, 11, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::MEMORIZE));
+                Controls.push_back(Button(12, Assets::Get(Assets::Type::Magic), 11, 13, BottomMapX + 7, 12, ActionsX + 7 * ActionsGrid, ActionsY, intLB, Control::Type::MAGIC));
+                Controls.push_back(Button(13, Assets::Get(Assets::Type::Flee), 12, 4, BottomMapX + 8, 4, ActionsX + 8 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
 
                 int NumControls = Controls.size();
 
@@ -857,7 +910,7 @@ namespace Interface
 
                         if (Object == TacticalMap::Object::Wall)
                         {
-                            Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MAP_NONE));
+                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MAP_NONE));
                         }
                         else if (Object == TacticalMap::Object::Player)
                         {
@@ -877,23 +930,23 @@ namespace Interface
 
                             if (party.Members[ObjectId].Class == Character::Class::Warrior)
                             {
-                                Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::Warrior), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::PLAYER));
+                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Warrior), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::PLAYER));
                             }
                         }
                         else if (Object == TacticalMap::Object::HotCoals)
                         {
-                            Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MAP_NONE));
+                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MAP_NONE));
                         }
                         else if (Object == TacticalMap::Object::Monster)
                         {
                             if (monsters[ObjectId].Type == Monster::Type::Barbarian)
                             {
-                                Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::Barbarian), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MONSTER));
+                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Barbarian), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MONSTER));
                             }
                         }
                         else
                         {
-                            Controls.push_back(Button(NumControls, Graphics::GetAsset(Graphics::AssetType::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::DESTINATION));
+                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::DESTINATION));
                         }
 
                         NumControls++;

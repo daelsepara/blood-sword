@@ -5,48 +5,12 @@
 
 namespace Graphics
 {
-    enum class AssetType
-    {
-        None = 0,
-        Warrior,
-        Trickster,
-        Sage,
-        Wizard,
-        Passable,
-        Wall,
-        Exit,
-        HotCoals,
-        Up = 100,
-        Left,
-        Right,
-        Down,
-        Back,
-        Move,
-        Heal,
-        Attack,
-        Defend,
-        Shoot,
-        Memorize,
-        Magic,
-        Flee,
-        Items,
-        Spellbook,
-        Ok = 150,
-        Cancel,
-        Monster = 200,
-        Barbarian
-    };
-
-    // Forward Declarations
-    bool LoadAssets(const char *file_name);
-
     SDL_Surface *CreateImage(const char *image);
     SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
     SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style);
     SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style);
-    SDL_Surface *GetAsset(Graphics::AssetType asset);
 
-std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony);
+    std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony);
     std::vector<TextButton> CreateTextButtons(const char **choices, int num, int text_buttonh, int text_x, int text_buttony, int window_width, int window_height);
 
     void CreateWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, const char *title);
@@ -63,17 +27,10 @@ std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, in
     void SetWindowIcon(SDL_Window *window, const char *icon);
     void StretchImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int w, int h);
     void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts);
-    void UnloadAssets();
 
     // ---------------------------------------------------------------------------------------------
     // START - Implementations
     // ---------------------------------------------------------------------------------------------
-    typedef std::pair<Graphics::AssetType, SDL_Surface *> AssetSurface;
-    typedef std::pair<Graphics::AssetType, std::string> AssetPath;
-
-    std::vector<Graphics::AssetPath> AssetPaths = {};
-    std::vector<Graphics::AssetSurface> AssetGraphics = {};
-
     void CreateWindow(Uint32 flags, SDL_Window **window, SDL_Renderer **renderer, const char *title)
     {
         // The window and renderer we'll be rendering to
@@ -766,96 +723,6 @@ std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, in
             SDL_FreeSurface(converted_text);
 
             converted_text = NULL;
-        }
-
-        return surface;
-    }
-
-    void UnloadAssets()
-    {
-        if (Graphics::AssetGraphics.size() > 0)
-        {
-            for (auto i = 0; i < Graphics::AssetGraphics.size(); i++)
-            {
-                if (Graphics::AssetGraphics[i].second && Graphics::AssetGraphics[i].second)
-                {
-                    SDL_FreeSurface(Graphics::AssetGraphics[i].second);
-
-                    Graphics::AssetGraphics[i].second = NULL;
-                }
-            }
-
-            Graphics::AssetGraphics.clear();
-
-            Graphics::AssetPaths.clear();
-        }
-    }
-
-    bool LoadAssets(const char *file_name)
-    {
-        auto result = false;
-
-        Graphics::UnloadAssets();
-
-        Graphics::AssetPaths.clear();
-
-        Graphics::AssetGraphics.clear();
-
-        std::ifstream ifs(file_name);
-
-        if (ifs.good())
-        {
-            auto data = nlohmann::json::parse(ifs);
-
-            if (!data["assets"].is_null() && data["assets"].is_array() && data["assets"].size() > 0)
-            {
-                for (auto i = 0; i < data["assets"].size(); i++)
-                {
-                    auto object = !data["assets"][i]["id"].is_null() ? static_cast<Graphics::AssetType>((int)data["assets"][i]["id"]) : Graphics::AssetType::None;
-
-                    auto path = !data["assets"][i]["path"].is_null() ? std::string(data["assets"][i]["path"]) : "";
-
-                    if (!path.empty() && object != Graphics::AssetType::None)
-                    {
-                        auto surface = Graphics::CreateImage(path.c_str());
-
-                        if (surface)
-                        {
-                            Graphics::AssetPaths.push_back(std::make_pair(object, path));
-
-                            Graphics::AssetGraphics.push_back(std::make_pair(object, surface));
-                        }
-                    }
-                }
-            }
-
-            ifs.close();
-
-            result = !AssetPaths.empty() && !AssetGraphics.empty() && (AssetGraphics.size() == AssetPaths.size());
-        }
-        else
-        {
-            result = false;
-        }
-
-        return result;
-    }
-
-    SDL_Surface *GetAsset(Graphics::AssetType asset)
-    {
-        SDL_Surface *surface = NULL;
-
-        if (Graphics::AssetGraphics.size() > 0)
-        {
-            for (auto i = 0; i < AssetGraphics.size(); i++)
-            {
-                if (Graphics::AssetGraphics[i].first == asset)
-                {
-                    surface = Graphics::AssetGraphics[i].second;
-
-                    break;
-                }
-            }
         }
 
         return surface;

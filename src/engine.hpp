@@ -1,6 +1,7 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
+#include "monster.hpp"
 #include "party.hpp"
 #include "random.hpp"
 
@@ -177,6 +178,23 @@ namespace Engine
         for (auto i = 0; i < monsters.size(); i++)
         {
             if (monsters[i].Endurance > 0)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasWeapon(Character::Base &character)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].WeaponType != Equipment::Weapon::Bow)
             {
                 result = true;
 

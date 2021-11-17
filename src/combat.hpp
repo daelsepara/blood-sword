@@ -36,7 +36,9 @@ namespace Combat
 
     enum class Stage
     {
+        START,
         FIRST,  // combatant with higher awareness attacks
+        DAMAGE, // assign damage
         SECOND, // opponenent retaliates
         END     // end of attack
     };

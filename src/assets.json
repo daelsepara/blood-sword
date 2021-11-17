@@ -81,6 +81,30 @@
             "path": "icons/no.png"
         },
         {
+            "id": 152,
+            "path": "images/dice/dice1.png"
+        },
+        {
+            "id": 153,
+            "path": "images/dice/dice2.png"
+        },
+        {
+            "id": 154,
+            "path": "images/dice/dice3.png"
+        },
+        {
+            "id": 155,
+            "path": "images/dice/dice4.png"
+        },
+        {
+            "id": 156,
+            "path": "images/dice/dice5.png"
+        },
+        {
+            "id": 157,
+            "path": "images/dice/dice5.png"
+        },
+        {
             "id": 201,
             "path": "images/monsters/barbarian.png"
         }

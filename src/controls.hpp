@@ -33,7 +33,8 @@ namespace Control
         ATTACK,
         DEFEND,
         SHOOT,
-        MAGIC
+        MAGIC,
+        DAMAGE
     };
 
     class Base
