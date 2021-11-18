@@ -298,6 +298,18 @@ namespace Interface
         return IsValidX && IsValidY && Interface::Distance(PlayerX, PlayerY, MonsterX, MonsterY) <= 1;
     }
 
+    bool NearbyMonsters(TacticalMap::Base &Map, std::vector<Monster::Base> Monsters, int PlayerId)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < Monsters.size(); i++)
+        {
+            result |= (Monsters[i].Endurance > 0 && Interface::IsAdjacent(Map, PlayerId, i));
+        }
+
+        return result;
+    }
+
     bool AttackedUponMoving(TacticalMap::Base &Map, std::vector<Monster::Base> &monsters, Character::Base &character, int PlayerId, int &Damages)
     {
         auto WasAttacked = false;
@@ -363,7 +375,7 @@ namespace Interface
                       }
                       else if (std::get<1>(a) == std::get<1>(b))
                       {
-                          // on equidistant targets, attack target with lesser endurance
+                          // on equidistant targets, give priority to the one with less endurance
                           if (std::get<2>(a) < std::get<2>(b))
                           {
                               return true;
@@ -380,9 +392,9 @@ namespace Interface
                   });
     }
 
-    Interface::Targets SelectTarget(TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, std::vector<Combatants> &Sequence, int CurrentCombatant)
+    Interface::Targets SelectTarget(TacticalMap::Base &Map, Party::Base &party, int MonsterId)
     {
-        Interface::Targets NearestPlayer = {};
+        Interface::Targets NearestPlayer = {-1, -1, -1};
 
         // player id, distance, endurance
         std::vector<Targets> Distances = {};
@@ -391,16 +403,12 @@ namespace Interface
 
         auto MonsterY = 0;
 
-        auto MonsterId = std::get<1>(Sequence[CurrentCombatant]);
-
         Interface::Find(Map, TacticalMap::Object::Monster, MonsterId + 1, MonsterX, MonsterY);
 
-        // Do Monster Actions
+        // cycle through the players
         for (auto i = 0; i < party.Members.size(); i++)
         {
-            auto Endurance = Engine::Endurance(party.Members[i]);
-
-            if (Endurance > 0 && !party.Members[i].Escaped)
+            if (Engine::IsAlive(party.Members[i]) > 0 && !party.Members[i].Escaped)
             {
                 auto LocationX = 0;
 
@@ -408,7 +416,7 @@ namespace Interface
 
                 Interface::Find(Map, TacticalMap::Object::Player, i + 1, LocationX, LocationY);
 
-                Distances.push_back(std::make_tuple(i, Interface::Distance(MonsterX, MonsterY, LocationX, LocationY), Endurance));
+                Distances.push_back(std::make_tuple(i, Interface::Distance(MonsterX, MonsterY, LocationX, LocationY), Engine::Endurance(party.Members[i])));
             }
         }
 
@@ -497,7 +505,7 @@ namespace Interface
     {
         std::sort(Sequence.begin(), Sequence.end(), [](Combatants &a, Combatants &b) -> bool
                   {
-                      // sort combatants based on Awareness
+                      // sort combatants based on awareness
                       if (std::get<2>(a) > std::get<2>(b))
                       {
                           return true;
@@ -521,7 +529,7 @@ namespace Interface
                   });
     }
 
-    // fight encounter between PlayerId and MonsterId
+    // fight encounter between player and monster
     Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, bool Attacked)
     {
         auto Result = Combat::Result::NONE;
@@ -590,7 +598,7 @@ namespace Interface
         auto ScrollDown = false;
         auto Current = 0;
 
-        std::vector<TextButton> &Controls = (!Attacked) ? FightControls1 : FightControls2;
+        std::vector<TextButton> &Controls = Attacked ? FightControls2 : FightControls1;
 
         auto done = false;
 
@@ -637,7 +645,7 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
-            // Character Stats
+            // character stats
             auto Endurance = Engine::Endurance(Character);
             Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
             Graphics::PutText(Renderer, ("FP: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
@@ -650,7 +658,7 @@ namespace Interface
                 Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
             }
 
-            // MonsterStats
+            // monster stats
             Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrRD, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
             Graphics::PutText(Renderer, ("FP: " + std::to_string(Monster.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + RowHeight);
             Graphics::PutText(Renderer, ("EN: " + std::to_string(Monster.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 2 * RowHeight);
@@ -894,7 +902,7 @@ namespace Interface
         // round sequence
         std::vector<Interface::Combatants> Sequence = {};
 
-        // Sort combatants based on Awareness
+        // sort combatants based on awareness
         for (auto i = 0; i < party.Members.size(); i++)
         {
             auto Awareness = Engine::Awareness(party.Members[i]);
@@ -941,9 +949,24 @@ namespace Interface
             return std::get<0>(Sequence[id]) == TacticalMap::Object::Monster;
         };
 
+        auto Type = [&](int id)
+        {
+            return std::get<0>(Sequence[id]);
+        };
+
         auto GetId = [&](int id)
         {
             return std::get<1>(Sequence[id]);
+        };
+
+        auto Target = [&](Interface::Targets target)
+        {
+            return std::get<0>(target);
+        };
+
+        auto TargetDistance = [&](Interface::Targets target)
+        {
+            return std::get<1>(target);
         };
 
         auto NextQuickThinker = [&]()
@@ -1152,7 +1175,7 @@ namespace Interface
 
                 auto BlinkY = -1;
 
-                // Render Objects within the Map Window
+                // render objects within the map window
                 for (auto y = Map.MapY; y < Map.MapY + Map.SizeY; y++)
                 {
                     auto AssetY = Map.DrawY + (y - Map.MapY) * Map.ObjectSize;
@@ -1282,7 +1305,7 @@ namespace Interface
                     Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
                 }
 
-                // Blink current party member
+                // blink current party member
                 if (SelectedCombatant != CurrentCombatant && Blink && BlinkX >= 0 && BlinkY >= 0 && (Current == -1 || (Current >= 0 && Current < Controls.size() && (BlinkX != Controls[Current].X || BlinkY != Controls[Current].Y))))
                 {
                     Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, BlinkX + 2 * border_pts, BlinkY + 2 * border_pts, intRD, border_pts);
@@ -1290,15 +1313,13 @@ namespace Interface
 
                 if (SelectedCombatant >= 0 && SelectedCombatant < Sequence.size())
                 {
-                    auto Combatant = Sequence[SelectedCombatant];
-
                     auto SelectedX = 0;
 
                     auto SelectedY = 0;
 
-                    auto Id = std::get<1>(Combatant);
+                    auto Id = GetId(SelectedCombatant);
 
-                    Interface::Find(Map, std::get<0>(Combatant), Id + 1, SelectedX, SelectedY);
+                    Interface::Find(Map, Type(SelectedCombatant), Id + 1, SelectedX, SelectedY);
 
                     if ((SelectedX - Map.MapX) >= 0 && (SelectedX - Map.MapX) < Map.SizeX && (SelectedY - Map.MapY) >= 0 && (SelectedY - Map.MapY) < Map.SizeY)
                     {
@@ -1306,18 +1327,18 @@ namespace Interface
                     }
 
                     // Render statistics for currently selected / highlighted player or monster
-                    if (std::get<0>(Combatant) == TacticalMap::Object::Player)
+                    if (IsPlayer(SelectedCombatant))
                     {
                         Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Id, TextWidthR, TextR, Map.DrawY);
                     }
-                    else if (std::get<0>(Combatant) == TacticalMap::Object::Monster)
+                    else if (IsMonster(SelectedCombatant))
                     {
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Id, TextWidthR, TextR, Map.DrawY);
 
                         // Show potential target
-                        auto NearestPlayer = Interface::SelectTarget(Map, party, monsters, Sequence, SelectedCombatant);
+                        auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(SelectedCombatant));
 
-                        auto PlayerId = std::get<0>(NearestPlayer);
+                        auto PlayerId = Target(NearestPlayer);
 
                         if (PlayerId >= 0 && PlayerId < party.Members.size())
                         {
@@ -1350,25 +1371,28 @@ namespace Interface
                 {
                     auto ControlType = Controls[Current].Type;
 
+                    auto SelectX = -1;
+
+                    auto SelectY = -1;
+
+                    if (Controls[Current].X >= Map.DrawX && Controls[Current].X <= Map.DrawX + MapSizeX && Controls[Current].Y >= Map.DrawY && Controls[Current].Y <= Map.DrawY + MapSizeY)
+                    {
+                        SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
+
+                        SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
+                    }
+
                     Interface::ShowCoordinates(Renderer, Map, Controls, Sequence, Current, SelectedCombatant, Fonts::Normal, TextWidth, TextR);
 
                     if (CurrentMode == Combat::Mode::NORMAL && ControlType == Control::Type::PLAYER)
                     {
                         Graphics::PutText(Renderer, "View party member", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
-                        auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                        auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
                         Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::NORMAL && ControlType == Control::Type::MONSTER)
                     {
                         Graphics::PutText(Renderer, "View opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                        auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                        auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
 
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
@@ -1401,10 +1425,6 @@ namespace Interface
 
                         if (ControlType == Control::Type::DESTINATION)
                         {
-                            auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                            auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
                             if ((TargetX != SelectX || TargetY != SelectY) && ControlType == Control::Type::DESTINATION)
                             {
                                 auto PlayerX = -1;
@@ -1433,10 +1453,6 @@ namespace Interface
                     {
                         Graphics::PutText(Renderer, "Fight target", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
-                        auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                        auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::ATTACK)
@@ -1447,28 +1463,16 @@ namespace Interface
                     {
                         Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
-                        auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                        auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::MAGIC && ControlType == Control::Type::MONSTER)
                     {
                         Graphics::PutText(Renderer, "Cast a spell", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
-                        auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                        auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
                     else if ((ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION) && (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()))
                     {
-                        auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                        auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
                         std::string Coordinates = "(" + std::to_string(SelectX) + ", " + std::to_string(SelectY) + ")";
 
                         Graphics::PutText(Renderer, Coordinates.c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, Map.DrawY);
@@ -1486,8 +1490,27 @@ namespace Interface
 
                     auto PlayerId = GetId(CurrentCombatant);
 
+                    Character::Base &Character = party.Members[PlayerId];
+
+                    auto CurrentX = -1;
+
+                    auto CurrentY = -1;
+
+                    Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
+
                     if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
                     {
+                        auto SelectX = -1;
+
+                        auto SelectY = -1;
+
+                        if (Controls[Current].X >= Map.DrawX && Controls[Current].X <= Map.DrawX + MapSizeX && Controls[Current].Y >= Map.DrawY && Controls[Current].Y <= Map.DrawY + MapSizeY)
+                        {
+                            SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
+
+                            SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
+                        }
+
                         if (Controls[Current].Type == Control::Type::EXIT && !Hold)
                         {
                             Current = -1;
@@ -1518,7 +1541,7 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::DEFEND)
                         {
-                            party.Members[PlayerId].IsDefending = true;
+                            Character.IsDefending = true;
 
                             CycleCombatants();
 
@@ -1530,10 +1553,6 @@ namespace Interface
                         {
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                                auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
                                 if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
                                 {
                                     if (Map.Objects[SelectY][SelectX] == TacticalMap::Object::Player)
@@ -1563,31 +1582,19 @@ namespace Interface
                             {
                                 DisplayMessage("You cannot fight that!", intRD);
                             }
+                            else
+                            {
+                                CurrentMode = Combat::Mode::NORMAL;
+                            }
                         }
                         else if (Controls[Current].Type == Control::Type::DESTINATION && !Hold)
                         {
-                            auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                            auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
-                            if (CurrentMode == Combat::Mode::NORMAL)
-                            {
-                                ResetSelection();
-                            }
-                            else if (CurrentMode == Combat::Mode::ATTACK)
+                            if (CurrentMode == Combat::Mode::ATTACK)
                             {
                                 CurrentMode = Combat::Mode::NORMAL;
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                Character::Base &character = party.Members[PlayerId];
-
-                                auto CurrentX = -1;
-
-                                auto CurrentY = -1;
-
-                                Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
-
                                 if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                 {
                                     CurrentPath[PlayerId] = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
@@ -1597,7 +1604,7 @@ namespace Interface
                                     auto Damages = 0;
 
                                     // get attacked by a nearby enemy that has a higher awareness
-                                    auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId, Damages);
+                                    auto WasAttacked = AttackedUponMoving(Map, monsters, Character, PlayerId, Damages);
 
                                     if (CurrentPath[PlayerId].Points.size() > 2)
                                     {
@@ -1609,11 +1616,11 @@ namespace Interface
                                         {
                                             if (WasAttacked)
                                             {
-                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[character.Class]) + " was attacked!"), intRD);
+                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intRD);
 
-                                                Engine::Gain(character, Attributes::Type::Endurance, Damages);
+                                                Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
-                                                if (!Engine::IsAlive(character))
+                                                if (!Engine::IsAlive(Character))
                                                 {
                                                     Remove(Map, CurrentPath[PlayerId].Points[1].X, CurrentPath[PlayerId].Points[1].Y);
                                                 }
@@ -1637,7 +1644,7 @@ namespace Interface
 
                                     auto Damages = 0;
 
-                                    auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId, Damages);
+                                    auto WasAttacked = AttackedUponMoving(Map, monsters, Character, PlayerId, Damages);
 
                                     if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, SelectX, SelectY))
                                     {
@@ -1647,11 +1654,11 @@ namespace Interface
                                     {
                                         if (WasAttacked)
                                         {
-                                            RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[character.Class]) + " was attacked!"), intRD);
+                                            RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intRD);
 
-                                            Engine::Gain(character, Attributes::Type::Endurance, Damages);
+                                            Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
-                                            if (!Engine::IsAlive(character))
+                                            if (!Engine::IsAlive(Character))
                                             {
                                                 Remove(Map, SelectX, SelectY);
                                             }
@@ -1661,6 +1668,12 @@ namespace Interface
                                     }
                                 }
                             }
+                            else
+                            {
+                                CurrentMode = Combat::Mode::NORMAL;
+
+                                ResetSelection();
+                            }
                         }
                         else if (Controls[Current].Type == Control::Type::MOVE && !Hold)
                         {
@@ -1668,27 +1681,15 @@ namespace Interface
                             {
                                 CurrentMode = Combat::Mode::MOVE;
                             }
-                            else if (CurrentMode == Combat::Mode::ATTACK)
-                            {
-                                CurrentMode = Combat::Mode::NORMAL;
-                            }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
                                 if (CurrentPath[PlayerId].Points.size() > 1 && CurrentMove[PlayerId] >= 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
                                 {
-                                    Character::Base &character = party.Members[PlayerId];
-
-                                    if (Engine::IsAlive(character))
+                                    if (Engine::IsAlive(Character))
                                     {
-                                        auto CurrentX = -1;
-
-                                        auto CurrentY = -1;
-
-                                        Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
-
                                         auto Damages = 0;
 
-                                        auto WasAttacked = AttackedUponMoving(Map, monsters, character, PlayerId, Damages);
+                                        auto WasAttacked = AttackedUponMoving(Map, monsters, Character, PlayerId, Damages);
 
                                         if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y))
                                         {
@@ -1699,11 +1700,11 @@ namespace Interface
                                             // Get attacked by a nearby enemy that has a higher awareness
                                             if (WasAttacked)
                                             {
-                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[character.Class]) + " was attacked!"), intRD);
+                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intRD);
 
-                                                Engine::Gain(character, Attributes::Type::Endurance, Damages);
+                                                Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
-                                                if (!Engine::IsAlive(character))
+                                                if (!Engine::IsAlive(Character))
                                                 {
                                                     Remove(Map, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y);
                                                 }
@@ -1729,7 +1730,14 @@ namespace Interface
                         {
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                CurrentMode = Combat::Mode::ATTACK;
+                                if (Interface::NearbyMonsters(Map, monsters, PlayerId))
+                                {
+                                    CurrentMode = Combat::Mode::ATTACK;
+                                }
+                                else
+                                {
+                                    DisplayMessage("There are no opponents nearby!", intRD);
+                                }
                             }
                             else
                             {
@@ -1738,10 +1746,6 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)
                         {
-                            auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                            auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
                                 if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
@@ -1779,12 +1783,6 @@ namespace Interface
 
                                 if (Interface::IsAdjacent(Map, PlayerId, MonsterId) && monster.Endurance > 0)
                                 {
-                                    auto CurrentX = -1;
-
-                                    auto CurrentY = -1;
-
-                                    Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
-
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, character, monster, false);
 
                                     if (!Engine::IsAlive(character))
@@ -1808,6 +1806,12 @@ namespace Interface
                                     Selected = false;
 
                                     Current = -1;
+                                }
+                                else if (monster.Endurance > 0)
+                                {
+                                    DisplayMessage("You can only attack adjacent targets!", intRD);
+
+                                    CurrentMode = Combat::Mode::NORMAL;
                                 }
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
@@ -1846,13 +1850,13 @@ namespace Interface
 
                     Interface::Find(Map, TacticalMap::Object::Monster, MonsterId + 1, MonsterX, MonsterY);
 
-                    auto NearestPlayer = Interface::SelectTarget(Map, party, monsters, Sequence, CurrentCombatant);
+                    auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(CurrentCombatant));
 
-                    auto PlayerId = std::get<0>(NearestPlayer);
+                    auto PlayerId = Target(NearestPlayer);
 
                     if (PlayerId >= 0 && PlayerId < party.Members.size())
                     {
-                        if (std::get<1>(NearestPlayer) <= 1)
+                        if (TargetDistance(NearestPlayer) <= 1)
                         {
                             auto CurrentX = -1;
 
@@ -1879,7 +1883,7 @@ namespace Interface
 
                             auto LocationY = 0;
 
-                            Interface::Find(Map, TacticalMap::Object::Player, std::get<0>(NearestPlayer) + 1, LocationX, LocationY);
+                            Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer) + 1, LocationX, LocationY);
 
                             auto MonsterPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
 
