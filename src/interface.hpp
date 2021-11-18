@@ -661,6 +661,8 @@ namespace Interface
 
             if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
             {
+                FightingSum = 0;
+
                 for (auto i = 0; i < FightRolls; i++)
                 {
                     Rolls[i] = Engine::Roll(1, 0);
@@ -714,6 +716,8 @@ namespace Interface
 
                 if (!CalculatedDamage)
                 {
+                    DamageSum = 0;
+
                     // compute damage
                     for (auto i = 0; i < DamageRolls; i++)
                     {
@@ -760,7 +764,7 @@ namespace Interface
                         Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Damage Dealt (- Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrRD : clrLG, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                    Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrRD : clrLG, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                     if (!AssignedDamage)
                     {
