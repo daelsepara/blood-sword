@@ -253,7 +253,7 @@ namespace Interface
         {
             for (auto x = 0; x < Map.Width; x++)
             {
-                if (Map.Objects[y][x] == object && Map.ObjectID[y][x] == id)
+                if (Map.Objects[y][x] == object && Map.ObjectID[y][x] == (id + 1))
                 {
                     LocationX = x;
 
@@ -287,9 +287,9 @@ namespace Interface
 
         auto MonsterY = -1;
 
-        Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, PlayerX, PlayerY);
+        Interface::Find(Map, TacticalMap::Object::Player, PlayerId, PlayerX, PlayerY);
 
-        Interface::Find(Map, TacticalMap::Object::Monster, MonsterId + 1, MonsterX, MonsterY);
+        Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
 
         auto IsValidX = Interface::ValidX(Map, PlayerX) && Interface::ValidX(Map, MonsterX);
 
@@ -403,7 +403,7 @@ namespace Interface
 
         auto MonsterY = 0;
 
-        Interface::Find(Map, TacticalMap::Object::Monster, MonsterId + 1, MonsterX, MonsterY);
+        Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
 
         // cycle through the players
         for (auto i = 0; i < party.Members.size(); i++)
@@ -414,7 +414,7 @@ namespace Interface
 
                 auto LocationY = 0;
 
-                Interface::Find(Map, TacticalMap::Object::Player, i + 1, LocationX, LocationY);
+                Interface::Find(Map, TacticalMap::Object::Player, i, LocationX, LocationY);
 
                 Distances.push_back(std::make_tuple(i, Interface::Distance(MonsterX, MonsterY, LocationX, LocationY), Engine::Endurance(party.Members[i])));
             }
@@ -1317,9 +1317,9 @@ namespace Interface
 
                     auto SelectedY = 0;
 
-                    auto Id = GetId(SelectedCombatant);
+                    auto SelectedId = GetId(SelectedCombatant);
 
-                    Interface::Find(Map, Type(SelectedCombatant), Id + 1, SelectedX, SelectedY);
+                    Interface::Find(Map, Type(SelectedCombatant), SelectedId, SelectedX, SelectedY);
 
                     if ((SelectedX - Map.MapX) >= 0 && (SelectedX - Map.MapX) < Map.SizeX && (SelectedY - Map.MapY) >= 0 && (SelectedY - Map.MapY) < Map.SizeY)
                     {
@@ -1329,11 +1329,11 @@ namespace Interface
                     // Render statistics for currently selected / highlighted player or monster
                     if (IsPlayer(SelectedCombatant))
                     {
-                        Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Id, TextWidthR, TextR, Map.DrawY);
+                        Interface::CharacterSheet(Renderer, party, Fonts::Fixed, SelectedId, TextWidthR, TextR, Map.DrawY);
                     }
                     else if (IsMonster(SelectedCombatant))
                     {
-                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Id, TextWidthR, TextR, Map.DrawY);
+                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, SelectedId, TextWidthR, TextR, Map.DrawY);
 
                         // Show potential target
                         auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(SelectedCombatant));
@@ -1350,9 +1350,9 @@ namespace Interface
 
                             auto LocationY = -1;
 
-                            Interface::Find(Map, TacticalMap::Object::Monster, Id + 1, MonsterX, MonsterY);
+                            Interface::Find(Map, TacticalMap::Object::Monster, SelectedId, MonsterX, MonsterY);
 
-                            Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, LocationX, LocationY);
+                            Interface::Find(Map, TacticalMap::Object::Player, PlayerId, LocationX, LocationY);
 
                             if (Interface::ValidX(Map, MonsterX) && Interface::ValidY(Map, MonsterY) && Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
                             {
@@ -1398,7 +1398,7 @@ namespace Interface
                     }
                     else if (CurrentMode == Combat::Mode::NORMAL)
                     {
-                        Graphics::PutText(Renderer, (std::string("Combat Round: " + std::to_string(CombatRound + 1))).c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, ("Combat Round: " + std::to_string(CombatRound + 1)).c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                     }
                     else if (CurrentMode == Combat::Mode::MOVE)
                     {
@@ -1431,7 +1431,7 @@ namespace Interface
 
                                 auto PlayerY = -1;
 
-                                Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, PlayerX, PlayerY);
+                                Interface::Find(Map, TacticalMap::Object::Player, PlayerId, PlayerX, PlayerY);
 
                                 if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY) && Interface::Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
                                 {
@@ -1496,7 +1496,7 @@ namespace Interface
 
                     auto CurrentY = -1;
 
-                    Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
+                    Interface::Find(Map, TacticalMap::Object::Player, PlayerId, CurrentX, CurrentY);
 
                     if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
                     {
@@ -1848,7 +1848,7 @@ namespace Interface
 
                     auto MonsterId = GetId(CurrentCombatant);
 
-                    Interface::Find(Map, TacticalMap::Object::Monster, MonsterId + 1, MonsterX, MonsterY);
+                    Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
 
                     auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(CurrentCombatant));
 
@@ -1862,7 +1862,7 @@ namespace Interface
 
                             auto CurrentY = -1;
 
-                            Interface::Find(Map, TacticalMap::Object::Player, PlayerId + 1, CurrentX, CurrentY);
+                            Interface::Find(Map, TacticalMap::Object::Player, PlayerId, CurrentX, CurrentY);
 
                             // do attack
                             Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], true);
@@ -1883,7 +1883,7 @@ namespace Interface
 
                             auto LocationY = 0;
 
-                            Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer) + 1, LocationX, LocationY);
+                            Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer), LocationX, LocationY);
 
                             auto MonsterPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
 
@@ -1904,7 +1904,16 @@ namespace Interface
             }
         }
 
-        return Combat::Result::NONE;
+        if (Engine::Escaped(party))
+        {
+            return Combat::Result::ESCAPED;
+        }
+        else if (Engine::IsAlive(party))
+        {
+            return Combat::Result::VICTORY;
+        }
+
+        return Combat::Result::DEFEAT;
     }
 }
 #endif
