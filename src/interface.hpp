@@ -583,7 +583,7 @@ namespace Interface
         dice[5] = Assets::Copy(Assets::Type::Dice6);
 
         auto swords = Assets::Copy(Assets::Type::Attack);
-        
+
         auto Hold = false;
         auto Selected = false;
         auto ScrollUp = false;
@@ -657,7 +657,7 @@ namespace Interface
             Graphics::PutText(Renderer, ("DMG: " + std::to_string(Monster.Damage) + "D+" + std::to_string(Monster.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Monster.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 4 * RowHeight);
 
-            Graphics::RenderImage(Renderer, swords, MidWindow - (2 * Map.ObjectSize + border_pts), WindowY +  Map.ObjectSize);
+            Graphics::RenderImage(Renderer, swords, MidWindow - (2 * Map.ObjectSize + border_pts), WindowY + Map.ObjectSize);
 
             if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
             {
