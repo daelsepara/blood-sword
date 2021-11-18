@@ -38,29 +38,52 @@ namespace TacticalMap
     class Base
     {
     public:
-        // Types of objects in the map
+        // types of objects in the map
         std::vector<std::vector<TacticalMap::Object>> Objects = {};
 
-        // Object ID number
+        // object ID number
         std::vector<std::vector<int>> ObjectID = {};
 
-        // Tactical Map Dimensions
-        int SizeX = 0;
-
-        int SizeY = 0;
-
+        // locations of certain objects
         std::vector<TacticalMap::Point> HotCoals = {};
+
+        std::vector<TacticalMap::Point> Exits = {};
+
+        // map dimensions
+        int Width = 0;
+
+        int Height = 0;
+
+        // viewable size
+        int SizeX = -1;
+
+        int SizeY =-1;
+
+        // offsets (drawing)
+        int DrawX = -1;
+
+        int DrawY = -1;
+
+        // offsets (navigation)
+        int MapX = -1;
+
+        int MapY = -1;
+
+        // object size in pixels (width, height)
+        int ObjectSize = 0;
 
         void Initialize(int sizex, int sizey)
         {
-            SizeX = sizex;
+            Width = sizex;
 
-            SizeY = sizey;
+            Height = sizey;
 
             Objects.clear();
+            
             Objects.resize(sizey);
 
             ObjectID.clear();
+            
             ObjectID.resize(sizey);
 
             for (auto i = 0; i < sizey; i++)
@@ -85,6 +108,7 @@ namespace TacticalMap
                     for (auto x = 0; x < map.front().length(); x++)
                     {
                         auto player = TacticalMap::Players.find(map[y][x]);
+                        
                         auto monster = TacticalMap::Monsters.find(map[y][x]);
 
                         if (map[y][x] == TacticalMap::Wall)
@@ -100,6 +124,8 @@ namespace TacticalMap
                         else if (map[y][x] == TacticalMap::Flee)
                         {
                             Objects[y][x] = TacticalMap::Object::Exit;
+
+                            Exits.push_back(std::make_pair(x, y));
                         }
                         else if (map[y][x] == TacticalMap::Passable)
                         {
@@ -140,6 +166,7 @@ namespace TacticalMap
             if (map.size() > 0)
             {
                 auto sizey = map.size();
+                
                 auto sizex = map.front().size();
 
                 Initialize(sizex, sizey);

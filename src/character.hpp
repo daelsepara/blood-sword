@@ -45,19 +45,22 @@ namespace Character
 
         int ExperiencePoints = 0;
 
-        // Damage Dice
+        // damage dice
         int Damage = 0;
 
         int DamageModifier = 0;
 
-        // Equipment Limit
+        // equipment Limit
         int Encumbrance = 10;
 
-        // If defending during a combat round
+        // if defending during a combat round
         bool IsDefending = false;
 
-        // If has escaped (flee from combat)
+        // if has escaped (flee from combat)
         bool Escaped = false;
+
+        // has triggered quick thinking (get an action at the end of all others)
+        bool QuickThinking = false;
 
         Base()
         {

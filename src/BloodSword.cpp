@@ -34,12 +34,12 @@ int main(int argc, const char **argv)
 
         std::vector<std::string> map = {
             "#############",
-            "# C     D   #",
+            "#          C#",
             "#### ########",
-            "#   1  A    #",
+            "#   1       #",
             "#% %######  #",
-            "#% %#%%  #  #",
-            "# B      #  #",
+            "#% %#%% B#  #",
+            "#D       # A#",
             "#############"};
 
         Assets::Load("assets.json");

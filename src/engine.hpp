@@ -12,6 +12,8 @@ namespace Engine
     void Randomize()
     {
         Engine::Random.UniformIntDistribution(1, 6);
+        
+        Engine::Random.UniformDistribution(0, 1.0);
     }
 
     // For Die rolling
@@ -72,6 +74,26 @@ namespace Engine
             character.Attributes[index].Value = value;
         }
     };
+
+    int FightingProwess(Character::Base &character)
+    {
+        return Engine::Score(character, Attributes::Type::FightingProwess);
+    }
+
+    int PsychicAbility(Character::Base &character)
+    {
+        return Engine::Score(character, Attributes::Type::PsychicAbility);
+    }
+
+    int Endurance(Character::Base &character)
+    {
+        return Engine::Score(character, Attributes::Type::Endurance);
+    }
+
+    int Awareness(Character::Base &character)
+    {
+        return Engine::Score(character, Attributes::Type::Awareness);
+    }
 
     int Maximum(Character::Base &character, Attributes::Type type)
     {
@@ -194,6 +216,23 @@ namespace Engine
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
             if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].WeaponType != Equipment::Weapon::Bow)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool QuickThinking(Party::Base &party)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]) && party.Members[i].QuickThinking)
             {
                 result = true;
 
