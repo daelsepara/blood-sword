@@ -952,7 +952,7 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
-            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrLB, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX, WindowY + text_space);
+            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrLB, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
 
             Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
 
@@ -1622,6 +1622,12 @@ namespace Interface
 
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
+                    else if (CurrentMode == Combat::Mode::SHOOT && ControlType == Control::Type::PLAYER)
+                    {
+                        Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+
+                        Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
+                    }
                     else if (CurrentMode == Combat::Mode::SHOOT)
                     {
                         Graphics::PutText(Renderer, "Shoot at a target from range", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
@@ -1989,7 +1995,7 @@ namespace Interface
                             }
                             else
                             {
-                                DisplayMessage("You have no special ability!", intRD);
+                                DisplayMessage("You have no special abilities!", intRD);
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)
