@@ -2072,19 +2072,17 @@ namespace Interface
                             {
                                 auto MonsterId = Map.ObjectID[SelectY][SelectX] - 1;
 
-                                Character::Base &character = party.Members[PlayerId];
+                                Monster::Base &Monster = monsters[MonsterId];
 
-                                Monster::Base &monster = monsters[MonsterId];
-
-                                if (!Interface::IsAdjacent(Map, PlayerId, MonsterId) && monster.Endurance > 0)
+                                if (!Interface::IsAdjacent(Map, PlayerId, MonsterId) && Monster.Endurance > 0)
                                 {
-                                    auto Result = Interface::Fight(Renderer, Controls, intBK, Map, character, monster, Combat::FightMode::SHOOT, false);
+                                    auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::SHOOT, false);
 
-                                    if (!Engine::IsAlive(character))
+                                    if (!Engine::IsAlive(Character))
                                     {
                                         Remove(Map, CurrentX, CurrentY);
                                     }
-                                    else if (monster.Endurance <= 0)
+                                    else if (Monster.Endurance <= 0)
                                     {
                                         Remove(Map, SelectX, SelectY);
                                     }
@@ -2104,9 +2102,9 @@ namespace Interface
 
                                     Current = -1;
                                 }
-                                else if (monster.Endurance > 0)
+                                else if (Monster.Endurance > 0)
                                 {
-                                    DisplayMessage("You cannot shoot at neary enemies!", intRD);
+                                    DisplayMessage("You cannot shoot at nearby enemies!", intRD);
 
                                     CurrentMode = Combat::Mode::NORMAL;
                                 }
