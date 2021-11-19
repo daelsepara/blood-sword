@@ -952,7 +952,7 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
-            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrLB, intBK, TTF_STYLE_NORMAL, WindowButtonX, TTF_FontHeight(Fonts::Normal), WindowX + text_space, WindowY + 2 * text_space);
+            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrLB, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX, WindowY + text_space);
 
             Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
 
