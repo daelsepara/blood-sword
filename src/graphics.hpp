@@ -257,6 +257,10 @@ namespace Graphics
         {
             caption = "Items";
         }
+        else if (control.Type == Control::Type::ABILITY)
+        {
+            caption = "Use Ability";
+        }
         else if (control.Type == Control::Type::MOVE)
         {
             caption = "Move";

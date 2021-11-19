@@ -177,6 +177,10 @@ namespace Interface
                 {
                     asset = Assets::Copy(Assets::Type::Warrior);
                 }
+                else if (party.Members[PlayerId].Class == Character::Class::Trickster)
+                {
+                    asset = Assets::Copy(Assets::Type::Trickster);
+                }
 
                 Animate(passable, asset);
 
@@ -416,8 +420,17 @@ namespace Interface
 
                 Interface::Find(Map, TacticalMap::Object::Player, i, LocationX, LocationY);
 
-                Distances.push_back(std::make_tuple(i, Interface::Distance(MonsterX, MonsterY, LocationX, LocationY), Engine::Endurance(party.Members[i])));
-            }
+                auto TempPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
+
+                if (TempPath.Points.size() > 0)
+                {
+                    Distances.push_back(std::make_tuple(i, Interface::Distance(MonsterX, MonsterY, LocationX, LocationY), Engine::Endurance(party.Members[i])));
+                }
+                else
+                {
+                    Distances.push_back(std::make_tuple(i, (Map.SizeX * Map.SizeY), Engine::Endurance(party.Members[i])));
+                }
+                        }
         }
 
         if (Distances.size() > 0)
@@ -653,9 +666,18 @@ namespace Interface
             Graphics::PutText(Renderer, ("DMG: " + std::to_string(Damage) + "D+" + std::to_string(DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 4 * RowHeight);
 
-            if (Attacked && Character.IsDefending)
+            if (Attacked && Character.IsDefending && Character.Class == Character::Class::Trickster)
             {
                 Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
+                Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrLG, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 6 * RowHeight);
+            }
+            else if (Attacked && Character.IsDefending)
+            {
+                Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
+            }
+            else if (Attacked && Character.Class == Character::Class::Trickster)
+            {
+                Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrLG, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
             }
 
             // monster stats
@@ -1149,7 +1171,7 @@ namespace Interface
 
                 auto Controls = std::vector<Button>();
 
-                auto StartMap = 14;
+                auto StartMap = 12;
                 auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
                 auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
 
@@ -1158,15 +1180,13 @@ namespace Interface
                 Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (Map.MapX < Map.Width - Map.SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
                 Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (Map.MapY < Map.Height - Map.SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
                 Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intLB, Control::Type::EXIT));
-                Controls.push_back(Button(5, Assets::Get(Assets::Type::Items), 3, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::ITEMS));
-                Controls.push_back(Button(6, Assets::Get(Assets::Type::Move), 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::MOVE));
-                Controls.push_back(Button(7, Assets::Get(Assets::Type::Heal), 6, 8, BottomMapX + 2, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::HEAL));
-                Controls.push_back(Button(8, Assets::Get(Assets::Type::Attack), 7, 9, BottomMapX + 3, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
-                Controls.push_back(Button(9, Assets::Get(Assets::Type::Defend), 8, 10, BottomMapX + 4, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
-                Controls.push_back(Button(10, Assets::Get(Assets::Type::Shoot), 9, 11, BottomMapX + 5, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
-                Controls.push_back(Button(11, Assets::Get(Assets::Type::Memorize), 10, 12, BottomMapX + 6, 11, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::MEMORIZE));
-                Controls.push_back(Button(12, Assets::Get(Assets::Type::Magic), 11, 13, BottomMapX + 7, 12, ActionsX + 7 * ActionsGrid, ActionsY, intLB, Control::Type::MAGIC));
-                Controls.push_back(Button(13, Assets::Get(Assets::Type::Flee), 12, 4, BottomMapX + 8, 4, ActionsX + 8 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
+                Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::MOVE));
+                Controls.push_back(Button(6, Assets::Get(Assets::Type::Attack), 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
+                Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, BottomMapX + 2, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
+                Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, BottomMapX + 3, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
+                Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, BottomMapX + 4, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::ABILITY));
+                Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, BottomMapX + 5, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::ITEMS));
+                Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, BottomMapX + 8, 4, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
 
                 int NumControls = Controls.size();
 
@@ -1202,7 +1222,7 @@ namespace Interface
                         }
                         else
                         {
-                            if (CtrlX < 9)
+                            if (CtrlX < 7)
                             {
                                 CtrlDn = CtrlX + 5;
                             }
@@ -1276,6 +1296,10 @@ namespace Interface
                             if (party.Members[ObjectId].Class == Character::Class::Warrior)
                             {
                                 Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Warrior), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::PLAYER));
+                            }
+                            else if (party.Members[ObjectId].Class == Character::Class::Trickster)
+                            {
+                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Trickster), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::PLAYER));
                             }
                         }
                         else if (Object == TacticalMap::Object::HotCoals)

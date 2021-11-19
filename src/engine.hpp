@@ -12,7 +12,7 @@ namespace Engine
     void Randomize()
     {
         Engine::Random.UniformIntDistribution(1, 6);
-        
+
         Engine::Random.UniformDistribution(0, 1.0);
     }
 
@@ -220,6 +220,62 @@ namespace Engine
                 result = true;
 
                 break;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasBow(Character::Base &character)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].WeaponType == Equipment::Weapon::Bow)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasArrows(Character::Base &character)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            if (character.Equipment[i].Type == Equipment::Type::Quiver && character.Equipment[i].Arrows > 0)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool ShootArrow(Character::Base &character)
+    {
+        auto result = false;
+
+        if (Engine::HasBow(character) && Engine::HasArrows(character))
+        {
+            for (auto i = 0; i < character.Equipment.size(); i++)
+            {
+                if (character.Equipment[i].Type == Equipment::Type::Quiver && character.Equipment[i].Arrows > 0)
+                {
+                    character.Equipment[i].Arrows--;
+                    
+                    result = true;
+
+                    break;
+                }
             }
         }
 

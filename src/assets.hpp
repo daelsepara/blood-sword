@@ -25,6 +25,7 @@ namespace Assets
         Right,
         Down,
         Back,
+        Ability,
         Move,
         Heal,
         Attack,

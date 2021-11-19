@@ -5,6 +5,10 @@
             "path": "images/players/warrior.png"
         },
         {
+            "id": 2,
+            "path": "images/players/trickster.png"
+        },
+        {
             "id": 5,
             "path": "images/map/passable.png"
         },
@@ -38,38 +42,42 @@
         },
         {
             "id": 105,
-            "path": "icons/move.png"
+            "path": "icons/ability.png"
         },
         {
             "id": 106,
-            "path": "icons/heal.png"
+            "path": "icons/move.png"
         },
         {
             "id": 107,
-            "path": "icons/swords.png"
+            "path": "icons/heal.png"
         },
         {
             "id": 108,
-            "path": "icons/shield.png"
+            "path": "icons/swords.png"
         },
         {
             "id": 109,
-            "path": "icons/shoot.png"
+            "path": "icons/shield.png"
         },
         {
             "id": 110,
-            "path": "icons/memorize.png"
+            "path": "icons/shoot.png"
         },
         {
             "id": 111,
-            "path": "icons/spell.png"
+            "path": "icons/memorize.png"
         },
         {
             "id": 112,
-            "path": "icons/exit-white.png"
+            "path": "icons/spell.png"
         },
         {
             "id": 113,
+            "path": "icons/exit-white.png"
+        },
+        {
+            "id": 114,
             "path": "icons/items.png"
         },
         {

@@ -25,6 +25,7 @@ namespace Control
         PLAYER,
         MONSTER,
         DESTINATION,
+        ABILITY,
         ITEMS,
         MEMORIZE,
         FLEE,
