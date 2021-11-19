@@ -62,6 +62,8 @@ namespace Character
         // has triggered quick thinking (get an action at the end of all others)
         bool QuickThinking = false;
 
+        bool UsedQuickThinking = false;
+
         Base()
         {
         }

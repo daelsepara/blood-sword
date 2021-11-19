@@ -145,7 +145,9 @@ namespace TacticalMap
                         }
                         else
                         {
-                            Objects[y][x] = TacticalMap::Object::None;
+                            Objects[y][x] = TacticalMap::Object::Passable;
+                            
+                            ObjectID[y][x] = 0;
                         }
                     }
                 }

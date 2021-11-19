@@ -12,7 +12,9 @@ namespace Combat
         SHOOT,
         FLEE,
         MEMORIZE,
-        CAST
+        CAST,
+        HEAL,
+        QUICKTHINKING
     };
 
     enum class Mode

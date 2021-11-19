@@ -35,7 +35,8 @@ namespace Control
         DEFEND,
         SHOOT,
         MAGIC,
-        DAMAGE
+        DAMAGE,
+        QUICKTHINKING
     };
 
     class Base

@@ -35,7 +35,7 @@ namespace Assets
         Magic,
         Flee,
         Items,
-        Spellbook,
+        QuickThinking,
         Ok = 150,
         Cancel,
         Dice1,

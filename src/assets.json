@@ -81,6 +81,10 @@
             "path": "icons/items.png"
         },
         {
+            "id": 115,
+            "path": "icons/imagination.png"
+        },
+        {
             "id": 150,
             "path": "icons/yes.png"
         },

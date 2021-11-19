@@ -30,13 +30,13 @@ namespace Interface
     {
         Uint32 Duration = 1500;
 
-        auto MapSizeX = Map.SizeX * Map.ObjectSize;
+        auto MapSizeX = (Map.SizeX < 13 ? 13 : Map.SizeX) * Map.ObjectSize;
 
         auto MapSizeY = Map.SizeY * Map.ObjectSize;
 
         RenderCombatScreen(Renderer, Controls, -1, bg);
 
-        auto FlashW = 3 * MapSizeX / 5;
+        auto FlashW = 4 * MapSizeX / 5;
 
         auto FlashH = 2 * infoh;
 
@@ -131,10 +131,17 @@ namespace Interface
         return result;
     }
 
+    bool IsVisible(TacticalMap::Base &Map, int X, int Y)
+    {
+        auto ValidXY = Interface::ValidX(Map, X) && Interface::ValidY(Map, Y);
+
+        return ValidXY && ((X >= Map.MapX) && (X < Map.SizeX + Map.MapX) && (Y >= Map.MapY) && (Y < Map.SizeY + Map.MapY));
+    }
+
     bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, int srcX, int srcY, int dstX, int dstY)
     {
         // do not render off screen animations
-        if ((srcX < Map.MapX) || (srcX >= Map.SizeX + Map.MapX) || (srcY < Map.MapY) || (srcY >= Map.SizeY + Map.MapY))
+        if (!Interface::IsVisible(Map, srcX, srcY))
         {
             SDL_Delay(300);
 
@@ -343,26 +350,26 @@ namespace Interface
 
             auto TargetY = CurrentPath.Points.back().Y - Map.MapY;
 
-            if (TargetX >= 0 && TargetX < Map.SizeX && TargetY >= 0 && TargetY < Map.SizeY)
+            SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+
+            auto Color = O(color, alpha);
+
+            for (auto i = CurrentMove; i < CurrentPath.Points.size() - 1; i++)
             {
-                SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+                auto X = CurrentPath.Points[i].X - Map.MapX;
 
-                auto Color = O(color, alpha);
+                auto Y = CurrentPath.Points[i].Y - Map.MapY;
 
-                for (auto i = CurrentMove; i < CurrentPath.Points.size() - 1; i++)
+                if (Interface::IsVisible(Map, X + Map.MapX, Y + Map.MapY))
                 {
-                    auto X = CurrentPath.Points[i].X - Map.MapX;
-
-                    auto Y = CurrentPath.Points[i].Y - Map.MapY;
-
-                    if (X >= 0 && X < Map.SizeX && Y >= 0 && Y < Map.SizeY)
-                    {
-                        Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + X * Map.ObjectSize, Map.DrawY + Y * Map.ObjectSize, Color);
-                    }
+                    Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + X * Map.ObjectSize, Map.DrawY + Y * Map.ObjectSize, Color);
                 }
+            }
 
-                SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
+            SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
 
+            if (Interface::IsVisible(Map, TargetX + Map.MapX, TargetY + Map.MapY))
+            {
                 Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + TargetX * Map.ObjectSize + 2 * border_pts, Map.DrawY + TargetY * Map.ObjectSize + 2 * border_pts, color, border_pts);
             }
         }
@@ -546,8 +553,8 @@ namespace Interface
     Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, Combat::FightMode FightMode, bool Attacked)
     {
         auto Result = Combat::Result::NONE;
-        auto MapSizeX = Map.SizeX * Map.ObjectSize;
-        auto MapSizeY = Map.SizeY * Map.ObjectSize;
+        auto MapSizeX = (Map.SizeX < 13 ? 13 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
         auto WindowW = 4 * MapSizeX / 5;
         auto WindowH = 4 * MapSizeY / 5;
         auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
@@ -559,7 +566,7 @@ namespace Interface
 
         auto TextButtonX = WindowX + 2 * text_space;
         auto TextButtonY = (WindowY + WindowH) - (text_buttonh + 2 * text_space);
-        auto TextWidth = WindowW - 2 * text_space;
+        auto TextWidth = WindowW - 3 * text_space;
         auto ResultsY = 12 * RowHeight + 4 * text_space;
 
         const char *FightChoices1[2] = {(FightMode == Combat::FightMode::FIGHT ? "FIGHT" : "SHOOT"), "CANCEL"}; // player attacks
@@ -690,11 +697,11 @@ namespace Interface
 
             if (FightMode == Combat::FightMode::FIGHT)
             {
-                Graphics::RenderImage(Renderer, swords, MidWindow - (2 * Map.ObjectSize + border_pts), WindowY + Map.ObjectSize);
+                Graphics::RenderImage(Renderer, swords, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
             }
             else if (FightMode == Combat::FightMode::SHOOT)
             {
-                Graphics::RenderImage(Renderer, shoot, MidWindow - (2 * Map.ObjectSize + border_pts), WindowY + Map.ObjectSize);
+                Graphics::RenderImage(Renderer, shoot, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
             }
 
             if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
@@ -867,6 +874,95 @@ namespace Interface
         SDL_FreeSurface(shoot);
 
         shoot = NULL;
+
+        return Result;
+    }
+
+    Combat::Action UseAbility(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
+    {
+        auto Result = Combat::Action::NONE;
+
+        auto MapSizeX = (Map.SizeX < 13 ? 13 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
+        auto WindowW = 4 * MapSizeX / 5;
+        auto WindowH = 4 * MapSizeY / 5;
+        auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
+        auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
+        auto WindowButtonX = WindowX + 2 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<Button> Controls = {};
+
+        auto NumControls = 0;
+
+        if (Character.Class == Character::Class::Trickster)
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::QuickThinking), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::QUICKTHINKING));
+
+            NumControls++;
+        }
+
+        if (Character.Class == Character::Class::Sage)
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Heal), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::HEAL));
+
+            NumControls++;
+        }
+
+        if (Character.Class == Character::Class::Enchanter)
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Memorize), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::MEMORIZE));
+
+            NumControls++;
+
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Magic), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::MAGIC));
+
+            NumControls++;
+        }
+
+        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Cancel), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
+
+        auto done = false;
+
+        while (!done)
+        {
+            // render current combat screen
+            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrLB, intBK, TTF_STYLE_NORMAL, WindowW - 2 * text_space, TTF_FontHeight(Fonts::Normal), WindowX + text_space, WindowY + text_space);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK)
+                {
+                    done = true;
+                }
+                else if (Controls[Current].Type == Control::Type::QUICKTHINKING)
+                {
+                    Result = Combat::Action::QUICKTHINKING;
+
+                    done = true;
+                }
+            }
+        }
 
         return Result;
     }
@@ -1044,6 +1140,8 @@ namespace Interface
                 if (QuickThinkingRound && party.Members[GetId(CurrentCombatant)].QuickThinking)
                 {
                     party.Members[GetId(CurrentCombatant)].QuickThinking = false;
+
+                    party.Members[GetId(CurrentCombatant)].UsedQuickThinking = true;
                 }
             }
 
@@ -1066,6 +1164,8 @@ namespace Interface
                     }
                     else
                     {
+                        DisplayMessage("Quick thinking round ends!", intLB);
+
                         QuickThinkingRound = false;
 
                         CurrentCombatant = 0;
@@ -1083,6 +1183,8 @@ namespace Interface
                     {
                         if (Engine::QuickThinking(party))
                         {
+                            DisplayMessage("Quick thinking round begins!", intLB);
+
                             QuickThinkingRound = true;
 
                             CurrentCombatant = NextQuickThinker();
@@ -1127,7 +1229,7 @@ namespace Interface
 
         auto TextY = Map.DrawY - 2 * border_space - FontSize;
 
-        auto TextWidth = Map.Width * Map.ObjectSize;
+        auto TextWidth = (Map.Width < 13 ? 13 : Map.Width) * Map.ObjectSize;
 
         auto MapButtonSize = Map.ObjectSize + 2 * border_space;
         auto MapSizeX = Map.SizeX * Map.ObjectSize;
@@ -1146,11 +1248,11 @@ namespace Interface
             {
                 if ((SDL_GetTicks() - StartTicks) < Duration)
                 {
-                    auto FlashW = 3 * MapSizeX / 5;
+                    auto FlashW = 4 * (Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) / 5;
 
                     auto FlashH = 2 * infoh;
 
-                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, Map.DrawX + (MapSizeX - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2);
+                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, Map.DrawX + ((Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2);
                 }
                 else
                 {
@@ -1506,6 +1608,10 @@ namespace Interface
 
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
+                    else if (CurrentMode == Combat::Mode::SHOOT)
+                    {
+                        Graphics::PutText(Renderer, "Shoot at a target from range", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                    }
                     else if (CurrentMode == Combat::Mode::MAGIC && ControlType == Control::Type::MONSTER)
                     {
                         Graphics::PutText(Renderer, "Cast a spell", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
@@ -1775,7 +1881,16 @@ namespace Interface
                         {
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                if (Interface::NearbyMonsters(Map, monsters, PlayerId))
+                                if (Character.IsDefending)
+                                {
+                                    DisplayMessage("You cannot attack at this time.", intRD);
+
+                                    if (QuickThinkingRound && Character.QuickThinking)
+                                    {
+                                        CycleCombatants();
+                                    }
+                                }
+                                else if (Interface::NearbyMonsters(Map, monsters, PlayerId))
                                 {
                                     CurrentMode = Combat::Mode::ATTACK;
                                 }
@@ -1793,7 +1908,16 @@ namespace Interface
                         {
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                if (Engine::CanShoot(Character))
+                                if (Character.IsDefending)
+                                {
+                                    DisplayMessage("You cannot shoot at this time.", intRD);
+
+                                    if (QuickThinkingRound && Character.QuickThinking)
+                                    {
+                                        CycleCombatants();
+                                    }
+                                }
+                                else if (Engine::CanShoot(Character))
                                 {
                                     if (!Interface::NearbyMonsters(Map, monsters, PlayerId))
                                     {
@@ -1817,12 +1941,41 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    DisplayMessage("You do not have the Archery skill!", intRD);
+                                    DisplayMessage("You do not have the archery skill!", intRD);
                                 }
                             }
                             else
                             {
                                 CurrentMode = Combat::Mode::NORMAL;
+                            }
+                        }
+                        else if (Controls[Current].Type == Control::Type::ABILITY && !Hold)
+                        {
+                            if (Character.Class != Character::Class::Warrior)
+                            {
+                                auto Result = Interface::UseAbility(Renderer, Controls, intBK, Map, Character);
+
+                                if (Result == Combat::Action::QUICKTHINKING)
+                                {
+                                    if (Character.QuickThinking)
+                                    {
+                                        DisplayMessage("Quick thinking already activated!", intRD);
+                                    }
+                                    else if (!Character.UsedQuickThinking)
+                                    {
+                                        DisplayMessage("Quick thinking activated!", intLB);
+
+                                        Character.QuickThinking = true;
+                                    }
+                                    else
+                                    {
+                                        DisplayMessage("Quick thinking can only be used once per combat!", intRD);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                DisplayMessage("You have no special ability!", intRD);
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)
@@ -1858,19 +2011,17 @@ namespace Interface
                             {
                                 auto MonsterId = Map.ObjectID[SelectY][SelectX] - 1;
 
-                                Character::Base &character = party.Members[PlayerId];
+                                Monster::Base &Monster = monsters[MonsterId];
 
-                                Monster::Base &monster = monsters[MonsterId];
-
-                                if (Interface::IsAdjacent(Map, PlayerId, MonsterId) && monster.Endurance > 0)
+                                if (Interface::IsAdjacent(Map, PlayerId, MonsterId) && Monster.Endurance > 0)
                                 {
-                                    auto Result = Interface::Fight(Renderer, Controls, intBK, Map, character, monster, Combat::FightMode::FIGHT, false);
+                                    auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::FIGHT, false);
 
-                                    if (!Engine::IsAlive(character))
+                                    if (!Engine::IsAlive(Character))
                                     {
                                         Remove(Map, CurrentX, CurrentY);
                                     }
-                                    else if (monster.Endurance <= 0)
+                                    else if (Monster.Endurance <= 0)
                                     {
                                         Remove(Map, SelectX, SelectY);
                                     }
@@ -1890,7 +2041,7 @@ namespace Interface
 
                                     Current = -1;
                                 }
-                                else if (monster.Endurance > 0)
+                                else if (Monster.Endurance > 0)
                                 {
                                     DisplayMessage("You can only attack adjacent targets!", intRD);
 

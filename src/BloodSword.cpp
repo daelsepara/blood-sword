@@ -34,14 +34,14 @@ int main(int argc, const char **argv)
         monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1));
 
         std::vector<std::string> map = {
-            "#############",
-            "#          C#",
-            "#### ########",
-            "#   1     2 #",
-            "#% %######  #",
-            "#% %#%% B#  #",
-            "#D       # A#",
-            "#############"};
+            "#   #",
+            "# A #",
+            "# 1B#",
+            "#234#",
+            "# CD#",
+            "#   #",
+            "#   #",
+        };
 
         Assets::Load("assets.json");
 

@@ -293,6 +293,14 @@ namespace Graphics
         {
             caption = "Flee";
         }
+        else if (control.Type == Control::Type::BACK)
+        {
+            caption = "Go back";
+        }
+        else if (control.Type == Control::Type::QUICKTHINKING)
+        {
+            caption = "Use quick thinking";
+        }
         else if (control.Type == Control::Type::EXIT)
         {
             caption = "Exit";
