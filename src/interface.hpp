@@ -473,18 +473,32 @@ namespace Interface
         Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(Damage) + (DamageModifier >= 0 ? "D+" : "D") + std::to_string(party.Members[PlayerId].DamageModifier)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 7 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("EXPERIENCE: " + std::to_string(party.Members[PlayerId].ExperiencePoints)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 8 * (FontSize + 2));
 
+        auto OffsetArrows = 9;
+
         if (party.Members[PlayerId].IsDefending && party.Members[PlayerId].QuickThinking)
         {
             Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrLG, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
+
             Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrYW, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 10 * (FontSize + 2));
+
+            OffsetArrows = 11;
         }
         else if (party.Members[PlayerId].IsDefending)
         {
             Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrLG, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
+
+            OffsetArrows = 10;
         }
         else if (party.Members[PlayerId].QuickThinking)
         {
             Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrYW, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
+
+            OffsetArrows = 10;
+        }
+
+        if (Engine::HasArrows(party.Members[PlayerId]))
+        {
+            Graphics::PutText(Renderer, ("ARROWS: " + std::to_string(Engine::CountArrows(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
         }
     }
 
@@ -1300,12 +1314,12 @@ namespace Interface
                 Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (Map.MapY < Map.Height - Map.SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
                 Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intLB, Control::Type::EXIT));
                 Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::MOVE));
-                Controls.push_back(Button(6, Assets::Get(Assets::Type::Attack), 5, 7, BottomMapX + 1, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
-                Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, BottomMapX + 2, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
-                Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, BottomMapX + 3, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
-                Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, BottomMapX + 4, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::ABILITY));
-                Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, BottomMapX + 5, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::ITEMS));
-                Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, BottomMapX + 8, 4, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
+                Controls.push_back(Button(6, Assets::Get(Assets::Type::Attack), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
+                Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
+                Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
+                Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::ABILITY));
+                Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::ITEMS));
+                Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 10, 4, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
 
                 int NumControls = Controls.size();
 

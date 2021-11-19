@@ -248,21 +248,24 @@ namespace Engine
         return result;
     }
 
-    bool HasArrows(Character::Base &character)
+    int CountArrows(Character::Base &character)
     {
-        auto result = false;
+        auto result = 0;
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
             if (character.Equipment[i].Type == Equipment::Type::Quiver && character.Equipment[i].Arrows > 0)
             {
-                result = true;
-
-                break;
+                result += character.Equipment[i].Arrows;
             }
         }
 
         return result;
+    }
+
+    bool HasArrows(Character::Base &character)
+    {
+        return Engine::CountArrows(character) > 0;
     }
 
     bool ShootArrow(Character::Base &character)
