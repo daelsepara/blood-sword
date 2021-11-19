@@ -899,10 +899,10 @@ namespace Interface
         auto MapSizeX = (Map.SizeX < 13 ? 13 : Map.SizeX) * Map.ObjectSize;
         auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
         auto WindowW = 4 * MapSizeX / 5;
-        auto WindowH = 4 * MapSizeY / 5;
+        auto WindowH = 3 * Map.ObjectSize;
         auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
         auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
-        auto WindowButtonX = WindowX + 2 * text_space;
+        auto WindowButtonX = WindowX + 4 * text_space;
 
         auto Hold = false;
         auto Selected = false;
