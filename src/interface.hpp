@@ -1812,7 +1812,7 @@ namespace Interface
                                     }
                                     else
                                     {
-                                        DisplayMessage("You cannot shoot while there are opponents nearby!", intRD);
+                                        DisplayMessage("You cannot shoot at this time!", intRD);
                                     }
                                 }
                                 else

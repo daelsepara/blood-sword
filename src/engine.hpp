@@ -126,8 +126,8 @@ namespace Engine
         if (index >= 0 && index < character.Attributes.size())
         {
             character.Attributes[index].Value += value;
-            std::min(character.Attributes[index].Value, character.Attributes[index].Maximum);
-            std::max(0, character.Attributes[index].Value);
+            character.Attributes[index].Value = std::min(character.Attributes[index].Value, character.Attributes[index].Maximum);
+            character.Attributes[index].Value = std::max(0, character.Attributes[index].Value);
         }
     }
 
@@ -276,7 +276,7 @@ namespace Engine
                 if (character.Equipment[i].Type == Equipment::Type::Quiver && character.Equipment[i].Arrows > 0)
                 {
                     character.Equipment[i].Arrows--;
-                    
+
                     result = true;
 
                     break;
