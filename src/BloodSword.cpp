@@ -20,7 +20,7 @@ int main(int argc, const char **argv)
 
     if (Window && Renderer)
     {
-        // Setup party, monsters, and map
+        // setup party, monsters, and map
         auto party = Party::Base();
 
         party.Members.push_back(Character::Create(Character::Class::Warrior, 4));
@@ -43,9 +43,9 @@ int main(int argc, const char **argv)
             "#D       # A#",
             "#############"};
 
-        Assets::Load("assets.json");
+        Assets::Load();
 
-        // Combat Screen
+        // combat screen
         Interface::CombatScreen(Window, Renderer, map, party, monsters);
 
         Assets::Unload();

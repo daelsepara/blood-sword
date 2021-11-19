@@ -74,7 +74,7 @@ namespace Assets
         }
     }
 
-    bool Load(const char *file_name)
+    bool Load()
     {
         auto result = false;
 
@@ -84,7 +84,7 @@ namespace Assets
 
         Assets::Graphics.clear();
 
-        std::ifstream ifs(file_name);
+        std::ifstream ifs("assets.json");
 
         if (ifs.good())
         {

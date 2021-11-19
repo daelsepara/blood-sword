@@ -1781,7 +1781,7 @@ namespace Interface
                                     {
                                         if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, CurrentPath[PlayerId].Points[1].X, CurrentPath[PlayerId].Points[1].Y))
                                         {
-                                            DisplayMessage("Path Blocked!", intRD);
+                                            DisplayMessage("Path blocked!", intRD);
                                         }
                                         else
                                         {
@@ -1804,7 +1804,7 @@ namespace Interface
                                     }
                                     else
                                     {
-                                        DisplayMessage("Path Blocked!", intRD);
+                                        DisplayMessage("Path blocked!", intRD);
                                     }
                                 }
                                 else
@@ -1864,11 +1864,11 @@ namespace Interface
 
                                         if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y))
                                         {
-                                            DisplayMessage("Path Blocked!", intRD);
+                                            DisplayMessage("Path blocked!", intRD);
                                         }
                                         else
                                         {
-                                            // Get attacked by a nearby enemy that has a higher awareness
+                                            // get attacked by a nearby enemy that has a higher awareness
                                             if (WasAttacked)
                                             {
                                                 RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intRD);
@@ -1930,7 +1930,7 @@ namespace Interface
                             {
                                 if (Character.IsDefending)
                                 {
-                                    DisplayMessage("You cannot shoot at this time.", intRD);
+                                    DisplayMessage("You cannot shoot at this time!", intRD);
 
                                     if (QuickThinkingRound && Character.QuickThinking)
                                     {
@@ -1951,7 +1951,7 @@ namespace Interface
                                         }
                                         else
                                         {
-                                            DisplayMessage("You do not a bow!", intRD);
+                                            DisplayMessage("You do not have a bow!", intRD);
                                         }
                                     }
                                     else
@@ -2000,6 +2000,10 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)
                         {
+                            auto MonsterId = Map.ObjectID[SelectY][SelectX] - 1;
+
+                            Monster::Base &Monster = monsters[MonsterId];
+
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
                                 if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
@@ -2029,10 +2033,6 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::ATTACK)
                             {
-                                auto MonsterId = Map.ObjectID[SelectY][SelectX] - 1;
-
-                                Monster::Base &Monster = monsters[MonsterId];
-
                                 if (Interface::IsAdjacent(Map, PlayerId, MonsterId) && Monster.Endurance > 0)
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::FIGHT, false);
@@ -2070,10 +2070,6 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::SHOOT)
                             {
-                                auto MonsterId = Map.ObjectID[SelectY][SelectX] - 1;
-
-                                Monster::Base &Monster = monsters[MonsterId];
-
                                 if (!Interface::IsAdjacent(Map, PlayerId, MonsterId) && Monster.Endurance > 0)
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::SHOOT, false);
@@ -2104,7 +2100,7 @@ namespace Interface
                                 }
                                 else if (Monster.Endurance > 0)
                                 {
-                                    DisplayMessage("You cannot shoot at nearby enemies!", intRD);
+                                    DisplayMessage("You can only shoot from range!", intRD);
 
                                     CurrentMode = Combat::Mode::NORMAL;
                                 }
