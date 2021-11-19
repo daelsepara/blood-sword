@@ -226,6 +226,11 @@ namespace Engine
         return result;
     }
 
+    bool CanShoot(Character::Base &character)
+    {
+        return (character.Class == Character::Class::Trickster || character.Class == Character::Class::Sage);
+    }
+
     bool HasBow(Character::Base &character)
     {
         auto result = false;

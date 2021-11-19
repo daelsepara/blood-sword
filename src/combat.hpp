@@ -18,11 +18,11 @@ namespace Combat
     enum class Mode
     {
         NORMAL = 0,
-        MOVE,      // Selecting destination
-        ATTACK,    // Selecting attack target
-        SHOOT,     // Selecting a target for a ranged attack
-        MAGIC,     // Selecting magic target
-        HEAL       // Selecting a to heal
+        MOVE,   // Selecting destination
+        ATTACK, // Selecting attack target
+        SHOOT,  // Selecting a target for a ranged attack
+        MAGIC,  // Selecting magic target
+        HEAL    // Selecting a to heal
     };
 
     enum class Result
@@ -41,6 +41,13 @@ namespace Combat
         FIGHT,
         DAMAGE,
         END // end of attack
+    };
+
+    enum class FightMode
+    {
+        NONE = 0,
+        FIGHT,
+        SHOOT
     };
 }
 #endif

@@ -430,7 +430,7 @@ namespace Interface
                 {
                     Distances.push_back(std::make_tuple(i, (Map.SizeX * Map.SizeY), Engine::Endurance(party.Members[i])));
                 }
-                        }
+            }
         }
 
         if (Distances.size() > 0)
@@ -543,7 +543,7 @@ namespace Interface
     }
 
     // fight encounter between player and monster
-    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, bool Attacked)
+    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, Combat::FightMode FightMode, bool Attacked)
     {
         auto Result = Combat::Result::NONE;
         auto MapSizeX = Map.SizeX * Map.ObjectSize;
@@ -562,7 +562,7 @@ namespace Interface
         auto TextWidth = WindowW - 2 * text_space;
         auto ResultsY = 12 * RowHeight + 4 * text_space;
 
-        const char *FightChoices1[2] = {"FIGHT", "CANCEL"}; // player attacks
+        const char *FightChoices1[2] = {(FightMode == Combat::FightMode::FIGHT ? "FIGHT" : "SHOOT"), "CANCEL"}; // player attacks
         auto FightControls1 = Graphics::CreateFixedTextButtons(FightChoices1, 2, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         FightControls1[0].Fg = clrWH;
         FightControls1[0].Highlight = Attacked ? intMG : intLB;
@@ -604,6 +604,7 @@ namespace Interface
         dice[5] = Assets::Copy(Assets::Type::Dice6);
 
         auto swords = Assets::Copy(Assets::Type::Attack);
+        auto shoot = Assets::Copy(Assets::Type::Shoot);
 
         auto Hold = false;
         auto Selected = false;
@@ -639,7 +640,7 @@ namespace Interface
         Engine::Randomize();
 
         auto FightRolls = (Attacked && Character.IsDefending) ? 3 : 2;
-        auto DamageRolls = Attacked ? Monster.Damage : Damage;
+        auto DamageRolls = FightMode == Combat::FightMode::SHOOT ? 1 : (Attacked ? Monster.Damage : Damage);
 
         std::vector<int> Rolls(FightRolls, 0);
         std::vector<int> Damages(DamageRolls, 0);
@@ -663,7 +664,7 @@ namespace Interface
             Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
             Graphics::PutText(Renderer, ("FP: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
             Graphics::PutText(Renderer, ("EN: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 2 * RowHeight);
-            Graphics::PutText(Renderer, ("DMG: " + std::to_string(Damage) + "D+" + std::to_string(DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
+            Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D+" + std::to_string(DamageModifier)))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 4 * RowHeight);
 
             if (Attacked && Character.IsDefending && Character.Class == Character::Class::Trickster)
@@ -687,7 +688,14 @@ namespace Interface
             Graphics::PutText(Renderer, ("DMG: " + std::to_string(Monster.Damage) + "D+" + std::to_string(Monster.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Monster.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 4 * RowHeight);
 
-            Graphics::RenderImage(Renderer, swords, MidWindow - (2 * Map.ObjectSize + border_pts), WindowY + Map.ObjectSize);
+            if (FightMode == Combat::FightMode::FIGHT)
+            {
+                Graphics::RenderImage(Renderer, swords, MidWindow - (2 * Map.ObjectSize + border_pts), WindowY + Map.ObjectSize);
+            }
+            else if (FightMode == Combat::FightMode::SHOOT)
+            {
+                Graphics::RenderImage(Renderer, shoot, MidWindow - (2 * Map.ObjectSize + border_pts), WindowY + Map.ObjectSize);
+            }
 
             if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
             {
@@ -709,6 +717,11 @@ namespace Interface
                 }
 
                 auto FightResult = (!Attacked ? FightingProwess : Monster.FightingProwess) >= FightingSum;
+
+                if (FightMode == Combat::FightMode::SHOOT)
+                {
+                    Engine::ShootArrow(Character);
+                }
 
                 if (FightResult)
                 {
@@ -756,7 +769,7 @@ namespace Interface
                         DamageSum += Damages[i];
                     }
 
-                    DamageSum += Attacked ? Monster.DamageModifier : DamageModifier;
+                    DamageSum += FightMode == Combat::FightMode::SHOOT ? 0 : (Attacked ? Monster.DamageModifier : DamageModifier);
 
                     DamageSum -= Attacked ? Armour : Monster.Armour;
 
@@ -850,6 +863,10 @@ namespace Interface
         SDL_FreeSurface(swords);
 
         swords = NULL;
+
+        SDL_FreeSurface(shoot);
+
+        shoot = NULL;
 
         return Result;
     }
@@ -1606,6 +1623,10 @@ namespace Interface
                             {
                                 DisplayMessage("You cannot fight that!", intRD);
                             }
+                            else if (CurrentMode == Combat::Mode::SHOOT)
+                            {
+                                DisplayMessage("You cannot shoot that!", intRD);
+                            }
                             else
                             {
                                 CurrentMode = Combat::Mode::NORMAL;
@@ -1768,6 +1789,42 @@ namespace Interface
                                 CurrentMode = Combat::Mode::NORMAL;
                             }
                         }
+                        else if (Controls[Current].Type == Control::Type::SHOOT && !Hold)
+                        {
+                            if (CurrentMode == Combat::Mode::NORMAL)
+                            {
+                                if (Engine::CanShoot(Character))
+                                {
+                                    if (!Interface::NearbyMonsters(Map, monsters, PlayerId))
+                                    {
+                                        if (Engine::HasBow(Character) && Engine::HasArrows(Character))
+                                        {
+                                            CurrentMode = Combat::Mode::SHOOT;
+                                        }
+                                        else if (Engine::HasBow(Character))
+                                        {
+                                            DisplayMessage("You do not have any arrows left!", intRD);
+                                        }
+                                        else
+                                        {
+                                            DisplayMessage("You do not a bow!", intRD);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DisplayMessage("You cannot shoot while there are opponents nearby!", intRD);
+                                    }
+                                }
+                                else
+                                {
+                                    DisplayMessage("You do not have the Archery skill!", intRD);
+                                }
+                            }
+                            else
+                            {
+                                CurrentMode = Combat::Mode::NORMAL;
+                            }
+                        }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)
                         {
                             if (CurrentMode == Combat::Mode::NORMAL)
@@ -1807,7 +1864,7 @@ namespace Interface
 
                                 if (Interface::IsAdjacent(Map, PlayerId, MonsterId) && monster.Endurance > 0)
                                 {
-                                    auto Result = Interface::Fight(Renderer, Controls, intBK, Map, character, monster, false);
+                                    auto Result = Interface::Fight(Renderer, Controls, intBK, Map, character, monster, Combat::FightMode::FIGHT, false);
 
                                     if (!Engine::IsAlive(character))
                                     {
@@ -1825,6 +1882,8 @@ namespace Interface
                                     else
                                     {
                                         DisplayMessage("Attack canceled", intLB);
+
+                                        CurrentMode = Combat::Mode::NORMAL;
                                     }
 
                                     Selected = false;
@@ -1834,6 +1893,49 @@ namespace Interface
                                 else if (monster.Endurance > 0)
                                 {
                                     DisplayMessage("You can only attack adjacent targets!", intRD);
+
+                                    CurrentMode = Combat::Mode::NORMAL;
+                                }
+                            }
+                            else if (CurrentMode == Combat::Mode::SHOOT)
+                            {
+                                auto MonsterId = Map.ObjectID[SelectY][SelectX] - 1;
+
+                                Character::Base &character = party.Members[PlayerId];
+
+                                Monster::Base &monster = monsters[MonsterId];
+
+                                if (!Interface::IsAdjacent(Map, PlayerId, MonsterId) && monster.Endurance > 0)
+                                {
+                                    auto Result = Interface::Fight(Renderer, Controls, intBK, Map, character, monster, Combat::FightMode::SHOOT, false);
+
+                                    if (!Engine::IsAlive(character))
+                                    {
+                                        Remove(Map, CurrentX, CurrentY);
+                                    }
+                                    else if (monster.Endurance <= 0)
+                                    {
+                                        Remove(Map, SelectX, SelectY);
+                                    }
+
+                                    if (Result != Combat::Result::NONE)
+                                    {
+                                        CycleCombatants();
+                                    }
+                                    else
+                                    {
+                                        DisplayMessage("Shot canceled", intLB);
+
+                                        CurrentMode = Combat::Mode::NORMAL;
+                                    }
+
+                                    Selected = false;
+
+                                    Current = -1;
+                                }
+                                else if (monster.Endurance > 0)
+                                {
+                                    DisplayMessage("You cannot shoot at neary enemies!", intRD);
 
                                     CurrentMode = Combat::Mode::NORMAL;
                                 }
@@ -1889,7 +1991,7 @@ namespace Interface
                             Interface::Find(Map, TacticalMap::Object::Player, PlayerId, CurrentX, CurrentY);
 
                             // do attack
-                            Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], true);
+                            Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], Combat::FightMode::FIGHT, true);
 
                             if (!Engine::IsAlive(party.Members[PlayerId]))
                             {
