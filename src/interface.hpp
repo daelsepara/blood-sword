@@ -517,6 +517,11 @@ namespace Interface
         Graphics::PutText(Renderer, std::string("ENDURANCE: " + std::to_string(monsters[MonsterId].Endurance)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + +4 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(monsters[MonsterId].Armour)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + +5 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(monsters[MonsterId].Damage) + (monsters[MonsterId].DamageModifier >= 0 ? "D+" : "D") + std::to_string(monsters[MonsterId].DamageModifier)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 6 * (FontSize + 2));
+
+        if (monsters[MonsterId].KnockedOff)
+        {
+            Graphics::PutText(Renderer, "KNOCKED OFF", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 7 * (FontSize + 2));
+        }
     }
 
     void ShowCoordinates(SDL_Renderer *Renderer, TacticalMap::Base &Map, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, int Current, int SelectedCombatant, TTF_Font *Font, int TextW, int TextX)
@@ -608,18 +613,18 @@ namespace Interface
 
         const char *FightChoices3[3] = {"QUARTERSTAFF", "FIGHT", "CANCEL"}; // player attacks
         auto FightControls3 = Graphics::CreateFixedTextButtons(FightChoices3, 3, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
-        FightControls1[0].Fg = clrWH;
-        FightControls1[0].Highlight = intGR;
-        FightControls1[0].Color = intBK;
-        FightControls1[0].Type = Control::Type::ATTACK;
-        FightControls1[1].Fg = clrWH;
-        FightControls1[1].Highlight = intGR;
-        FightControls1[1].Color = intBK;
-        FightControls1[1].Type = Control::Type::QUARTERSTAFF;
-        FightControls1[2].Fg = clrWH;
-        FightControls1[2].Highlight = intGR;
-        FightControls1[2].Color = intBK;
-        FightControls1[2].Type = Control::Type::BACK;
+        FightControls3[0].Fg = clrWH;
+        FightControls3[0].Highlight = intGR;
+        FightControls3[0].Color = intBK;
+        FightControls3[0].Type = Control::Type::ATTACK;
+        FightControls3[1].Fg = clrWH;
+        FightControls3[1].Highlight = intGR;
+        FightControls3[1].Color = intBK;
+        FightControls3[1].Type = Control::Type::QUARTERSTAFF;
+        FightControls3[2].Fg = clrWH;
+        FightControls3[2].Highlight = intGR;
+        FightControls3[2].Color = intBK;
+        FightControls3[2].Type = Control::Type::BACK;
 
         const char *DoneChoices[1] = {"DONE"}; // end of fighting
         auto DoneControls = Graphics::CreateFixedTextButtons(DoneChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
