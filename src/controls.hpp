@@ -36,7 +36,8 @@ namespace Control
         SHOOT,
         MAGIC,
         DAMAGE,
-        QUICKTHINKING
+        QUICKTHINKING,
+        QUARTERSTAFF
     };
 
     class Base

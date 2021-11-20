@@ -32,6 +32,8 @@ namespace Monster
 
         int Armour = 0;
 
+        bool KnockedOff = false;
+
         Base()
         {
 

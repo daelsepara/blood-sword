@@ -188,6 +188,10 @@ namespace Interface
                 {
                     asset = Assets::Copy(Assets::Type::Trickster);
                 }
+                else if (party.Members[PlayerId].Class == Character::Class::Sage)
+                {
+                    asset = Assets::Copy(Assets::Type::Sage);
+                }
 
                 Animate(passable, asset);
 
@@ -354,7 +358,7 @@ namespace Interface
 
             auto Color = O(color, alpha);
 
-            for (auto i = CurrentMove; i < CurrentPath.Points.size() - 1; i++)
+            for (auto i = CurrentMove; i < CurrentPath.Points.size(); i++)
             {
                 auto X = CurrentPath.Points[i].X - Map.MapX;
 
@@ -463,7 +467,7 @@ namespace Interface
         auto Damage = party.Members[PlayerId].Damage;
         auto DamageModifier = party.Members[PlayerId].DamageModifier;
 
-        Graphics::PutText(Renderer, Character::Description[party.Members[PlayerId].Class], Font, 0, clrLB, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY);
+        Graphics::PutText(Renderer, Character::Description[party.Members[PlayerId].Class], Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY);
         Graphics::PutText(Renderer, std::string("RANK: " + std::to_string(party.Members[PlayerId].Rank)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + (FontSize + 2));
         Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(FightingProwess)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 2 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(PsychicAbility)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 3 * (FontSize + 2));
@@ -477,21 +481,21 @@ namespace Interface
 
         if (party.Members[PlayerId].IsDefending && party.Members[PlayerId].QuickThinking)
         {
-            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrLG, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
+            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
 
-            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrYW, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 10 * (FontSize + 2));
+            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 10 * (FontSize + 2));
 
             OffsetArrows = 11;
         }
         else if (party.Members[PlayerId].IsDefending)
         {
-            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrLG, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
+            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
 
             OffsetArrows = 10;
         }
         else if (party.Members[PlayerId].QuickThinking)
         {
-            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrYW, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
+            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
 
             OffsetArrows = 10;
         }
@@ -506,7 +510,7 @@ namespace Interface
     {
         auto FontSize = TTF_FontHeight(Font);
 
-        Graphics::PutText(Renderer, monsters[MonsterId].Name.c_str(), Font, 0, clrRD, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY);
+        Graphics::PutText(Renderer, monsters[MonsterId].Name.c_str(), Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY);
         Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(monsters[MonsterId].FightingProwess)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + (FontSize + 2));
         Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(monsters[MonsterId].PsychicAbility)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 2 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("AWARENESS: " + std::to_string(monsters[MonsterId].Awareness)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + +3 * (FontSize + 2));
@@ -584,35 +588,51 @@ namespace Interface
         auto ResultsY = 12 * RowHeight + 4 * text_space;
 
         const char *FightChoices1[2] = {(FightMode == Combat::FightMode::FIGHT ? "FIGHT" : "SHOOT"), "CANCEL"}; // player attacks
+
         auto FightControls1 = Graphics::CreateFixedTextButtons(FightChoices1, 2, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         FightControls1[0].Fg = clrWH;
-        FightControls1[0].Highlight = Attacked ? intMG : intLB;
-        FightControls1[0].Color = Attacked ? intRD : intDB;
+        FightControls1[0].Highlight = intGR;
+        FightControls1[0].Color = intBK;
         FightControls1[0].Type = Control::Type::ATTACK;
         FightControls1[1].Fg = clrWH;
-        FightControls1[1].Highlight = intLB;
-        FightControls1[1].Color = Attacked ? intRD : intDB;
+        FightControls1[1].Highlight = intGR;
+        FightControls1[1].Color = intBK;
         FightControls1[1].Type = Control::Type::BACK;
 
         const char *FightChoices2[2] = {"FIGHT"}; // monster attacks
         auto FightControls2 = Graphics::CreateFixedTextButtons(FightChoices2, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         FightControls2[0].Fg = clrWH;
-        FightControls2[0].Highlight = Attacked ? intMG : intLB;
-        FightControls2[0].Color = Attacked ? intRD : intDB;
+        FightControls2[0].Highlight = intGR;
+        FightControls2[0].Color = intBK;
         FightControls2[0].Type = Control::Type::ATTACK;
+
+        const char *FightChoices3[3] = {"QUARTERSTAFF", "FIGHT", "CANCEL"}; // player attacks
+        auto FightControls3 = Graphics::CreateFixedTextButtons(FightChoices3, 3, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+        FightControls1[0].Fg = clrWH;
+        FightControls1[0].Highlight = intGR;
+        FightControls1[0].Color = intBK;
+        FightControls1[0].Type = Control::Type::ATTACK;
+        FightControls1[1].Fg = clrWH;
+        FightControls1[1].Highlight = intGR;
+        FightControls1[1].Color = intBK;
+        FightControls1[1].Type = Control::Type::QUARTERSTAFF;
+        FightControls1[2].Fg = clrWH;
+        FightControls1[2].Highlight = intGR;
+        FightControls1[2].Color = intBK;
+        FightControls1[2].Type = Control::Type::BACK;
 
         const char *DoneChoices[1] = {"DONE"}; // end of fighting
         auto DoneControls = Graphics::CreateFixedTextButtons(DoneChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         DoneControls[0].Fg = clrWH;
-        DoneControls[0].Highlight = Attacked ? intMG : intLB;
-        DoneControls[0].Color = Attacked ? intRD : intDB;
+        DoneControls[0].Highlight = intGR;
+        DoneControls[0].Color = intBK;
         DoneControls[0].Type = Control::Type::BACK;
 
         const char *DamageChoices[1] = {"DAMAGE"}; // end of fighting
         auto DamageControls = Graphics::CreateFixedTextButtons(DamageChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         DamageControls[0].Fg = clrWH;
-        DamageControls[0].Highlight = Attacked ? intMG : intLB;
-        DamageControls[0].Color = Attacked ? intRD : intDB;
+        DamageControls[0].Highlight = intGR;
+        DamageControls[0].Color = intBK;
         DamageControls[0].Type = Control::Type::DAMAGE;
 
         SDL_Surface *dice[6];
@@ -632,8 +652,9 @@ namespace Interface
         auto ScrollUp = false;
         auto ScrollDown = false;
         auto Current = 0;
+        auto QuarterStaff = false;
 
-        std::vector<TextButton> &Controls = Attacked ? FightControls2 : FightControls1;
+        std::vector<TextButton> &Controls = Attacked ? FightControls2 : (Character.Class == Character::Class::Sage ? FightControls3 : FightControls1);
 
         auto done = false;
 
@@ -682,7 +703,7 @@ namespace Interface
 
             // character stats
             auto Endurance = Engine::Endurance(Character);
-            Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
+            Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
             Graphics::PutText(Renderer, ("FP: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
             Graphics::PutText(Renderer, ("EN: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 2 * RowHeight);
             Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D+" + std::to_string(DamageModifier)))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
@@ -690,20 +711,20 @@ namespace Interface
 
             if (Attacked && Character.IsDefending && Character.Class == Character::Class::Trickster)
             {
-                Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
-                Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrLG, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 6 * RowHeight);
+                Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
+                Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 6 * RowHeight);
             }
             else if (Attacked && Character.IsDefending)
             {
-                Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
+                Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
             }
             else if (Attacked && Character.Class == Character::Class::Trickster)
             {
-                Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrLG, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
+                Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
             }
 
             // monster stats
-            Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrRD, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
+            Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
             Graphics::PutText(Renderer, ("FP: " + std::to_string(Monster.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + RowHeight);
             Graphics::PutText(Renderer, ("EN: " + std::to_string(Monster.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 2 * RowHeight);
             Graphics::PutText(Renderer, ("DMG: " + std::to_string(Monster.Damage) + "D+" + std::to_string(Monster.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
@@ -721,6 +742,13 @@ namespace Interface
             if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
             {
                 FightingSum = 0;
+
+                if (QuarterStaff)
+                {
+                    FightRolls = 3;
+
+                    Rolls.resize(FightRolls, 0);
+                }
 
                 for (auto i = 0; i < FightRolls; i++)
                 {
@@ -767,15 +795,15 @@ namespace Interface
                     Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
-                Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrYW, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                 if (Attacked)
                 {
-                    Graphics::PutText(Renderer, (Monster.Name + " hits the " + std::string(Character::Description[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrRD, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                    Graphics::PutText(Renderer, (Monster.Name + " hits the " + std::string(Character::Description[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                 }
                 else
                 {
-                    Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + " hits " + Monster.Name + "!").c_str(), Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                    Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + " hits " + Monster.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                 }
 
                 if (!CalculatedDamage)
@@ -791,6 +819,15 @@ namespace Interface
                     }
 
                     DamageSum += FightMode == Combat::FightMode::SHOOT ? 0 : (Attacked ? Monster.DamageModifier : DamageModifier);
+
+                    if (QuarterStaff)
+                    {
+                        DamageSum += 1;
+
+                        Monster.KnockedOff = true;
+
+                        Result = Combat::Result::KNOCKED_OFF;
+                    }
 
                     DamageSum -= Attacked ? Armour : Monster.Armour;
 
@@ -809,15 +846,15 @@ namespace Interface
                         Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrYW, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                    Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                     if (Attacked)
                     {
-                        Graphics::PutText(Renderer, (Monster.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrLB, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                        Graphics::PutText(Renderer, (Monster.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                     }
                     else
                     {
-                        Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrRD, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                        Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                     }
                 }
                 else
@@ -828,7 +865,7 @@ namespace Interface
                         Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrRD : clrLG, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                    Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                     if (!AssignedDamage)
                     {
@@ -854,6 +891,14 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::ATTACK && !Hold)
                 {
+                    CurrentStage = Combat::Stage::FIGHT;
+
+                    Controls = DamageControls;
+                }
+                else if (Controls[Current].Type == Control::Type::QUARTERSTAFF && !Hold)
+                {
+                    QuarterStaff = true;
+
                     CurrentStage = Combat::Stage::FIGHT;
 
                     Controls = DamageControls;
@@ -939,7 +984,7 @@ namespace Interface
             NumControls++;
         }
 
-        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Cancel), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
+        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
 
         auto done = false;
 
@@ -952,7 +997,7 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
-            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrLB, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
+            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
 
             Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
 
@@ -985,7 +1030,7 @@ namespace Interface
     {
         auto FlashMessage = false;
 
-        auto FlashColor = intRD;
+        auto FlashColor = intGR;
 
         std::string Message = "";
 
@@ -1088,6 +1133,8 @@ namespace Interface
 
         auto QuickThinkingRound = false;
 
+        auto KnockedOffRound = false;
+
         auto IsPlayer = [&](int id)
         {
             return std::get<0>(Sequence[id]) == TacticalMap::Object::Player;
@@ -1138,6 +1185,26 @@ namespace Interface
             return next;
         };
 
+        auto NextKnockedOff = [&]()
+        {
+            auto next = 0;
+
+            for (auto i = 0; i < Sequence.size(); i++)
+            {
+                if (IsMonster(i))
+                {
+                    if (monsters[GetId(i)].KnockedOff)
+                    {
+                        next = i;
+
+                        break;
+                    }
+                }
+            }
+
+            return next;
+        };
+
         auto ClearDefendingStatus = [&]()
         {
             // clear defensive stance
@@ -1159,6 +1226,14 @@ namespace Interface
                 }
             }
 
+            if (IsMonster(CurrentCombatant))
+            {
+                if (KnockedOffRound && monsters[GetId(CurrentCombatant)].KnockedOff)
+                {
+                    monsters[GetId(CurrentCombatant)].KnockedOff = false;
+                }
+            }
+
             auto active = false;
 
             while (!active)
@@ -1167,10 +1242,25 @@ namespace Interface
                 {
                     QuickThinkingRound = false;
 
+                    KnockedOffRound = false;
+
                     break;
                 }
 
-                if (QuickThinkingRound)
+                if (KnockedOffRound)
+                {
+                    if (Engine::KnockedOff(monsters))
+                    {
+                        CurrentCombatant = NextKnockedOff();
+                    }
+                    else
+                    {
+                        QuickThinkingRound = true;
+
+                        CurrentCombatant = 0;
+                    }
+                }
+                else if (QuickThinkingRound)
                 {
                     if (Engine::QuickThinking(party))
                     {
@@ -1178,7 +1268,7 @@ namespace Interface
                     }
                     else
                     {
-                        DisplayMessage("Quick thinking round ends!", intLB);
+                        DisplayMessage("Quick thinking round ends!", intGR);
 
                         QuickThinkingRound = false;
 
@@ -1195,9 +1285,15 @@ namespace Interface
 
                     if (CurrentCombatant >= Sequence.size())
                     {
-                        if (Engine::QuickThinking(party))
+                        if (Engine::KnockedOff(monsters))
                         {
-                            DisplayMessage("Quick thinking round begins!", intLB);
+                            KnockedOffRound = true;
+
+                            CurrentCombatant = NextKnockedOff();
+                        }
+                        else if (Engine::QuickThinking(party))
+                        {
+                            DisplayMessage("Quick thinking round begins!", intGR);
 
                             QuickThinkingRound = true;
 
@@ -1205,6 +1301,8 @@ namespace Interface
                         }
                         else
                         {
+                            KnockedOffRound = false;
+
                             QuickThinkingRound = false;
 
                             CurrentCombatant = 0;
@@ -1267,6 +1365,11 @@ namespace Interface
                     auto FlashH = 2 * infoh;
 
                     Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, Map.DrawX + ((Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2);
+
+                    if (FlashColor == intBK)
+                    {
+                        Graphics::DrawRect(Renderer, FlashW, infoh * 2, Map.DrawX + ((Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2, intWH);
+                    }
                 }
                 else
                 {
@@ -1308,18 +1411,18 @@ namespace Interface
                 auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
                 auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
 
-                Controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, Map.MapY > 0 ? intLB : intGR, Control::Type::MAP_UP));
-                Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * border_space), Map.MapX > 0 ? intLB : intGR, Control::Type::MAP_LEFT));
-                Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (Map.MapX < Map.Width - Map.SizeX) ? intLB : intGR, Control::Type::MAP_RIGHT));
-                Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (Map.MapY < Map.Height - Map.SizeY) ? intLB : intGR, Control::Type::MAP_DOWN));
-                Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intLB, Control::Type::EXIT));
-                Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intLB, Control::Type::MOVE));
-                Controls.push_back(Button(6, Assets::Get(Assets::Type::Attack), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intLB, Control::Type::ATTACK));
-                Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intLB, Control::Type::DEFEND));
-                Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intLB, Control::Type::SHOOT));
-                Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intLB, Control::Type::ABILITY));
-                Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intLB, Control::Type::ITEMS));
-                Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 10, 4, ActionsX + 6 * ActionsGrid, ActionsY, intLB, Control::Type::FLEE));
+                Controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, Map.MapY > 0 ? intWH : intGR, Control::Type::MAP_UP));
+                Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * border_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
+                Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
+                Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
+                Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
+                Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intWH, Control::Type::MOVE));
+                Controls.push_back(Button(6, Assets::Get(Assets::Type::Attack), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
+                Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
+                Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
+                Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
+                Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
+                Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 10, 4, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
 
                 int NumControls = Controls.size();
 
@@ -1408,7 +1511,7 @@ namespace Interface
 
                         if (Object == TacticalMap::Object::Wall)
                         {
-                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MAP_NONE));
+                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
                         }
                         else if (Object == TacticalMap::Object::Player)
                         {
@@ -1428,27 +1531,31 @@ namespace Interface
 
                             if (party.Members[ObjectId].Class == Character::Class::Warrior)
                             {
-                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Warrior), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::PLAYER));
+                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Warrior), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::PLAYER));
                             }
                             else if (party.Members[ObjectId].Class == Character::Class::Trickster)
                             {
-                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Trickster), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::PLAYER));
+                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Trickster), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::PLAYER));
+                            }
+                            else if (party.Members[ObjectId].Class == Character::Class::Sage)
+                            {
+                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Sage), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::PLAYER));
                             }
                         }
                         else if (Object == TacticalMap::Object::HotCoals)
                         {
-                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MAP_NONE));
+                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
                         }
                         else if (Object == TacticalMap::Object::Monster)
                         {
                             if (monsters[ObjectId].Type == Monster::Type::Barbarian)
                             {
-                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Barbarian), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::MONSTER));
+                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Barbarian), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MONSTER));
                             }
                         }
                         else
                         {
-                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intYW, Control::Type::DESTINATION));
+                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
                         }
 
                         NumControls++;
@@ -1465,7 +1572,7 @@ namespace Interface
                 // blink current party member
                 if (SelectedCombatant != CurrentCombatant && Blink && BlinkX >= 0 && BlinkY >= 0 && (Current == -1 || (Current >= 0 && Current < Controls.size() && (BlinkX != Controls[Current].X || BlinkY != Controls[Current].Y))))
                 {
-                    Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, BlinkX + 2 * border_pts, BlinkY + 2 * border_pts, intRD, border_pts);
+                    Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, BlinkX + 2 * border_pts, BlinkY + 2 * border_pts, intGR, border_pts);
                 }
 
                 if (SelectedCombatant >= 0 && SelectedCombatant < Sequence.size())
@@ -1480,7 +1587,7 @@ namespace Interface
 
                     if ((SelectedX - Map.MapX) >= 0 && (SelectedX - Map.MapX) < Map.SizeX && (SelectedY - Map.MapY) >= 0 && (SelectedY - Map.MapY) < Map.SizeY)
                     {
-                        Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (SelectedX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (SelectedY - Map.MapY) * Map.ObjectSize + 2 * border_pts, intYW, border_pts);
+                        Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (SelectedX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (SelectedY - Map.MapY) * Map.ObjectSize + 2 * border_pts, intGR, border_pts);
                     }
 
                     // Render statistics for currently selected / highlighted player or monster
@@ -1517,7 +1624,7 @@ namespace Interface
 
                                 if (MonsterPath.Points.size() > 2)
                                 {
-                                    Interface::DrawPath(Renderer, Map, MonsterPath, 1, intRD, 0x66);
+                                    Interface::DrawPath(Renderer, Map, MonsterPath, 1, intGR, 0xCC);
                                 }
                             }
                         }
@@ -1543,19 +1650,19 @@ namespace Interface
 
                     if (CurrentMode == Combat::Mode::NORMAL && ControlType == Control::Type::PLAYER)
                     {
-                        Graphics::PutText(Renderer, "View party member", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, "View party member", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
                         Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::NORMAL && ControlType == Control::Type::MONSTER)
                     {
-                        Graphics::PutText(Renderer, "View opponent", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, "View opponent", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::NORMAL)
                     {
-                        Graphics::PutText(Renderer, ("Combat Round: " + std::to_string(CombatRound + 1)).c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, ("Combat Round: " + std::to_string(CombatRound + 1)).c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                     }
                     else if (CurrentMode == Combat::Mode::MOVE)
                     {
@@ -1571,13 +1678,13 @@ namespace Interface
 
                             TargetY = CurrentPath[PlayerId].Points.back().Y - Map.MapY;
 
-                            Graphics::PutText(Renderer, "Move to location or continue along current path", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                            Graphics::PutText(Renderer, "Move to location or continue along current path", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
-                            Interface::DrawPath(Renderer, Map, CurrentPath[PlayerId], CurrentMove[PlayerId], intYW, 0x66);
+                            Interface::DrawPath(Renderer, Map, CurrentPath[PlayerId], CurrentMove[PlayerId], intGR, 0xCC);
                         }
                         else
                         {
-                            Graphics::PutText(Renderer, "Move to location", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                            Graphics::PutText(Renderer, "Move to location", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                         }
 
                         if (ControlType == Control::Type::DESTINATION)
@@ -1596,7 +1703,7 @@ namespace Interface
 
                                     if (TempPath.Points.size() > 2)
                                     {
-                                        Interface::DrawPath(Renderer, Map, TempPath, 1, intMG, 0x66);
+                                        Interface::DrawPath(Renderer, Map, TempPath, 1, intGR, 0xCC);
                                     }
                                 }
                             }
@@ -1604,47 +1711,39 @@ namespace Interface
                     }
                     else if (CurrentMode == Combat::Mode::HEAL && ControlType == Control::Type::PLAYER)
                     {
-                        Graphics::PutText(Renderer, "Heal target", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, "Heal target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                     }
                     else if (CurrentMode == Combat::Mode::ATTACK && ControlType == Control::Type::MONSTER)
                     {
-                        Graphics::PutText(Renderer, "Fight target", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, "Fight target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::ATTACK)
                     {
-                        Graphics::PutText(Renderer, "Select a nearby opponent to fight", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, "Select a nearby opponent to fight", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                     }
                     else if (CurrentMode == Combat::Mode::SHOOT && ControlType == Control::Type::MONSTER)
                     {
-                        Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::SHOOT && ControlType == Control::Type::PLAYER)
                     {
-                        Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
                         Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
                     }
                     else if (CurrentMode == Combat::Mode::SHOOT)
                     {
-                        Graphics::PutText(Renderer, "Shoot at a target from range", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, "Shoot at a target from range", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
                     }
                     else if (CurrentMode == Combat::Mode::MAGIC && ControlType == Control::Type::MONSTER)
                     {
-                        Graphics::PutText(Renderer, "Cast a spell", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
+                        Graphics::PutText(Renderer, "Cast a spell", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
                         Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
-                    }
-                    else if ((ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION) && (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()))
-                    {
-                        std::string Coordinates = "(" + std::to_string(SelectX) + ", " + std::to_string(SelectY) + ")";
-
-                        Graphics::PutText(Renderer, Coordinates.c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, Map.DrawY);
-
-                        Graphics::PutText(Renderer, TacticalMap::Description[Map.Objects[SelectY][SelectX]], Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextR, Map.DrawY + (FontSize + text_space));
                     }
                 }
 
@@ -1747,11 +1846,11 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::ATTACK)
                             {
-                                DisplayMessage("You cannot fight that!", intRD);
+                                DisplayMessage("You cannot fight that!", intBK);
                             }
                             else if (CurrentMode == Combat::Mode::SHOOT)
                             {
-                                DisplayMessage("You cannot shoot that!", intRD);
+                                DisplayMessage("You cannot shoot that!", intBK);
                             }
                             else
                             {
@@ -1781,13 +1880,13 @@ namespace Interface
                                     {
                                         if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, CurrentPath[PlayerId].Points[1].X, CurrentPath[PlayerId].Points[1].Y))
                                         {
-                                            DisplayMessage("Path blocked!", intRD);
+                                            DisplayMessage("Path blocked!", intBK);
                                         }
                                         else
                                         {
                                             if (WasAttacked)
                                             {
-                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intRD);
+                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intGR);
 
                                                 Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
@@ -1804,7 +1903,7 @@ namespace Interface
                                     }
                                     else
                                     {
-                                        DisplayMessage("Path blocked!", intRD);
+                                        DisplayMessage("Path blocked!", intBK);
                                     }
                                 }
                                 else
@@ -1819,13 +1918,13 @@ namespace Interface
 
                                     if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, SelectX, SelectY))
                                     {
-                                        DisplayMessage("Path Blocked!", intRD);
+                                        DisplayMessage("Path Blocked!", intBK);
                                     }
                                     else
                                     {
                                         if (WasAttacked)
                                         {
-                                            RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intRD);
+                                            RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intGR);
 
                                             Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
@@ -1864,14 +1963,14 @@ namespace Interface
 
                                         if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y))
                                         {
-                                            DisplayMessage("Path blocked!", intRD);
+                                            DisplayMessage("Path blocked!", intBK);
                                         }
                                         else
                                         {
                                             // get attacked by a nearby enemy that has a higher awareness
                                             if (WasAttacked)
                                             {
-                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intRD);
+                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intGR);
 
                                                 Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
@@ -1903,7 +2002,7 @@ namespace Interface
                             {
                                 if (Character.IsDefending)
                                 {
-                                    DisplayMessage("You cannot attack at this time.", intRD);
+                                    DisplayMessage("You cannot attack at this time.", intBK);
 
                                     if (QuickThinkingRound && Character.QuickThinking)
                                     {
@@ -1916,7 +2015,7 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    DisplayMessage("There are no opponents nearby!", intRD);
+                                    DisplayMessage("There are no opponents nearby!", intBK);
                                 }
                             }
                             else
@@ -1930,7 +2029,7 @@ namespace Interface
                             {
                                 if (Character.IsDefending)
                                 {
-                                    DisplayMessage("You cannot shoot at this time!", intRD);
+                                    DisplayMessage("You cannot shoot at this time!", intBK);
 
                                     if (QuickThinkingRound && Character.QuickThinking)
                                     {
@@ -1947,21 +2046,21 @@ namespace Interface
                                         }
                                         else if (Engine::HasBow(Character))
                                         {
-                                            DisplayMessage("You do not have any arrows left!", intRD);
+                                            DisplayMessage("You do not have any arrows left!", intBK);
                                         }
                                         else
                                         {
-                                            DisplayMessage("You do not have a bow!", intRD);
+                                            DisplayMessage("You do not have a bow!", intBK);
                                         }
                                     }
                                     else
                                     {
-                                        DisplayMessage("You cannot shoot at this time!", intRD);
+                                        DisplayMessage("You cannot shoot at this time!", intBK);
                                     }
                                 }
                                 else
                                 {
-                                    DisplayMessage("You do not have the archery skill!", intRD);
+                                    DisplayMessage("You do not have the archery skill!", intBK);
                                 }
                             }
                             else
@@ -1979,23 +2078,23 @@ namespace Interface
                                 {
                                     if (Character.QuickThinking)
                                     {
-                                        DisplayMessage("Quick thinking already activated!", intRD);
+                                        DisplayMessage("Quick thinking already activated!", intBK);
                                     }
                                     else if (!Character.UsedQuickThinking)
                                     {
-                                        DisplayMessage("Quick thinking activated!", intLB);
+                                        DisplayMessage("Quick thinking activated!", intGR);
 
                                         Character.QuickThinking = true;
                                     }
                                     else
                                     {
-                                        DisplayMessage("Quick thinking can only be used once per combat!", intRD);
+                                        DisplayMessage("Quick thinking can only be used once per combat!", intBK);
                                     }
                                 }
                             }
                             else
                             {
-                                DisplayMessage("You have no special abilities!", intRD);
+                                DisplayMessage("You have no special abilities!", intBK);
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)
@@ -2048,11 +2147,16 @@ namespace Interface
 
                                     if (Result != Combat::Result::NONE)
                                     {
+                                        if (Result == Combat::Result::KNOCKED_OFF)
+                                        {
+                                            DisplayMessage((Monster.Name + " knocked off!").c_str(), intGR);
+                                        }
+
                                         CycleCombatants();
                                     }
                                     else
                                     {
-                                        DisplayMessage("Attack canceled", intLB);
+                                        DisplayMessage("Attack canceled", intGR);
 
                                         CurrentMode = Combat::Mode::NORMAL;
                                     }
@@ -2063,7 +2167,7 @@ namespace Interface
                                 }
                                 else if (Monster.Endurance > 0)
                                 {
-                                    DisplayMessage("You can only attack adjacent targets!", intRD);
+                                    DisplayMessage("You can only attack adjacent targets!", intBK);
 
                                     CurrentMode = Combat::Mode::NORMAL;
                                 }
@@ -2089,7 +2193,7 @@ namespace Interface
                                     }
                                     else
                                     {
-                                        DisplayMessage("Shot canceled", intLB);
+                                        DisplayMessage("Shot canceled", intGR);
 
                                         CurrentMode = Combat::Mode::NORMAL;
                                     }
@@ -2100,14 +2204,14 @@ namespace Interface
                                 }
                                 else if (Monster.Endurance > 0)
                                 {
-                                    DisplayMessage("You can only shoot from range!", intRD);
+                                    DisplayMessage("You can only shoot from range!", intBK);
 
                                     CurrentMode = Combat::Mode::NORMAL;
                                 }
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                DisplayMessage("You cannot move there!", intRD);
+                                DisplayMessage("You cannot move there!", intBK);
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_NONE && !Hold)
@@ -2122,7 +2226,7 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                DisplayMessage("You cannot move there!", intRD);
+                                DisplayMessage("You cannot move there!", intBK);
                             }
                         }
                     }
@@ -2133,54 +2237,57 @@ namespace Interface
                 {
                     // monster attacks / moves
 
-                    auto MonsterX = -1;
-
-                    auto MonsterY = -1;
-
                     auto MonsterId = GetId(CurrentCombatant);
 
-                    Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
-
-                    auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(CurrentCombatant));
-
-                    auto PlayerId = Target(NearestPlayer);
-
-                    if (PlayerId >= 0 && PlayerId < party.Members.size())
+                    if ((monsters[MonsterId].KnockedOff && KnockedOffRound) || !monsters[MonsterId].KnockedOff)
                     {
-                        if (TargetDistance(NearestPlayer) <= 1)
+                        auto MonsterX = -1;
+
+                        auto MonsterY = -1;
+
+                        Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
+
+                        auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(CurrentCombatant));
+
+                        auto PlayerId = Target(NearestPlayer);
+
+                        if (PlayerId >= 0 && PlayerId < party.Members.size())
                         {
-                            auto CurrentX = -1;
-
-                            auto CurrentY = -1;
-
-                            Interface::Find(Map, TacticalMap::Object::Player, PlayerId, CurrentX, CurrentY);
-
-                            // do attack
-                            Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], Combat::FightMode::FIGHT, true);
-
-                            if (!Engine::IsAlive(party.Members[PlayerId]))
+                            if (TargetDistance(NearestPlayer) <= 1)
                             {
-                                Remove(Map, CurrentX, CurrentY);
+                                auto CurrentX = -1;
+
+                                auto CurrentY = -1;
+
+                                Interface::Find(Map, TacticalMap::Object::Player, PlayerId, CurrentX, CurrentY);
+
+                                // do attack
+                                Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], Combat::FightMode::FIGHT, true);
+
+                                if (!Engine::IsAlive(party.Members[PlayerId]))
+                                {
+                                    Remove(Map, CurrentX, CurrentY);
+                                }
+                                else if (monsters[MonsterId].Endurance <= 0)
+                                {
+                                    Remove(Map, MonsterX, MonsterY);
+                                }
                             }
-                            else if (monsters[MonsterId].Endurance <= 0)
+                            else
                             {
-                                Remove(Map, MonsterX, MonsterY);
-                            }
-                        }
-                        else
-                        {
-                            // close distance
-                            auto LocationX = 0;
+                                // close distance
+                                auto LocationX = 0;
 
-                            auto LocationY = 0;
+                                auto LocationY = 0;
 
-                            Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer), LocationX, LocationY);
+                                Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer), LocationX, LocationY);
 
-                            auto MonsterPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
+                                auto MonsterPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
 
-                            if (MonsterPath.Points.size() > 2)
-                            {
-                                Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, MonsterX, MonsterY, MonsterPath.Points[1].X, MonsterPath.Points[1].Y);
+                                if (MonsterPath.Points.size() > 2)
+                                {
+                                    Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, MonsterX, MonsterY, MonsterPath.Points[1].X, MonsterPath.Points[1].Y);
+                                }
                             }
                         }
                     }

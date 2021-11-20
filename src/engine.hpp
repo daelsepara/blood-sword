@@ -306,5 +306,22 @@ namespace Engine
 
         return result;
     }
+
+    bool KnockedOff(std::vector<Monster::Base> &monsters)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < monsters.size(); i++)
+        {
+            if (monsters[i].Endurance > 0 && monsters[i].KnockedOff)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
 }
 #endif

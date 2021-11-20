@@ -34,7 +34,8 @@ namespace Combat
         VICTORY,
         DEFEAT,
         ESCAPED,
-        UNSUCCESSFUL
+        UNSUCCESSFUL,
+        KNOCKED_OFF
     };
 
     enum class Stage
