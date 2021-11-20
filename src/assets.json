@@ -94,11 +94,11 @@
         },
         {
             "id": 150,
-            "path": "icons/yes.png"
+            "path": "icons/alternate/yes.png"
         },
         {
             "id": 151,
-            "path": "icons/no.png"
+            "path": "icons/alternate/no.png"
         },
         {
             "id": 152,
