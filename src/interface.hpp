@@ -2136,13 +2136,7 @@ namespace Interface
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::FIGHT, false);
 
-                                    if (!Engine::IsAlive(Character))
-                                    {
-                                        DisplayMessage((std::string(Character::Description[Character.Class]) + " killed!").c_str(), intGR);
-
-                                        Remove(Map, CurrentX, CurrentY);
-                                    }
-                                    else if (Monster.Endurance <= 0)
+                                    if (Monster.Endurance <= 0)
                                     {
                                         DisplayMessage((Monster.Name + " killed!").c_str(), intGR);
 
@@ -2185,13 +2179,7 @@ namespace Interface
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::SHOOT, false);
 
-                                    if (!Engine::IsAlive(Character))
-                                    {
-                                        DisplayMessage((std::string(Character::Description[Character.Class]) + " killed!").c_str(), intGR);
-
-                                        Remove(Map, CurrentX, CurrentY);
-                                    }
-                                    else if (Monster.Endurance <= 0)
+                                    if (Monster.Endurance <= 0)
                                     {
                                         DisplayMessage((Monster.Name + " killed!").c_str(), intGR);
 
@@ -2262,35 +2250,27 @@ namespace Interface
 
                     if (PlayerId >= 0 && PlayerId < party.Members.size())
                     {
+                        auto LocationX = -1;
+
+                        auto LocationY = -1;
+
+                        Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer), LocationX, LocationY);
+
                         if (TargetDistance(NearestPlayer) <= 1)
                         {
-                            auto CurrentX = -1;
-
-                            auto CurrentY = -1;
-
-                            Interface::Find(Map, TacticalMap::Object::Player, PlayerId, CurrentX, CurrentY);
-
                             // do attack
                             Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], Combat::FightMode::FIGHT, true);
 
                             if (!Engine::IsAlive(party.Members[PlayerId]))
                             {
-                                Remove(Map, CurrentX, CurrentY);
-                            }
-                            else if (monsters[MonsterId].Endurance <= 0)
-                            {
-                                Remove(Map, MonsterX, MonsterY);
+                                DisplayMessage((std::string(Character::Description[party.Members[PlayerId].Class]) + " killed!").c_str(), intBK);
+
+                                Remove(Map, LocationX, LocationY);
                             }
                         }
                         else
                         {
                             // close distance
-                            auto LocationX = 0;
-
-                            auto LocationY = 0;
-
-                            Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer), LocationX, LocationY);
-
                             auto MonsterPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
 
                             if (MonsterPath.Points.size() > 2)
