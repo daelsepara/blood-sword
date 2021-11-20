@@ -1089,6 +1089,131 @@ namespace Interface
         return Result;
     }
 
+    void GenerateMapControls(TacticalMap::Base &Map, std::vector<Button> &Controls, Party::Base &party, std::vector<Monster::Base> &monsters, int NumControls)
+    {
+        Controls.erase(Controls.begin() + NumControls, Controls.end());
+
+        for (auto y = Map.MapY; y < Map.MapY + Map.SizeY; y++)
+        {
+            auto AssetY = Map.DrawY + (y - Map.MapY) * Map.ObjectSize;
+
+            auto CtrlY = (y - Map.MapY);
+
+            for (auto x = Map.MapX; x < Map.MapX + Map.SizeX; x++)
+            {
+                auto CtrlUp = NumControls;
+                auto CtrlDn = NumControls;
+                auto CtrlLt = NumControls;
+                auto CtrlRt = NumControls;
+
+                auto CtrlX = (x - Map.MapX);
+
+                if (CtrlY > 0)
+                {
+                    CtrlUp = NumControls - Map.SizeX;
+                }
+
+                if (CtrlY < Map.SizeY - 1)
+                {
+                    CtrlDn = NumControls + Map.SizeX;
+                }
+                else
+                {
+                    if (CtrlX < 7)
+                    {
+                        CtrlDn = CtrlX + 5;
+                    }
+                    else
+                    {
+                        CtrlDn = 5;
+                    }
+                }
+
+                if (CtrlX > 0)
+                {
+                    CtrlLt = NumControls - 1;
+                }
+                else
+                {
+                    if (CtrlY < Map.SizeY / 2)
+                    {
+                        if (CtrlY == 0)
+                        {
+                            CtrlLt = 0;
+                        }
+                        else
+                        {
+                            CtrlLt = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (CtrlY == Map.SizeY - 1)
+                        {
+                            CtrlLt = 3;
+                        }
+                        else
+                        {
+                            CtrlLt = 2;
+                        }
+                    }
+                }
+
+                if (CtrlX < Map.SizeX - 1)
+                {
+                    CtrlRt = NumControls + 1;
+                }
+
+                auto AssetX = Map.DrawX + (x - Map.MapX) * Map.ObjectSize;
+
+                auto Object = Map.Objects[y][x];
+
+                auto ObjectId = Map.ObjectID[y][x] - 1;
+
+                if (Object == TacticalMap::Object::Wall)
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
+                }
+                else if (Object == TacticalMap::Object::Player)
+                {
+                    if (party.Members[ObjectId].Class == Character::Class::Warrior)
+                    {
+                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Warrior), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
+                    }
+                    else if (party.Members[ObjectId].Class == Character::Class::Trickster)
+                    {
+                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Trickster), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
+                    }
+                    else if (party.Members[ObjectId].Class == Character::Class::Sage)
+                    {
+                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Sage), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
+                    }
+                    else if (party.Members[ObjectId].Class == Character::Class::Enchanter)
+                    {
+                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Enchanter), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
+                    }
+                }
+                else if (Object == TacticalMap::Object::HotCoals)
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
+                }
+                else if (Object == TacticalMap::Object::Monster)
+                {
+                    if (monsters[ObjectId].Type == Monster::Type::Barbarian)
+                    {
+                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Barbarian), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::MONSTER));
+                    }
+                }
+                else
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
+                }
+
+                NumControls++;
+            }
+        }
+    }
+
     Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
     {
         auto FlashMessage = false;
@@ -1409,6 +1534,28 @@ namespace Interface
 
         ClearDefendingStatus();
 
+        auto Controls = std::vector<Button>();
+
+        auto StartMap = 12;
+        auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
+        auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
+
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, Map.MapY > 0 ? intWH : intGR, Control::Type::MAP_UP));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * border_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
+        Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
+        Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
+        Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intWH, Control::Type::MOVE));
+        Controls.push_back(Button(6, Assets::Get(Assets::Type::Attack), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
+        Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
+        Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
+        Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
+        Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
+        Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 10, 4, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
+
+        // generate controls within the map window
+        Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+
         if (Window && Renderer && Map.Width > 0 && Map.Height > 0)
         {
             auto done = false;
@@ -1436,164 +1583,31 @@ namespace Interface
                     Map.MapY = Map.Height - Map.SizeY;
                 }
 
-                auto Controls = std::vector<Button>();
-
-                auto StartMap = 12;
-                auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
-                auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
-
-                Controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, Map.MapY > 0 ? intWH : intGR, Control::Type::MAP_UP));
-                Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * border_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
-                Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
-                Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
-                Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
-                Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intWH, Control::Type::MOVE));
-                Controls.push_back(Button(6, Assets::Get(Assets::Type::Attack), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
-                Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
-                Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
-                Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
-                Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
-                Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 10, 4, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
-
-                int NumControls = Controls.size();
-
                 // select which object to blink (player/monster)
                 auto BlinkX = -1;
 
                 auto BlinkY = -1;
 
-                // render objects within the map window
-                for (auto y = Map.MapY; y < Map.MapY + Map.SizeY; y++)
+                if (IsPlayer(CurrentCombatant))
                 {
-                    auto AssetY = Map.DrawY + (y - Map.MapY) * Map.ObjectSize;
+                    auto PlayerX = -1;
 
-                    auto CtrlY = (y - Map.MapY);
+                    auto PlayerY = -1;
 
-                    for (auto x = Map.MapX; x < Map.MapX + Map.SizeX; x++)
+                    Interface::Find(Map, TacticalMap::Object::Player, GetId(CurrentCombatant), PlayerX, PlayerY);
+
+                    if (IsVisible(Map, PlayerX, PlayerY))
                     {
-                        auto CtrlUp = NumControls;
-                        auto CtrlDn = NumControls;
-                        auto CtrlLt = NumControls;
-                        auto CtrlRt = NumControls;
+                        BlinkX = Map.DrawX + (PlayerX - Map.MapX) * Map.ObjectSize;
 
-                        auto CtrlX = (x - Map.MapX);
+                        BlinkY = Map.DrawY + (PlayerY - Map.MapY) * Map.ObjectSize;
 
-                        if (CtrlY > 0)
+                        if (SDL_GetTicks() - BlinkStart > 100)
                         {
-                            CtrlUp = NumControls - Map.SizeX;
+                            Blink = !Blink;
+
+                            BlinkStart = SDL_GetTicks();
                         }
-
-                        if (CtrlY < Map.SizeY - 1)
-                        {
-                            CtrlDn = NumControls + Map.SizeX;
-                        }
-                        else
-                        {
-                            if (CtrlX < 7)
-                            {
-                                CtrlDn = CtrlX + 5;
-                            }
-                            else
-                            {
-                                CtrlDn = 5;
-                            }
-                        }
-
-                        if (CtrlX > 0)
-                        {
-                            CtrlLt = NumControls - 1;
-                        }
-                        else
-                        {
-                            if (CtrlY < Map.SizeY / 2)
-                            {
-                                if (CtrlY == 0)
-                                {
-                                    CtrlLt = 0;
-                                }
-                                else
-                                {
-                                    CtrlLt = 1;
-                                }
-                            }
-                            else
-                            {
-                                if (CtrlY == Map.SizeY - 1)
-                                {
-                                    CtrlLt = 3;
-                                }
-                                else
-                                {
-                                    CtrlLt = 2;
-                                }
-                            }
-                        }
-
-                        if (CtrlX < Map.SizeX - 1)
-                        {
-                            CtrlRt = NumControls + 1;
-                        }
-
-                        auto AssetX = Map.DrawX + (x - Map.MapX) * Map.ObjectSize;
-
-                        auto Object = Map.Objects[y][x];
-
-                        auto ObjectId = Map.ObjectID[y][x] - 1;
-
-                        if (Object == TacticalMap::Object::Wall)
-                        {
-                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
-                        }
-                        else if (Object == TacticalMap::Object::Player)
-                        {
-                            if (GetId(CurrentCombatant) == ObjectId)
-                            {
-                                BlinkX = AssetX;
-
-                                BlinkY = AssetY;
-
-                                if (SDL_GetTicks() - BlinkStart > 100)
-                                {
-                                    Blink = !Blink;
-
-                                    BlinkStart = SDL_GetTicks();
-                                }
-                            }
-
-                            if (party.Members[ObjectId].Class == Character::Class::Warrior)
-                            {
-                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Warrior), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
-                            }
-                            else if (party.Members[ObjectId].Class == Character::Class::Trickster)
-                            {
-                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Trickster), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
-                            }
-                            else if (party.Members[ObjectId].Class == Character::Class::Sage)
-                            {
-                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Sage), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
-                            }
-                            else if (party.Members[ObjectId].Class == Character::Class::Enchanter)
-                            {
-                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Enchanter), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
-                            }
-                        }
-                        else if (Object == TacticalMap::Object::HotCoals)
-                        {
-                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
-                        }
-                        else if (Object == TacticalMap::Object::Monster)
-                        {
-                            if (monsters[ObjectId].Type == Monster::Type::Barbarian)
-                            {
-                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Barbarian), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::MONSTER));
-                            }
-                        }
-                        else
-                        {
-                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
-                        }
-
-                        NumControls++;
                     }
                 }
 
@@ -1825,6 +1839,8 @@ namespace Interface
                             if (Map.MapY > 0)
                             {
                                 Map.MapY--;
+
+                                Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_DOWN || ScrollDown)
@@ -1832,15 +1848,27 @@ namespace Interface
                             if (Map.MapY < Map.Height - Map.SizeY)
                             {
                                 Map.MapY++;
+
+                                Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_LEFT)
                         {
-                            Map.MapX--;
+                            if (Map.MapX > 0)
+                            {
+                                Map.MapX--;
+
+                                Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+                            }
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_RIGHT)
                         {
-                            Map.MapX++;
+                            if (Map.MapX < Map.Width - Map.SizeX)
+                            {
+                                Map.MapX++;
+
+                                Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+                            }
                         }
                         else if (Controls[Current].Type == Control::Type::DEFEND)
                         {
@@ -1921,6 +1949,8 @@ namespace Interface
                                         }
                                         else
                                         {
+                                            Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+
                                             if (WasAttacked)
                                             {
                                                 RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intBK);
@@ -1930,6 +1960,8 @@ namespace Interface
                                                 if (!Engine::IsAlive(Character))
                                                 {
                                                     Remove(Map, CurrentPath[PlayerId].Points[1].X, CurrentPath[PlayerId].Points[1].Y);
+
+                                                    Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                                                 }
                                             }
 
@@ -1959,6 +1991,8 @@ namespace Interface
                                     }
                                     else
                                     {
+                                        Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+
                                         if (WasAttacked)
                                         {
                                             RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intBK);
@@ -1968,6 +2002,8 @@ namespace Interface
                                             if (!Engine::IsAlive(Character))
                                             {
                                                 Remove(Map, SelectX, SelectY);
+
+                                                Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                                             }
                                         }
 
@@ -2004,6 +2040,8 @@ namespace Interface
                                         }
                                         else
                                         {
+                                            Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+
                                             // get attacked by a nearby enemy that has a higher awareness
                                             if (WasAttacked)
                                             {
@@ -2014,6 +2052,8 @@ namespace Interface
                                                 if (!Engine::IsAlive(Character))
                                                 {
                                                     Remove(Map, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y);
+
+                                                    Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                                                 }
                                             }
 
@@ -2193,6 +2233,8 @@ namespace Interface
                                         DisplayMessage((Monster.Name + " killed!").c_str(), intGR);
 
                                         Remove(Map, SelectX, SelectY);
+
+                                        Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                                     }
 
                                     if (Result != Combat::Result::NONE)
@@ -2236,6 +2278,8 @@ namespace Interface
                                         DisplayMessage((Monster.Name + " killed!").c_str(), intGR);
 
                                         Remove(Map, SelectX, SelectY);
+
+                                        Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                                     }
 
                                     if (Result != Combat::Result::NONE)
@@ -2318,6 +2362,8 @@ namespace Interface
                                 DisplayMessage((std::string(Character::Description[party.Members[PlayerId].Class]) + " killed!").c_str(), intBK);
 
                                 Remove(Map, LocationX, LocationY);
+
+                                Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                             }
                         }
                         else
@@ -2328,6 +2374,8 @@ namespace Interface
                             if (MonsterPath.Points.size() > 2)
                             {
                                 Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, MonsterX, MonsterY, MonsterPath.Points[1].X, MonsterPath.Points[1].Y);
+
+                                Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                             }
                         }
                     }
