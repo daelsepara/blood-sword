@@ -1898,7 +1898,7 @@ namespace Interface
                                         {
                                             if (WasAttacked)
                                             {
-                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intGR);
+                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intBK);
 
                                                 Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
@@ -1936,7 +1936,7 @@ namespace Interface
                                     {
                                         if (WasAttacked)
                                         {
-                                            RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intGR);
+                                            RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intBK);
 
                                             Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
@@ -1982,7 +1982,7 @@ namespace Interface
                                             // get attacked by a nearby enemy that has a higher awareness
                                             if (WasAttacked)
                                             {
-                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intGR);
+                                                RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intBK);
 
                                                 Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
