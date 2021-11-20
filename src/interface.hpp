@@ -572,11 +572,43 @@ namespace Interface
                   });
     }
 
+    void KnockedOffSequence(std::vector<Combatants> &Sequence, std::vector<Monster::Base> &monsters)
+    {
+        auto NewSequence = std::vector<Combatants>();
+        auto KnockedOff = std::vector<Combatants>();
+
+        for (auto i = 0; i < Sequence.size(); i++)
+        {
+            if (std::get<0>(Sequence[i]) == TacticalMap::Object::Monster)
+            {
+                if (monsters[std::get<1>(Sequence[i])].KnockedOff)
+                {
+                    KnockedOff.push_back(Sequence[i]);
+                }
+                else
+                {
+                    NewSequence.push_back(Sequence[i]);
+                }
+            }
+            else
+            {
+                NewSequence.push_back(Sequence[i]);
+            }
+        }
+
+        if (KnockedOff.size() > 0)
+        {
+            NewSequence.insert(NewSequence.end(), KnockedOff.begin(), KnockedOff.end());
+        }
+
+        Sequence = NewSequence;
+    }
+
     // fight encounter between player and monster
     Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, Combat::FightMode FightMode, bool Attacked)
     {
         auto Result = Combat::Result::NONE;
-        auto MapSizeX = (Map.SizeX < 16 ? 16 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
         auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
         auto WindowW = 4 * MapSizeX / 5;
         auto WindowH = 4 * MapSizeY / 5;
@@ -1138,8 +1170,6 @@ namespace Interface
 
         auto QuickThinkingRound = false;
 
-        auto KnockedOffRound = false;
-
         auto IsPlayer = [&](int id)
         {
             return std::get<0>(Sequence[id]) == TacticalMap::Object::Player;
@@ -1190,26 +1220,6 @@ namespace Interface
             return next;
         };
 
-        auto NextKnockedOff = [&]()
-        {
-            auto next = 0;
-
-            for (auto i = 0; i < Sequence.size(); i++)
-            {
-                if (IsMonster(i))
-                {
-                    if (monsters[GetId(i)].KnockedOff)
-                    {
-                        next = i;
-
-                        break;
-                    }
-                }
-            }
-
-            return next;
-        };
-
         auto ClearDefendingStatus = [&]()
         {
             // clear defensive stance
@@ -1233,7 +1243,7 @@ namespace Interface
 
             if (IsMonster(CurrentCombatant))
             {
-                if (KnockedOffRound && monsters[GetId(CurrentCombatant)].KnockedOff)
+                if (monsters[GetId(CurrentCombatant)].KnockedOff)
                 {
                     monsters[GetId(CurrentCombatant)].KnockedOff = false;
                 }
@@ -1247,25 +1257,10 @@ namespace Interface
                 {
                     QuickThinkingRound = false;
 
-                    KnockedOffRound = false;
-
                     break;
                 }
 
-                if (KnockedOffRound)
-                {
-                    if (Engine::KnockedOff(monsters))
-                    {
-                        CurrentCombatant = NextKnockedOff();
-                    }
-                    else
-                    {
-                        QuickThinkingRound = true;
-
-                        CurrentCombatant = 0;
-                    }
-                }
-                else if (QuickThinkingRound)
+                if (QuickThinkingRound)
                 {
                     if (Engine::QuickThinking(party))
                     {
@@ -1290,11 +1285,11 @@ namespace Interface
 
                     if (CurrentCombatant >= Sequence.size())
                     {
-                        if (Engine::KnockedOff(monsters) && !KnockedOffRound)
+                        if (Engine::KnockedOff(monsters))
                         {
-                            KnockedOffRound = true;
+                            KnockedOffSequence(Sequence, monsters);
 
-                            CurrentCombatant = NextKnockedOff();
+                            CurrentCombatant = 0;
                         }
                         else if (Engine::QuickThinking(party))
                         {
@@ -1306,7 +1301,7 @@ namespace Interface
                         }
                         else
                         {
-                            KnockedOffRound = false;
+                            SortCombatants(Sequence);
 
                             QuickThinkingRound = false;
 
@@ -2143,10 +2138,14 @@ namespace Interface
 
                                     if (!Engine::IsAlive(Character))
                                     {
+                                        DisplayMessage((std::string(Character::Description[Character.Class]) + " killed!").c_str(), intGR);
+
                                         Remove(Map, CurrentX, CurrentY);
                                     }
                                     else if (Monster.Endurance <= 0)
                                     {
+                                        DisplayMessage((Monster.Name + " killed!").c_str(), intGR);
+
                                         Remove(Map, SelectX, SelectY);
                                     }
 
@@ -2154,7 +2153,10 @@ namespace Interface
                                     {
                                         if (Result == Combat::Result::KNOCKED_OFF)
                                         {
-                                            DisplayMessage((Monster.Name + " knocked off!").c_str(), intGR);
+                                            if (Monster.Endurance > 0)
+                                            {
+                                                DisplayMessage((Monster.Name + " knocked off!").c_str(), intGR);
+                                            }
                                         }
 
                                         CycleCombatants();
@@ -2185,10 +2187,14 @@ namespace Interface
 
                                     if (!Engine::IsAlive(Character))
                                     {
+                                        DisplayMessage((std::string(Character::Description[Character.Class]) + " killed!").c_str(), intGR);
+
                                         Remove(Map, CurrentX, CurrentY);
                                     }
                                     else if (Monster.Endurance <= 0)
                                     {
+                                        DisplayMessage((Monster.Name + " killed!").c_str(), intGR);
+
                                         Remove(Map, SelectX, SelectY);
                                     }
 
@@ -2244,55 +2250,52 @@ namespace Interface
 
                     auto MonsterId = GetId(CurrentCombatant);
 
-                    if ((!monsters[MonsterId].KnockedOff && !KnockedOffRound) || (KnockedOffRound && monsters[MonsterId].KnockedOff))
+                    auto MonsterX = -1;
+
+                    auto MonsterY = -1;
+
+                    Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
+
+                    auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(CurrentCombatant));
+
+                    auto PlayerId = Target(NearestPlayer);
+
+                    if (PlayerId >= 0 && PlayerId < party.Members.size())
                     {
-                        auto MonsterX = -1;
-
-                        auto MonsterY = -1;
-
-                        Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
-
-                        auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(CurrentCombatant));
-
-                        auto PlayerId = Target(NearestPlayer);
-
-                        if (PlayerId >= 0 && PlayerId < party.Members.size())
+                        if (TargetDistance(NearestPlayer) <= 1)
                         {
-                            if (TargetDistance(NearestPlayer) <= 1)
+                            auto CurrentX = -1;
+
+                            auto CurrentY = -1;
+
+                            Interface::Find(Map, TacticalMap::Object::Player, PlayerId, CurrentX, CurrentY);
+
+                            // do attack
+                            Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], Combat::FightMode::FIGHT, true);
+
+                            if (!Engine::IsAlive(party.Members[PlayerId]))
                             {
-                                auto CurrentX = -1;
-
-                                auto CurrentY = -1;
-
-                                Interface::Find(Map, TacticalMap::Object::Player, PlayerId, CurrentX, CurrentY);
-
-                                // do attack
-                                Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], Combat::FightMode::FIGHT, true);
-
-                                if (!Engine::IsAlive(party.Members[PlayerId]))
-                                {
-                                    Remove(Map, CurrentX, CurrentY);
-                                }
-                                else if (monsters[MonsterId].Endurance <= 0)
-                                {
-                                    Remove(Map, MonsterX, MonsterY);
-                                }
+                                Remove(Map, CurrentX, CurrentY);
                             }
-                            else
+                            else if (monsters[MonsterId].Endurance <= 0)
                             {
-                                // close distance
-                                auto LocationX = 0;
+                                Remove(Map, MonsterX, MonsterY);
+                            }
+                        }
+                        else
+                        {
+                            // close distance
+                            auto LocationX = 0;
 
-                                auto LocationY = 0;
+                            auto LocationY = 0;
 
-                                Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer), LocationX, LocationY);
+                            Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer), LocationX, LocationY);
 
-                                auto MonsterPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
+                            auto MonsterPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
 
-                                if (MonsterPath.Points.size() > 2)
-                                {
-                                    Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, MonsterX, MonsterY, MonsterPath.Points[1].X, MonsterPath.Points[1].Y);
-                                }
+                            if (MonsterPath.Points.size() > 2)
+                            {
+                                Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, MonsterX, MonsterY, MonsterPath.Points[1].X, MonsterPath.Points[1].Y);
                             }
                         }
                     }
