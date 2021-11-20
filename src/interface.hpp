@@ -576,7 +576,7 @@ namespace Interface
     Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, Combat::FightMode FightMode, bool Attacked)
     {
         auto Result = Combat::Result::NONE;
-        auto MapSizeX = (Map.SizeX < 13 ? 13 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeX = (Map.SizeX < 16 ? 16 : Map.SizeX) * Map.ObjectSize;
         auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
         auto WindowW = 4 * MapSizeX / 5;
         auto WindowH = 4 * MapSizeY / 5;
@@ -616,11 +616,11 @@ namespace Interface
         FightControls3[0].Fg = clrWH;
         FightControls3[0].Highlight = intGR;
         FightControls3[0].Color = intBK;
-        FightControls3[0].Type = Control::Type::ATTACK;
+        FightControls3[0].Type = Control::Type::QUARTERSTAFF;
         FightControls3[1].Fg = clrWH;
         FightControls3[1].Highlight = intGR;
         FightControls3[1].Color = intBK;
-        FightControls3[1].Type = Control::Type::QUARTERSTAFF;
+        FightControls3[1].Type = Control::Type::ATTACK;
         FightControls3[2].Fg = clrWH;
         FightControls3[2].Highlight = intGR;
         FightControls3[2].Color = intBK;
@@ -800,7 +800,7 @@ namespace Interface
                     Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
-                Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                 if (Attacked)
                 {
@@ -851,7 +851,7 @@ namespace Interface
                         Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                    Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                     if (Attacked)
                     {
@@ -1290,7 +1290,7 @@ namespace Interface
 
                     if (CurrentCombatant >= Sequence.size())
                     {
-                        if (Engine::KnockedOff(monsters))
+                        if (Engine::KnockedOff(monsters) && !KnockedOffRound)
                         {
                             KnockedOffRound = true;
 
@@ -2244,7 +2244,7 @@ namespace Interface
 
                     auto MonsterId = GetId(CurrentCombatant);
 
-                    if ((monsters[MonsterId].KnockedOff && KnockedOffRound) || !monsters[MonsterId].KnockedOff)
+                    if ((!monsters[MonsterId].KnockedOff && !KnockedOffRound) || (KnockedOffRound && monsters[MonsterId].KnockedOff))
                     {
                         auto MonsterX = -1;
 
