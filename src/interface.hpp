@@ -856,6 +856,13 @@ namespace Interface
                 {
                     DamageSum = 0;
 
+                    if (QuarterStaff)
+                    {
+                        DamageRolls += 1;
+
+                        Rolls.resize(DamageRolls, 0);
+                    }
+
                     // compute damage
                     for (auto i = 0; i < DamageRolls; i++)
                     {
@@ -866,20 +873,18 @@ namespace Interface
 
                     DamageSum += FightMode == Combat::FightMode::SHOOT ? 0 : (Attacked ? Monster.DamageModifier : DamageModifier);
 
-                    if (QuarterStaff)
-                    {
-                        DamageSum += 1;
-
-                        Monster.KnockedOff = true;
-
-                        Result = Combat::Result::KNOCKED_OFF;
-                    }
-
                     DamageSum -= Attacked ? Armour : Monster.Armour;
 
                     DamageSum = std::max(0, DamageSum);
 
                     CalculatedDamage = true;
+
+                    if (QuarterStaff && DamageSum > 0)
+                    {
+                        Monster.KnockedOff = true;
+
+                        Result = Combat::Result::KNOCKED_OFF;
+                    }
                 }
             }
             else if (CurrentStage == Combat::Stage::END)
@@ -1237,7 +1242,7 @@ namespace Interface
                 party.Members[i].IsDefending = false;
             }
         };
-        
+
         auto CycleCombatants = [&]()
         {
             if (IsPlayer(CurrentCombatant))
