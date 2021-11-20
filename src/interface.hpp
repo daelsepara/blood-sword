@@ -481,23 +481,30 @@ namespace Interface
 
         if (party.Members[PlayerId].IsDefending && party.Members[PlayerId].QuickThinking)
         {
-            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
+            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
 
-            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 10 * (FontSize + 2));
+            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + (OffsetArrows + 1) * (FontSize + 2));
 
-            OffsetArrows = 11;
+            OffsetArrows += 2;
         }
         else if (party.Members[PlayerId].IsDefending)
         {
-            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
+            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
 
-            OffsetArrows = 10;
+            OffsetArrows++;
         }
         else if (party.Members[PlayerId].QuickThinking)
         {
-            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 9 * (FontSize + 2));
+            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
 
-            OffsetArrows = 10;
+            OffsetArrows++;
+        }
+
+        if (Engine::HaveMoney(party.Members[PlayerId]))
+        {
+            Graphics::PutText(Renderer, ("GOLD: " + std::to_string(Engine::CountMoney(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
+
+            OffsetArrows++;
         }
 
         if (Engine::HasArrows(party.Members[PlayerId]))
@@ -643,16 +650,16 @@ namespace Interface
         FightControls2[0].Color = intBK;
         FightControls2[0].Type = Control::Type::ATTACK;
 
-        const char *FightChoices3[3] = {"QUARTERSTAFF", "FIGHT", "CANCEL"}; // player attacks
+        const char *FightChoices3[3] = {"FIGHT", "QUARTERSTAFF", "CANCEL"}; // player attacks
         auto FightControls3 = Graphics::CreateFixedTextButtons(FightChoices3, 3, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         FightControls3[0].Fg = clrWH;
         FightControls3[0].Highlight = intGR;
         FightControls3[0].Color = intBK;
-        FightControls3[0].Type = Control::Type::QUARTERSTAFF;
+        FightControls3[0].Type = Control::Type::ATTACK;
         FightControls3[1].Fg = clrWH;
         FightControls3[1].Highlight = intGR;
         FightControls3[1].Color = intBK;
-        FightControls3[1].Type = Control::Type::ATTACK;
+        FightControls3[1].Type = Control::Type::QUARTERSTAFF;
         FightControls3[2].Fg = clrWH;
         FightControls3[2].Highlight = intGR;
         FightControls3[2].Color = intBK;

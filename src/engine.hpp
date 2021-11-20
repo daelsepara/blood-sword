@@ -323,5 +323,25 @@ namespace Engine
 
         return result;
     }
+
+    int CountMoney(Character::Base &character)
+    {
+        auto result = 0;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            if (character.Equipment[i].Type == Equipment::Type::MoneyPouch && character.Equipment[i].Gold > 0)
+            {
+                result += character.Equipment[i].Gold;
+            }
+        }
+
+        return result;
+    }
+
+    bool HaveMoney(Character::Base &character)
+    {
+        return Engine::CountMoney(character) > 0;
+    }
 }
 #endif
