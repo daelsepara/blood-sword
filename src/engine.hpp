@@ -209,6 +209,23 @@ namespace Engine
         return result;
     }
 
+    bool HasAbility(Character::Base &character, Abilities::Type ability)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < character.Abilities.size(); i++)
+        {
+            if (character.Abilities[i] == ability)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
     bool HasWeapon(Character::Base &character)
     {
         auto result = false;
@@ -228,7 +245,7 @@ namespace Engine
 
     bool CanShoot(Character::Base &character)
     {
-        return (character.Class == Character::Class::Trickster || character.Class == Character::Class::Sage);
+        return Engine::HasAbility(character, Abilities::Type::Archery);
     }
 
     bool HasBow(Character::Base &character)

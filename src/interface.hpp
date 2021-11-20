@@ -704,7 +704,7 @@ namespace Interface
         auto Current = 0;
         auto QuarterStaff = false;
 
-        std::vector<TextButton> &Controls = Attacked ? FightControls2 : (Character.Class == Character::Class::Sage && FightMode != Combat::FightMode::SHOOT ? FightControls3 : FightControls1);
+        std::vector<TextButton> &Controls = Attacked ? FightControls2 : (Engine::HasAbility(Character, Abilities::Type::Quarterstaff) && FightMode != Combat::FightMode::SHOOT ? FightControls3 : FightControls1);
 
         auto done = false;
 
@@ -759,7 +759,7 @@ namespace Interface
             Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D+" + std::to_string(DamageModifier)))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 4 * RowHeight);
 
-            if (Attacked && Character.IsDefending && Character.Class == Character::Class::Trickster)
+            if (Attacked && Character.IsDefending && Engine::HasAbility(Character, Abilities::Type::Dodge))
             {
                 Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
                 Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 6 * RowHeight);
@@ -768,7 +768,7 @@ namespace Interface
             {
                 Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
             }
-            else if (Attacked && Character.Class == Character::Class::Trickster)
+            else if (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodge))
             {
                 Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
             }
@@ -810,7 +810,7 @@ namespace Interface
                 FightingSum = std::max(0, FightingSum);
 
                 // apply trickster's dodging technique
-                if (Attacked && Character.Class == Character::Class::Trickster)
+                if (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodge))
                 {
                     FightingSum += 1;
                 }
@@ -1014,19 +1014,22 @@ namespace Interface
 
         auto NumControls = 0;
 
-        if (Character.Class == Character::Class::Trickster)
+        if (Engine::HasAbility(Character, Abilities::Type::QuickThinking))
         {
             Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::QuickThinking), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::QUICKTHINKING));
 
             NumControls++;
         }
 
-        if (Character.Class == Character::Class::Enchanter)
+        if (Engine::HasAbility(Character, Abilities::Type::Memorize))
         {
             Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Memorize), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::MEMORIZE));
 
             NumControls++;
+        }
 
+        if (Engine::HasAbility(Character, Abilities::Type::Spell))
+        {
             Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Magic), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::MAGIC));
 
             NumControls++;
