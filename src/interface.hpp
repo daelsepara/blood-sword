@@ -192,6 +192,10 @@ namespace Interface
                 {
                     asset = Assets::Copy(Assets::Type::Sage);
                 }
+                else if (party.Members[PlayerId].Class == Character::Class::Enchanter)
+                {
+                    asset = Assets::Copy(Assets::Type::Enchanter);
+                }
 
                 Animate(passable, asset);
 
@@ -1550,6 +1554,10 @@ namespace Interface
                             else if (party.Members[ObjectId].Class == Character::Class::Sage)
                             {
                                 Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Sage), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
+                            }
+                            else if (party.Members[ObjectId].Class == Character::Class::Enchanter)
+                            {
+                                Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Enchanter), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
                             }
                         }
                         else if (Object == TacticalMap::Object::HotCoals)

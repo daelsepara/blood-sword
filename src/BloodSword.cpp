@@ -23,9 +23,10 @@ int main(int argc, const char **argv)
         // setup party, monsters, and map
         auto party = Party::Base();
 
-        party.Members.push_back(Character::Create(Character::Class::Warrior, 3));
-        party.Members.push_back(Character::Create(Character::Class::Trickster, 3));
-        party.Members.push_back(Character::Create(Character::Class::Sage, 3));
+        party.Members.push_back(Character::Create(Character::Class::Warrior, 2));
+        party.Members.push_back(Character::Create(Character::Class::Trickster, 2));
+        party.Members.push_back(Character::Create(Character::Class::Sage, 2));
+        party.Members.push_back(Character::Create(Character::Class::Enchanter, 2));
 
         auto monsters = std::vector<Monster::Base>();
 
@@ -38,7 +39,7 @@ int main(int argc, const char **argv)
             "#############",
             "#    3     C#",
             "#### ########",
-            "#   1     2 #",
+            "#4  1     2 #",
             "#% %######  #",
             "#% %#%% B#  #",
             "#D       # A#",

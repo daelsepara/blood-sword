@@ -13,6 +13,10 @@
             "path": "images/players/alternate/sage.png"
         },
         {
+            "id": 4,
+            "path": "images/players/alternate/enchanter.png"
+        },
+        {
             "id": 5,
             "path": "images/map/alternate/passable.png"
         },
@@ -74,7 +78,7 @@
         },
         {
             "id": 112,
-            "path": "icons/spell.png"
+            "path": "icons/alternate/spell.png"
         },
         {
             "id": 113,

@@ -15,7 +15,7 @@ namespace Assets
         Warrior,
         Trickster,
         Sage,
-        Wizard,
+        Enchanter,
         Passable,
         Wall,
         Exit,
