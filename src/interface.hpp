@@ -1237,7 +1237,7 @@ namespace Interface
                 party.Members[i].IsDefending = false;
             }
         };
-
+        
         auto CycleCombatants = [&]()
         {
             if (IsPlayer(CurrentCombatant))
@@ -1283,8 +1283,6 @@ namespace Interface
 
                         CurrentCombatant = 0;
 
-                        ClearDefendingStatus();
-
                         CombatRound++;
                     }
                 }
@@ -1317,8 +1315,6 @@ namespace Interface
                             CurrentCombatant = 0;
 
                             CombatRound++;
-
-                            ClearDefendingStatus();
                         }
                     }
                 }
@@ -1328,6 +1324,11 @@ namespace Interface
                     auto character = party.Members[GetId(CurrentCombatant)];
 
                     active = Engine::IsAlive(character) && !character.Escaped;
+
+                    if (party.Members[GetId(CurrentCombatant)].IsDefending)
+                    {
+                        party.Members[GetId(CurrentCombatant)].IsDefending = false;
+                    }
                 }
                 else if (IsMonster(CurrentCombatant))
                 {
@@ -1386,6 +1387,8 @@ namespace Interface
                 }
             }
         };
+
+        ClearDefendingStatus();
 
         if (Window && Renderer && Map.Width > 0 && Map.Height > 0)
         {
@@ -1759,7 +1762,7 @@ namespace Interface
                 RenderFlashMessage();
 
                 // get player input
-                if (IsPlayer(CurrentCombatant))
+                if (IsPlayer(CurrentCombatant) && !party.Members[GetId(CurrentCombatant)].IsDefending)
                 {
                     Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
 
@@ -2291,6 +2294,10 @@ namespace Interface
 
                     CycleCombatants();
                 }
+                else
+                {
+                    CycleCombatants();
+                }
 
                 if (!Engine::IsAlive(party) || !Engine::IsAlive(monsters) || Engine::Escaped(party))
                 {
@@ -2298,6 +2305,8 @@ namespace Interface
                 }
             }
         }
+
+        ClearDefendingStatus();
 
         if (Engine::Escaped(party))
         {
