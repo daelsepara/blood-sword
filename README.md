@@ -18,7 +18,7 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 
 **Use Ability**
 
-![Fight/Shoot](/screenshots/shoot.png)
+![Use Ability](/screenshots/use-ability.png)
 
 ## Character classes implemented
 
