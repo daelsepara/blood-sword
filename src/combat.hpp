@@ -3,28 +3,13 @@
 
 namespace Combat
 {
-    enum class Action
-    {
-        NONE = 0,
-        ACTION,
-        FIGHT,
-        DEFEND,
-        SHOOT,
-        FLEE,
-        MEMORIZE,
-        CAST,
-        HEAL,
-        QUICKTHINKING
-    };
-
-    enum class Mode
+   enum class Mode
     {
         NORMAL = 0,
         MOVE,   // Selecting destination
         ATTACK, // Selecting attack target
         SHOOT,  // Selecting a target for a ranged attack
         MAGIC,  // Selecting magic target
-        HEAL    // Selecting a to heal
     };
 
     enum class Result
@@ -35,7 +20,8 @@ namespace Combat
         DEFEAT,
         ESCAPED,
         UNSUCCESSFUL,
-        KNOCKED_OFF
+        KNOCKED_OFF,
+        ENTHRALLED
     };
 
     enum class Stage

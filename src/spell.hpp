@@ -44,6 +44,8 @@ namespace Spell
         std::string Name = "";
 
         std::string Description = "";
+
+        int CurrentComplexity = -1;
     };
 }
 #endif
