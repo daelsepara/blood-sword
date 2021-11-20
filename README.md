@@ -22,7 +22,7 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 
 ## Character classes implemented
 
-- **Warrior** (**FULL**)
-- **Trickster** (**FULL**)
-- **Sage** (**PARTIAL**)
-- **Enchanter** (**TODO**)
+- Warrior (**FULL**)
+- Trickster (**FULL**)
+- Sage (**PARTIAL**)
+- Enchanter (**TODO**)
