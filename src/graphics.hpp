@@ -490,6 +490,8 @@ namespace Graphics
                 else
                 {
                     Graphics::RenderText(renderer, text, controls[i].Color, x, y, 2 * fontsize, 0);
+
+                    Graphics::DrawRect(renderer, controls[i].W, controls[i].H, controls[i].X, controls[i].Y, controls[i].Highlight);
                 }
 
                 SDL_FreeSurface(text);
