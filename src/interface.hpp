@@ -1521,7 +1521,7 @@ namespace Interface
 
                         if (Object == TacticalMap::Object::Wall)
                         {
-                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::MAP_NONE));
+                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
                         }
                         else if (Object == TacticalMap::Object::Player)
                         {
@@ -1554,7 +1554,7 @@ namespace Interface
                         }
                         else if (Object == TacticalMap::Object::HotCoals)
                         {
-                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::MAP_NONE));
+                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
                         }
                         else if (Object == TacticalMap::Object::Monster)
                         {
@@ -1565,7 +1565,7 @@ namespace Interface
                         }
                         else
                         {
-                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::DESTINATION));
+                            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
                         }
 
                         NumControls++;
