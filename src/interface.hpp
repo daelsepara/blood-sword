@@ -477,39 +477,41 @@ namespace Interface
         Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(Damage) + (DamageModifier >= 0 ? "D+" : "D") + std::to_string(party.Members[PlayerId].DamageModifier)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 7 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("EXPERIENCE: " + std::to_string(party.Members[PlayerId].ExperiencePoints)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 8 * (FontSize + 2));
 
-        auto OffsetArrows = 9;
+        auto TextOffset = 9;
 
         if (Engine::HaveMoney(party.Members[PlayerId]))
         {
-            Graphics::PutText(Renderer, ("GOLD: " + std::to_string(Engine::CountMoney(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
+            Graphics::PutText(Renderer, ("GOLD: " + std::to_string(Engine::CountMoney(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
 
-            OffsetArrows++;
-        }
-
-        if (party.Members[PlayerId].IsDefending && party.Members[PlayerId].QuickThinking)
-        {
-            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
-
-            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + (OffsetArrows + 1) * (FontSize + 2));
-
-            OffsetArrows += 2;
-        }
-        else if (party.Members[PlayerId].IsDefending)
-        {
-            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
-
-            OffsetArrows++;
-        }
-        else if (party.Members[PlayerId].QuickThinking)
-        {
-            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
-
-            OffsetArrows++;
+            TextOffset++;
         }
 
         if (Engine::HasArrows(party.Members[PlayerId]))
         {
-            Graphics::PutText(Renderer, ("ARROWS: " + std::to_string(Engine::CountArrows(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
+            Graphics::PutText(Renderer, ("ARROWS: " + std::to_string(Engine::CountArrows(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
+
+            TextOffset++;
+        }
+
+        if (party.Members[PlayerId].IsDefending && party.Members[PlayerId].QuickThinking)
+        {
+            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
+
+            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + (TextOffset + 1) * (FontSize + 2));
+
+            TextOffset += 2;
+        }
+        else if (party.Members[PlayerId].IsDefending)
+        {
+            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
+
+            TextOffset++;
+        }
+        else if (party.Members[PlayerId].QuickThinking)
+        {
+            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
+
+            TextOffset++;
         }
     }
 
