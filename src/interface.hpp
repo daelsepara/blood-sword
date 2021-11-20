@@ -988,9 +988,9 @@ namespace Interface
         return Result;
     }
 
-    Combat::Action UseAbility(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
+    Abilities::Type UseAbility(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
     {
-        auto Result = Combat::Action::NONE;
+        auto Result = Abilities::Type::None;
 
         auto MapSizeX = (Map.SizeX < 13 ? 13 : Map.SizeX) * Map.ObjectSize;
         auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
@@ -1013,13 +1013,6 @@ namespace Interface
         if (Character.Class == Character::Class::Trickster)
         {
             Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::QuickThinking), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::QUICKTHINKING));
-
-            NumControls++;
-        }
-
-        if (Character.Class == Character::Class::Sage)
-        {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Heal), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::HEAL));
 
             NumControls++;
         }
@@ -1067,7 +1060,7 @@ namespace Interface
                 }
                 else if (Controls[Current].Type == Control::Type::QUICKTHINKING)
                 {
-                    Result = Combat::Action::QUICKTHINKING;
+                    Result = Abilities::Type::QuickThinking;
 
                     done = true;
                 }
@@ -1726,10 +1719,6 @@ namespace Interface
                             }
                         }
                     }
-                    else if (CurrentMode == Combat::Mode::HEAL && ControlType == Control::Type::PLAYER)
-                    {
-                        Graphics::PutText(Renderer, "Heal target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-                    }
                     else if (CurrentMode == Combat::Mode::ATTACK && ControlType == Control::Type::MONSTER)
                     {
                         Graphics::PutText(Renderer, "Fight target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
@@ -2087,11 +2076,11 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::ABILITY && !Hold)
                         {
-                            if (Character.Class != Character::Class::Warrior)
+                            if (Character.Class != Character::Class::Warrior && Character.Class != Character::Class::Sage)
                             {
                                 auto Result = Interface::UseAbility(Renderer, Controls, intBK, Map, Character);
 
-                                if (Result == Combat::Action::QUICKTHINKING)
+                                if (Result == Abilities::Type::QuickThinking)
                                 {
                                     if (Character.QuickThinking)
                                     {
@@ -2111,7 +2100,7 @@ namespace Interface
                             }
                             else
                             {
-                                DisplayMessage("You have no special abilities!", intBK);
+                                DisplayMessage("You have no usable special abilities!", intBK);
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)

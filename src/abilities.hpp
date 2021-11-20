@@ -13,6 +13,7 @@ namespace Abilities
         QuickThinking,
         Quarterstaff,
         Healing,
+        Excorcism,
         ESP,
         ParanormalSight,
         Levitation
@@ -25,6 +26,7 @@ namespace Abilities
         {Abilities::Type::QuickThinking, "Quick Thinking"},
         {Abilities::Type::Quarterstaff, "Quarterstaff"},
         {Abilities::Type::Healing, "Healing"},
+        {Abilities::Type::Excorcism, "Excorcism"},
         {Abilities::Type::ESP, "ESP"},
         {Abilities::Type::ParanormalSight, "Paranormal Sight"},
         {Abilities::Type::Levitation, "Levitation"}};
