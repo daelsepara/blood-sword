@@ -1068,6 +1068,18 @@ namespace Interface
 
                     done = true;
                 }
+                else if (Controls[Current].Type == Control::Type::MEMORIZE)
+                {
+                    Result = Abilities::Type::Memorize;
+
+                    done = true;
+                }
+                else if (Controls[Current].Type == Control::Type::MAGIC)
+                {
+                    Result = Abilities::Type::Spell;
+
+                    done = true;
+                }
             }
         }
 
@@ -1166,6 +1178,8 @@ namespace Interface
         auto SelectedCombatant = -1;
 
         auto CurrentCombatant = 0;
+
+        auto SelectedSpell = -1;
 
         // blink
         auto Blink = true;
@@ -2103,6 +2117,21 @@ namespace Interface
                                     else
                                     {
                                         DisplayMessage("Quick thinking can only be used once per combat!", intBK);
+                                    }
+                                }
+                                else if (Result == Abilities::Type::Spell)
+                                {
+                                    if (Character.Spells.size() == 0)
+                                    {
+                                        DisplayMessage("You have not called to mind any spells!", intBK);
+                                    }
+                                    else if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
+                                    {
+                                        // cast spell
+                                    }
+                                    else
+                                    {
+                                        DisplayMessage("Spellcasting canceled!", intGR);
                                     }
                                 }
                             }

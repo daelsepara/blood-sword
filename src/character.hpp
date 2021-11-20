@@ -403,6 +403,7 @@ namespace Character
 
             character.Equipment = {Equipment::Sword, Equipment::ChainMail};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
+            character.Abilities = {};
         }
         else if (character.Class == Character::Class::Trickster)
         {
@@ -411,8 +412,7 @@ namespace Character
             character.Equipment = {Equipment::Sword, Equipment::Bow, Equipment::StuddedLeather};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Equipment.push_back(Equipment::Base(Equipment::Type::Quiver, "quiver", "quiver", 6, 6));
-
-            character.Abilities = {Abilities::Type::Dodge, Abilities::Type::Archery, Abilities::Type::QuickThinking};
+            character.Abilities = {Abilities::Type::Archery, Abilities::Type::Dodge, Abilities::Type::QuickThinking};
         }
         else if (character.Class == Character::Class::Sage)
         {
@@ -421,13 +421,13 @@ namespace Character
             character.Equipment = {Equipment::Quarterstaff, Equipment::Bow, Equipment::RingMail};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Equipment.push_back(Equipment::Base(Equipment::Type::Quiver, "quiver", "quiver", 6, 6));
-
-            character.Abilities = {Abilities::Type::Archery, Abilities::Type::Quarterstaff, Abilities::Type::Healing, Abilities::Type::ESP, Abilities::Type::ParanormalSight, Abilities::Type::Levitation};
+            character.Abilities = {Abilities::Type::Archery, Abilities::Type::Quarterstaff, Abilities::Type::Healing, Abilities::Type::Exorcism, Abilities::Type::ESP, Abilities::Type::ParanormalSight, Abilities::Type::Levitation};
         }
         else if (character.Class == Character::Class::Enchanter)
         {
             Character::Enchanter(character);
 
+            character.Abilities = {Abilities::Type::Memorize, Abilities::Type::Spell};
             character.Equipment = {Equipment::Sword, Equipment::Silver};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
         }

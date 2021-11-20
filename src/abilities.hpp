@@ -13,10 +13,12 @@ namespace Abilities
         QuickThinking,
         Quarterstaff,
         Healing,
-        Excorcism,
+        Exorcism,
         ESP,
         ParanormalSight,
-        Levitation
+        Levitation,
+        Memorize,
+        Spell
     };
 
     std::map<Abilities::Type, const char *> Description = {
@@ -26,9 +28,11 @@ namespace Abilities
         {Abilities::Type::QuickThinking, "Quick Thinking"},
         {Abilities::Type::Quarterstaff, "Quarterstaff"},
         {Abilities::Type::Healing, "Healing"},
-        {Abilities::Type::Excorcism, "Excorcism"},
+        {Abilities::Type::Exorcism, "Exorcism"},
         {Abilities::Type::ESP, "ESP"},
         {Abilities::Type::ParanormalSight, "Paranormal Sight"},
-        {Abilities::Type::Levitation, "Levitation"}};
+        {Abilities::Type::Levitation, "Levitation"},
+        {Abilities::Type::Memorize, "Call to mind a spell"},
+        {Abilities::Type::Spell, "Cast a spell"}};
 }
 #endif
