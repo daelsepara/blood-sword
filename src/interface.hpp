@@ -479,6 +479,13 @@ namespace Interface
 
         auto OffsetArrows = 9;
 
+        if (Engine::HaveMoney(party.Members[PlayerId]))
+        {
+            Graphics::PutText(Renderer, ("GOLD: " + std::to_string(Engine::CountMoney(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
+
+            OffsetArrows++;
+        }
+
         if (party.Members[PlayerId].IsDefending && party.Members[PlayerId].QuickThinking)
         {
             Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
@@ -496,13 +503,6 @@ namespace Interface
         else if (party.Members[PlayerId].QuickThinking)
         {
             Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
-
-            OffsetArrows++;
-        }
-
-        if (Engine::HaveMoney(party.Members[PlayerId]))
-        {
-            Graphics::PutText(Renderer, ("GOLD: " + std::to_string(Engine::CountMoney(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + OffsetArrows * (FontSize + 2));
 
             OffsetArrows++;
         }
@@ -1631,7 +1631,7 @@ namespace Interface
 
                                 if (MonsterPath.Points.size() > 2)
                                 {
-                                    Interface::DrawPath(Renderer, Map, MonsterPath, 1, intGR, 0xCC);
+                                    Interface::DrawPath(Renderer, Map, MonsterPath, 1, intGR, 0x66);
                                 }
                             }
                         }
@@ -1687,7 +1687,7 @@ namespace Interface
 
                             Graphics::PutText(Renderer, "Move to location or continue along current path", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
 
-                            Interface::DrawPath(Renderer, Map, CurrentPath[PlayerId], CurrentMove[PlayerId], intGR, 0xCC);
+                            Interface::DrawPath(Renderer, Map, CurrentPath[PlayerId], CurrentMove[PlayerId], intGR, 0x66);
                         }
                         else
                         {
@@ -1710,7 +1710,7 @@ namespace Interface
 
                                     if (TempPath.Points.size() > 2)
                                     {
-                                        Interface::DrawPath(Renderer, Map, TempPath, 1, intGR, 0xCC);
+                                        Interface::DrawPath(Renderer, Map, TempPath, 1, intGR, 0x66);
                                     }
                                 }
                             }
