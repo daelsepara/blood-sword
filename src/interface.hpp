@@ -358,7 +358,7 @@ namespace Interface
 
             auto Color = O(color, alpha);
 
-            for (auto i = CurrentMove; i < CurrentPath.Points.size(); i++)
+            for (auto i = CurrentMove; i < CurrentPath.Points.size() - 1; i++)
             {
                 auto X = CurrentPath.Points[i].X - Map.MapX;
 
@@ -698,7 +698,7 @@ namespace Interface
         auto Current = 0;
         auto QuarterStaff = false;
 
-        std::vector<TextButton> &Controls = Attacked ? FightControls2 : (Character.Class == Character::Class::Sage ? FightControls3 : FightControls1);
+        std::vector<TextButton> &Controls = Attacked ? FightControls2 : (Character.Class == Character::Class::Sage && FightMode != Combat::FightMode::SHOOT ? FightControls3 : FightControls1);
 
         auto done = false;
 
