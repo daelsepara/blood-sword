@@ -706,7 +706,7 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
-            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " ATTRIBUTE TEST").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " ATTRIBUTE TEST").c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
 
             if (IsEnemy)
             {
@@ -714,10 +714,10 @@ namespace Interface
             }
             else
             {
-                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
             }
 
-            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
 
             if (CurrentStage == Attributes::Stage::TEST && Result == Attributes::Result::NONE)
             {
@@ -1577,7 +1577,7 @@ namespace Interface
                 {
                     Spell::Base &Spell = Spell::All[Current];
 
-                    Graphics::PutText(Renderer, (Spell.Name + " (" + std::string(Spell::ClassDescription[Spell.Class]) + ")\n\n" + Spell.Description).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 5 * text_space, WindowH - (WindowButtonY + 2 * WindowButtonGridY), WindowButtonX - text_space, WindowButtonY + 2 * WindowButtonGridY);
+                    Graphics::PutText(Renderer, ("(" + std::string(Spell::ClassDescription[Spell.Class]) + ") " + Spell.Name + " - Complexity Level: " + std::to_string(Spell.Complexity) + "\n\n" + Spell.Description).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 5 * text_space, WindowH - (WindowButtonY + 2 * WindowButtonGridY), WindowButtonX - text_space, WindowButtonY + 2 * WindowButtonGridY);
                 }
             }
 
