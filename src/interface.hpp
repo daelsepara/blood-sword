@@ -2985,6 +2985,10 @@ namespace Interface
                                                     {
                                                         Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, -1, Character.Spells[SelectedSpell].Type);
 
+                                                        Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
+
+                                                        SelectedSpell = -1;
+
                                                         Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                                                     }
 
@@ -3197,6 +3201,10 @@ namespace Interface
                                     {
                                         // apply spell effects
                                         Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, MonsterId, Character.Spells[SelectedSpell].Type);
+
+                                        Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
+
+                                        SelectedSpell = -1;
 
                                         Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                                     }
