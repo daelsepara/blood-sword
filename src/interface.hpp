@@ -2708,8 +2708,6 @@ namespace Interface
                                         }
                                         else
                                         {
-                                            Engine::ResetSpellDifficulty(Character);
-
                                             Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
 
                                             if (WasAttacked)
@@ -2752,8 +2750,6 @@ namespace Interface
                                     }
                                     else
                                     {
-                                        Engine::ResetSpellDifficulty(Character);
-
                                         Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
 
                                         if (WasAttacked)
@@ -2803,8 +2799,6 @@ namespace Interface
                                         }
                                         else
                                         {
-                                            Engine::ResetSpellDifficulty(Character);
-
                                             Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
 
                                             // get attacked by a nearby enemy that has a higher awareness
@@ -3138,8 +3132,6 @@ namespace Interface
                                 if (!Interface::IsAdjacent(Map, PlayerId, MonsterId) && Monster.Endurance > 0)
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::SHOOT, false);
-
-                                    Engine::ResetSpellDifficulty(Character);
 
                                     if (Monster.Endurance <= 0)
                                     {
