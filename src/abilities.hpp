@@ -17,8 +17,8 @@ namespace Abilities
         ESP,
         ParanormalSight,
         Levitation,
-        Memorize,
-        Spell
+        Call,
+        Cast
     };
 
     std::map<Abilities::Type, const char *> Description = {
@@ -32,7 +32,7 @@ namespace Abilities
         {Abilities::Type::ESP, "ESP"},
         {Abilities::Type::ParanormalSight, "Paranormal Sight"},
         {Abilities::Type::Levitation, "Levitation"},
-        {Abilities::Type::Memorize, "Call to mind a spell"},
-        {Abilities::Type::Spell, "Cast a spell"}};
+        {Abilities::Type::Call, "Call to mind a spell"},
+        {Abilities::Type::Cast, "Cast a spell"}};
 }
 #endif

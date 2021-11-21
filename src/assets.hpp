@@ -44,7 +44,7 @@ namespace Assets
         Dice4,
         Dice5,
         Dice6,
-        Spell = 200,
+        Cast = 200,
         VolcanoSpray,
         Nighthowl,
         WhiteFire,

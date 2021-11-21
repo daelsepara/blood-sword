@@ -281,11 +281,11 @@ namespace Graphics
         {
             caption = "Shoot";
         }
-        else if (control.Type == Control::Type::MEMORIZE)
+        else if (control.Type == Control::Type::CALL)
         {
-            caption = "Memorize spell";
+            caption = "Call a spell to mind";
         }
-        else if (control.Type == Control::Type::MAGIC)
+        else if (control.Type == Control::Type::CAST)
         {
             caption = "Cast spell";
         }

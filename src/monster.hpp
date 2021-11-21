@@ -34,6 +34,8 @@ namespace Monster
 
         bool KnockedOff = false;
 
+        bool Enthraled = false;
+
         Base()
         {
 

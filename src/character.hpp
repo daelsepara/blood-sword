@@ -427,7 +427,7 @@ namespace Character
         {
             Character::Enchanter(character);
 
-            character.Abilities = {Abilities::Type::Memorize, Abilities::Type::Spell};
+            character.Abilities = {Abilities::Type::Call, Abilities::Type::Cast};
             character.Equipment = {Equipment::Sword, Equipment::Silver};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
         }

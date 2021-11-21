@@ -45,7 +45,7 @@ namespace Spell
 
         std::string Description = "";
 
-        int CurrentModifier = 0;
+        int Difficulty = 0;
 
         Base(Spell::Class spellClass, Spell::Type type, int complexity, const char *name, const char *description)
         {
@@ -59,7 +59,7 @@ namespace Spell
 
             Description = description;
 
-            CurrentModifier = 0;
+            Difficulty = complexity;
         }
     };
 

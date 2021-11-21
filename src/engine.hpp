@@ -192,13 +192,18 @@ namespace Engine
         return result;
     }
 
+    bool IsAlive(Monster::Base &monster)
+    {
+        return monster.Endurance > 0;
+    }
+
     bool IsAlive(std::vector<Monster::Base> &monsters)
     {
         auto result = false;
 
         for (auto i = 0; i < monsters.size(); i++)
         {
-            if (monsters[i].Endurance > 0)
+            if (Engine::IsAlive(monsters[i]))
             {
                 result = true;
 
@@ -361,6 +366,15 @@ namespace Engine
         return Engine::CountMoney(character) > 0;
     }
 
+    void ClearDefendingStatus(Party::Base &party)
+    {
+        // clear defensive stance
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            party.Members[i].IsDefending = false;
+        }
+    }
+
     int Find(Character::Base &character, Spell::Type spell)
     {
         auto result = -1;
@@ -378,11 +392,42 @@ namespace Engine
         return result;
     }
 
-    bool IsMemorized(Character::Base &character, Spell::Type spell)
+    bool IsCalledToMind(Character::Base &character, Spell::Type spell)
     {
         auto result = Engine::Find(character, spell);
 
         return (result >= 0 && result < character.Spells.size());
+    }
+
+    void ResetSpellDifficulty(Character::Base &character)
+    {
+        if (Engine::HasAbility(character, Abilities::Type::Cast) && character.Spells.size() > 0)
+        {
+            for (auto i = 0; i < character.Spells.size(); i++)
+            {
+                character.Spells[i].Difficulty = character.Spells[i].Complexity;
+            }
+        }
+    }
+
+    void ResetSpellDifficulty(Party::Base &party)
+    {
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            Engine::ResetSpellDifficulty(party.Members[i]);
+        }
+    }
+
+    bool Enthraled(std::vector<Monster::Base> &monsters)
+    {
+        auto result = true;
+
+        for (auto i = 0; i < monsters.size(); i++)
+        {
+            result &= monsters[i].Enthraled;
+        }
+
+        return result;
     }
 }
 #endif

@@ -21,7 +21,7 @@ namespace Combat
         ESCAPED,
         UNSUCCESSFUL,
         KNOCKED_OFF,
-        ENTHRALLED
+        ENTHRALED
     };
 
     enum class Stage
