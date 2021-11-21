@@ -602,7 +602,480 @@ namespace Interface
         Sequence = NewSequence;
     }
 
-    // fight encounter between player and monster
+    void DealDamage(TacticalMap::Base &Map, std::vector<Monster::Base> &Monsters, int MonsterId, int Damage, bool UseArmour)
+    {
+        if (Monsters[MonsterId].Endurance > 0)
+        {
+            auto MonsterX = -1;
+
+            auto MonsterY = -1;
+
+            Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
+
+            auto TotalDamage = std::max(0, Damage - (UseArmour ? Monsters[MonsterId].Armour : 0));
+
+            Engine::Gain(Monsters[MonsterId], -TotalDamage);
+
+            if (Monsters[MonsterId].Endurance <= 0)
+            {
+                Remove(Map, MonsterX, MonsterY);
+            }
+        }
+    }
+
+    Attributes::Result Test(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, Attributes::Type Attribute, bool IsEnemy)
+    {
+        auto Result = Attributes::Result::NONE;
+        auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
+        auto WindowW = 4 * MapSizeX / 5;
+        auto WindowH = 4 * MapSizeY / 5;
+        auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
+        auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
+        auto ColumnWidth = WindowW - 4 * text_space;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto TextY = WindowY + 2 * text_space;
+
+        auto TextButtonX = WindowX + 2 * text_space;
+        auto TextButtonY = (WindowY + WindowH) - (text_buttonh + 2 * text_space);
+        auto TextWidth = WindowW - 3 * text_space;
+        auto ResultsY = 12 * RowHeight + 4 * text_space;
+
+        const char *ResistChoices[2] = {"RESIST"};
+
+        auto ResistControls = Graphics::CreateFixedTextButtons(ResistChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+        ResistControls[0].Fg = clrWH;
+        ResistControls[0].Highlight = intGR;
+        ResistControls[0].Color = intBK;
+        ResistControls[0].Type = Control::Type::PSYCHIC_RESIST;
+
+        const char *DoneChoices[1] = {"DONE"}; // end of psychic resistance check
+        auto DoneControls = Graphics::CreateFixedTextButtons(DoneChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+        DoneControls[0].Fg = clrWH;
+        DoneControls[0].Highlight = intGR;
+        DoneControls[0].Color = intBK;
+        DoneControls[0].Type = Control::Type::BACK;
+
+        SDL_Surface *dice[6];
+
+        dice[0] = Assets::Copy(Assets::Type::Dice1);
+        dice[1] = Assets::Copy(Assets::Type::Dice2);
+        dice[2] = Assets::Copy(Assets::Type::Dice3);
+        dice[3] = Assets::Copy(Assets::Type::Dice4);
+        dice[4] = Assets::Copy(Assets::Type::Dice5);
+        dice[5] = Assets::Copy(Assets::Type::Dice6);
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<TextButton> &Controls = ResistControls;
+
+        auto done = false;
+
+        auto CurrentStage = Attributes::Stage::START;
+
+        Engine::Randomize();
+
+        auto TestRolls = 2;
+
+        std::vector<int> Rolls(TestRolls, 0);
+
+        auto TestSum = 0;
+
+        auto AttributeValue = 0;
+
+        if (Attribute == Attributes::Type::FightingProwess)
+        {
+            AttributeValue = IsEnemy ? Monster.FightingProwess : Engine::FightingProwess(Character);
+        }
+        else if (Attribute == Attributes::Type::PsychicAbility)
+        {
+            AttributeValue = IsEnemy ? Monster.PsychicAbility : Engine::PsychicAbility(Character);
+        }
+        else if (Attribute == Attributes::Type::Awareness)
+        {
+            AttributeValue = IsEnemy ? Monster.Awareness : Engine::Awareness(Character);
+        }
+
+        while (!done)
+        {
+            // render current combat screen
+            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " ATTRIBUTE TEST").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+
+            if (IsEnemy)
+            {
+                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+            }
+            else
+            {
+                Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+            }
+
+            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
+
+            if (CurrentStage == Attributes::Stage::TEST && Result == Attributes::Result::NONE)
+            {
+                TestSum = 0;
+
+                for (auto i = 0; i < TestRolls; i++)
+                {
+                    Rolls[i] = Engine::Roll(1, 0);
+
+                    TestSum += Rolls[i];
+                }
+
+                TestSum = std::max(0, TestSum);
+
+                auto TestResult = AttributeValue >= TestSum;
+
+                if (TestResult)
+                {
+                    Result = Attributes::Result::SUCCESS;
+                }
+                else
+                {
+                    Result = Attributes::Result::FAILURE;
+                }
+
+                CurrentStage = Attributes::Stage::END;
+            }
+            else if (CurrentStage == Attributes::Stage::END)
+            {
+                // show casting results
+                for (auto i = 0; i < TestRolls; i++)
+                {
+                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                }
+
+                Graphics::PutText(Renderer, ("Test Score: " + std::to_string(TestSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+
+                if (Result == Attributes::Result::SUCCESS)
+                {
+                    Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " test passed!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                }
+                else
+                {
+                    Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " test failed!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                }
+            }
+
+            Graphics::RenderTextButtons(Renderer, Controls, FONT_BOOKMAN, Current, 24, TTF_STYLE_NORMAL);
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::CAST && !Hold)
+                {
+                    CurrentStage = Attributes::Stage::TEST;
+
+                    Controls = DoneControls;
+                }
+                else if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    done = true;
+                }
+            }
+        }
+
+        for (auto i = 0; i < 6; i++)
+        {
+            if (dice[i])
+            {
+                SDL_FreeSurface(dice[i]);
+
+                dice[i] = NULL;
+            }
+        }
+
+        return Result;
+    }
+
+    void ApplySpellEffects(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &Party, std::vector<Monster::Base> &Monsters, int PlayerId, int MonsterId, Spell::Type Spell)
+    {
+        if (Spell == Spell::Type::VolcanoSpray || Spell == Spell::Type::SheetLightning)
+        {
+            auto DamageRolls = Spell == Spell::Type::VolcanoSpray ? 1 : 2;
+            auto DamageModifier = Spell == Spell::Type::VolcanoSpray ? 1 : 2;
+            auto Damage = Engine::Roll(DamageRolls, DamageModifier);
+
+            RenderMessage(Renderer, BattleScreen, Map, bg, ("All enemies suffer " + std::to_string(Damage) + " damage!").c_str(), intGR);
+
+            for (auto i = 0; i < Monsters.size(); i++)
+            {
+                Interface::DealDamage(Map, Monsters, i, Damage, true);
+            }
+        }
+        else if (Spell == Spell::Type::WhiteFire || Spell == Spell::Type::Swordthrust || Spell == Spell::Type::NemesisBolt)
+        {
+            auto DamageRolls = (Spell == Spell::Type::WhiteFire ? 2 : (Spell == Spell::Type::Swordthrust ? 3 : 7));
+            auto DamageModifier = (Spell == Spell::Type::WhiteFire ? 2 : (Spell == Spell::Type::Swordthrust ? 3 : 7));
+            auto Damage = Engine::Roll(DamageRolls, DamageModifier);
+
+            RenderMessage(Renderer, BattleScreen, Map, bg, (Monsters[MonsterId].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
+
+            Interface::DealDamage(Map, Monsters, MonsterId, Damage, true);
+        }
+        else if (Spell == Spell::Type::MistsOfDeath)
+        {
+            auto Damage = Engine::Roll(2, 0);
+
+            for (auto i = 0; i < Monsters.size(); i++)
+            {
+                if (Monsters[i].Endurance > 0)
+                {
+                    auto Result = Interface::Test(Renderer, BattleScreen, bg, Map, Party.Members[PlayerId], Monsters[i], Attributes::Type::PsychicAbility, true);
+
+                    if (Result == Attributes::Result::FAILURE)
+                    {
+                        RenderMessage(Renderer, BattleScreen, Map, bg, (Monsters[i].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
+
+                        Interface::DealDamage(Map, Monsters, i, Damage, true);
+                    }
+                    else
+                    {
+                        RenderMessage(Renderer, BattleScreen, Map, bg, (Monsters[i].Name + " resists the Mists of Death spell!").c_str(), intBK);
+                    }
+                }
+            }
+        }
+        else if (Spell == Spell::Type::TheVampireSpell)
+        {
+            if (Monsters[MonsterId].Endurance > 0)
+            {
+                auto Result = Interface::Test(Renderer, BattleScreen, bg, Map, Party.Members[PlayerId], Monsters[MonsterId], Attributes::Type::PsychicAbility, true);
+
+                if (Result == Attributes::Result::FAILURE)
+                {
+                    auto Damage = Engine::Roll(4, 0);
+
+                    RenderMessage(Renderer, BattleScreen, Map, bg, (Monsters[MonsterId].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
+
+                    Interface::DealDamage(Map, Monsters, MonsterId, Damage, false);
+
+                    auto Endurance = Damage / 2;
+
+                    RenderMessage(Renderer, BattleScreen, Map, bg, (std::string(Character::Description[Party.Members[PlayerId].Class]) + " gains " + std::to_string(Endurance) + " endurance!").c_str(), intGR);
+
+                    Engine::Gain(Party.Members[PlayerId], Attributes::Type::Endurance, Endurance);
+                }
+                else
+                {
+                    RenderMessage(Renderer, BattleScreen, Map, bg, (Monsters[MonsterId].Name + " resists The Vampire Spell!").c_str(), intBK);
+                }
+            }
+        }
+        else if (Spell == Spell::Type::GhastlyTouch)
+        {
+            if (Monsters[MonsterId].Endurance > 0)
+            {
+                auto Result = Interface::Test(Renderer, BattleScreen, bg, Map, Party.Members[PlayerId], Monsters[MonsterId], Attributes::Type::PsychicAbility, true);
+
+                auto Damage = 0;
+
+                if (Result == Attributes::Result::FAILURE)
+                {
+                    Damage = Engine::Roll(7, 0);
+                }
+                else
+                {
+                    Damage = Engine::Roll(2, 0);
+                }
+
+                RenderMessage(Renderer, BattleScreen, Map, bg, (Monsters[MonsterId].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
+
+                Interface::DealDamage(Map, Monsters, MonsterId, Damage, false);
+            }
+        }
+    }
+
+    Spell::Result CastSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, int SelectedSpell)
+    {
+        auto Result = Spell::Result::NONE;
+        auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
+        auto WindowW = 4 * MapSizeX / 5;
+        auto WindowH = 4 * MapSizeY / 5;
+        auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
+        auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
+        auto ColumnWidth = WindowW - 4 * text_space;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto TextY = WindowY + 2 * text_space;
+
+        auto TextButtonX = WindowX + 2 * text_space;
+        auto TextButtonY = (WindowY + WindowH) - (text_buttonh + 2 * text_space);
+        auto TextWidth = WindowW - 3 * text_space;
+        auto ResultsY = 12 * RowHeight + 4 * text_space;
+
+        const char *SpellChoices[2] = {"CAST", "CANCEL"};
+
+        auto SpellControls = Graphics::CreateFixedTextButtons(SpellChoices, 2, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+        SpellControls[0].Fg = clrWH;
+        SpellControls[0].Highlight = intGR;
+        SpellControls[0].Color = intBK;
+        SpellControls[0].Type = Control::Type::CAST;
+        SpellControls[1].Fg = clrWH;
+        SpellControls[1].Highlight = intGR;
+        SpellControls[1].Color = intBK;
+        SpellControls[1].Type = Control::Type::BACK;
+
+        const char *DoneChoices[1] = {"DONE"}; // end of casting
+        auto DoneControls = Graphics::CreateFixedTextButtons(DoneChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+        DoneControls[0].Fg = clrWH;
+        DoneControls[0].Highlight = intGR;
+        DoneControls[0].Color = intBK;
+        DoneControls[0].Type = Control::Type::BACK;
+
+        SDL_Surface *dice[6];
+
+        dice[0] = Assets::Copy(Assets::Type::Dice1);
+        dice[1] = Assets::Copy(Assets::Type::Dice2);
+        dice[2] = Assets::Copy(Assets::Type::Dice3);
+        dice[3] = Assets::Copy(Assets::Type::Dice4);
+        dice[4] = Assets::Copy(Assets::Type::Dice5);
+        dice[5] = Assets::Copy(Assets::Type::Dice6);
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<TextButton> &Controls = SpellControls;
+
+        auto done = false;
+
+        auto CurrentStage = Spell::Stage::START;
+
+        if (Character.IsDefending)
+        {
+            Controls = DoneControls;
+
+            CurrentStage = Spell::Stage::END;
+        }
+
+        Engine::Randomize();
+
+        auto CastingRolls = 2;
+
+        std::vector<int> Rolls(CastingRolls, 0);
+
+        auto CastingSum = 0;
+
+        Spell::Base &Spell = Character.Spells[SelectedSpell];
+
+        auto PsychicAbility = Engine::PsychicAbility(Character) - Character.Spells.size();
+
+        while (!done)
+        {
+            // render current combat screen
+            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            // character stats
+            Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+            Graphics::PutText(Renderer, ("PSYCHIC ABILITY: " + std::to_string(PsychicAbility) + " (-" + std::to_string(Character.Spells.size()) + ")").c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+            Graphics::PutText(Renderer, ("SPELL: " + Spell.Name).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, ("DIFFICULTY: " + std::to_string(CastingRolls) + "D" + (Spell.Difficulty < 0 ? "" : "+") + std::to_string(Spell.Difficulty)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
+
+            if (CurrentStage == Spell::Stage::CAST && Result == Spell::Result::NONE)
+            {
+                CastingSum = 0;
+
+                for (auto i = 0; i < CastingRolls; i++)
+                {
+                    Rolls[i] = Engine::Roll(1, 0);
+
+                    CastingSum += Rolls[i];
+                }
+
+                CastingSum = std::max(0, CastingSum);
+
+                CastingSum += Spell.Difficulty;
+
+                auto CastingResult = Engine::PsychicAbility(Character) >= CastingSum;
+
+                if (CastingResult)
+                {
+                    Result = Spell::Result::SUCCESS;
+                }
+                else
+                {
+                    Result = Spell::Result::FAILURE;
+                }
+
+                CurrentStage = Spell::Stage::END;
+            }
+            else if (CurrentStage == Spell::Stage::END)
+            {
+                // show casting results
+                for (auto i = 0; i < CastingRolls; i++)
+                {
+                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                }
+
+                Graphics::PutText(Renderer, ("Score: " + std::to_string(CastingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+
+                if (Result == Spell::Result::SUCCESS)
+                {
+                    Graphics::PutText(Renderer, (Spell.Name + " spell successfully cast!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                }
+                else
+                {
+                    Graphics::PutText(Renderer, (Spell.Name + " spell fizzles!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                }
+            }
+
+            Graphics::RenderTextButtons(Renderer, Controls, FONT_BOOKMAN, Current, 24, TTF_STYLE_NORMAL);
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::CAST && !Hold)
+                {
+                    CurrentStage = Spell::Stage::CAST;
+
+                    Controls = DoneControls;
+                }
+                else if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    done = true;
+                }
+            }
+        }
+
+        for (auto i = 0; i < 6; i++)
+        {
+            if (dice[i])
+            {
+                SDL_FreeSurface(dice[i]);
+
+                dice[i] = NULL;
+            }
+        }
+
+        if (Result == Spell::Result::FAILURE)
+        {
+            Spell.Difficulty--;
+        }
+
+        return Result;
+    }
+
+    // fight/shoot encounter between player and monster
     Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, Combat::FightMode FightMode, bool Attacked)
     {
         auto Result = Combat::Result::NONE;
@@ -613,7 +1086,7 @@ namespace Interface
         auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
         auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
         auto MidWindow = WindowX + (WindowW / 2) + text_space;
-        auto ColumnWidth = WindowH / 2 - 4 * text_space;
+        auto ColumnWidth = WindowW / 2 - 4 * text_space;
         auto RowHeight = TTF_FontHeight(Fonts::Normal);
         auto TextY = WindowY + 2 * text_space;
 
@@ -977,7 +1450,7 @@ namespace Interface
         return Result;
     }
 
-    int Memorize(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Control::Type Mode)
+    int CallToMind(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Control::Type Mode)
     {
         auto FlashMessage = false;
 
@@ -1130,7 +1603,7 @@ namespace Interface
         return Result;
     }
 
-    int CastSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
+    int SelectSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
     {
         auto Result = -1;
 
@@ -2126,6 +2599,8 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::DEFEND)
                         {
+                            Engine::ResetSpellDifficulty(Character);
+
                             Character.IsDefending = true;
 
                             CycleCombatants();
@@ -2207,6 +2682,8 @@ namespace Interface
                                         }
                                         else
                                         {
+                                            Engine::ResetSpellDifficulty(Character);
+
                                             Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
 
                                             if (WasAttacked)
@@ -2249,6 +2726,8 @@ namespace Interface
                                     }
                                     else
                                     {
+                                        Engine::ResetSpellDifficulty(Character);
+
                                         Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
 
                                         if (WasAttacked)
@@ -2298,6 +2777,8 @@ namespace Interface
                                         }
                                         else
                                         {
+                                            Engine::ResetSpellDifficulty(Character);
+
                                             Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
 
                                             // get attacked by a nearby enemy that has a higher awareness
@@ -2440,7 +2921,7 @@ namespace Interface
                                     }
                                     else
                                     {
-                                        SelectedSpell = Interface::CastSpell(Renderer, Controls, intBK, Map, Character);
+                                        SelectedSpell = Interface::SelectSpell(Renderer, Controls, intBK, Map, Character);
 
                                         // cast spell
                                         if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
@@ -2453,10 +2934,26 @@ namespace Interface
                                             }
                                             else
                                             {
-                                                // Cast Spell
-                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, Character.Spells[SelectedSpell].Name + " cast!", intGR);
+                                                // attempt to spell
+                                                auto Result = Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell);
 
-                                                CycleCombatants();
+                                                if (Result != Spell::Result::NONE)
+                                                {
+                                                    if (Result == Spell::Result::SUCCESS)
+                                                    {
+                                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, -1, Character.Spells[SelectedSpell].Type);
+
+                                                        Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+                                                    }
+
+                                                    CycleCombatants();
+                                                }
+                                                else
+                                                {
+                                                    CurrentMode = Combat::Mode::NORMAL;
+                                                }
+
+                                                SelectedSpell = -1;
                                             }
                                         }
                                         else
@@ -2467,21 +2964,21 @@ namespace Interface
                                 }
                                 else if (Result == Abilities::Type::Call)
                                 {
-                                    auto MemorizedSpell = Interface::Memorize(Renderer, Controls, intBK, Map, Character, Control::Type::CALL);
+                                    auto CalledToMind = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::CALL);
 
-                                    if (MemorizedSpell >= 0 && MemorizedSpell < Spell::All.size())
+                                    if (CalledToMind >= 0 && CalledToMind < Spell::All.size())
                                     {
-                                        Character.Spells.push_back(Spell::All[MemorizedSpell]);
+                                        Character.Spells.push_back(Spell::All[CalledToMind]);
 
-                                        auto ForgetSpell = -1;
+                                        auto Forget = -1;
 
                                         while (Character.Spells.size() > 4)
                                         {
-                                            ForgetSpell = Interface::Memorize(Renderer, Controls, intBK, Map, Character, Control::Type::FORGET);
+                                            Forget = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::FORGET);
 
-                                            if (ForgetSpell >= 0 && ForgetSpell < Spell::All.size())
+                                            if (Forget >= 0 && Forget < Spell::All.size())
                                             {
-                                                auto Result = Engine::Find(Character, Spell::All[ForgetSpell].Type);
+                                                auto Result = Engine::Find(Character, Spell::All[Forget].Type);
 
                                                 if (Result >= 0 && Result < Character.Spells.size())
                                                 {
@@ -2490,9 +2987,9 @@ namespace Interface
                                             }
                                         }
 
-                                        if (ForgetSpell != MemorizedSpell)
+                                        if (Forget != CalledToMind)
                                         {
-                                            RenderMessage(Renderer, Controls, Map, intBK, Spell::All[MemorizedSpell].Name + " called to mind!", intGR);
+                                            RenderMessage(Renderer, Controls, Map, intBK, Spell::All[CalledToMind].Name + " called to mind!", intGR);
 
                                             CycleCombatants();
                                         }
@@ -2558,6 +3055,8 @@ namespace Interface
 
                                     if (Result != Combat::Result::NONE)
                                     {
+                                        Engine::ResetSpellDifficulty(Character);
+
                                         if (Result == Combat::Result::KNOCKED_OFF)
                                         {
                                             if (Monster.Endurance > 0)
@@ -2593,6 +3092,8 @@ namespace Interface
                                 if (!Interface::IsAdjacent(Map, PlayerId, MonsterId) && Monster.Endurance > 0)
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::SHOOT, false);
+
+                                    Engine::ResetSpellDifficulty(Character);
 
                                     if (Monster.Endurance <= 0)
                                     {
@@ -2633,12 +3134,39 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::CAST)
                             {
-                                // cast spell
-                                Interface::RenderMessage(Renderer, Controls, Map, intBK, Character.Spells[SelectedSpell].Name + " cast!", intGR);
+                                auto Proceed = true;
+
+                                if (Character.Spells[SelectedSpell].Type == Spell::Type::GhastlyTouch)
+                                {
+                                    if (!Interface::IsAdjacent(Map, PlayerId, MonsterId))
+                                    {
+                                        DisplayMessage("Ghastly Touch can only be cast on an adjacent target!", intBK);
+
+                                        Proceed = false;
+                                    }
+                                }
+
+                                // attempt to spell
+                                auto Result = Proceed ? Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell) : Spell::Result::NONE;
+
+                                if (Result != Spell::Result::NONE)
+                                {
+                                    if (Result == Spell::Result::SUCCESS)
+                                    {
+                                        // apply spell effects
+                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, MonsterId, Character.Spells[SelectedSpell].Type);
+
+                                        Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+                                    }
+
+                                    CycleCombatants();
+                                }
+                                else
+                                {
+                                    CurrentMode = Combat::Mode::NORMAL;
+                                }
 
                                 SelectedSpell = -1;
-
-                                CycleCombatants();
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_NONE && !Hold)
@@ -2687,7 +3215,7 @@ namespace Interface
                         if (TargetDistance(NearestPlayer) <= 1)
                         {
                             // do attack
-                            Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], Combat::FightMode::FIGHT, true);
+                            auto Result = Interface::Fight(Renderer, Controls, intBK, Map, party.Members[PlayerId], monsters[MonsterId], Combat::FightMode::FIGHT, true);
 
                             if (!Engine::IsAlive(party.Members[PlayerId]))
                             {
@@ -2696,6 +3224,11 @@ namespace Interface
                                 Remove(Map, LocationX, LocationY);
 
                                 Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+                            }
+
+                            if (Result != Combat::Result::UNSUCCESSFUL)
+                            {
+                                Engine::ResetSpellDifficulty(party.Members[PlayerId]);
                             }
                         }
                         else
