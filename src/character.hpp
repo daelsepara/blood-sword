@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "abilities.hpp"
+#include "assets.hpp"
 #include "attributes.hpp"
 #include "equipment.hpp"
 #include "spell.hpp"
@@ -65,6 +66,8 @@ namespace Character
         bool UsedQuickThinking = false;
 
         std::vector<Spell::Status> SpellStatus = {};
+
+        Assets::Type Asset = Assets::Type::None;
 
         Base()
         {
@@ -406,6 +409,8 @@ namespace Character
             character.Equipment = {Equipment::Sword, Equipment::ChainMail};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Abilities = {};
+
+            character.Asset = Assets::Type::Warrior;
         }
         else if (character.Class == Character::Class::Trickster)
         {
@@ -415,6 +420,8 @@ namespace Character
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Equipment.push_back(Equipment::Base(Equipment::Type::Quiver, "quiver", "quiver", 6, 6));
             character.Abilities = {Abilities::Type::Archery, Abilities::Type::Dodge, Abilities::Type::QuickThinking};
+
+            character.Asset = Assets::Type::Trickster;
         }
         else if (character.Class == Character::Class::Sage)
         {
@@ -424,6 +431,8 @@ namespace Character
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Equipment.push_back(Equipment::Base(Equipment::Type::Quiver, "quiver", "quiver", 6, 6));
             character.Abilities = {Abilities::Type::Archery, Abilities::Type::Quarterstaff, Abilities::Type::Healing, Abilities::Type::Exorcism, Abilities::Type::ESP, Abilities::Type::ParanormalSight, Abilities::Type::Levitation};
+
+            character.Asset = Assets::Type::Sage;
         }
         else if (character.Class == Character::Class::Enchanter)
         {
@@ -432,6 +441,8 @@ namespace Character
             character.Abilities = {Abilities::Type::Call, Abilities::Type::Cast};
             character.Equipment = {Equipment::Sword, Equipment::Silver};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
+
+            character.Asset = Assets::Type::Enchanter;
         }
     }
 

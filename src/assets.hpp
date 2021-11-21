@@ -1,10 +1,10 @@
 #ifndef __ASSETS__HPP__
 #define __ASSETS__HPP__
 
+#include <SDL_image.h>
+
 #include <string>
 #include <utility>
-
-#include "graphics.hpp"
 
 namespace Assets
 {
@@ -112,7 +112,7 @@ namespace Assets
 
                     if (!path.empty() && object != Assets::Type::None)
                     {
-                        auto surface = Graphics::CreateImage(path.c_str());
+                        auto surface = IMG_Load(path.c_str());
 
                         if (surface)
                         {

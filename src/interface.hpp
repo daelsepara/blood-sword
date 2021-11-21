@@ -3,6 +3,8 @@
 
 #include "BloodSword.hpp"
 
+#include "graphics.hpp"
+
 namespace Interface
 {
     // (Player/Monster, Id, Awareness)
@@ -183,24 +185,7 @@ namespace Interface
 
                 auto passable = Assets::Copy(Assets::Type::Passable);
 
-                SDL_Surface *asset = NULL;
-
-                if (party.Members[PlayerId].Class == Character::Class::Warrior)
-                {
-                    asset = Assets::Copy(Assets::Type::Warrior);
-                }
-                else if (party.Members[PlayerId].Class == Character::Class::Trickster)
-                {
-                    asset = Assets::Copy(Assets::Type::Trickster);
-                }
-                else if (party.Members[PlayerId].Class == Character::Class::Sage)
-                {
-                    asset = Assets::Copy(Assets::Type::Sage);
-                }
-                else if (party.Members[PlayerId].Class == Character::Class::Enchanter)
-                {
-                    asset = Assets::Copy(Assets::Type::Enchanter);
-                }
+                auto asset = Assets::Copy(party.Members[PlayerId].Asset);
 
                 Animate(passable, asset);
 
@@ -228,12 +213,7 @@ namespace Interface
 
                 auto passable = HotCoals ? Assets::Copy(Assets::Type::HotCoals, 0x66) : Assets::Copy(Assets::Type::Passable);
 
-                SDL_Surface *asset = NULL;
-
-                if (monsters[MonsterId].Type == Monster::Type::Barbarian)
-                {
-                    asset = Assets::Copy(Assets::Type::Barbarian);
-                }
+                auto asset = Assets::Copy(monsters[MonsterId].Asset);
 
                 Animate(passable, asset);
 
@@ -1178,63 +1158,9 @@ namespace Interface
 
         for (auto i = 0; i < Character.Spells.size(); i++)
         {
-            SDL_Surface *surface = NULL;
+            Controls.push_back(Button(Controls.size(), Assets::Get(Character.Spells[i].Asset), i > 0 ? i - 1 : 0, i < Character.Spells.size() - 1 ? i + 1 : i, i, i, WindowButtonX + i * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CAST));
 
-            if (Character.Spells[i].Type == Spell::Type::VolcanoSpray)
-            {
-                surface = Assets::Get(Assets::Type::VolcanoSpray);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::Nighthowl)
-            {
-                surface = Assets::Get(Assets::Type::Nighthowl);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::WhiteFire)
-            {
-                surface = Assets::Get(Assets::Type::WhiteFire);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::Swordthrust)
-            {
-                surface = Assets::Get(Assets::Type::Swordthrust);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::EyeOfTheTiger)
-            {
-                surface = Assets::Get(Assets::Type::EyeOfTheTiger);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::ImmediateDeliverance)
-            {
-                surface = Assets::Get(Assets::Type::ImmediateDeliverance);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::MistsOfDeath)
-            {
-                surface = Assets::Get(Assets::Type::MistsOfDeath);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::TheVampireSpell)
-            {
-                surface = Assets::Get(Assets::Type::TheVampireSpell);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::SheetLightning)
-            {
-                surface = Assets::Get(Assets::Type::SheetLightning);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::GhastlyTouch)
-            {
-                surface = Assets::Get(Assets::Type::GhastlyTouch);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::NemesisBolt)
-            {
-                surface = Assets::Get(Assets::Type::NemesisBolt);
-            }
-            else if (Character.Spells[i].Type == Spell::Type::ServileEnthralment)
-            {
-                surface = Assets::Get(Assets::Type::ServileEnthralment);
-            }
-
-            if (surface)
-            {
-                Controls.push_back(Button(Controls.size(), surface, i > 0 ? i - 1 : 0, i < Character.Spells.size() - 1 ? i + 1 : i, i, i, WindowButtonX + i * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CAST));
-
-                NumControls++;
-            }
+            NumControls++;
         }
 
         Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : NumControls, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
@@ -1301,7 +1227,6 @@ namespace Interface
         auto WindowW = 10 * Map.ObjectSize;
         auto WindowH = 4 * Map.ObjectSize;
         auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
-        ;
         auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
         auto WindowButtonX = WindowX + 4 * text_space;
 
@@ -1477,22 +1402,7 @@ namespace Interface
                 }
                 else if (Object == TacticalMap::Object::Player)
                 {
-                    if (party.Members[ObjectId].Class == Character::Class::Warrior)
-                    {
-                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Warrior), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
-                    }
-                    else if (party.Members[ObjectId].Class == Character::Class::Trickster)
-                    {
-                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Trickster), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
-                    }
-                    else if (party.Members[ObjectId].Class == Character::Class::Sage)
-                    {
-                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Sage), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
-                    }
-                    else if (party.Members[ObjectId].Class == Character::Class::Enchanter)
-                    {
-                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Enchanter), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
-                    }
+                    Controls.push_back(Button(NumControls, Assets::Get(party.Members[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
                 }
                 else if (Object == TacticalMap::Object::HotCoals)
                 {
@@ -1500,10 +1410,7 @@ namespace Interface
                 }
                 else if (Object == TacticalMap::Object::Monster)
                 {
-                    if (monsters[ObjectId].Type == Monster::Type::Barbarian)
-                    {
-                        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Barbarian), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::MONSTER));
-                    }
+                    Controls.push_back(Button(NumControls, Assets::Get(monsters[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::MONSTER));
                 }
                 else
                 {

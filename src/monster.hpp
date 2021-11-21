@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "assets.hpp"
 #include "spell.hpp"
 
 namespace Monster
@@ -40,11 +41,13 @@ namespace Monster
 
         std::vector<Spell::Status> SpellStatus = {};
 
+        Assets::Type Asset = Assets::Type::None;
+
         Base()
         {
         }
 
-        Base(Monster::Type type, const char *name, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier, int armour)
+        Base(Monster::Type type, const char *name, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier, int armour, Assets::Type asset)
         {
             Type = type;
 
@@ -63,6 +66,8 @@ namespace Monster
             DamageModifier = damageModifier;
 
             Armour = armour;
+
+            Asset = asset;
         }
     };
 }

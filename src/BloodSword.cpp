@@ -30,10 +30,10 @@ int main(int argc, const char **argv)
 
         auto monsters = std::vector<Monster::Base>();
 
-        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1));
-        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1));
-        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1));
-        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1));
+        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
 
         std::vector<std::string> map = {
             "#############",
