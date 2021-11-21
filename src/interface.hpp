@@ -604,22 +604,19 @@ namespace Interface
 
     void DealDamage(TacticalMap::Base &Map, std::vector<Monster::Base> &Monsters, int MonsterId, int Damage, bool UseArmour)
     {
-        if (Monsters[MonsterId].Endurance > 0)
+        auto MonsterX = -1;
+
+        auto MonsterY = -1;
+
+        Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
+
+        auto TotalDamage = std::max(0, Damage - (UseArmour ? Monsters[MonsterId].Armour : 0));
+
+        Engine::Gain(Monsters[MonsterId], -TotalDamage);
+
+        if (Monsters[MonsterId].Endurance <= 0)
         {
-            auto MonsterX = -1;
-
-            auto MonsterY = -1;
-
-            Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
-
-            auto TotalDamage = std::max(0, Damage - (UseArmour ? Monsters[MonsterId].Armour : 0));
-
-            Engine::Gain(Monsters[MonsterId], -TotalDamage);
-
-            if (Monsters[MonsterId].Endurance <= 0)
-            {
-                Remove(Map, MonsterX, MonsterY);
-            }
+            Remove(Map, MonsterX, MonsterY);
         }
     }
 
@@ -812,7 +809,15 @@ namespace Interface
 
             for (auto i = 0; i < Monsters.size(); i++)
             {
-                Interface::DealDamage(Map, Monsters, i, Damage, true);
+                if (Monsters[i].Endurance > 0)
+                {
+                    Interface::DealDamage(Map, Monsters, i, Damage, true);
+
+                    if (Monsters[i].Endurance <= 0)
+                    {
+                        RenderMessage(Renderer, BattleScreen, Map, bg, Monsters[i].Name + " killed!", intGR);
+                    }
+                }
             }
         }
         else if (Spell == Spell::Type::WhiteFire || Spell == Spell::Type::Swordthrust || Spell == Spell::Type::NemesisBolt)
@@ -840,6 +845,11 @@ namespace Interface
                         RenderMessage(Renderer, BattleScreen, Map, bg, (Monsters[i].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
                         Interface::DealDamage(Map, Monsters, i, Damage, true);
+
+                        if (Monsters[i].Endurance <= 0)
+                        {
+                            RenderMessage(Renderer, BattleScreen, Map, bg, Monsters[i].Name + " killed!", intGR);
+                        }
                     }
                     else
                     {
@@ -861,6 +871,11 @@ namespace Interface
                     RenderMessage(Renderer, BattleScreen, Map, bg, (Monsters[MonsterId].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
                     Interface::DealDamage(Map, Monsters, MonsterId, Damage, false);
+
+                    if (Monsters[MonsterId].Endurance <= 0)
+                    {
+                        RenderMessage(Renderer, BattleScreen, Map, bg, Monsters[MonsterId].Name + " killed!", intGR);
+                    }
 
                     auto Endurance = Damage / 2;
 
@@ -894,6 +909,11 @@ namespace Interface
                 RenderMessage(Renderer, BattleScreen, Map, bg, (Monsters[MonsterId].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
                 Interface::DealDamage(Map, Monsters, MonsterId, Damage, false);
+
+                if (Monsters[MonsterId].Endurance <= 0)
+                {
+                    RenderMessage(Renderer, BattleScreen, Map, bg, Monsters[MonsterId].Name + " killed!", intGR);
+                }
             }
         }
     }
@@ -1497,7 +1517,10 @@ namespace Interface
 
                     Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2);
 
-                    Graphics::DrawRect(Renderer, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2, intWH);
+                    if (FlashColor == intBK)
+                    {
+                        Graphics::DrawRect(Renderer, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2, intWH);
+                    }
                 }
                 else
                 {
@@ -2420,7 +2443,10 @@ namespace Interface
 
                     Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, Map.DrawX + ((Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2);
 
-                    Graphics::DrawRect(Renderer, FlashW, infoh * 2, Map.DrawX + ((Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2, intWH);
+                    if (FlashColor == intBK)
+                    {
+                        Graphics::DrawRect(Renderer, FlashW, infoh * 2, Map.DrawX + ((Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2, intWH);
+                    }
                 }
                 else
                 {
@@ -2930,7 +2956,23 @@ namespace Interface
 
                                             if (Spell.RequiresTarget)
                                             {
-                                                CurrentMode = Combat::Mode::CAST;
+                                                if (Spell.Type == Spell::Type::GhastlyTouch)
+                                                {
+                                                    if (!NearbyMonsters(Map, monsters, PlayerId))
+                                                    {
+                                                        DisplayMessage("There are enemies nearby!", intBK);
+
+                                                        CurrentMode = Combat::Mode::NORMAL;
+                                                    }
+                                                    else
+                                                    {
+                                                        CurrentMode = Combat::Mode::CAST;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    CurrentMode = Combat::Mode::CAST;
+                                                }
                                             }
                                             else
                                             {

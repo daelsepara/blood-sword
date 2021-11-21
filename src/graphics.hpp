@@ -287,7 +287,7 @@ namespace Graphics
         }
         else if (control.Type == Control::Type::CAST)
         {
-            caption = "Cast spell";
+            caption = "Cast spell in mind";
         }
         else if (control.Type == Control::Type::FLEE)
         {

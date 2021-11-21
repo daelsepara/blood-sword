@@ -20,9 +20,15 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 
 ![Use Ability](/screenshots/use-ability.png)
 
-## Character classes implemented
+**Call a spell to mind / Cast a spell in mind**
 
-- Warrior (**FULL**)
-- Trickster (**FULL**)
-- Sage (**PARTIAL**)
-- Enchanter (**TODO**)
+![Call a spell to mind](/screenshots/call-to-mind.png)
+
+![Cast a spell in mind](/screenshots/cast-spell.png)
+
+## Character classes in implemented in combat
+
+- Warrior (**DONE**)
+- Trickster (**DONE**)
+- Sage (**DONE**)
+- Enchanter (**PARTIAL (8/12 combat spells implemented)**)
