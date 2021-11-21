@@ -226,7 +226,7 @@ namespace Interface
 
                 auto MonsterId = Map.ObjectID[srcY][srcX] - 1;
 
-                auto passable = HotCoals ? Assets::Copy(Assets::Type::HotCoals) : Assets::Copy(Assets::Type::Passable);
+                auto passable = HotCoals ? Assets::Copy(Assets::Type::HotCoals, 0x66) : Assets::Copy(Assets::Type::Passable);
 
                 SDL_Surface *asset = NULL;
 
@@ -1153,6 +1153,132 @@ namespace Interface
         return Result;
     }
 
+    int CastSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
+    {
+        auto Result = -1;
+
+        auto MapSizeX = (Map.SizeX < 12 ? 12 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
+        auto WindowW = 10 * Map.ObjectSize;
+        auto WindowH = 4 * Map.ObjectSize;
+        auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
+
+        auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
+        auto WindowButtonX = WindowX + 4 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<Button> Controls = {};
+
+        auto NumControls = 0;
+
+        for (auto i = 0; i < Character.Spells.size(); i++)
+        {
+            SDL_Surface *surface = NULL;
+
+            if (Character.Spells[i].Type == Spell::Type::VolcanoSpray)
+            {
+                surface = Assets::Get(Assets::Type::VolcanoSpray);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::Nighthowl)
+            {
+                surface = Assets::Get(Assets::Type::Nighthowl);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::WhiteFire)
+            {
+                surface = Assets::Get(Assets::Type::WhiteFire);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::Swordthrust)
+            {
+                surface = Assets::Get(Assets::Type::Swordthrust);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::EyeOfTheTiger)
+            {
+                surface = Assets::Get(Assets::Type::EyeOfTheTiger);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::ImmediateDeliverance)
+            {
+                surface = Assets::Get(Assets::Type::ImmediateDeliverance);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::MistsOfDeath)
+            {
+                surface = Assets::Get(Assets::Type::MistsOfDeath);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::TheVampireSpell)
+            {
+                surface = Assets::Get(Assets::Type::TheVampireSpell);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::SheetLightning)
+            {
+                surface = Assets::Get(Assets::Type::SheetLightning);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::GhastlyTouch)
+            {
+                surface = Assets::Get(Assets::Type::GhastlyTouch);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::NemesisBolt)
+            {
+                surface = Assets::Get(Assets::Type::NemesisBolt);
+            }
+            else if (Character.Spells[i].Type == Spell::Type::ServileEnthralment)
+            {
+                surface = Assets::Get(Assets::Type::ServileEnthralment);
+            }
+
+            if (surface)
+            {
+                Controls.push_back(Button(Controls.size(), surface, i > 0 ? i - 1 : 0, i < Character.Spells.size() - 1 ? i + 1 : i, i, i, WindowButtonX + i * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CAST));
+
+                NumControls++;
+            }
+        }
+
+        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : NumControls, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
+
+        auto done = false;
+
+        while (!done)
+        {
+            // render current combat screen
+            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, "Select a spell to cast", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+
+            if (Current >= 0 && Current < Character.Spells.size())
+            {
+                // Render Spell Names;
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK)
+                {
+                    done = true;
+                }
+                else if (Controls[Current].Type == Control::Type::CAST)
+                {
+                    Result = Current;
+
+                    done = true;
+                }
+            }
+        }
+
+        return Result;
+    }
+
     Abilities::Type UseAbility(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
     {
         auto Result = Abilities::Type::None;
@@ -1357,7 +1483,7 @@ namespace Interface
                 }
                 else if (Object == TacticalMap::Object::HotCoals)
                 {
-                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
+                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals, 0x66), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
                 }
                 else if (Object == TacticalMap::Object::Monster)
                 {
@@ -2359,6 +2485,8 @@ namespace Interface
                                     }
                                     else
                                     {
+                                        SelectedSpell = Interface::CastSpell(Renderer, Controls, intBK, Map, Character);
+
                                         // cast spell
                                         if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
                                         {

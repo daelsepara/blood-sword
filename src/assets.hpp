@@ -174,4 +174,9 @@ namespace Assets
     {
         return Assets::Copy(Assets::Get(asset));
     }
+
+    SDL_Surface *Copy(Assets::Type asset, Uint8 alpha)
+    {
+        return Assets::Copy(Assets::Get(asset, alpha));
+    }
 }
