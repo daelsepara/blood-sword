@@ -72,6 +72,17 @@ namespace TacticalMap
         // object size in pixels (width, height)
         int ObjectSize = 0;
 
+        // text coordinates
+        int TextX = 0;
+
+        int  TextY = 0;
+
+        int  TextWidth = 0;
+
+        int  TextRightX = 0;
+
+        int  TextRightWidth = 0;
+
         void Initialize(int sizex, int sizey)
         {
             Width = sizex;

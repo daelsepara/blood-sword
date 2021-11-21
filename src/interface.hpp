@@ -459,7 +459,7 @@ namespace Interface
         return NearestPlayer;
     }
 
-    void CharacterSheet(SDL_Renderer *Renderer, Party::Base &party, TTF_Font *Font, int PlayerId, int TextW, int TextX, int TextY)
+    void CharacterSheet(SDL_Renderer *Renderer, TacticalMap::Base &Map, Party::Base &party, TTF_Font *Font, int PlayerId)
     {
         auto FontSize = TTF_FontHeight(Font);
 
@@ -471,69 +471,69 @@ namespace Interface
         auto Damage = party.Members[PlayerId].Damage;
         auto DamageModifier = party.Members[PlayerId].DamageModifier;
 
-        Graphics::PutText(Renderer, Character::Description[party.Members[PlayerId].Class], Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY);
-        Graphics::PutText(Renderer, std::string("RANK: " + std::to_string(party.Members[PlayerId].Rank)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(FightingProwess)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 2 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(PsychicAbility)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 3 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("AWARENESS: " + std::to_string(Awareness)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 4 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("ENDURANCE: " + std::to_string(Endurance)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 5 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(Armour)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 6 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(Damage) + (DamageModifier >= 0 ? "D+" : "D") + std::to_string(party.Members[PlayerId].DamageModifier)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 7 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("EXPERIENCE: " + std::to_string(party.Members[PlayerId].ExperiencePoints)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 8 * (FontSize + 2));
+        Graphics::PutText(Renderer, Character::Description[party.Members[PlayerId].Class], Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY);
+        Graphics::PutText(Renderer, std::string("RANK: " + std::to_string(party.Members[PlayerId].Rank)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(FightingProwess)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 2 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(PsychicAbility)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 3 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("AWARENESS: " + std::to_string(Awareness)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 4 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("ENDURANCE: " + std::to_string(Endurance)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 5 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(Armour)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 6 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(Damage) + (DamageModifier >= 0 ? "D+" : "D") + std::to_string(party.Members[PlayerId].DamageModifier)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 7 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("EXPERIENCE: " + std::to_string(party.Members[PlayerId].ExperiencePoints)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 8 * (FontSize + 2));
 
         auto TextOffset = 9;
 
         if (Engine::HaveMoney(party.Members[PlayerId]))
         {
-            Graphics::PutText(Renderer, ("GOLD: " + std::to_string(Engine::CountMoney(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
+            Graphics::PutText(Renderer, ("GOLD: " + std::to_string(Engine::CountMoney(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
 
             TextOffset++;
         }
 
         if (Engine::HasArrows(party.Members[PlayerId]))
         {
-            Graphics::PutText(Renderer, ("ARROWS: " + std::to_string(Engine::CountArrows(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
+            Graphics::PutText(Renderer, ("ARROWS: " + std::to_string(Engine::CountArrows(party.Members[PlayerId]))).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
 
             TextOffset++;
         }
 
         if (party.Members[PlayerId].IsDefending && party.Members[PlayerId].QuickThinking)
         {
-            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
+            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
 
-            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + (TextOffset + 1) * (FontSize + 2));
+            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + (TextOffset + 1) * (FontSize + 2));
 
             TextOffset += 2;
         }
         else if (party.Members[PlayerId].IsDefending)
         {
-            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
+            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
 
             TextOffset++;
         }
         else if (party.Members[PlayerId].QuickThinking)
         {
-            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + TextOffset * (FontSize + 2));
+            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
 
             TextOffset++;
         }
     }
 
-    void MonsterData(SDL_Renderer *Renderer, std::vector<Monster::Base> &monsters, TTF_Font *Font, int MonsterId, int TextW, int TextX, int TextY)
+    void MonsterData(SDL_Renderer *Renderer, TacticalMap::Base &Map, std::vector<Monster::Base> &monsters, TTF_Font *Font, int MonsterId)
     {
         auto FontSize = TTF_FontHeight(Font);
 
-        Graphics::PutText(Renderer, monsters[MonsterId].Name.c_str(), Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY);
-        Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(monsters[MonsterId].FightingProwess)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(monsters[MonsterId].PsychicAbility)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 2 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("AWARENESS: " + std::to_string(monsters[MonsterId].Awareness)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + +3 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("ENDURANCE: " + std::to_string(monsters[MonsterId].Endurance)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + +4 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(monsters[MonsterId].Armour)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + +5 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(monsters[MonsterId].Damage) + (monsters[MonsterId].DamageModifier >= 0 ? "D+" : "D") + std::to_string(monsters[MonsterId].DamageModifier)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 6 * (FontSize + 2));
+        Graphics::PutText(Renderer, monsters[MonsterId].Name.c_str(), Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY);
+        Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(monsters[MonsterId].FightingProwess)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(monsters[MonsterId].PsychicAbility)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 2 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("AWARENESS: " + std::to_string(monsters[MonsterId].Awareness)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 3 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("ENDURANCE: " + std::to_string(monsters[MonsterId].Endurance)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 4 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(monsters[MonsterId].Armour)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 5 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(monsters[MonsterId].Damage) + (monsters[MonsterId].DamageModifier >= 0 ? "D+" : "D") + std::to_string(monsters[MonsterId].DamageModifier)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 6 * (FontSize + 2));
 
         if (monsters[MonsterId].KnockedOff)
         {
-            Graphics::PutText(Renderer, "KNOCKED OFF", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + 7 * (FontSize + 2));
+            Graphics::PutText(Renderer, "KNOCKED OFF", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 7 * (FontSize + 2));
         }
     }
 
@@ -1214,6 +1214,207 @@ namespace Interface
         }
     }
 
+    void RenderMapInfo(SDL_Renderer *Renderer, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, std::vector<AStar::Path> &CurrentPath, std::vector<int> &CurrentMove, Combat::Mode CurrentMode, int CombatRound, int Current, int CurrentCombatant, int SelectedCombatant)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+
+        auto MapSizeX = Map.SizeX * Map.ObjectSize;
+
+        auto MapSizeY = Map.SizeY * Map.ObjectSize;
+
+        if (Current >= 0 && Current < Controls.size())
+        {
+            auto ControlType = Controls[Current].Type;
+
+            auto SelectX = -1;
+
+            auto SelectY = -1;
+
+            if (Controls[Current].X >= Map.DrawX && Controls[Current].X <= Map.DrawX + MapSizeX && Controls[Current].Y >= Map.DrawY && Controls[Current].Y <= Map.DrawY + MapSizeY)
+            {
+                SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
+
+                SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
+            }
+
+            Interface::ShowCoordinates(Renderer, Map, Controls, Sequence, Current, SelectedCombatant, Fonts::Normal, Map.TextWidth, Map.TextRightX);
+
+            if (CurrentMode == Combat::Mode::NORMAL)
+            {
+                if (ControlType == Control::Type::PLAYER)
+                {
+                    Graphics::PutText(Renderer, "View party member", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+
+                    Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                }
+                else if (ControlType == Control::Type::MONSTER)
+                {
+                    Graphics::PutText(Renderer, "View opponent", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+
+                    Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                }
+                else
+                {
+                    Graphics::PutText(Renderer, ("Combat Round: " + std::to_string(CombatRound + 1)).c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                }
+            }
+            else if (CurrentMode == Combat::Mode::MOVE)
+            {
+                auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
+
+                auto TargetX = -1;
+
+                auto TargetY = -1;
+
+                if (CurrentMove[PlayerId] > 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
+                {
+                    TargetX = CurrentPath[PlayerId].Points.back().X - Map.MapX;
+
+                    TargetY = CurrentPath[PlayerId].Points.back().Y - Map.MapY;
+
+                    Graphics::PutText(Renderer, "Move to location or continue along current path", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+
+                    Interface::DrawPath(Renderer, Map, CurrentPath[PlayerId], CurrentMove[PlayerId], intGR, 0x66);
+                }
+                else
+                {
+                    Graphics::PutText(Renderer, "Move to location", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                }
+
+                if (ControlType == Control::Type::DESTINATION)
+                {
+                    if ((TargetX != SelectX || TargetY != SelectY) && ControlType == Control::Type::DESTINATION)
+                    {
+                        auto PlayerX = -1;
+
+                        auto PlayerY = -1;
+
+                        Interface::Find(Map, TacticalMap::Object::Player, PlayerId, PlayerX, PlayerY);
+
+                        if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY) && Interface::Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
+                        {
+                            auto TempPath = AStar::FindPath(Map, PlayerX, PlayerY, SelectX, SelectY);
+
+                            if (TempPath.Points.size() > 2)
+                            {
+                                Interface::DrawPath(Renderer, Map, TempPath, 1, intGR, 0x66);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (CurrentMode == Combat::Mode::ATTACK)
+            {
+                if (ControlType == Control::Type::PLAYER || ControlType == Control::Type::MONSTER)
+                {
+                    Graphics::PutText(Renderer, "Fight target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+
+                    if (ControlType == Control::Type::PLAYER)
+                    {
+                        Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    }
+                    else if (ControlType == Control::Type::MONSTER)
+                    {
+                        Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    }
+                }
+                else
+                {
+                    Graphics::PutText(Renderer, "Select a nearby opponent to fight", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                }
+            }
+            else if (CurrentMode == Combat::Mode::SHOOT)
+            {
+                if (ControlType == Control::Type::PLAYER || ControlType == Control::Type::MONSTER)
+                {
+                    Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+
+                    if (ControlType == Control::Type::PLAYER)
+                    {
+                        Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    }
+                    else if (ControlType == Control::Type::MONSTER)
+                    {
+                        Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    }
+                }
+                else
+                {
+                    Graphics::PutText(Renderer, "Shoot at a target from range", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                }
+            }
+            else if (CurrentMode == Combat::Mode::MAGIC && ControlType == Control::Type::MONSTER)
+            {
+                Graphics::PutText(Renderer, "Cast a spell", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+
+                Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+            }
+        }
+    }
+
+    void RenderSelection(SDL_Renderer *Renderer, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, std::vector<Combatants> &Sequence, int SelectedCombatant)
+    {
+        if (SelectedCombatant >= 0 && SelectedCombatant < Sequence.size())
+        {
+            auto SelectedX = 0;
+
+            auto SelectedY = 0;
+
+            auto SelectedId = std::get<1>(Sequence[SelectedCombatant]);
+
+            Interface::Find(Map, std::get<0>(Sequence[SelectedCombatant]), SelectedId, SelectedX, SelectedY);
+
+            auto IsPlayer = std::get<0>(Sequence[SelectedCombatant]) == TacticalMap::Object::Player;
+
+            auto IsMonster = std::get<0>(Sequence[SelectedCombatant]) == TacticalMap::Object::Monster;
+
+            if ((SelectedX - Map.MapX) >= 0 && (SelectedX - Map.MapX) < Map.SizeX && (SelectedY - Map.MapY) >= 0 && (SelectedY - Map.MapY) < Map.SizeY)
+            {
+                Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (SelectedX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (SelectedY - Map.MapY) * Map.ObjectSize + 2 * border_pts, intWH, border_pts);
+            }
+
+            // Render statistics for currently selected / highlighted player or monster
+            if (IsPlayer)
+            {
+                Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, SelectedId);
+            }
+            else if (IsMonster)
+            {
+                Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, SelectedId);
+
+                // Show potential target
+                auto NearestPlayer = Interface::SelectTarget(Map, party, SelectedId);
+
+                auto PlayerId = std::get<0>(NearestPlayer);
+
+                if (PlayerId >= 0 && PlayerId < party.Members.size())
+                {
+                    auto MonsterX = -1;
+
+                    auto MonsterY = -1;
+
+                    auto LocationX = -1;
+
+                    auto LocationY = -1;
+
+                    Interface::Find(Map, TacticalMap::Object::Monster, SelectedId, MonsterX, MonsterY);
+
+                    Interface::Find(Map, TacticalMap::Object::Player, PlayerId, LocationX, LocationY);
+
+                    if (Interface::ValidX(Map, MonsterX) && Interface::ValidY(Map, MonsterY) && Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
+                    {
+                        auto MonsterPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
+
+                        if (MonsterPath.Points.size() > 2)
+                        {
+                            Interface::DrawPath(Renderer, Map, MonsterPath, 1, intGR, 0x66);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
     {
         auto FlashMessage = false;
@@ -1331,11 +1532,6 @@ namespace Interface
         auto IsMonster = [&](int id)
         {
             return std::get<0>(Sequence[id]) == TacticalMap::Object::Monster;
-        };
-
-        auto Type = [&](int id)
-        {
-            return std::get<0>(Sequence[id]);
         };
 
         auto GetId = [&](int id)
@@ -1487,15 +1683,15 @@ namespace Interface
 
         auto FontSize = TTF_FontHeight(Fonts::Normal);
 
-        auto TextX = Map.DrawX;
+        Map.TextX = Map.DrawX;
 
-        auto TextR = Map.DrawX + (Map.ObjectSize * Map.SizeX + border_space);
+        Map.TextY = Map.DrawY - 2 * border_space - FontSize;
 
-        auto TextWidthR = SCREEN_WIDTH - TextR;
+        Map.TextWidth = (Map.Width < 13 ? 13 : Map.Width) * Map.ObjectSize;
 
-        auto TextY = Map.DrawY - 2 * border_space - FontSize;
+        Map.TextRightX = Map.DrawX + (Map.ObjectSize * Map.SizeX + border_space);
 
-        auto TextWidth = (Map.Width < 13 ? 13 : Map.Width) * Map.ObjectSize;
+        Map.TextRightWidth = SCREEN_WIDTH - Map.TextRightX;
 
         auto MapButtonSize = Map.ObjectSize + 2 * border_space;
         auto MapSizeX = Map.SizeX * Map.ObjectSize;
@@ -1624,179 +1820,9 @@ namespace Interface
                     Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, BlinkX + 2 * border_pts, BlinkY + 2 * border_pts, intGR, border_pts);
                 }
 
-                if (SelectedCombatant >= 0 && SelectedCombatant < Sequence.size())
-                {
-                    auto SelectedX = 0;
+                Interface::RenderSelection(Renderer, Map, party, monsters, Sequence, SelectedCombatant);
 
-                    auto SelectedY = 0;
-
-                    auto SelectedId = GetId(SelectedCombatant);
-
-                    Interface::Find(Map, Type(SelectedCombatant), SelectedId, SelectedX, SelectedY);
-
-                    if ((SelectedX - Map.MapX) >= 0 && (SelectedX - Map.MapX) < Map.SizeX && (SelectedY - Map.MapY) >= 0 && (SelectedY - Map.MapY) < Map.SizeY)
-                    {
-                        Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (SelectedX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (SelectedY - Map.MapY) * Map.ObjectSize + 2 * border_pts, intWH, border_pts);
-                    }
-
-                    // Render statistics for currently selected / highlighted player or monster
-                    if (IsPlayer(SelectedCombatant))
-                    {
-                        Interface::CharacterSheet(Renderer, party, Fonts::Fixed, SelectedId, TextWidthR, TextR, Map.DrawY);
-                    }
-                    else if (IsMonster(SelectedCombatant))
-                    {
-                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, SelectedId, TextWidthR, TextR, Map.DrawY);
-
-                        // Show potential target
-                        auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(SelectedCombatant));
-
-                        auto PlayerId = Target(NearestPlayer);
-
-                        if (PlayerId >= 0 && PlayerId < party.Members.size())
-                        {
-                            auto MonsterX = -1;
-
-                            auto MonsterY = -1;
-
-                            auto LocationX = -1;
-
-                            auto LocationY = -1;
-
-                            Interface::Find(Map, TacticalMap::Object::Monster, SelectedId, MonsterX, MonsterY);
-
-                            Interface::Find(Map, TacticalMap::Object::Player, PlayerId, LocationX, LocationY);
-
-                            if (Interface::ValidX(Map, MonsterX) && Interface::ValidY(Map, MonsterY) && Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
-                            {
-                                auto MonsterPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
-
-                                if (MonsterPath.Points.size() > 2)
-                                {
-                                    Interface::DrawPath(Renderer, Map, MonsterPath, 1, intGR, 0x66);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (Current >= 0 && Current < Controls.size())
-                {
-                    auto ControlType = Controls[Current].Type;
-
-                    auto SelectX = -1;
-
-                    auto SelectY = -1;
-
-                    if (Controls[Current].X >= Map.DrawX && Controls[Current].X <= Map.DrawX + MapSizeX && Controls[Current].Y >= Map.DrawY && Controls[Current].Y <= Map.DrawY + MapSizeY)
-                    {
-                        SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-                        SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-                    }
-
-                    Interface::ShowCoordinates(Renderer, Map, Controls, Sequence, Current, SelectedCombatant, Fonts::Normal, TextWidth, TextR);
-
-                    if (CurrentMode == Combat::Mode::NORMAL && ControlType == Control::Type::PLAYER)
-                    {
-                        Graphics::PutText(Renderer, "View party member", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                        Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
-                    }
-                    else if (CurrentMode == Combat::Mode::NORMAL && ControlType == Control::Type::MONSTER)
-                    {
-                        Graphics::PutText(Renderer, "View opponent", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
-                    }
-                    else if (CurrentMode == Combat::Mode::NORMAL)
-                    {
-                        Graphics::PutText(Renderer, ("Combat Round: " + std::to_string(CombatRound + 1)).c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-                    }
-                    else if (CurrentMode == Combat::Mode::MOVE)
-                    {
-                        auto PlayerId = GetId(CurrentCombatant);
-
-                        auto TargetX = -1;
-
-                        auto TargetY = -1;
-
-                        if (CurrentMove[PlayerId] > 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
-                        {
-                            TargetX = CurrentPath[PlayerId].Points.back().X - Map.MapX;
-
-                            TargetY = CurrentPath[PlayerId].Points.back().Y - Map.MapY;
-
-                            Graphics::PutText(Renderer, "Move to location or continue along current path", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                            Interface::DrawPath(Renderer, Map, CurrentPath[PlayerId], CurrentMove[PlayerId], intGR, 0x66);
-                        }
-                        else
-                        {
-                            Graphics::PutText(Renderer, "Move to location", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-                        }
-
-                        if (ControlType == Control::Type::DESTINATION)
-                        {
-                            if ((TargetX != SelectX || TargetY != SelectY) && ControlType == Control::Type::DESTINATION)
-                            {
-                                auto PlayerX = -1;
-
-                                auto PlayerY = -1;
-
-                                Interface::Find(Map, TacticalMap::Object::Player, PlayerId, PlayerX, PlayerY);
-
-                                if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY) && Interface::Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
-                                {
-                                    auto TempPath = AStar::FindPath(Map, PlayerX, PlayerY, SelectX, SelectY);
-
-                                    if (TempPath.Points.size() > 2)
-                                    {
-                                        Interface::DrawPath(Renderer, Map, TempPath, 1, intGR, 0x66);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else if (CurrentMode == Combat::Mode::ATTACK && ControlType == Control::Type::MONSTER)
-                    {
-                        Graphics::PutText(Renderer, "Fight target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
-                    }
-                    else if (CurrentMode == Combat::Mode::ATTACK && ControlType == Control::Type::PLAYER)
-                    {
-                        Graphics::PutText(Renderer, "Fight target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                        Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
-                    }
-                    else if (CurrentMode == Combat::Mode::ATTACK)
-                    {
-                        Graphics::PutText(Renderer, "Select a nearby opponent to fight", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-                    }
-                    else if (CurrentMode == Combat::Mode::SHOOT && ControlType == Control::Type::MONSTER)
-                    {
-                        Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
-                    }
-                    else if (CurrentMode == Combat::Mode::SHOOT && ControlType == Control::Type::PLAYER)
-                    {
-                        Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                        Interface::CharacterSheet(Renderer, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
-                    }
-                    else if (CurrentMode == Combat::Mode::SHOOT)
-                    {
-                        Graphics::PutText(Renderer, "Shoot at a target from range", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-                    }
-                    else if (CurrentMode == Combat::Mode::MAGIC && ControlType == Control::Type::MONSTER)
-                    {
-                        Graphics::PutText(Renderer, "Cast a spell", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, TextX, TextY);
-
-                        Interface::MonsterData(Renderer, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1, TextWidthR, TextR, Map.DrawY);
-                    }
-                }
+                Interface::RenderMapInfo(Renderer, Map, party, monsters, Controls, Sequence, CurrentPath, CurrentMove, CurrentMode, CombatRound, Current, CurrentCombatant, SelectedCombatant);
 
                 RenderFlashMessage();
 

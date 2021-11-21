@@ -38,14 +38,14 @@ namespace Spell
         Spell::Class Class = Spell::Class::None;
 
         Spell::Type Type = Spell::Type::None;
-        
+
         int Complexity = 1;
 
         std::string Name = "";
 
         std::string Description = "";
 
-        int CurrentComplexity = -1;
+        int CurrentModifier = 0;
     };
 }
 #endif
