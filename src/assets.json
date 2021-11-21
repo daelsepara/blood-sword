@@ -2,103 +2,103 @@
     "assets": [
         {
             "id": 1,
-            "path": "images/players/alternate/warrior.png"
+            "path": "images/players/warrior.png"
         },
         {
             "id": 2,
-            "path": "images/players/alternate/trickster.png"
+            "path": "images/players/trickster.png"
         },
         {
             "id": 3,
-            "path": "images/players/alternate/sage.png"
+            "path": "images/players/sage.png"
         },
         {
             "id": 4,
-            "path": "images/players/alternate/enchanter.png"
+            "path": "images/players/enchanter.png"
         },
         {
             "id": 5,
-            "path": "images/map/alternate/passable.png"
+            "path": "images/map/passable.png"
         },
         {
             "id": 6,
-            "path": "images/map/alternate/wall.png"
+            "path": "images/map/wall.png"
         },
         {
             "id": 8,
-            "path": "images/map/alternate/hot-coals.png"
+            "path": "images/map/hot-coals.png"
         },
         {
             "id": 100,
-            "path": "icons/alternate/up.png"
+            "path": "icons/up.png"
         },
         {
             "id": 101,
-            "path": "icons/alternate/left.png"
+            "path": "icons/left.png"
         },
         {
             "id": 102,
-            "path": "icons/alternate/right.png"
+            "path": "icons/right.png"
         },
         {
             "id": 103,
-            "path": "icons/alternate/down.png"
+            "path": "icons/down.png"
         },
         {
             "id": 104,
-            "path": "icons/alternate/back-button-white.png"
+            "path": "icons/back.png"
         },
         {
             "id": 105,
-            "path": "icons/alternate/ability.png"
+            "path": "icons/ability.png"
         },
         {
             "id": 106,
-            "path": "icons/alternate/move.png"
+            "path": "icons/move.png"
         },
         {
             "id": 107,
-            "path": "icons/alternate/heal.png"
+            "path": "icons/heal.png"
         },
         {
             "id": 108,
-            "path": "icons/alternate/swords.png"
+            "path": "icons/swords.png"
         },
         {
             "id": 109,
-            "path": "icons/alternate/shield.png"
+            "path": "icons/shield.png"
         },
         {
             "id": 110,
-            "path": "icons/alternate/shoot.png"
+            "path": "icons/shoot.png"
         },
         {
             "id": 111,
-            "path": "icons/alternate/memorize.png"
+            "path": "icons/memorize.png"
         },
         {
             "id": 112,
-            "path": "icons/alternate/spell.png"
+            "path": "icons/spell.png"
         },
         {
             "id": 113,
-            "path": "icons/alternate/exit-white.png"
+            "path": "icons/exit.png"
         },
         {
             "id": 114,
-            "path": "icons/alternate/items.png"
+            "path": "icons/items.png"
         },
         {
             "id": 115,
-            "path": "icons/alternate/imagination.png"
+            "path": "icons/imagination.png"
         },
         {
             "id": 150,
-            "path": "icons/alternate/yes.png"
+            "path": "icons/yes.png"
         },
         {
             "id": 151,
-            "path": "icons/alternate/no.png"
+            "path": "icons/no.png"
         },
         {
             "id": 152,
@@ -174,7 +174,7 @@
         },
         {
             "id": 301,
-            "path": "images/monsters/alternate/barbarian.png"
+            "path": "images/monsters/barbarian.png"
         }
     ]
 }
