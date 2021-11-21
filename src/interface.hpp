@@ -1024,10 +1024,7 @@ namespace Interface
 
                     Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2);
 
-                    if (FlashColor == intBK)
-                    {
-                        Graphics::DrawRect(Renderer, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2, intWH);
-                    }
+                    Graphics::DrawRect(Renderer, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2, intWH);
                 }
                 else
                 {
@@ -1140,7 +1137,7 @@ namespace Interface
         auto MapSizeX = (Map.SizeX < 12 ? 12 : Map.SizeX) * Map.ObjectSize;
         auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
         auto WindowW = 10 * Map.ObjectSize;
-        auto WindowH = 4 * Map.ObjectSize;
+        auto WindowH = 3 * Map.ObjectSize;
         auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
 
         auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
@@ -1225,7 +1222,7 @@ namespace Interface
         auto MapSizeX = (Map.SizeX < 12 ? 12 : Map.SizeX) * Map.ObjectSize;
         auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
         auto WindowW = 10 * Map.ObjectSize;
-        auto WindowH = 4 * Map.ObjectSize;
+        auto WindowH = 3 * Map.ObjectSize;
         auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
         auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
         auto WindowButtonX = WindowX + 4 * text_space;
@@ -1950,10 +1947,7 @@ namespace Interface
 
                     Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, Map.DrawX + ((Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2);
 
-                    if (FlashColor == intBK)
-                    {
-                        Graphics::DrawRect(Renderer, FlashW, infoh * 2, Map.DrawX + ((Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2, intWH);
-                    }
+                    Graphics::DrawRect(Renderer, FlashW, infoh * 2, Map.DrawX + ((Map.SizeX < 13 ? 13 * Map.ObjectSize : MapSizeX) - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2, intWH);
                 }
                 else
                 {
