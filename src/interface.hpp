@@ -1104,7 +1104,7 @@ namespace Interface
                 {
                     Spell::Base &Spell = Spell::All[Current];
 
-                    Graphics::PutText(Renderer, (Spell.Name + "\n\n" + Spell.Description).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 5 * text_space, WindowH - (WindowButtonY + 2 * WindowButtonGridY), WindowButtonX - text_space, WindowButtonY + 2 * WindowButtonGridY);
+                    Graphics::PutText(Renderer, (Spell.Name + " (" + std::string(Spell::ClassDescription[Spell.Class]) + ")\n\n" + Spell.Description).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 5 * text_space, WindowH - (WindowButtonY + 2 * WindowButtonGridY), WindowButtonX - text_space, WindowButtonY + 2 * WindowButtonGridY);
                 }
             }
 
@@ -1256,7 +1256,20 @@ namespace Interface
 
             if (Current >= 0 && Current < Character.Spells.size())
             {
-                // Render Spell Names;
+                // render spell names
+                auto captionx = Controls[Current].X - text_space;
+
+                auto captiony = Controls[Current].Y + Controls[Current].H + border_space;
+
+                std::string caption = "Cast " + Character.Spells[Current].Name + " (" + std::string(Spell::ClassDescription[Character.Spells[Current].Class]) + ")";
+
+                auto captionw = 0;
+
+                auto captionh = 0;
+
+                TTF_SizeText(Fonts::Caption, caption.c_str(), &captionw, &captionh);
+
+                Graphics::PutText(Renderer, caption.c_str(), Fonts::Caption, border_pts, clrWH, bg, TTF_STYLE_NORMAL, captionw + 2 * text_space, captionh, captionx, captiony);
             }
 
             Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
@@ -1502,7 +1515,7 @@ namespace Interface
         }
     }
 
-    void RenderMapInfo(SDL_Renderer *Renderer, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, std::vector<AStar::Path> &CurrentPath, std::vector<int> &CurrentMove, Combat::Mode CurrentMode, int CombatRound, int Current, int CurrentCombatant, int SelectedCombatant)
+    void RenderMapInfo(SDL_Renderer *Renderer, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, std::vector<AStar::Path> &CurrentPath, std::vector<int> &CurrentMove, Combat::Mode CurrentMode, int CombatRound, int Current, int CurrentCombatant, int SelectedCombatant, int SelectedSpell)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
 
@@ -1631,11 +1644,33 @@ namespace Interface
                     Graphics::PutText(Renderer, "Shoot at a target from range", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
                 }
             }
-            else if (CurrentMode == Combat::Mode::MAGIC && ControlType == Control::Type::MONSTER)
+            else if (CurrentMode == Combat::Mode::CAST && ControlType == Control::Type::MONSTER)
             {
-                Graphics::PutText(Renderer, "Cast a spell", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
+
+                std::string cast = "Cast " + party.Members[PlayerId].Spells[SelectedSpell].Name + " on target";
+
+                Graphics::PutText(Renderer, cast.c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
 
                 Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+            }
+            else if (CurrentMode == Combat::Mode::CAST && ControlType == Control::Type::PLAYER)
+            {
+                auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
+
+                std::string cast = "Cast " + party.Members[PlayerId].Spells[SelectedSpell].Name + " on target";
+
+                Graphics::PutText(Renderer, cast.c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+
+                Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+            }
+            else if (CurrentMode == Combat::Mode::CAST)
+            {
+                auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
+
+                std::string cast = "Cast " + party.Members[PlayerId].Spells[SelectedSpell].Name;
+
+                Graphics::PutText(Renderer, cast.c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
             }
         }
     }
@@ -1661,7 +1696,7 @@ namespace Interface
                 Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (SelectedX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (SelectedY - Map.MapY) * Map.ObjectSize + 2 * border_pts, intWH, border_pts);
             }
 
-            // Render statistics for currently selected / highlighted player or monster
+            // render statistics for currently selected / highlighted player or monster
             if (IsPlayer)
             {
                 Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, SelectedId);
@@ -2105,7 +2140,7 @@ namespace Interface
 
                 Interface::RenderSelection(Renderer, Map, party, monsters, Sequence, SelectedCombatant);
 
-                Interface::RenderMapInfo(Renderer, Map, party, monsters, Controls, Sequence, CurrentPath, CurrentMove, CurrentMode, CombatRound, Current, CurrentCombatant, SelectedCombatant);
+                Interface::RenderMapInfo(Renderer, Map, party, monsters, Controls, Sequence, CurrentPath, CurrentMove, CurrentMode, CombatRound, Current, CurrentCombatant, SelectedCombatant, SelectedSpell);
 
                 RenderFlashMessage();
 
@@ -2191,6 +2226,8 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::PLAYER && !Hold)
                         {
+                            SelectedSpell = -1;
+
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
                                 if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
@@ -2239,6 +2276,8 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
+                                SelectedSpell = -1;
+
                                 if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                 {
                                     CurrentPath[PlayerId] = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
@@ -2384,6 +2423,8 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::ATTACK && !Hold)
                         {
+                            SelectedSpell = -1;
+
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
                                 if (Character.IsDefending)
@@ -2411,6 +2452,8 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::SHOOT && !Hold)
                         {
+                            SelectedSpell = -1;
+
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
                                 if (Character.IsDefending)
@@ -2456,6 +2499,8 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::ABILITY && !Hold)
                         {
+                            SelectedSpell = -1;
+
                             if (Character.Class != Character::Class::Warrior && Character.Class != Character::Class::Sage)
                             {
                                 auto Result = Interface::UseAbility(Renderer, Controls, intBK, Map, Character);
@@ -2490,6 +2535,19 @@ namespace Interface
                                         // cast spell
                                         if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
                                         {
+                                            Spell::Base &Spell = Character.Spells[SelectedSpell];
+
+                                            if (Spell.RequiresTarget)
+                                            {
+                                                CurrentMode = Combat::Mode::CAST;
+                                            }
+                                            else
+                                            {
+                                                // Cast Spell
+                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, Character.Spells[SelectedSpell].Name + " cast!", intGR);
+
+                                                CycleCombatants();
+                                            }
                                         }
                                         else
                                         {
@@ -2544,6 +2602,8 @@ namespace Interface
 
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
+                                SelectedSpell = -1;
+
                                 if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
                                 {
                                     if (Map.Objects[SelectY][SelectX] == TacticalMap::Object::Monster)
@@ -2571,6 +2631,8 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::ATTACK)
                             {
+                                SelectedSpell = -1;
+
                                 if (Interface::IsAdjacent(Map, PlayerId, MonsterId) && Monster.Endurance > 0)
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::FIGHT, false);
@@ -2616,6 +2678,8 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::SHOOT)
                             {
+                                SelectedSpell = -1;
+
                                 if (!Interface::IsAdjacent(Map, PlayerId, MonsterId) && Monster.Endurance > 0)
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Monster, Combat::FightMode::SHOOT, false);
@@ -2653,7 +2717,18 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
+                                SelectedSpell = -1;
+
                                 DisplayMessage("You cannot move there!", intBK);
+                            }
+                            else if (CurrentMode == Combat::Mode::CAST)
+                            {
+                                // cast spell
+                                Interface::RenderMessage(Renderer, Controls, Map, intBK, Character.Spells[SelectedSpell].Name + " cast!", intGR);
+
+                                SelectedSpell = -1;
+
+                                CycleCombatants();
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_NONE && !Hold)

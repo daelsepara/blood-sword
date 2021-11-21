@@ -3,13 +3,13 @@
 
 namespace Combat
 {
-   enum class Mode
+    enum class Mode
     {
         NORMAL = 0,
         MOVE,   // Selecting destination
         ATTACK, // Selecting attack target
         SHOOT,  // Selecting a target for a ranged attack
-        MAGIC,  // Selecting magic target
+        CAST,   // Selecting magic target
     };
 
     enum class Result
