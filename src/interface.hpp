@@ -1740,6 +1740,8 @@ namespace Interface
             }
         };
 
+        auto Controls = std::vector<Button>();
+
         auto CycleCombatants = [&]()
         {
             if (IsPlayer(CurrentCombatant))
@@ -1779,13 +1781,15 @@ namespace Interface
                     }
                     else
                     {
-                        DisplayMessage("Quick thinking round ends!", intGR);
+                        RenderMessage(Renderer, Controls, Map, intBK, "Quick thinking round ends!", intGR);
 
                         QuickThinkingRound = false;
 
                         CurrentCombatant = 0;
 
                         CombatRound++;
+
+                        Current = 0;
                     }
                 }
                 else
@@ -1802,11 +1806,13 @@ namespace Interface
                         }
                         else if (Engine::QuickThinking(party))
                         {
-                            DisplayMessage("Quick thinking round begins!", intGR);
+                            RenderMessage(Renderer, Controls, Map, intBK, "Quick thinking round begins!", intGR);
 
                             QuickThinkingRound = true;
 
                             CurrentCombatant = NextQuickThinker();
+
+                            Current = 0;
                         }
                         else
                         {
@@ -1891,8 +1897,6 @@ namespace Interface
         };
 
         ClearDefendingStatus();
-
-        auto Controls = std::vector<Button>();
 
         auto StartMap = 12;
         auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
@@ -2362,13 +2366,16 @@ namespace Interface
                                     {
                                         DisplayMessage("You have not called to mind any spells!", intBK);
                                     }
-                                    else if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
-                                    {
-                                        // cast spell
-                                    }
                                     else
                                     {
-                                        DisplayMessage("Spellcasting canceled!", intGR);
+                                        // cast spell
+                                        if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
+                                        {
+                                        }
+                                        else
+                                        {
+                                            DisplayMessage("Spellcasting canceled!", intGR);
+                                        }
                                     }
                                 }
                                 else if (Result == Abilities::Type::Memorize)
