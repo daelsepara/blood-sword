@@ -444,11 +444,11 @@ namespace Interface
 
                 if (TempPath.Points.size() > 0)
                 {
-                    Distances.push_back(std::make_tuple(i, Interface::Distance(MonsterX, MonsterY, LocationX, LocationY), Engine::Endurance(party.Members[i])));
+                    Distances.push_back({i, Interface::Distance(MonsterX, MonsterY, LocationX, LocationY), Engine::Endurance(party.Members[i])});
                 }
                 else
                 {
-                    Distances.push_back(std::make_tuple(i, (Map.SizeX * Map.SizeY), Engine::Endurance(party.Members[i])));
+                    Distances.push_back({i, (Map.SizeX * Map.SizeY), Engine::Endurance(party.Members[i])});
                 }
             }
         }
@@ -1813,14 +1813,14 @@ namespace Interface
         {
             auto Awareness = Engine::Awareness(party.Members[i]);
 
-            Sequence.push_back(std::make_tuple(TacticalMap::Object::Player, i, Awareness));
+            Sequence.push_back({TacticalMap::Object::Player, i, Awareness});
         }
 
         for (auto i = 0; i < monsters.size(); i++)
         {
             auto Awareness = monsters[i].Awareness;
 
-            Sequence.push_back(std::make_tuple(TacticalMap::Object::Monster, i, Awareness));
+            Sequence.push_back({TacticalMap::Object::Monster, i, Awareness});
         }
 
         SortCombatants(Sequence);
@@ -1992,6 +1992,15 @@ namespace Interface
                 {
                     active = monsters[GetId(CurrentCombatant)].Endurance > 0;
                 }
+            }
+
+            if (IsPlayer(CurrentCombatant))
+            {
+                Engine::UpdateSpellStatus(party.Members[GetId(CurrentCombatant)], CombatRound);
+            }
+            else if (IsMonster(CurrentCombatant))
+            {
+                Engine::UpdateSpellStatus(monsters[GetId(CurrentCombatant)], CombatRound);
             }
 
             CurrentMode = Combat::Mode::NORMAL;

@@ -1,6 +1,5 @@
 #ifndef __ASSETS__HPP__
 #define __ASSETS__HPP__
-#endif
 
 #include <string>
 #include <utility>
@@ -180,3 +179,4 @@ namespace Assets
         return Assets::Copy(Assets::Get(asset, alpha));
     }
 }
+#endif

@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "spell.hpp"
+
 namespace Monster
 {
     enum class Type
@@ -15,7 +17,7 @@ namespace Monster
     {
     public:
         Monster::Type Type = Monster::Type::None;
-        
+
         std::string Name = "";
 
         int FightingProwess = 0;
@@ -36,9 +38,10 @@ namespace Monster
 
         bool Enthraled = false;
 
+        std::vector<Spell::Status> SpellStatus = {};
+
         Base()
         {
-
         }
 
         Base(Monster::Type type, const char *name, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier, int armour)

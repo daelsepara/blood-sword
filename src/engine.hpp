@@ -429,5 +429,65 @@ namespace Engine
 
         return result;
     }
+
+    void UpdateSpellStatus(Character::Base &character, int CombatRound)
+    {
+        std::vector<Spell::Status> NewStatus = {};
+
+        for (auto i = 0; i < character.SpellStatus.size(); i++)
+        {
+            auto StartRound = std::get<1>(character.SpellStatus[i]);
+
+            if (CombatRound > StartRound)
+            {
+                auto Duration = std::get<2>(character.SpellStatus[i]);
+
+                auto Type = std::get<0>(character.SpellStatus[i]);
+
+                Duration--;
+
+                if (Duration > 0)
+                {
+                    NewStatus.push_back({Type, StartRound, Duration});
+                }
+            }
+            else
+            {
+                NewStatus.push_back(character.SpellStatus[i]);
+            }
+        }
+
+        character.SpellStatus = NewStatus;
+    }
+
+    void UpdateSpellStatus(Monster::Base &monster, int CombatRound)
+    {
+        std::vector<Spell::Status> NewStatus = {};
+
+        for (auto i = 0; i < monster.SpellStatus.size(); i++)
+        {
+            auto StartRound = std::get<1>(monster.SpellStatus[i]);
+
+            if (CombatRound > StartRound)
+            {
+                auto Duration = std::get<2>(monster.SpellStatus[i]);
+
+                auto Type = std::get<0>(monster.SpellStatus[i]);
+
+                Duration--;
+
+                if (Duration > 0)
+                {
+                    NewStatus.push_back({Type, StartRound, Duration});
+                }
+            }
+            else
+            {
+                NewStatus.push_back(monster.SpellStatus[i]);
+            }
+        }
+
+        monster.SpellStatus = NewStatus;
+    }
 }
 #endif

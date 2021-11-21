@@ -64,6 +64,8 @@ namespace Character
 
         bool UsedQuickThinking = false;
 
+        std::vector<Spell::Status> SpellStatus = {};
+
         Base()
         {
         }

@@ -38,6 +38,9 @@ namespace Spell
         DetectSpells
     };
 
+    // Type of spell, round when cast, duration
+    typedef std::tuple<Spell::Type, int, int> Status;
+
     class Base
     {
     public:
