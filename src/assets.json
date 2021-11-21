@@ -126,6 +126,54 @@
         },
         {
             "id": 201,
+            "path": "images/spells/volcano-spray.png"
+        },
+        {
+            "id": 202,
+            "path": "images/spells/nighthowl.png"
+        },
+        {
+            "id": 203,
+            "path": "images/spells/white-fire.png"
+        },
+        {
+            "id": 204,
+            "path": "images/spells/swordthrust.png"
+        },
+        {
+            "id": 205,
+            "path": "images/spells/eye-of-the-tiger.png"
+        },
+        {
+            "id": 206,
+            "path": "images/spells/immediate-deliverance.png"
+        },
+        {
+            "id": 207,
+            "path": "images/spells/mists-of-death.png"
+        },
+        {
+            "id": 208,
+            "path": "images/spells/the-vampire-spell.png"
+        },
+        {
+            "id": 209,
+            "path": "images/spells/sheet-lightning.png"
+        },
+        {
+            "id": 210,
+            "path": "images/spells/ghastly-touch.png"
+        },
+        {
+            "id": 211,
+            "path": "images/spells/nemesis-bolt.png"
+        },
+        {
+            "id": 212,
+            "path": "images/spells/servile-enthralment.png"
+        },
+        {
+            "id": 301,
             "path": "images/monsters/alternate/barbarian.png"
         }
     ]

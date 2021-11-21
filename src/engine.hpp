@@ -360,5 +360,29 @@ namespace Engine
     {
         return Engine::CountMoney(character) > 0;
     }
+
+    int Find(Character::Base &character, Spell::Type spell)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < character.Spells.size(); i++)
+        {
+            if (character.Spells[i].Type == spell)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool IsMemorized(Character::Base &character, Spell::Type spell)
+    {
+        auto result = Engine::Find(character, spell);
+
+        return (result >= 0 && result < character.Spells.size());
+    }
 }
 #endif

@@ -28,6 +28,7 @@ namespace Control
         ABILITY,
         ITEMS,
         MEMORIZE,
+        FORGET,
         FLEE,
         MOVE,
         HEAL,
@@ -37,7 +38,7 @@ namespace Control
         MAGIC,
         DAMAGE,
         QUICKTHINKING,
-        QUARTERSTAFF
+        QUARTERSTAFF,
     };
 
     class Base

@@ -42,6 +42,11 @@ namespace Interface
 
         Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, infoh * 2, Map.DrawX + (MapSizeX - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2);
 
+        if (FlashColor == intBK)
+        {
+            Graphics::DrawRect(Renderer, FlashW, infoh * 2, Map.DrawX + (MapSizeX - FlashW) / 2, Map.DrawY + (MapSizeY - FlashH) / 2, intWH);
+        }
+
         SDL_RenderPresent(Renderer);
 
         SDL_Delay(Duration);
@@ -992,15 +997,172 @@ namespace Interface
         return Result;
     }
 
+    int Memorize(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Control::Type Mode)
+    {
+        auto FlashMessage = false;
+
+        auto FlashColor = intGR;
+
+        std::string Message = "";
+
+        Uint32 StartTicks = 0;
+
+        Uint32 Duration = 3000;
+
+        auto DisplayMessage = [&](std::string msg, Uint32 color)
+        {
+            FlashMessage = true;
+
+            Message = msg;
+
+            FlashColor = color;
+
+            StartTicks = SDL_GetTicks();
+        };
+
+        auto Result = -1;
+
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 12 * Map.ObjectSize;
+        auto WindowH = 9 * Map.ObjectSize;
+        auto WindowX = Map.DrawX + Map.ObjectSize;
+        auto WindowY = (SCREEN_HEIGHT - WindowH) / 2;
+        auto WindowButtonX = WindowX + 4 * border_space;
+        auto WindowButtonY = WindowY + FontSize + 4 * border_space;
+        auto WindowButtonGridX = Map.ObjectSize + 2 * border_space;
+        auto WindowButtonGridY = Map.ObjectSize + 2 * border_space;
+
+        auto RenderFlashMessage = [&]()
+        {
+            if (FlashMessage)
+            {
+                if ((SDL_GetTicks() - StartTicks) < Duration)
+                {
+                    auto FlashW = Map.ObjectSize * 8;
+
+                    auto FlashH = Map.ObjectSize * 2;
+
+                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2);
+
+                    if (FlashColor == intBK)
+                    {
+                        Graphics::DrawRect(Renderer, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2, intWH);
+                    }
+                }
+                else
+                {
+                    FlashMessage = false;
+                }
+            }
+        };
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<Button> Controls = {};
+
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::VolcanoSpray, Engine::IsMemorized(Character, Spell::Type::VolcanoSpray) ? 0xFF : 0x66), 0, 1, 0, 7, WindowButtonX, WindowButtonY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::Nighthowl, Engine::IsMemorized(Character, Spell::Type::Nighthowl) ? 0xFF : 0x66), 0, 2, 1, 8, WindowButtonX + WindowButtonGridX, WindowButtonY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::WhiteFire, Engine::IsMemorized(Character, Spell::Type::WhiteFire) ? 0xFF : 0x66), 1, 3, 2, 9, WindowButtonX + 2 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(3, Assets::Get(Assets::Type::Swordthrust, Engine::IsMemorized(Character, Spell::Type::Swordthrust) ? 0xFF : 0x66), 2, 4, 3, 10, WindowButtonX + 3 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(4, Assets::Get(Assets::Type::EyeOfTheTiger, Engine::IsMemorized(Character, Spell::Type::EyeOfTheTiger) ? 0xFF : 0x66), 3, 5, 4, 11, WindowButtonX + 4 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(5, Assets::Get(Assets::Type::ImmediateDeliverance, Engine::IsMemorized(Character, Spell::Type::ImmediateDeliverance) ? 0xFF : 0x66), 4, 6, 5, 12, WindowButtonX + 5 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(6, Assets::Get(Assets::Type::MistsOfDeath, Engine::IsMemorized(Character, Spell::Type::MistsOfDeath) ? 0xFF : 0x66), 5, 6, 6, 6, WindowButtonX + 6 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(7, Assets::Get(Assets::Type::TheVampireSpell, Engine::IsMemorized(Character, Spell::Type::TheVampireSpell) ? 0xFF : 0x66), 7, 8, 0, 7, WindowButtonX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(8, Assets::Get(Assets::Type::SheetLightning, Engine::IsMemorized(Character, Spell::Type::SheetLightning) ? 0xFF : 0x66), 7, 9, 1, 8, WindowButtonX + WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(9, Assets::Get(Assets::Type::GhastlyTouch, Engine::IsMemorized(Character, Spell::Type::GhastlyTouch) ? 0xFF : 0x66), 8, 10, 2, 9, WindowButtonX + 2 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(10, Assets::Get(Assets::Type::NemesisBolt, Engine::IsMemorized(Character, Spell::Type::NemesisBolt) ? 0xFF : 0x66), 9, 11, 3, 10, WindowButtonX + 3 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(11, Assets::Get(Assets::Type::ServileEnthralment, Engine::IsMemorized(Character, Spell::Type::ServileEnthralment) ? 0xFF : 0x66), 10, 12, 4, 11, WindowButtonX + 4 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::MAGIC));
+        Controls.push_back(Button(12, Assets::Get(Assets::Type::Back), 11, 12, 5, 12, WindowButtonX + 5 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::BACK));
+
+        auto done = false;
+
+        while (!done)
+        {
+            // render current combat screen
+            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, (std::string("Select a spell to ") + std::string(Mode == Control::Type::MEMORIZE ? "call to mind" : "forget")).c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 5 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                // render spell details
+                if (Current == Spell::All.size())
+                {
+                    Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
+                }
+                else
+                {
+                    Spell::Base &Spell = Spell::All[Current];
+
+                    Graphics::PutText(Renderer, (Spell.Name + "\n\n" + Spell.Description).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 5 * text_space, WindowH - (WindowButtonY + 2 * WindowButtonGridY), WindowButtonX - text_space, WindowButtonY + 2 * WindowButtonGridY);
+                }
+            }
+
+            RenderFlashMessage();
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK)
+                {
+                    done = true;
+                }
+                else if (Controls[Current].Type == Control::Type::MAGIC)
+                {
+                    if (Mode == Control::Type::MEMORIZE)
+                    {
+                        if (Engine::IsMemorized(Character, Spell::All[Current].Type))
+                        {
+                            DisplayMessage((Spell::All[Current].Name + " already called to mind!").c_str(), intBK);
+                        }
+                        else
+                        {
+                            Result = Current;
+
+                            done = true;
+                        }
+                    }
+                    else if (Mode == Control::Type::FORGET)
+                    {
+                        if (!Engine::IsMemorized(Character, Spell::All[Current].Type))
+                        {
+                            DisplayMessage((Spell::All[Current].Name + " not called to mind!").c_str(), intBK);
+                        }
+                        else
+                        {
+                            Result = Current;
+
+                            done = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return Result;
+    }
+
     Abilities::Type UseAbility(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
     {
         auto Result = Abilities::Type::None;
 
-        auto MapSizeX = (Map.SizeX < 13 ? 13 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeX = (Map.SizeX < 12 ? 12 : Map.SizeX) * Map.ObjectSize;
         auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
-        auto WindowW = 4 * MapSizeX / 5;
-        auto WindowH = 3 * Map.ObjectSize;
+        auto WindowW = 10 * Map.ObjectSize;
+        auto WindowH = 4 * Map.ObjectSize;
         auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
+        ;
         auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
         auto WindowButtonX = WindowX + 4 * text_space;
 
@@ -2209,6 +2371,46 @@ namespace Interface
                                         DisplayMessage("Spellcasting canceled!", intGR);
                                     }
                                 }
+                                else if (Result == Abilities::Type::Memorize)
+                                {
+                                    if (Engine::HasAbility(Character, Abilities::Type::Memorize))
+                                    {
+                                        auto MemorizedSpell = Interface::Memorize(Renderer, Controls, intBK, Map, Character, Control::Type::MEMORIZE);
+
+                                        if (MemorizedSpell >= 0 && MemorizedSpell < Spell::All.size())
+                                        {
+                                            Character.Spells.push_back(Spell::All[MemorizedSpell]);
+
+                                            auto ForgetSpell = -1;
+
+                                            while (Character.Spells.size() > 4)
+                                            {
+                                                ForgetSpell = Interface::Memorize(Renderer, Controls, intBK, Map, Character, Control::Type::FORGET);
+
+                                                if (ForgetSpell >= 0 && ForgetSpell < Spell::All.size())
+                                                {
+                                                    auto Result = Engine::Find(Character, Spell::All[ForgetSpell].Type);
+
+                                                    if (Result >= 0 && Result < Character.Spells.size())
+                                                    {
+                                                        Character.Spells.erase(Character.Spells.begin() + Result);
+                                                    }
+                                                }
+                                            }
+
+                                            if (ForgetSpell != MemorizedSpell)
+                                            {
+                                                RenderMessage(Renderer, Controls, Map, intBK, Spell::All[MemorizedSpell].Name + " called to mind!", intGR);
+
+                                                CycleCombatants();
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DisplayMessage("You cannot use magic!", intBK);
+                                    }
+                                }
                             }
                             else
                             {
@@ -2256,7 +2458,7 @@ namespace Interface
 
                                     if (Monster.Endurance <= 0)
                                     {
-                                        DisplayMessage((Monster.Name + " killed!").c_str(), intGR);
+                                        RenderMessage(Renderer, Controls, Map, intBK, Monster.Name + " killed!", intGR);
 
                                         Remove(Map, SelectX, SelectY);
 
@@ -2269,7 +2471,7 @@ namespace Interface
                                         {
                                             if (Monster.Endurance > 0)
                                             {
-                                                DisplayMessage((Monster.Name + " knocked off!").c_str(), intGR);
+                                                RenderMessage(Renderer, Controls, Map, intBK, Monster.Name + " knocked off!", intGR);
                                             }
                                         }
 
@@ -2301,7 +2503,7 @@ namespace Interface
 
                                     if (Monster.Endurance <= 0)
                                     {
-                                        DisplayMessage((Monster.Name + " killed!").c_str(), intGR);
+                                        RenderMessage(Renderer, Controls, Map, intBK, Monster.Name + " killed!", intGR);
 
                                         Remove(Map, SelectX, SelectY);
 
@@ -2385,7 +2587,7 @@ namespace Interface
 
                             if (!Engine::IsAlive(party.Members[PlayerId]))
                             {
-                                DisplayMessage((std::string(Character::Description[party.Members[PlayerId].Class]) + " killed!").c_str(), intBK);
+                                RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::Description[party.Members[PlayerId].Class]) + " killed!", intBK);
 
                                 Remove(Map, LocationX, LocationY);
 

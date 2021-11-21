@@ -44,7 +44,20 @@ namespace Assets
         Dice4,
         Dice5,
         Dice6,
-        Monster = 200,
+        Spell = 200,
+        VolcanoSpray,
+        Nighthowl,
+        WhiteFire,
+        Swordthrust,
+        EyeOfTheTiger,
+        ImmediateDeliverance,
+        MistsOfDeath,
+        TheVampireSpell,
+        SheetLightning,
+        GhastlyTouch,
+        NemesisBolt,
+        ServileEnthralment,
+        Monster = 300,
         Barbarian
     };
 
@@ -124,7 +137,7 @@ namespace Assets
         return result;
     }
 
-    SDL_Surface *Get(Assets::Type asset)
+    SDL_Surface *Get(Assets::Type asset, Uint8 alpha)
     {
         SDL_Surface *surface = NULL;
 
@@ -142,7 +155,14 @@ namespace Assets
             }
         }
 
+        SDL_SetSurfaceColorMod(surface, alpha, alpha, alpha);
+
         return surface;
+    }
+
+    SDL_Surface *Get(Assets::Type asset)
+    {
+        return Assets::Get(asset, 0xFF);
     }
 
     SDL_Surface *Copy(SDL_Surface *Surface)
