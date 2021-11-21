@@ -39,7 +39,7 @@ namespace Control
         DAMAGE,
         QUICKTHINKING,
         QUARTERSTAFF,
-        PSYCHIC_RESIST
+        TEST
     };
 
     class Base

@@ -638,13 +638,13 @@ namespace Interface
         auto TextWidth = WindowW - 3 * text_space;
         auto ResultsY = 12 * RowHeight + 4 * text_space;
 
-        const char *ResistChoices[2] = {"RESIST"};
+        const char *ResistChoices[2] = {"TEST"};
 
         auto ResistControls = Graphics::CreateFixedTextButtons(ResistChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         ResistControls[0].Fg = clrWH;
         ResistControls[0].Highlight = intGR;
         ResistControls[0].Color = intBK;
-        ResistControls[0].Type = Control::Type::PSYCHIC_RESIST;
+        ResistControls[0].Type = Control::Type::TEST;
 
         const char *DoneChoices[1] = {"DONE"}; // end of psychic resistance check
         auto DoneControls = Graphics::CreateFixedTextButtons(DoneChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
@@ -710,11 +710,11 @@ namespace Interface
 
             if (IsEnemy)
             {
-                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+                Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
             }
             else
             {
-                Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
             }
 
             Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
@@ -771,7 +771,7 @@ namespace Interface
 
             if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
             {
-                if (Controls[Current].Type == Control::Type::CAST && !Hold)
+                if (Controls[Current].Type == Control::Type::TEST && !Hold)
                 {
                     CurrentStage = Attributes::Stage::TEST;
 
