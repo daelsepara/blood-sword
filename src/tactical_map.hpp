@@ -7,7 +7,7 @@ namespace TacticalMap
 {
     const char HotCoals = '%';
     const char Wall = '#';
-    const char Flee = 'F';
+    const char Flee = '=';
     const char Passable = ' ';
 
     std::string Players = "1234";

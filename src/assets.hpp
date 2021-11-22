@@ -157,7 +157,10 @@ namespace Assets
             }
         }
 
-        SDL_SetSurfaceColorMod(surface, alpha, alpha, alpha);
+        if (surface)
+        {
+            SDL_SetSurfaceColorMod(surface, alpha, alpha, alpha);
+        }
 
         return surface;
     }
@@ -169,7 +172,7 @@ namespace Assets
 
     SDL_Surface *Copy(SDL_Surface *Surface)
     {
-        return SDL_ConvertSurface(Surface, Surface->format, 0);
+        return Surface ? SDL_ConvertSurface(Surface, Surface->format, 0) : NULL;
     }
 
     SDL_Surface *Copy(Assets::Type asset)

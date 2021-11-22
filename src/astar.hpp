@@ -94,7 +94,7 @@ namespace AStar
 
     bool IsPassable(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool isMonster)
     {
-        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == target->Y && X == target->X) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::HotCoals) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::Monster)));
+        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == target->Y && X == target->X) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::HotCoals) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::Monster) || (!isMonster && map.Objects[Y][X] == TacticalMap::Object::Exit)));
     }
 
     // Get all traversible nodes from current node

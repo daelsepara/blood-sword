@@ -58,7 +58,26 @@ namespace Interface
         {
             if (Map.Objects[srcY][srcX] == TacticalMap::Object::Player)
             {
-                Map.Objects[srcY][srcX] = TacticalMap::Object::Passable;
+                auto Exit = false;
+
+                for (auto i = 0; i < Map.Exits.size(); i++)
+                {
+                    if (Map.Exits[i].first == srcX && Map.Exits[i].second == srcY)
+                    {
+                        Exit = true;
+
+                        break;
+                    }
+                }
+
+                if (Exit)
+                {
+                    Map.Objects[srcY][srcX] = TacticalMap::Object::Exit;
+                }
+                else
+                {
+                    Map.Objects[srcY][srcX] = TacticalMap::Object::Passable;
+                }
 
                 Map.ObjectID[srcY][srcX] = 0;
             }
@@ -96,33 +115,18 @@ namespace Interface
 
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY) && Interface::ValidX(Map, dstX) && Interface::ValidY(Map, dstY))
         {
-            if (Map.Objects[srcY][srcX] == TacticalMap::Object::Player && Map.Objects[dstY][dstX] == TacticalMap::Object::Passable)
+            if (Map.Objects[srcY][srcX] == TacticalMap::Object::Player && (Map.Objects[dstY][dstX] == TacticalMap::Object::Passable || Map.Objects[dstY][dstX] == TacticalMap::Object::Exit))
             {
-                if (Map.Objects[dstY][dstX] == TacticalMap::Object::Passable)
-                {
-                    Map.Objects[dstY][dstX] = Map.Objects[srcY][srcX];
+                Map.Objects[dstY][dstX] = Map.Objects[srcY][srcX];
 
-                    Map.ObjectID[dstY][dstX] = Map.ObjectID[srcY][srcX];
+                Map.ObjectID[dstY][dstX] = Map.ObjectID[srcY][srcX];
 
-                    Remove(Map, srcX, srcY);
+                Remove(Map, srcX, srcY);
 
-                    result = true;
-                }
+                result = true;
             }
             else if (Map.Objects[srcY][srcX] == TacticalMap::Object::Monster && (Map.Objects[dstY][dstX] == TacticalMap::Object::Passable || Map.Objects[dstY][dstX] == TacticalMap::Object::HotCoals))
             {
-                auto HotCoals = false;
-
-                for (auto i = 0; i < Map.HotCoals.size(); i++)
-                {
-                    if (Map.HotCoals[i].first == srcX && Map.HotCoals[i].second == srcY)
-                    {
-                        HotCoals = true;
-
-                        break;
-                    }
-                }
-
                 Map.Objects[dstY][dstX] = Map.Objects[srcY][srcX];
 
                 Map.ObjectID[dstY][dstX] = Map.ObjectID[srcY][srcX];
@@ -177,11 +181,23 @@ namespace Interface
 
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY) && Interface::ValidX(Map, dstX) && Interface::ValidY(Map, dstY))
         {
-            if (Map.Objects[srcY][srcX] == TacticalMap::Object::Player && Map.Objects[dstY][dstX] == TacticalMap::Object::Passable)
+            if (Map.Objects[srcY][srcX] == TacticalMap::Object::Player && (Map.Objects[dstY][dstX] == TacticalMap::Object::Passable || Map.Objects[dstY][dstX] == TacticalMap::Object::Exit))
             {
+                auto Exit = false;
+
+                for (auto i = 0; i < Map.Exits.size(); i++)
+                {
+                    if (Map.Exits[i].first == srcX && Map.Exits[i].second == srcY)
+                    {
+                        Exit = true;
+
+                        break;
+                    }
+                }
+
                 auto PlayerId = Map.ObjectID[srcY][srcX] - 1;
 
-                auto passable = Assets::Copy(Assets::Type::Passable);
+                auto passable = Exit ? Assets::Copy(Assets::Type::MapExit) : Assets::Copy(Assets::Type::Passable);
 
                 auto asset = Assets::Copy(party.Members[PlayerId].Asset);
 
@@ -343,7 +359,12 @@ namespace Interface
         {
             for (auto i = 0; i < Map.Exits.size(); i++)
             {
-                result |= (Interface::Distance(PlayerX, PlayerY, Map.Exits[i].first, Map.Exits[i].second) <= 1);
+                if (PlayerX == Map.Exits[i].first && PlayerY == Map.Exits[i].second)
+                {
+                    result = true;
+
+                    break;
+                }
             }
         }
 
@@ -582,7 +603,7 @@ namespace Interface
 
         auto FontSize = TTF_FontHeight(Font);
 
-        if ((SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()) && (ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION))
+        if ((SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()) && (ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT))
         {
             auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
 
@@ -2628,6 +2649,10 @@ namespace Interface
                 {
                     Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals, 0x66), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
                 }
+                else if (Object == TacticalMap::Object::Exit)
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::MapExit), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_EXIT));
+                }
                 else if (Object == TacticalMap::Object::Monster)
                 {
                     Controls.push_back(Button(NumControls, monsters[ObjectId].Enthraled ? Assets::Get(monsters[ObjectId].Asset, 0x66) : Assets::Get(monsters[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::MONSTER));
@@ -2718,9 +2743,9 @@ namespace Interface
                     Graphics::PutText(Renderer, "Move to location", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
                 }
 
-                if (ControlType == Control::Type::DESTINATION)
+                if (ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT)
                 {
-                    if ((TargetX != SelectX || TargetY != SelectY) && ControlType == Control::Type::DESTINATION)
+                    if ((TargetX != SelectX || TargetY != SelectY) && (ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT))
                     {
                         auto PlayerX = -1;
 
@@ -3224,7 +3249,7 @@ namespace Interface
         Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * border_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
         Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
         Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
-        Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
+        Controls.push_back(Button(4, Assets::Get(Assets::Type::Exit), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
         Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intWH, Control::Type::MOVE));
         Controls.push_back(Button(6, Assets::Get(Assets::Type::Attack), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
         Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
@@ -3442,7 +3467,7 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    DisplayMessage("You must be near an exit point to flee!", intBK);
+                                    DisplayMessage("You must be standing on an exit point to flee!", intBK);
                                 }
                             }
                             else
@@ -3484,7 +3509,7 @@ namespace Interface
                                 CurrentMode = Combat::Mode::NORMAL;
                             }
                         }
-                        else if (Controls[Current].Type == Control::Type::DESTINATION && !Hold)
+                        else if ((Controls[Current].Type == Control::Type::DESTINATION || Controls[Current].Type == Control::Type::MAP_EXIT) && !Hold)
                         {
                             if (CurrentMode == Combat::Mode::ATTACK)
                             {
@@ -4216,7 +4241,7 @@ namespace Interface
                         {
                             SelectedSpell = -1;
 
-                            DisplayMessage("You cannot be ordered to shoot!", intBK);
+                            DisplayMessage("Cannot shoot!", intBK);
 
                             CurrentMode = Combat::Mode::NORMAL;
                         }
@@ -4289,7 +4314,7 @@ namespace Interface
                                     }
                                     else
                                     {
-                                        DisplayMessage("You cannot attack yourself!", intBK);
+                                        DisplayMessage("Attack aborted!", intBK);
                                     }
 
                                     Selected = false;
@@ -4305,13 +4330,13 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::SHOOT)
                             {
-                                DisplayMessage("You cannot be ordered to shoot!", intBK);
+                                DisplayMessage("This creature cannot attack from range!", intBK);
 
                                 CurrentMode = Combat::Mode::NORMAL;
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                DisplayMessage("You cannot move there!", intBK);
+                                DisplayMessage("Cannot move there!", intBK);
                             }
                             else if (CurrentMode == Combat::Mode::CAST)
                             {
@@ -4334,7 +4359,18 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                DisplayMessage("You cannot move there!", intBK);
+                                DisplayMessage("Cannot move there!", intBK);
+                            }
+                        }
+                        else if (Controls[Current].Type == Control::Type::MAP_EXIT && !Hold)
+                        {
+                            if (CurrentMode == Combat::Mode::MOVE)
+                            {
+                                DisplayMessage("Cannot flee the area!", intBK);
+                            }
+                            else
+                            {
+                                CurrentMode = Combat::Mode::NORMAL;
                             }
                         }
                     }

@@ -34,10 +34,10 @@ int main(int argc, const char **argv)
         monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
 
         std::vector<std::string> map = {
-            "#############",
+            "#####=#######",
             "#    3     C#",
             "#### ########",
-            "#4        2 #",
+            "=4        2 =",
             "#% %######  #",
             "#%1%#%% B#  #",
             "#D       # A#",

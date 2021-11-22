@@ -25,6 +25,10 @@
             "path": "images/map/wall.png"
         },
         {
+            "id": 7,
+            "path": "images/map/map-exit.png"
+        },
+        {
             "id": 8,
             "path": "images/map/hot-coals.png"
         },
@@ -126,7 +130,7 @@
         },
         {
             "id": 158,
-            "path": "images/icons/exit.png"
+            "path": "icons/exit.png"
         },
         {
             "id": 201,

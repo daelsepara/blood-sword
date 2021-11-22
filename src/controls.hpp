@@ -20,6 +20,7 @@ namespace Control
         MAP_DOWN,
         MAP_LEFT,
         MAP_RIGHT,
+        MAP_EXIT,
         BACK,
         EXIT,
         PLAYER,
@@ -40,7 +41,7 @@ namespace Control
         QUICKTHINKING,
         QUARTERSTAFF,
         TEST,
-        CHOICE
+        CHOICE,
     };
 
     class Base
