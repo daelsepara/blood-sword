@@ -248,6 +248,42 @@ namespace Engine
         return result;
     }
 
+    bool HasWeapon(Character::Base &character, Equipment::Weapon weapon)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].WeaponType == weapon)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    // list of weapons with the attributes and sorted in descending order
+    std::vector<Equipment::Base> Weapons(Character::Base &character, Attributes::Type attribute)
+    {
+        std::vector<Equipment::Base> weapons = {};
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].WeaponType != Equipment::Weapon::Bow)
+            {
+                weapons.push_back(character.Equipment[i]);
+            }
+        }
+
+        std::sort(weapons.begin(), weapons.end(), [attribute](Equipment::Base &a, Equipment::Base &b) -> bool
+                  { return (a.Attribute == attribute) && a.Score > b.Score; });
+
+        return weapons;
+    }
+
     bool CanShoot(Character::Base &character)
     {
         return Engine::HasAbility(character, Abilities::Type::Archery);

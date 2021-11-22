@@ -49,7 +49,9 @@ namespace Equipment
 
         Attributes::Type Attribute = Attributes::Type::None;
 
-        int AttributeScore = 0;
+        int Score = 0;
+
+        int Damage = 0;
 
         Base(Equipment::Type type, const char *name, const char *description)
         {
@@ -69,6 +71,25 @@ namespace Equipment
             Description = description;
 
             WeaponType = weapon;
+
+            Attribute = Attributes::Type::FightingProwess;
+        }
+
+        Base(Equipment::Type type, Equipment::Weapon weapon, const char *name, const char *description, Attributes::Type attribute, int score, int damage)
+        {
+            Type = type;
+
+            Name = name;
+
+            Description = description;
+
+            WeaponType = weapon;
+
+            Attribute = attribute;
+
+            Score = score;
+
+            Damage = damage;
         }
 
         Base(Equipment::Type type, const char *name, const char *description, int value)

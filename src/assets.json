@@ -82,7 +82,7 @@
         },
         {
             "id": 113,
-            "path": "icons/exit.png"
+            "path": "icons/flee.png"
         },
         {
             "id": 114,
@@ -123,6 +123,10 @@
         {
             "id": 157,
             "path": "images/dice/dice6.png"
+        },
+        {
+            "id": 158,
+            "path": "images/icons/exit.png"
         },
         {
             "id": 201,

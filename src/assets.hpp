@@ -43,6 +43,7 @@ namespace Assets
         Dice4,
         Dice5,
         Dice6,
+        Exit,
         Cast = 200,
         VolcanoSpray,
         Nighthowl,

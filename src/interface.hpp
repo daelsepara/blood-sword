@@ -1515,6 +1515,17 @@ namespace Interface
         FightControls3[2].Color = intBK;
         FightControls3[2].Type = Control::Type::BACK;
 
+        const char *FightChoices4[2] = {"FIGHT", "QUARTERSTAFF"}; // player attacks
+        auto FightControls4 = Graphics::CreateFixedTextButtons(FightChoices4, 2, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+        FightControls4[0].Fg = clrWH;
+        FightControls4[0].Highlight = intGR;
+        FightControls4[0].Color = intBK;
+        FightControls4[0].Type = Control::Type::ATTACK;
+        FightControls4[1].Fg = clrWH;
+        FightControls4[1].Highlight = intGR;
+        FightControls4[1].Color = intBK;
+        FightControls4[1].Type = Control::Type::QUARTERSTAFF;
+
         const char *DoneChoices[1] = {"DONE"}; // end of fighting
         auto DoneControls = Graphics::CreateFixedTextButtons(DoneChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         DoneControls[0].Fg = clrWH;
@@ -1539,235 +1550,191 @@ namespace Interface
         dice[5] = Assets::Copy(Assets::Type::Dice6);
 
         auto swords = Assets::Copy(Assets::Type::Attack);
+
         auto shoot = Assets::Copy(Assets::Type::Shoot);
 
-        auto Hold = false;
-        auto Selected = false;
-        auto ScrollUp = false;
-        auto ScrollDown = false;
-        auto Current = 0;
-        auto QuarterStaff = false;
+        auto HasQuarterstaff = Engine::HasAbility(Character, Abilities::Type::Quarterstaff) && Engine::HasWeapon(Character, Equipment::Weapon::Quarterstaff);
 
-        std::vector<TextButton> &Controls = Attacked ? FightControls2 : (Engine::HasAbility(Character, Abilities::Type::Quarterstaff) && FightMode != Combat::FightMode::SHOOT ? FightControls3 : FightControls1);
+        auto Ambidextrous = !Attacked && Engine::HasAbility(Character, Abilities::Type::Ambidextrousness);
 
-        auto done = false;
+        std::vector<TextButton> &Controls = Attacked ? FightControls2 : (HasQuarterstaff && FightMode != Combat::FightMode::SHOOT ? FightControls3 : FightControls1);
 
-        auto CurrentStage = Combat::Stage::START;
-
-        auto FightingProwess = Engine::FightingProwess(Character);
-        auto Damage = Character.Damage;
-        auto DamageModifier = Character.DamageModifier;
-        auto Armour = Engine::Armour(Character);
-
-        if (!Attacked && Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
-        {
-            auto Result = Engine::GetStatus(Character, Spell::Type::EyeOfTheTiger);
-
-            if (Result >= 0 && Result < Character.SpellStatus.size())
-            {
-                FightingProwess += std::get<3>(Character.SpellStatus[Result]);
-
-                DamageModifier += std::get<3>(Character.SpellStatus[Result]);
-            }
-        }
-
-        if (!Engine::HasWeapon(Character) && !Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts))
-        {
-            FightingProwess = std::max(0, FightingProwess - 2);
-
-            DamageModifier -= 2;
-        }
-
-        if (Character.IsDefending && !Attacked)
-        {
-            Controls = DoneControls;
-
-            CurrentStage = Combat::Stage::END;
-        }
+        auto Rounds = Ambidextrous ? 2 : 1;
 
         Engine::Randomize();
 
-        auto FightRolls = 2;
-        FightRolls += (Attacked && Character.IsDefending) ? 1 : 0;
-        FightRolls += (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodging)) ? 1 : 0;
-        FightRolls += (Attacked && Engine::HasStatus(Monster, Spell::Type::Nighthowl)) ? 1 : 0;
-
-        auto DamageRolls = FightMode == Combat::FightMode::SHOOT ? 1 : (Attacked ? Monster.Damage : Damage);
-
-        std::vector<int> Rolls(FightRolls, 0);
-        std::vector<int> Damages(DamageRolls, 0);
-
-        auto DamageSum = 0;
-        auto FightingSum = 0;
-        bool CalculatedDamage = false;
-        bool AssignedDamage = false;
-
-        while (!done)
+        for (auto Round = 0; Round < Rounds; Round++)
         {
-            // render current combat screen
-            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+            auto Hold = false;
+            auto Selected = false;
+            auto ScrollUp = false;
+            auto ScrollDown = false;
+            auto Current = 0;
+            auto Quarterstaff = false;
 
-            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
-
-            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
-
-            // character stats
-            auto Endurance = Engine::Endurance(Character);
-            Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
-            Graphics::PutText(Renderer, ("FP: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
-            Graphics::PutText(Renderer, ("EN: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 2 * RowHeight);
-            Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D" + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier)))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
-            Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 4 * RowHeight);
-
-            auto StatusOffset = 5;
-
-            if (Attacked && Character.IsDefending)
-            {
-                Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + StatusOffset * RowHeight);
-
-                StatusOffset++;
-            }
-
-            if (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodging))
-            {
-                Graphics::PutText(Renderer, "DODGING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + StatusOffset * RowHeight);
-
-                StatusOffset++;
-            }
-
-            auto RowOffset = 5;
-
-            if (Attacked && Engine::HasStatus(Monster, Spell::Type::Nighthowl))
-            {
-                Graphics::PutText(Renderer, "NIGHTHOWL", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowOffset * RowHeight);
-
-                RowOffset++;
-            }
+            auto CurrentStage = Combat::Stage::START;
+            auto Weapons = Engine::Weapons(Character, Attributes::Type::FightingProwess);
+            auto FightingProwess = Engine::FightingProwess(Character) + (Weapons.size() > Round ? Weapons[Round].Score : 0);
+            auto Damage = Character.Damage;
+            auto DamageModifier = Character.DamageModifier + (Weapons.size() > Round ? Weapons[Round].Damage : 0);
+            auto Armour = Engine::Armour(Character);
 
             if (!Attacked && Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
             {
-                Graphics::PutText(Renderer, "EYE OF THE TIGER", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowOffset * RowHeight);
+                auto EyeResult = Engine::GetStatus(Character, Spell::Type::EyeOfTheTiger);
 
-                RowOffset++;
-            }
-
-            auto ResultsY = (RowOffset + 6) * RowHeight + 4 * text_space;
-
-            // monster stats
-            Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
-            Graphics::PutText(Renderer, ("FP: " + std::to_string(Monster.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + RowHeight);
-            Graphics::PutText(Renderer, ("EN: " + std::to_string(Monster.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 2 * RowHeight);
-            Graphics::PutText(Renderer, ("DMG: " + std::to_string(Monster.Damage) + "D" + (Monster.DamageModifier < 0 ? "" : "+") + std::to_string(Monster.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
-            Graphics::PutText(Renderer, ("ARM: " + std::to_string(Monster.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 4 * RowHeight);
-
-            if (FightMode == Combat::FightMode::FIGHT)
-            {
-                Graphics::RenderImage(Renderer, swords, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
-            }
-            else if (FightMode == Combat::FightMode::SHOOT)
-            {
-                Graphics::RenderImage(Renderer, shoot, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
-            }
-
-            if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
-            {
-                FightingSum = 0;
-
-                if (QuarterStaff && !Attacked)
+                if (EyeResult >= 0 && EyeResult < Character.SpellStatus.size())
                 {
-                    FightRolls += 1;
+                    FightingProwess += std::get<3>(Character.SpellStatus[EyeResult]);
 
-                    Rolls.resize(FightRolls, 0);
-                }
-
-                for (auto i = 0; i < FightRolls; i++)
-                {
-                    Rolls[i] = Engine::Roll(1, 0);
-
-                    FightingSum += Rolls[i];
-                }
-
-                FightingSum = std::max(0, FightingSum);
-
-                auto FightResult = (!Attacked ? FightingProwess : Monster.FightingProwess) >= FightingSum;
-
-                if (FightMode == Combat::FightMode::SHOOT)
-                {
-                    Engine::ShootArrow(Character);
-                }
-
-                if (FightResult)
-                {
-                    Result = Combat::Result::FIGHT;
-
-                    CurrentStage = Combat::Stage::DAMAGE;
-                }
-                else
-                {
-                    Result = Combat::Result::UNSUCCESSFUL;
-
-                    CurrentStage = Combat::Stage::END;
-
-                    Controls = DoneControls;
+                    DamageModifier += std::get<3>(Character.SpellStatus[EyeResult]);
                 }
             }
-            else if (CurrentStage == Combat::Stage::DAMAGE)
+
+            if (Weapons.size() < Round && !Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts))
             {
-                // show fight results
-                for (auto i = 0; i < FightRolls; i++)
+                FightingProwess = std::max(0, FightingProwess - 2);
+
+                DamageModifier -= 2;
+            }
+
+            if (Character.IsDefending && !Attacked)
+            {
+                Controls = DoneControls;
+
+                CurrentStage = Combat::Stage::END;
+            }
+
+            auto FightRolls = 2;
+
+            FightRolls += (Attacked && Character.IsDefending) ? 1 : 0;
+            FightRolls += (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodging)) ? 1 : 0;
+            FightRolls += (Attacked && Engine::HasStatus(Monster, Spell::Type::Nighthowl)) ? 1 : 0;
+
+            auto DamageRolls = FightMode == Combat::FightMode::SHOOT ? 1 : (Attacked ? Monster.Damage : Damage);
+
+            std::vector<int> Rolls(FightRolls, 0);
+            std::vector<int> Damages(DamageRolls, 0);
+
+            auto DamageSum = 0;
+            auto FightingSum = 0;
+            bool CalculatedDamage = false;
+            bool AssignedDamage = false;
+
+            Result = Combat::Result::NONE;
+
+            auto done = false;
+
+            while (!done)
+            {
+                // render current combat screen
+                Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+                Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+                Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+                // character stats
+                auto Endurance = Engine::Endurance(Character);
+                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
+                Graphics::PutText(Renderer, ("FP: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
+                Graphics::PutText(Renderer, ("EN: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 2 * RowHeight);
+                Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D" + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier)))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
+                Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 4 * RowHeight);
+
+                auto StatusOffset = 5;
+
+                if (Attacked && Character.IsDefending)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + StatusOffset * RowHeight);
+
+                    StatusOffset++;
                 }
 
-                Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                if (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodging))
+                {
+                    Graphics::PutText(Renderer, "DODGING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + StatusOffset * RowHeight);
 
-                if (Attacked)
-                {
-                    Graphics::PutText(Renderer, (Monster.Name + " hits the " + std::string(Character::Description[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
-                }
-                else
-                {
-                    Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + " hits " + Monster.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                    StatusOffset++;
                 }
 
-                if (!CalculatedDamage)
-                {
-                    DamageSum = 0;
+                auto RowOffset = 5;
 
-                    if (QuarterStaff && !Attacked)
+                if (Attacked && Engine::HasStatus(Monster, Spell::Type::Nighthowl))
+                {
+                    Graphics::PutText(Renderer, "NIGHTHOWL", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowOffset * RowHeight);
+
+                    RowOffset++;
+                }
+
+                if (!Attacked && Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
+                {
+                    Graphics::PutText(Renderer, "EYE OF THE TIGER", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowOffset * RowHeight);
+
+                    RowOffset++;
+                }
+
+                auto ResultsY = (RowOffset + 6) * RowHeight + 4 * text_space;
+
+                // monster stats
+                Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
+                Graphics::PutText(Renderer, ("FP: " + std::to_string(Monster.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + RowHeight);
+                Graphics::PutText(Renderer, ("EN: " + std::to_string(Monster.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 2 * RowHeight);
+                Graphics::PutText(Renderer, ("DMG: " + std::to_string(Monster.Damage) + "D" + (Monster.DamageModifier < 0 ? "" : "+") + std::to_string(Monster.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
+                Graphics::PutText(Renderer, ("ARM: " + std::to_string(Monster.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 4 * RowHeight);
+
+                if (FightMode == Combat::FightMode::FIGHT)
+                {
+                    Graphics::RenderImage(Renderer, swords, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
+                }
+                else if (FightMode == Combat::FightMode::SHOOT)
+                {
+                    Graphics::RenderImage(Renderer, shoot, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
+                }
+
+                if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
+                {
+                    FightingSum = 0;
+
+                    if (Quarterstaff && !Attacked)
                     {
-                        DamageRolls += 1;
+                        FightRolls += 1;
 
-                        Rolls.resize(DamageRolls, 0);
+                        Rolls.resize(FightRolls, 0);
                     }
 
-                    // compute damage
-                    for (auto i = 0; i < DamageRolls; i++)
+                    for (auto i = 0; i < FightRolls; i++)
                     {
-                        Damages[i] = Engine::Roll(1, 0);
+                        Rolls[i] = Engine::Roll(1, 0);
 
-                        DamageSum += Damages[i];
+                        FightingSum += Rolls[i];
                     }
 
-                    DamageSum += FightMode == Combat::FightMode::SHOOT ? 0 : (Attacked ? Monster.DamageModifier : DamageModifier);
+                    FightingSum = std::max(0, FightingSum);
 
-                    DamageSum -= Attacked ? Armour : Monster.Armour;
+                    auto FightResult = (!Attacked ? FightingProwess : Monster.FightingProwess) >= FightingSum;
 
-                    DamageSum = std::max(0, DamageSum);
-
-                    CalculatedDamage = true;
-
-                    if (QuarterStaff && DamageSum > 0)
+                    if (FightMode == Combat::FightMode::SHOOT)
                     {
-                        Monster.KnockedOff = true;
+                        Engine::ShootArrow(Character);
+                    }
 
-                        Result = Combat::Result::KNOCKED_OFF;
+                    if (FightResult)
+                    {
+                        Result = Combat::Result::FIGHT;
+
+                        CurrentStage = Combat::Stage::DAMAGE;
+                    }
+                    else
+                    {
+                        Result = Combat::Result::UNSUCCESSFUL;
+
+                        CurrentStage = Combat::Stage::END;
+
+                        Controls = DoneControls;
                     }
                 }
-            }
-            else if (CurrentStage == Combat::Stage::END)
-            {
-                if (Result == Combat::Result::UNSUCCESSFUL)
+                else if (CurrentStage == Combat::Stage::DAMAGE)
                 {
                     // show fight results
                     for (auto i = 0; i < FightRolls; i++)
@@ -1779,69 +1746,137 @@ namespace Interface
 
                     if (Attacked)
                     {
-                        Graphics::PutText(Renderer, (Monster.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                        Graphics::PutText(Renderer, (Monster.Name + " hits the " + std::string(Character::Description[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                     }
                     else
                     {
-                        Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                        Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + " hits " + Monster.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                    }
+
+                    if (!CalculatedDamage)
+                    {
+                        DamageSum = 0;
+
+                        if (Quarterstaff && !Attacked)
+                        {
+                            DamageRolls += 1;
+
+                            Rolls.resize(DamageRolls, 0);
+                        }
+
+                        // compute damage
+                        for (auto i = 0; i < DamageRolls; i++)
+                        {
+                            Damages[i] = Engine::Roll(1, 0);
+
+                            DamageSum += Damages[i];
+                        }
+
+                        DamageSum += FightMode == Combat::FightMode::SHOOT ? 0 : (Attacked ? Monster.DamageModifier : DamageModifier);
+
+                        DamageSum -= Attacked ? Armour : Monster.Armour;
+
+                        DamageSum = std::max(0, DamageSum);
+
+                        CalculatedDamage = true;
+
+                        if (Quarterstaff && DamageSum > 0)
+                        {
+                            Monster.KnockedOff = true;
+
+                            Result = Combat::Result::KNOCKED_OFF;
+                        }
                     }
                 }
-                else
+                else if (CurrentStage == Combat::Stage::END)
                 {
-                    // show damage results
-                    for (auto i = 0; i < DamageRolls; i++)
+                    if (Result == Combat::Result::UNSUCCESSFUL)
                     {
-                        Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
-                    }
+                        // show fight results
+                        for (auto i = 0; i < FightRolls; i++)
+                        {
+                            Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        }
 
-                    Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                        Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
-                    if (!AssignedDamage)
-                    {
                         if (Attacked)
                         {
-                            Engine::Gain(Character, Attributes::Type::Endurance, -DamageSum);
+                            Graphics::PutText(Renderer, (Monster.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                         }
                         else
                         {
-                            Engine::Gain(Monster, -DamageSum);
+                            Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                        }
+                    }
+                    else
+                    {
+                        // show damage results
+                        for (auto i = 0; i < DamageRolls; i++)
+                        {
+                            Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                         }
 
-                        AssignedDamage = true;
+                        Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+
+                        if (!AssignedDamage)
+                        {
+                            if (Attacked)
+                            {
+                                Engine::Gain(Character, Attributes::Type::Endurance, -DamageSum);
+                            }
+                            else
+                            {
+                                Engine::Gain(Monster, -DamageSum);
+                            }
+
+                            AssignedDamage = true;
+                        }
+                    }
+                }
+
+                Graphics::RenderTextButtons(Renderer, Controls, FONT_BOOKMAN, Current, 24, TTF_STYLE_NORMAL);
+
+                Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+                if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+                {
+                    if (Controls[Current].Type == Control::Type::ATTACK && !Hold)
+                    {
+                        CurrentStage = Combat::Stage::FIGHT;
+
+                        Controls = DamageControls;
+                    }
+                    else if (Controls[Current].Type == Control::Type::QUARTERSTAFF && !Hold)
+                    {
+                        Quarterstaff = true;
+
+                        CurrentStage = Combat::Stage::FIGHT;
+
+                        Controls = DamageControls;
+                    }
+                    else if (Controls[Current].Type == Control::Type::DAMAGE && !Hold)
+                    {
+                        CurrentStage = Combat::Stage::END;
+
+                        Controls = DoneControls;
+                    }
+                    else if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                    {
+                        done = true;
                     }
                 }
             }
 
-            Graphics::RenderTextButtons(Renderer, Controls, FONT_BOOKMAN, Current, 24, TTF_STYLE_NORMAL);
-
-            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
-
-            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            if (Ambidextrous && Engine::IsAlive(Monster) && Round < Rounds - 1 && Result != Combat::Result::NONE)
             {
-                if (Controls[Current].Type == Control::Type::ATTACK && !Hold)
-                {
-                    CurrentStage = Combat::Stage::FIGHT;
+                Controls = (HasQuarterstaff && FightMode != Combat::FightMode::SHOOT) ? FightControls4 : FightControls2;
 
-                    Controls = DamageControls;
-                }
-                else if (Controls[Current].Type == Control::Type::QUARTERSTAFF && !Hold)
-                {
-                    QuarterStaff = true;
-
-                    CurrentStage = Combat::Stage::FIGHT;
-
-                    Controls = DamageControls;
-                }
-                else if (Controls[Current].Type == Control::Type::DAMAGE && !Hold)
-                {
-                    CurrentStage = Combat::Stage::END;
-
-                    Controls = DoneControls;
-                }
-                else if (Controls[Current].Type == Control::Type::BACK && !Hold)
-                {
-                    done = true;
-                }
+                RenderMessage(Renderer, BattleScreen, Map, bg, (std::string("Strike ") + std::to_string(Round + 2)), intGR);
+            }
+            else
+            {
+                break;
             }
         }
 
