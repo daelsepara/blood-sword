@@ -194,7 +194,7 @@ namespace Engine
 
     bool IsAlive(Monster::Base &monster)
     {
-        return monster.Endurance > 0;
+        return (monster.Endurance > 0);
     }
 
     bool IsAlive(std::vector<Monster::Base> &monsters)
@@ -424,7 +424,7 @@ namespace Engine
 
         for (auto i = 0; i < monsters.size(); i++)
         {
-            result &= monsters[i].Enthraled;
+            result &= (monsters[i].Enthraled || !Engine::IsAlive(monsters[i]));
         }
 
         return result;
