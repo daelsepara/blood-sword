@@ -54,8 +54,8 @@ namespace Spell
         FAILURE
     };
 
-    // Type of spell, round when cast, duration
-    typedef std::tuple<Spell::Type, int, int> Status;
+    // Type of spell, round when cast, duration, bonus
+    typedef std::tuple<Spell::Type, int, int, int> Status;
 
     class Base
     {

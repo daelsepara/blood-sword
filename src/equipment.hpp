@@ -47,6 +47,10 @@ namespace Equipment
 
         std::string Description = "";
 
+        Attributes::Type Attribute = Attributes::Type::None;
+
+        int AttributeScore = 0;
+
         Base(Equipment::Type type, const char *name, const char *description)
         {
             Type = type;
@@ -120,7 +124,7 @@ namespace Equipment
     // Containers
     auto MoneyPouch = Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", 0, 100);
     auto Quiver = Equipment::Base(Equipment::Type::Quiver, "quiver", "quiver", 0, 6);
-    
+
     // Armours
     auto ChainMail = Equipment::Base(Equipment::Type::Armour, "chainmail", "chainmail", 3);
     auto RingMail = Equipment::Base(Equipment::Type::Armour, "ringmail", "ringmail", 2);

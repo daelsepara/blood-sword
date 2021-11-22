@@ -440,6 +440,8 @@ namespace Engine
 
             if (CombatRound > StartRound)
             {
+                auto Score = std::get<3>(character.SpellStatus[i]);
+
                 auto Duration = std::get<2>(character.SpellStatus[i]);
 
                 auto Type = std::get<0>(character.SpellStatus[i]);
@@ -448,7 +450,7 @@ namespace Engine
 
                 if (Duration > 0)
                 {
-                    NewStatus.push_back({Type, StartRound, Duration});
+                    NewStatus.push_back({Type, StartRound, Duration, Score});
                 }
             }
             else
@@ -470,6 +472,8 @@ namespace Engine
 
             if (CombatRound > StartRound)
             {
+                auto Score = std::get<3>(monster.SpellStatus[i]);
+
                 auto Duration = std::get<2>(monster.SpellStatus[i]);
 
                 auto Type = std::get<0>(monster.SpellStatus[i]);
@@ -478,7 +482,7 @@ namespace Engine
 
                 if (Duration > 0)
                 {
-                    NewStatus.push_back({Type, StartRound, Duration});
+                    NewStatus.push_back({Type, StartRound, Duration, Score});
                 }
             }
             else
@@ -488,6 +492,54 @@ namespace Engine
         }
 
         monster.SpellStatus = NewStatus;
+    }
+
+    int GetStatus(Character::Base &character, Spell::Type status)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < character.SpellStatus.size(); i++)
+        {
+            if (std::get<0>(character.SpellStatus[i]) == status)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasStatus(Character::Base &character, Spell::Type status)
+    {
+        auto result = Engine::GetStatus(character, status);
+
+        return (result >= 0 && result < character.SpellStatus.size());
+    }
+
+    int GetStatus(Monster::Base &monster, Spell::Type status)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < monster.SpellStatus.size(); i++)
+        {
+            if (std::get<0>(monster.SpellStatus[i]) == status)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasStatus(Monster::Base &monster, Spell::Type status)
+    {
+        auto result = Engine::GetStatus(monster, status);
+
+        return (result >= 0 && result < monster.SpellStatus.size());
     }
 }
 #endif

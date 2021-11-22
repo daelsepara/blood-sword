@@ -8,7 +8,7 @@ namespace Abilities
     enum class Type
     {
         None = 0,
-        Dodge,
+        Dodging,
         Archery,
         QuickThinking,
         Quarterstaff,
@@ -18,12 +18,14 @@ namespace Abilities
         ParanormalSight,
         Levitation,
         Call,
-        Cast
+        Cast,
+        Ambidextrousness,
+        UnarmedMartialArts
     };
 
     std::map<Abilities::Type, const char *> Description = {
         {Abilities::Type::None, "None"},
-        {Abilities::Type::Dodge, "Dodge"},
+        {Abilities::Type::Dodging, "Dodging"},
         {Abilities::Type::Archery, "Archery"},
         {Abilities::Type::QuickThinking, "Quick Thinking"},
         {Abilities::Type::Quarterstaff, "Quarterstaff"},
@@ -33,6 +35,8 @@ namespace Abilities
         {Abilities::Type::ParanormalSight, "Paranormal Sight"},
         {Abilities::Type::Levitation, "Levitation"},
         {Abilities::Type::Call, "Call to mind a spell"},
-        {Abilities::Type::Cast, "Cast a spell"}};
+        {Abilities::Type::Cast, "Cast a spell"},
+        {Abilities::Type::Ambidextrousness, "Ambidextrousness"},
+        {Abilities::Type::UnarmedMartialArts, "Unarmed Martial Arts"}};
 }
 #endif

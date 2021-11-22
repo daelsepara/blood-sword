@@ -83,13 +83,11 @@ namespace Character
     {
         character.Attributes.clear();
 
-        if (character.Rank == 2)
+        if (character.Rank <= 2)
         {
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 6));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 12));
-
             character.Damage = 1;
             character.DamageModifier = 1;
         }
@@ -98,8 +96,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 6));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 18));
-
             character.Damage = 1;
             character.DamageModifier = 2;
         }
@@ -108,8 +104,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 24));
-
             character.Damage = 2;
             character.DamageModifier = 0;
         }
@@ -118,8 +112,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 30));
-
             character.Damage = 2;
             character.DamageModifier = 1;
         }
@@ -128,8 +120,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 36));
-
             character.Damage = 2;
             character.DamageModifier = 2;
         }
@@ -138,8 +128,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 42));
-
             character.Damage = 3;
             character.DamageModifier = 0;
         }
@@ -148,24 +136,118 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 48));
-
             character.Damage = 3;
             character.DamageModifier = 1;
         }
+        else if (character.Rank == 9)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
+            character.Damage = 3;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 10)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
+            character.Damage = 4;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 11)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
+            character.Damage = 4;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 12)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 4;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 13)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 5;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 14)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 5;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 15)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 5;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 16)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 6;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 17)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 6;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 18)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 6;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 19)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 7;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank >= 20)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 11));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 7;
+            character.DamageModifier = 1;
+        }
+
+        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 6));
     }
 
     void Trickster(Character::Base &character)
     {
         character.Attributes.clear();
 
-        if (character.Rank == 2)
+        if (character.Rank <= 2)
         {
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 12));
-
             character.Damage = 1;
             character.DamageModifier = 0;
         }
@@ -174,8 +256,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 18));
-
             character.Damage = 1;
             character.DamageModifier = 1;
         }
@@ -184,8 +264,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 24));
-
             character.Damage = 1;
             character.DamageModifier = 2;
         }
@@ -194,8 +272,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 30));
-
             character.Damage = 2;
             character.DamageModifier = 0;
         }
@@ -204,8 +280,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 36));
-
             character.Damage = 2;
             character.DamageModifier = 1;
         }
@@ -214,8 +288,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 42));
-
             character.Damage = 2;
             character.DamageModifier = 2;
         }
@@ -224,24 +296,118 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 48));
-
             character.Damage = 3;
             character.DamageModifier = 0;
         }
+        else if (character.Rank == 9)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 3;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 10)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 3;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 11)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 4;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 12)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 4;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 13)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 4;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 14)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 10));
+            character.Damage = 5;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 15)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 10));
+            character.Damage = 5;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 16)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 10));
+            character.Damage = 5;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 17)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 10));
+            character.Damage = 6;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 18)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 10));
+            character.Damage = 6;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 19)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 10));
+            character.Damage = 6;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank >= 20)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 11));
+            character.Damage = 7;
+            character.DamageModifier = 0;
+        }
+
+        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 6));
     }
 
     void Sage(Character::Base &character)
     {
         character.Attributes.clear();
 
-        if (character.Rank == 2)
+        if (character.Rank <= 2)
         {
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 6));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 10));
-
             character.Damage = 1;
             character.DamageModifier = 0;
         }
@@ -250,8 +416,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 6));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 15));
-
             character.Damage = 1;
             character.DamageModifier = 1;
         }
@@ -260,8 +424,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 20));
-
             character.Damage = 1;
             character.DamageModifier = 2;
         }
@@ -270,8 +432,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 25));
-
             character.Damage = 2;
             character.DamageModifier = 0;
         }
@@ -280,8 +440,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 30));
-
             character.Damage = 2;
             character.DamageModifier = 1;
         }
@@ -290,8 +448,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 35));
-
             character.Damage = 2;
             character.DamageModifier = 2;
         }
@@ -300,24 +456,118 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 40));
-
             character.Damage = 3;
             character.DamageModifier = 0;
         }
+        else if (character.Rank == 9)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
+            character.Damage = 3;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 10)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
+            character.Damage = 3;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 11)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
+            character.Damage = 4;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 12)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 4;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 13)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 4;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 14)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 5;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 15)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 5;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 16)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 5;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 17)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 6;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 18)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 6;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 19)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 6;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank >= 20)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 10));
+            character.Damage = 7;
+            character.DamageModifier = 0;
+        }
+
+        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 5));
     }
 
     void Enchanter(Character::Base &character)
     {
         character.Attributes.clear();
 
-        if (character.Rank == 2)
+        if (character.Rank <= 2)
         {
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 6));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 10));
-
             character.Damage = 1;
             character.DamageModifier = -1;
         }
@@ -326,8 +576,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 6));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 6));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 15));
-
             character.Damage = 1;
             character.DamageModifier = 0;
         }
@@ -336,8 +584,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 6));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 20));
-
             character.Damage = 1;
             character.DamageModifier = 1;
         }
@@ -346,8 +592,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 25));
-
             character.Damage = 1;
             character.DamageModifier = 2;
         }
@@ -356,8 +600,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 30));
-
             character.Damage = 1;
             character.DamageModifier = 3;
         }
@@ -366,8 +608,6 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 8));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 35));
-
             character.Damage = 2;
             character.DamageModifier = 1;
         }
@@ -376,11 +616,107 @@ namespace Character
             character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 7));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
             character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
-            character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, 40));
-
             character.Damage = 2;
             character.DamageModifier = 2;
         }
+        else if (character.Rank == 9)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
+            character.Damage = 2;
+            character.DamageModifier = 3;
+        }
+        else if (character.Rank == 10)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
+            character.Damage = 3;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 11)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 7));
+            character.Damage = 3;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 12)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 3;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 13)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 3;
+            character.DamageModifier = 3;
+        }
+        else if (character.Rank == 14)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 8));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 4;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 15)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 4;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank == 16)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 4;
+            character.DamageModifier = 2;
+        }
+        else if (character.Rank == 17)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 8));
+            character.Damage = 4;
+            character.DamageModifier = 3;
+        }
+        else if (character.Rank == 18)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 5;
+            character.DamageModifier = 0;
+        }
+        else if (character.Rank == 19)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 10));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 5;
+            character.DamageModifier = 1;
+        }
+        else if (character.Rank >= 20)
+        {
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::FightingProwess, 9));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::PsychicAbility, 11));
+            character.Attributes.push_back(Attributes::Base(Attributes::Type::Awareness, 9));
+            character.Damage = 5;
+            character.DamageModifier = 2;
+        }
+
+        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 5));
     }
 
     void Initialize(Character::Base &character, int rank)
@@ -393,22 +729,22 @@ namespace Character
             character.Rank = 2;
         }
 
-        if (character.Rank > 13)
+        if (character.Rank > 20)
         {
-            character.Rank = 13;
+            character.Rank = 20;
         }
 
-        // Set starting experience points
+        // set starting experience points
         character.ExperiencePoints = (character.Rank - 1) * 250;
 
-        // Set class-specific starting attributes and equipment and abilities
+        // set class-specific starting attributes and equipment and abilities
         if (character.Class == Character::Class::Warrior)
         {
             Character::Warrior(character);
 
             character.Equipment = {Equipment::Sword, Equipment::ChainMail};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
-            character.Abilities = {};
+            character.Abilities = {Abilities::Type::Ambidextrousness, Abilities::Type::UnarmedMartialArts};
 
             character.Asset = Assets::Type::Warrior;
         }
@@ -419,7 +755,7 @@ namespace Character
             character.Equipment = {Equipment::Sword, Equipment::Bow, Equipment::StuddedLeather};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Equipment.push_back(Equipment::Base(Equipment::Type::Quiver, "quiver", "quiver", 6, 6));
-            character.Abilities = {Abilities::Type::Archery, Abilities::Type::Dodge, Abilities::Type::QuickThinking};
+            character.Abilities = {Abilities::Type::Archery, Abilities::Type::Dodging, Abilities::Type::QuickThinking};
 
             character.Asset = Assets::Type::Trickster;
         }
@@ -438,9 +774,9 @@ namespace Character
         {
             Character::Enchanter(character);
 
-            character.Abilities = {Abilities::Type::Call, Abilities::Type::Cast};
             character.Equipment = {Equipment::Sword, Equipment::Silver};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
+            character.Abilities = {Abilities::Type::Call, Abilities::Type::Cast};
 
             character.Asset = Assets::Type::Enchanter;
         }

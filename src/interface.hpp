@@ -516,9 +516,20 @@ namespace Interface
         Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(monsters[MonsterId].Armour)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 5 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(monsters[MonsterId].Damage) + (monsters[MonsterId].DamageModifier >= 0 ? "D+" : "D") + std::to_string(monsters[MonsterId].DamageModifier)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 6 * (FontSize + 2));
 
+        auto RowOffset = 7;
+
         if (monsters[MonsterId].KnockedOff)
         {
-            Graphics::PutText(Renderer, "KNOCKED OFF", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 7 * (FontSize + 2));
+            Graphics::PutText(Renderer, "KNOCKED OFF", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + RowOffset * (FontSize + 2));
+
+            RowOffset++;
+        }
+
+        if (Engine::HasStatus(monsters[MonsterId], Spell::Type::Nighthowl))
+        {
+            Graphics::PutText(Renderer, "NIGHTHOWL", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + RowOffset * (FontSize + 2));
+
+            RowOffset++;
         }
     }
 
@@ -797,7 +808,7 @@ namespace Interface
         return Result;
     }
 
-    void ApplySpellEffects(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &Party, std::vector<Monster::Base> &Monsters, int PlayerId, int MonsterId, Spell::Type Spell)
+    void ApplySpellEffects(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &Party, std::vector<Monster::Base> &Monsters, int PlayerId, int MonsterId, Spell::Type Spell, int CombatRound)
     {
         if (Spell == Spell::Type::VolcanoSpray || Spell == Spell::Type::SheetLightning)
         {
@@ -914,6 +925,19 @@ namespace Interface
                 {
                     RenderMessage(Renderer, BattleScreen, Map, bg, Monsters[MonsterId].Name + " killed!", intGR);
                 }
+            }
+        }
+        else if (Spell == Spell::Type::Nighthowl)
+        {
+            if (!Engine::HasStatus(Monsters[MonsterId], Spell::Type::Nighthowl))
+            {
+                Monsters[MonsterId].SpellStatus.push_back({Spell::Type::Nighthowl, CombatRound, 4, 0});
+
+                RenderMessage(Renderer, BattleScreen, Map, bg, Monsters[MonsterId].Name + " afflicted with Nighthowl!", intGR);
+            }
+            else
+            {
+                RenderMessage(Renderer, BattleScreen, Map, bg, Monsters[MonsterId].Name + " already disadvantaged during combat!", intBK);
             }
         }
     }
@@ -1101,8 +1125,8 @@ namespace Interface
         auto Result = Combat::Result::NONE;
         auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
         auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
-        auto WindowW = 4 * MapSizeX / 5;
-        auto WindowH = 4 * MapSizeY / 5;
+        auto WindowW = 12 * Map.ObjectSize;
+        auto WindowH = 7 * Map.ObjectSize;
         auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
         auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
         auto MidWindow = WindowX + (WindowW / 2) + text_space;
@@ -1113,7 +1137,6 @@ namespace Interface
         auto TextButtonX = WindowX + 2 * text_space;
         auto TextButtonY = (WindowY + WindowH) - (text_buttonh + 2 * text_space);
         auto TextWidth = WindowW - 3 * text_space;
-        auto ResultsY = 12 * RowHeight + 4 * text_space;
 
         const char *FightChoices1[2] = {(FightMode == Combat::FightMode::FIGHT ? "FIGHT" : "SHOOT"), "CANCEL"}; // player attacks
 
@@ -1193,7 +1216,7 @@ namespace Interface
         auto DamageModifier = Character.DamageModifier;
         auto Armour = Engine::Armour(Character);
 
-        if (!Engine::HasWeapon(Character))
+        if (!Engine::HasWeapon(Character) && !Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts))
         {
             FightingProwess = std::max(0, FightingProwess - 2);
 
@@ -1209,7 +1232,11 @@ namespace Interface
 
         Engine::Randomize();
 
-        auto FightRolls = (Attacked && Character.IsDefending) ? 3 : 2;
+        auto FightRolls = 2;
+        FightRolls += (Attacked && Character.IsDefending) ? 1 : 0;
+        FightRolls += (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodging)) ? 1 : 0;
+        FightRolls += (Attacked && Engine::HasStatus(Monster, Spell::Type::Nighthowl)) ? 1 : 0;
+
         auto DamageRolls = FightMode == Combat::FightMode::SHOOT ? 1 : (Attacked ? Monster.Damage : Damage);
 
         std::vector<int> Rolls(FightRolls, 0);
@@ -1237,19 +1264,32 @@ namespace Interface
             Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D" + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier)))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 4 * RowHeight);
 
-            if (Attacked && Character.IsDefending && Engine::HasAbility(Character, Abilities::Type::Dodge))
+            auto StatusOffset = 5;
+
+            if (Attacked && Character.IsDefending)
             {
-                Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
-                Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 6 * RowHeight);
+                Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + StatusOffset * RowHeight);
+
+                StatusOffset++;
             }
-            else if (Attacked && Character.IsDefending)
+
+            if (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodging))
             {
-                Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
+                Graphics::PutText(Renderer, "DODGING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + StatusOffset * RowHeight);
+
+                StatusOffset++;
             }
-            else if (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodge))
+
+            auto RowOffset = 5;
+
+            if (Attacked && Engine::HasStatus(Monster, Spell::Type::Nighthowl))
             {
-                Graphics::PutText(Renderer, "DODGE +1", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 5 * RowHeight);
+                Graphics::PutText(Renderer, "NIGHTHOWL", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowOffset * RowHeight);
+
+                RowOffset++;
             }
+
+            auto ResultsY = (RowOffset + 6) * RowHeight + 4 * text_space;
 
             // monster stats
             Graphics::PutText(Renderer, Monster.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
@@ -1271,9 +1311,9 @@ namespace Interface
             {
                 FightingSum = 0;
 
-                if (QuarterStaff)
+                if (QuarterStaff && !Attacked)
                 {
-                    FightRolls = 3;
+                    FightRolls += 1;
 
                     Rolls.resize(FightRolls, 0);
                 }
@@ -1286,12 +1326,6 @@ namespace Interface
                 }
 
                 FightingSum = std::max(0, FightingSum);
-
-                // apply trickster's dodging technique
-                if (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodge))
-                {
-                    FightingSum += 1;
-                }
 
                 auto FightResult = (!Attacked ? FightingProwess : Monster.FightingProwess) >= FightingSum;
 
@@ -1320,7 +1354,7 @@ namespace Interface
                 // show fight results
                 for (auto i = 0; i < FightRolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
                 Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -1338,7 +1372,7 @@ namespace Interface
                 {
                     DamageSum = 0;
 
-                    if (QuarterStaff)
+                    if (QuarterStaff && !Attacked)
                     {
                         DamageRolls += 1;
 
@@ -1376,7 +1410,7 @@ namespace Interface
                     // show fight results
                     for (auto i = 0; i < FightRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
                     Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -1395,7 +1429,7 @@ namespace Interface
                     // show damage results
                     for (auto i = 0; i < DamageRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
                     Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -2304,6 +2338,11 @@ namespace Interface
 
                     party.Members[GetId(CurrentCombatant)].UsedQuickThinking = true;
                 }
+
+                if (!QuickThinkingRound)
+                {
+                    Engine::UpdateSpellStatus(party.Members[GetId(CurrentCombatant)], CombatRound);
+                }
             }
 
             if (IsMonster(CurrentCombatant))
@@ -2311,6 +2350,11 @@ namespace Interface
                 if (monsters[GetId(CurrentCombatant)].KnockedOff)
                 {
                     monsters[GetId(CurrentCombatant)].KnockedOff = false;
+                }
+
+                if (!QuickThinkingRound)
+                {
+                    Engine::UpdateSpellStatus(monsters[GetId(CurrentCombatant)], CombatRound);
                 }
             }
 
@@ -2392,15 +2436,6 @@ namespace Interface
                 {
                     active = monsters[GetId(CurrentCombatant)].Endurance > 0;
                 }
-            }
-
-            if (IsPlayer(CurrentCombatant))
-            {
-                Engine::UpdateSpellStatus(party.Members[GetId(CurrentCombatant)], CombatRound);
-            }
-            else if (IsMonster(CurrentCombatant))
-            {
-                Engine::UpdateSpellStatus(monsters[GetId(CurrentCombatant)], CombatRound);
             }
 
             CurrentMode = Combat::Mode::NORMAL;
@@ -2970,14 +3005,14 @@ namespace Interface
                                             }
                                             else
                                             {
-                                                // attempt to spell
+                                                // attempt to cast spell
                                                 auto Result = Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell);
 
                                                 if (Result != Spell::Result::NONE)
                                                 {
                                                     if (Result == Spell::Result::SUCCESS)
                                                     {
-                                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, -1, Character.Spells[SelectedSpell].Type);
+                                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, -1, Character.Spells[SelectedSpell].Type, CombatRound);
 
                                                         Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
 
@@ -3192,7 +3227,7 @@ namespace Interface
                                     if (Result == Spell::Result::SUCCESS)
                                     {
                                         // apply spell effects
-                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, MonsterId, Character.Spells[SelectedSpell].Type);
+                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, MonsterId, Character.Spells[SelectedSpell].Type, CombatRound);
 
                                         Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
 
