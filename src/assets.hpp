@@ -56,6 +56,8 @@ namespace Assets
         GhastlyTouch,
         NemesisBolt,
         ServileEnthralment,
+        EyeOfTheTigerIndividual,
+        EyeOfTheTigerParty,
         Monster = 300,
         Barbarian
     };

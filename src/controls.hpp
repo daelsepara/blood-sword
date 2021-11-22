@@ -39,7 +39,8 @@ namespace Control
         DAMAGE,
         QUICKTHINKING,
         QUARTERSTAFF,
-        TEST
+        TEST,
+        CHOICE
     };
 
     class Base

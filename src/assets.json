@@ -173,6 +173,14 @@
             "path": "images/spells/servile-enthralment.png"
         },
         {
+            "id": 213,
+            "path": "images/spells/eott-person.png"
+        },
+        {
+            "id": 214,
+            "path": "images/spells/eott-party.png"
+        },
+        {
             "id": 301,
             "path": "images/monsters/barbarian.png"
         }

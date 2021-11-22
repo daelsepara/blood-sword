@@ -482,23 +482,23 @@ namespace Interface
             TextOffset++;
         }
 
-        if (party.Members[PlayerId].IsDefending && party.Members[PlayerId].QuickThinking)
-        {
-            Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
-
-            Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + (TextOffset + 1) * (FontSize + 2));
-
-            TextOffset += 2;
-        }
-        else if (party.Members[PlayerId].IsDefending)
+        if (party.Members[PlayerId].IsDefending)
         {
             Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
 
             TextOffset++;
         }
-        else if (party.Members[PlayerId].QuickThinking)
+
+        if (party.Members[PlayerId].QuickThinking)
         {
             Graphics::PutText(Renderer, "QUICK THINKING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
+
+            TextOffset++;
+        }
+
+        if (Engine::HasStatus(party.Members[PlayerId], Spell::Type::EyeOfTheTiger))
+        {
+            Graphics::PutText(Renderer, "EYE OF THE TIGER", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
 
             TextOffset++;
         }
@@ -808,6 +808,103 @@ namespace Interface
         return Result;
     }
 
+    void RenderChoiceCaption(SDL_Renderer *renderer, Button &control, std::string caption, SDL_Color color, Uint32 bg)
+    {
+        auto captionx = control.X - text_space;
+        auto captiony = control.Y + control.H + border_space;
+
+        if (caption.length() > 0)
+        {
+            auto captionw = 0;
+
+            auto captionh = 0;
+
+            TTF_SizeText(Fonts::Caption, caption.c_str(), &captionw, &captionh);
+
+            Graphics::PutText(renderer, caption.c_str(), Fonts::Caption, border_pts, color, bg, TTF_STYLE_NORMAL, captionw + 2 * text_space, captionh, captionx, captiony);
+        }
+    }
+
+    int Choose(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
+    {
+        auto Result = -1;
+
+        auto MapSizeX = (Map.SizeX < 12 ? 12 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
+        auto WindowW = 10 * Map.ObjectSize;
+        auto WindowH = 3 * Map.ObjectSize;
+        auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
+        auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
+        auto WindowButtonX = WindowX + 4 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<Button> Controls = {};
+
+        auto NumControls = 0;
+
+        for (auto i = 0; i < Assets.size(); i++)
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets[NumControls]), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CHOICE));
+
+            NumControls++;
+        }
+
+        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
+
+        auto done = false;
+
+        while (!done)
+        {
+            // render current combat screen
+            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, Message, Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                if (Controls[Current].Type != Control::Type::BACK)
+                {
+                    Interface::RenderChoiceCaption(Renderer, Controls[Current], Captions[Current], clrWH, intBK);
+                }
+                else
+                {
+                    Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
+                }
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK)
+                {
+                    Result = -1;
+
+                    done = true;
+                }
+                else
+                {
+                    Result = Current;
+
+                    done = true;
+                }
+            }
+        }
+
+        return Result;
+    }
+
     void ApplySpellEffects(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &Party, std::vector<Monster::Base> &Monsters, int PlayerId, int MonsterId, Spell::Type Spell, int CombatRound)
     {
         if (Spell == Spell::Type::VolcanoSpray || Spell == Spell::Type::SheetLightning)
@@ -938,6 +1035,44 @@ namespace Interface
             else
             {
                 RenderMessage(Renderer, BattleScreen, Map, bg, Monsters[MonsterId].Name + " already disadvantaged during combat!", intBK);
+            }
+        }
+        else if (Spell == Spell::Type::EyeOfTheTiger)
+        {
+            auto Result = -1;
+
+            while (Result == -1)
+            {
+                Result = Interface::Choose(Renderer, BattleScreen, bg, Map, {Assets::Type::EyeOfTheTigerIndividual, Assets::Type::EyeOfTheTigerParty}, {"YOU: +2 FP +2 DMG", "PARTY: +1 FP +1 DMG"}, "Select which effect to apply");
+            }
+
+            if (Result == 0)
+            {
+                if (Engine::HasStatus(Party.Members[PlayerId], Spell::Type::EyeOfTheTiger))
+                {
+                    RenderMessage(Renderer, BattleScreen, Map, bg, "Eye of the Tiger already in effect!", intBK);
+                }
+                else
+                {
+                    RenderMessage(Renderer, BattleScreen, Map, bg, "You gain +2 Fighting Prowess and +2 to Damage!", intGR);
+
+                    Party.Members[PlayerId].SpellStatus.push_back({Spell::Type::EyeOfTheTiger, CombatRound, 4, 2});
+                }
+            }
+            else if (Result == 0)
+            {
+                RenderMessage(Renderer, BattleScreen, Map, bg, "Party gains +1 Fighting Prowess and +1 to Damage!", intGR);
+
+                for (auto i = 0; i < Party.Members.size(); i++)
+                {
+                    if (Engine::IsAlive(Party.Members[i]))
+                    {
+                        if (!Engine::HasStatus(Party.Members[PlayerId], Spell::Type::EyeOfTheTiger))
+                        {
+                            Party.Members[PlayerId].SpellStatus.push_back({Spell::Type::EyeOfTheTiger, CombatRound, i == PlayerId ? 5 : 4, 1});
+                        }
+                    }
+                }
             }
         }
     }
@@ -1216,6 +1351,18 @@ namespace Interface
         auto DamageModifier = Character.DamageModifier;
         auto Armour = Engine::Armour(Character);
 
+        if (!Attacked && Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
+        {
+            auto Result = Engine::GetStatus(Character, Spell::Type::EyeOfTheTiger);
+
+            if (Result >= 0 && Result < Character.SpellStatus.size())
+            {
+                FightingProwess += std::get<3>(Character.SpellStatus[Result]);
+
+                DamageModifier += std::get<3>(Character.SpellStatus[Result]);
+            }
+        }
+
         if (!Engine::HasWeapon(Character) && !Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts))
         {
             FightingProwess = std::max(0, FightingProwess - 2);
@@ -1285,6 +1432,13 @@ namespace Interface
             if (Attacked && Engine::HasStatus(Monster, Spell::Type::Nighthowl))
             {
                 Graphics::PutText(Renderer, "NIGHTHOWL", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowOffset * RowHeight);
+
+                RowOffset++;
+            }
+
+            if (!Attacked && Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
+            {
+                Graphics::PutText(Renderer, "EYE OF THE TIGER", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowOffset * RowHeight);
 
                 RowOffset++;
             }
@@ -2989,7 +3143,7 @@ namespace Interface
                                                 {
                                                     if (!NearbyMonsters(Map, monsters, PlayerId))
                                                     {
-                                                        DisplayMessage("There are enemies nearby!", intBK);
+                                                        DisplayMessage("There are no enemies nearby!", intBK);
 
                                                         CurrentMode = Combat::Mode::NORMAL;
                                                     }
