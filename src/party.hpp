@@ -5,18 +5,36 @@
 
 #include "book.hpp"
 #include "character.hpp"
+#include "monster.hpp"
 
 namespace Party
 {
+    class SurvivingMonsters
+    {
+    public:
+        std::vector<Monster::Base> Monsters = {};
+
+        Book::Type Book = Book::Type::None;
+
+        int Story = 0;
+
+        SurvivingMonsters(Book::Type book, int story, std::vector<Monster::Base> monsters) : Monsters(monsters), Book(book), Story(story)
+        {
+        }
+    };
+
     class Base
     {
     public:
         std::vector<Character::Base> Members = {};
 
-        // This list is for tracking completed books
+        // completed books
         std::vector<Book::Type> Completed = {};
 
-        Book::Type Type = Book::Type::None;
+        // surviving monsters from previous sections
+        std::vector<Party::SurvivingMonsters> Monsters = {};
+
+        Book::Type Book = Book::Type::None;
 
         int Story = 0;
     };

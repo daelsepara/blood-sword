@@ -1,5 +1,3 @@
-#include "BloodSword.hpp"
-
 #include "interface.hpp"
 
 int main(int argc, const char **argv)

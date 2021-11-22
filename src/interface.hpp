@@ -1,8 +1,6 @@
 #ifndef __INTERFACE__HPP__
 #define __INTERFACE__HPP__
 
-#include "BloodSword.hpp"
-
 #include "graphics.hpp"
 
 namespace Interface
@@ -4354,6 +4352,22 @@ namespace Interface
         Engine::ClearDefendingStatus(party);
 
         Engine::ResetSpellDifficulty(party);
+
+        // track monsters who have survive
+        auto SurvivingMonsters = std::vector<Monster::Base>();
+
+        for (auto i = 0; i < monsters.size(); i++)
+        {
+            if (Engine::IsAlive(monsters[i]))
+            {
+                SurvivingMonsters.push_back(monsters[i]);
+            }
+        }
+
+        if (SurvivingMonsters.size() > 0)
+        {
+            party.Monsters.push_back(Party::SurvivingMonsters(party.Book, party.Story, SurvivingMonsters));
+        }
 
         if (Engine::Enthraled(monsters))
         {
