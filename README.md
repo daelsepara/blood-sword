@@ -28,7 +28,7 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 
 ## Character classes in implemented in combat
 
-- Warrior (**DONE**)
+- Warrior: To implement Ambidextrousness (**PARTIAL**)
 - Trickster (**DONE**)
 - Sage (**DONE**)
-- Enchanter (**PARTIAL (8/12 combat spells implemented)**)
+- Enchanter: 11/12 combat spells implemented (**PARTIAL**)
