@@ -17,7 +17,7 @@ namespace Assets
         Enchanter,
         Passable,
         Wall,
-        Exit,
+        MapExit,
         HotCoals,
         Up = 100,
         Left,

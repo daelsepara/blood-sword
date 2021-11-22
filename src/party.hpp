@@ -5,6 +5,7 @@
 
 #include "book.hpp"
 #include "character.hpp"
+#include "codeword.hpp"
 #include "monster.hpp"
 
 namespace Party
@@ -33,6 +34,9 @@ namespace Party
 
         // surviving monsters from previous sections
         std::vector<Party::SurvivingMonsters> Monsters = {};
+
+        // list of codewords
+        std::vector<Code::Word> Codewords = {};
 
         Book::Type Book = Book::Type::None;
 

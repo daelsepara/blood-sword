@@ -329,6 +329,27 @@ namespace Interface
         return result;
     }
 
+    bool NearbyExits(TacticalMap::Base &Map, int PlayerId)
+    {
+        auto result = false;
+
+        auto PlayerX = -1;
+
+        auto PlayerY = -1;
+
+        Interface::Find(Map, TacticalMap::Object::Player, PlayerId, PlayerX, PlayerY);
+
+        if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY))
+        {
+            for (auto i = 0; i < Map.Exits.size(); i++)
+            {
+                result |= (Interface::Distance(PlayerX, PlayerY, Map.Exits[i].first, Map.Exits[i].second) <= 1);
+            }
+        }
+
+        return result;
+    }
+
     bool AttackedUponMoving(TacticalMap::Base &Map, std::vector<Monster::Base> &monsters, Character::Base &character, int PlayerId, int &Damages)
     {
         auto WasAttacked = false;
@@ -3368,31 +3389,47 @@ namespace Interface
 
                             Current = -1;
                         }
+                        else if (Controls[Current].Type == Control::Type::FLEE)
+                        {
+                            if (Map.Exits.size() > 0)
+                            {
+                                if (Interface::NearbyExits(Map, PlayerId))
+                                {
+                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " escapes!"), intGR);
+
+                                    Interface::Remove(Map, CurrentX, CurrentY);
+
+                                    Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+
+                                    Character.Escaped = true;
+
+                                    CycleCombatants();
+                                }
+                                else
+                                {
+                                    DisplayMessage("You must be near an exit point to flee!", intBK);
+                                }
+                            }
+                            else
+                            {
+                                DisplayMessage("Defeat all opponents to escape the area!", intBK);
+                            }
+
+                            Selected = false;
+
+                            Current = -1;
+                        }
                         else if (Controls[Current].Type == Control::Type::PLAYER && !Hold)
                         {
                             SelectedSpell = -1;
 
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
-                                {
-                                    if (Map.Objects[SelectY][SelectX] == TacticalMap::Object::Player)
-                                    {
-                                        auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.ObjectID[SelectY][SelectX] - 1);
+                                auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.ObjectID[SelectY][SelectX] - 1);
 
-                                        if (result != SelectedCombatant)
-                                        {
-                                            SelectedCombatant = result;
-                                        }
-                                        else
-                                        {
-                                            ResetSelection();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        ResetSelection();
-                                    }
+                                if (result != SelectedCombatant)
+                                {
+                                    SelectedCombatant = result;
                                 }
                                 else
                                 {
@@ -4032,25 +4069,11 @@ namespace Interface
 
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
-                                {
-                                    if (Map.Objects[SelectY][SelectX] == TacticalMap::Object::Player)
-                                    {
-                                        auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.ObjectID[SelectY][SelectX] - 1);
+                                auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.ObjectID[SelectY][SelectX] - 1);
 
-                                        if (result != SelectedCombatant)
-                                        {
-                                            SelectedCombatant = result;
-                                        }
-                                        else
-                                        {
-                                            ResetSelection();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        ResetSelection();
-                                    }
+                                if (result != SelectedCombatant)
+                                {
+                                    SelectedCombatant = result;
                                 }
                                 else
                                 {
@@ -4206,7 +4229,7 @@ namespace Interface
                                         }
                                         else
                                         {
-                                            // monster vs Monster Fight
+                                            // monster vs monster fight
                                             Result = Interface::Fight(Renderer, Controls, intBK, Map, Monster, Target);
 
                                             if (!Engine::IsAlive(Target))
