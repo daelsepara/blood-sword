@@ -428,7 +428,7 @@ namespace Engine
         return result;
     }
 
-    bool IsCalledToMind(Character::Base &character, Spell::Type spell)
+    bool WasCalledToMind(Character::Base &character, Spell::Type spell)
     {
         auto result = Engine::Find(character, spell);
 
@@ -437,7 +437,7 @@ namespace Engine
 
     void ResetSpellDifficulty(Character::Base &character)
     {
-        if (Engine::HasAbility(character, Abilities::Type::Cast) && character.Spells.size() > 0)
+        if (Engine::HasAbility(character, Abilities::Type::CastSpell) && character.Spells.size() > 0)
         {
             for (auto i = 0; i < character.Spells.size(); i++)
             {

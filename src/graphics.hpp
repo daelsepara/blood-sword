@@ -267,7 +267,7 @@ namespace Graphics
         }
         else if (control.Type == Control::Type::HEAL)
         {
-            caption = "Heal";
+            caption = "Healing";
         }
         else if (control.Type == Control::Type::ATTACK)
         {
@@ -300,6 +300,42 @@ namespace Graphics
         else if (control.Type == Control::Type::QUICKTHINKING)
         {
             caption = "Use quick thinking";
+        }
+        else if (control.Type == Control::Type::AMBIDEXTROUSNESS)
+        {
+            caption = "Ambidextrousness";
+        }
+        else if (control.Type == Control::Type::UNARMED_MARTIAL_ARTS)
+        {
+            caption = "Unarmed Martial Arts";
+        }
+        else if (control.Type == Control::Type::ARCHERY)
+        {
+            caption = "Archery";
+        }
+        else if (control.Type == Control::Type::DODGING)
+        {
+            caption = "Dodging";
+        }
+        else if (control.Type == Control::Type::QUARTERSTAFF)
+        {
+            caption = "Quarterstaff";
+        }
+        else if (control.Type == Control::Type::EXORCISM)
+        {
+            caption = "Exorcism";
+        }
+        else if (control.Type == Control::Type::ESP)
+        {
+            caption = "ESP";
+        }
+        else if (control.Type == Control::Type::PARANORMAL_SIGHT)
+        {
+            caption = "Paranormal Sight";
+        }
+        else if (control.Type == Control::Type::LEVITATION)
+        {
+            caption = "Levitation";
         }
         else if (control.Type == Control::Type::EXIT)
         {

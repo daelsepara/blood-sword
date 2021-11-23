@@ -17,8 +17,8 @@ namespace Abilities
         ESP,
         ParanormalSight,
         Levitation,
-        Call,
-        Cast,
+        CallToMind,
+        CastSpell,
         Ambidextrousness,
         UnarmedMartialArts
     };
@@ -34,8 +34,8 @@ namespace Abilities
         {Abilities::Type::ESP, "ESP"},
         {Abilities::Type::ParanormalSight, "Paranormal Sight"},
         {Abilities::Type::Levitation, "Levitation"},
-        {Abilities::Type::Call, "Call to mind a spell"},
-        {Abilities::Type::Cast, "Cast a spell"},
+        {Abilities::Type::CallToMind, "Call to mind a spell"},
+        {Abilities::Type::CastSpell, "Cast a spell"},
         {Abilities::Type::Ambidextrousness, "Ambidextrousness"},
         {Abilities::Type::UnarmedMartialArts, "Unarmed Martial Arts"}};
 }

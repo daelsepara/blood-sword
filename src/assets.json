@@ -54,7 +54,7 @@
         },
         {
             "id": 105,
-            "path": "icons/ability.png"
+            "path": "icons/use-ability.png"
         },
         {
             "id": 106,
@@ -62,15 +62,15 @@
         },
         {
             "id": 107,
-            "path": "icons/heal.png"
+            "path": "icons/healing.png"
         },
         {
             "id": 108,
-            "path": "icons/swords.png"
+            "path": "icons/fight.png"
         },
         {
             "id": 109,
-            "path": "icons/shield.png"
+            "path": "icons/defend.png"
         },
         {
             "id": 110,
@@ -78,11 +78,11 @@
         },
         {
             "id": 111,
-            "path": "icons/memorize.png"
+            "path": "icons/call-to-mind.png"
         },
         {
             "id": 112,
-            "path": "icons/spell.png"
+            "path": "icons/cast-spell.png"
         },
         {
             "id": 113,
@@ -94,7 +94,43 @@
         },
         {
             "id": 115,
-            "path": "icons/imagination.png"
+            "path": "icons/quick-thinking.png"
+        },
+        {
+            "id": 116,
+            "path": "icons/ambidextrousness.png"
+        },
+        {
+            "id": 117,
+            "path": "icons/unarmed-martial-arts.png"
+        },
+        {
+            "id": 118,
+            "path": "icons/quarterstaff.png"
+        },
+        {
+            "id": 119,
+            "path": "icons/archery.png"
+        },
+        {
+            "id": 120,
+            "path": "icons/dodging.png"
+        },
+        {
+            "id": 121,
+            "path": "icons/exorcism.png"
+        },
+        {
+            "id": 122,
+            "path": "icons/esp.png"
+        },
+        {
+            "id": 123,
+            "path": "icons/paranormal-sight.png"
+        },
+        {
+            "id": 124,
+            "path": "icons/levitation.png"
         },
         {
             "id": 150,

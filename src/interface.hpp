@@ -283,32 +283,6 @@ namespace Interface
         return result;
     }
 
-    bool NearbyExits(Map::Base &Map, int PlayerId)
-    {
-        auto result = false;
-
-        auto PlayerX = -1;
-
-        auto PlayerY = -1;
-
-        Interface::Find(Map, Map::Object::Player, PlayerId, PlayerX, PlayerY);
-
-        if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY))
-        {
-            for (auto i = 0; i < Map.Exits.size(); i++)
-            {
-                if (PlayerX == Map.Exits[i].first && PlayerY == Map.Exits[i].second)
-                {
-                    result = true;
-
-                    break;
-                }
-            }
-        }
-
-        return result;
-    }
-
     bool AttackedUponMoving(Map::Base &Map, std::vector<Monster::Base> &monsters, Character::Base &character, int PlayerId, int &Damages)
     {
         auto WasAttacked = false;
@@ -1508,7 +1482,7 @@ namespace Interface
         dice[4] = Assets::Copy(Assets::Type::Dice5);
         dice[5] = Assets::Copy(Assets::Type::Dice6);
 
-        auto swords = Assets::Copy(Assets::Type::Attack);
+        auto swords = Assets::Copy(Assets::Type::Fight);
 
         auto shoot = Assets::Copy(Assets::Type::Shoot);
 
@@ -1921,7 +1895,7 @@ namespace Interface
         dice[4] = Assets::Copy(Assets::Type::Dice5);
         dice[5] = Assets::Copy(Assets::Type::Dice6);
 
-        auto swords = Assets::Copy(Assets::Type::Attack);
+        auto swords = Assets::Copy(Assets::Type::Fight);
 
         auto Hold = false;
         auto Selected = false;
@@ -2223,18 +2197,18 @@ namespace Interface
 
         std::vector<Button> Controls = {};
 
-        Controls.push_back(Button(0, Assets::Get(Assets::Type::VolcanoSpray, Engine::IsCalledToMind(Character, Spell::Type::VolcanoSpray) ? 0xFF : 0x66), 0, 1, 0, 7, WindowButtonX, WindowButtonY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(1, Assets::Get(Assets::Type::Nighthowl, Engine::IsCalledToMind(Character, Spell::Type::Nighthowl) ? 0xFF : 0x66), 0, 2, 1, 8, WindowButtonX + WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(2, Assets::Get(Assets::Type::WhiteFire, Engine::IsCalledToMind(Character, Spell::Type::WhiteFire) ? 0xFF : 0x66), 1, 3, 2, 9, WindowButtonX + 2 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(3, Assets::Get(Assets::Type::Swordthrust, Engine::IsCalledToMind(Character, Spell::Type::Swordthrust) ? 0xFF : 0x66), 2, 4, 3, 10, WindowButtonX + 3 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(4, Assets::Get(Assets::Type::EyeOfTheTiger, Engine::IsCalledToMind(Character, Spell::Type::EyeOfTheTiger) ? 0xFF : 0x66), 3, 5, 4, 11, WindowButtonX + 4 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(5, Assets::Get(Assets::Type::ImmediateDeliverance, Engine::IsCalledToMind(Character, Spell::Type::ImmediateDeliverance) ? 0xFF : 0x66), 4, 6, 5, 12, WindowButtonX + 5 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(6, Assets::Get(Assets::Type::MistsOfDeath, Engine::IsCalledToMind(Character, Spell::Type::MistsOfDeath) ? 0xFF : 0x66), 5, 6, 6, 6, WindowButtonX + 6 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(7, Assets::Get(Assets::Type::TheVampireSpell, Engine::IsCalledToMind(Character, Spell::Type::TheVampireSpell) ? 0xFF : 0x66), 7, 8, 0, 7, WindowButtonX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(8, Assets::Get(Assets::Type::SheetLightning, Engine::IsCalledToMind(Character, Spell::Type::SheetLightning) ? 0xFF : 0x66), 7, 9, 1, 8, WindowButtonX + WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(9, Assets::Get(Assets::Type::GhastlyTouch, Engine::IsCalledToMind(Character, Spell::Type::GhastlyTouch) ? 0xFF : 0x66), 8, 10, 2, 9, WindowButtonX + 2 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(10, Assets::Get(Assets::Type::NemesisBolt, Engine::IsCalledToMind(Character, Spell::Type::NemesisBolt) ? 0xFF : 0x66), 9, 11, 3, 10, WindowButtonX + 3 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
-        Controls.push_back(Button(11, Assets::Get(Assets::Type::ServileEnthralment, Engine::IsCalledToMind(Character, Spell::Type::ServileEnthralment) ? 0xFF : 0x66), 10, 12, 4, 11, WindowButtonX + 4 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::VolcanoSpray, Engine::WasCalledToMind(Character, Spell::Type::VolcanoSpray) ? 0xFF : 0x66), 0, 1, 0, 7, WindowButtonX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::Nighthowl, Engine::WasCalledToMind(Character, Spell::Type::Nighthowl) ? 0xFF : 0x66), 0, 2, 1, 8, WindowButtonX + WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::WhiteFire, Engine::WasCalledToMind(Character, Spell::Type::WhiteFire) ? 0xFF : 0x66), 1, 3, 2, 9, WindowButtonX + 2 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(3, Assets::Get(Assets::Type::Swordthrust, Engine::WasCalledToMind(Character, Spell::Type::Swordthrust) ? 0xFF : 0x66), 2, 4, 3, 10, WindowButtonX + 3 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(4, Assets::Get(Assets::Type::EyeOfTheTiger, Engine::WasCalledToMind(Character, Spell::Type::EyeOfTheTiger) ? 0xFF : 0x66), 3, 5, 4, 11, WindowButtonX + 4 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(5, Assets::Get(Assets::Type::ImmediateDeliverance, Engine::WasCalledToMind(Character, Spell::Type::ImmediateDeliverance) ? 0xFF : 0x66), 4, 6, 5, 12, WindowButtonX + 5 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(6, Assets::Get(Assets::Type::MistsOfDeath, Engine::WasCalledToMind(Character, Spell::Type::MistsOfDeath) ? 0xFF : 0x66), 5, 6, 6, 6, WindowButtonX + 6 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(7, Assets::Get(Assets::Type::TheVampireSpell, Engine::WasCalledToMind(Character, Spell::Type::TheVampireSpell) ? 0xFF : 0x66), 7, 8, 0, 7, WindowButtonX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(8, Assets::Get(Assets::Type::SheetLightning, Engine::WasCalledToMind(Character, Spell::Type::SheetLightning) ? 0xFF : 0x66), 7, 9, 1, 8, WindowButtonX + WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(9, Assets::Get(Assets::Type::GhastlyTouch, Engine::WasCalledToMind(Character, Spell::Type::GhastlyTouch) ? 0xFF : 0x66), 8, 10, 2, 9, WindowButtonX + 2 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(10, Assets::Get(Assets::Type::NemesisBolt, Engine::WasCalledToMind(Character, Spell::Type::NemesisBolt) ? 0xFF : 0x66), 9, 11, 3, 10, WindowButtonX + 3 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(11, Assets::Get(Assets::Type::ServileEnthralment, Engine::WasCalledToMind(Character, Spell::Type::ServileEnthralment) ? 0xFF : 0x66), 10, 12, 4, 11, WindowButtonX + 4 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
         Controls.push_back(Button(12, Assets::Get(Assets::Type::Back), 11, 12, 5, 12, WindowButtonX + 5 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::BACK));
 
         auto done = false;
@@ -2281,7 +2255,7 @@ namespace Interface
                 {
                     if (Mode == Control::Type::CALL)
                     {
-                        if (Engine::IsCalledToMind(Character, Spell::All[Current].Type))
+                        if (Engine::WasCalledToMind(Character, Spell::All[Current].Type))
                         {
                             DisplayMessage((Spell::All[Current].Name + " already called to mind!").c_str(), intBK);
                         }
@@ -2294,7 +2268,7 @@ namespace Interface
                     }
                     else if (Mode == Control::Type::FORGET)
                     {
-                        if (!Engine::IsCalledToMind(Character, Spell::All[Current].Type))
+                        if (!Engine::WasCalledToMind(Character, Spell::All[Current].Type))
                         {
                             DisplayMessage((Spell::All[Current].Name + " not called to mind!").c_str(), intBK);
                         }
@@ -2403,7 +2377,7 @@ namespace Interface
 
         auto MapSizeX = (Map.SizeX < 12 ? 12 : Map.SizeX) * Map.ObjectSize;
         auto MapSizeY = (Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize;
-        auto WindowW = 10 * Map.ObjectSize;
+        auto WindowW = 12 * Map.ObjectSize;
         auto WindowH = 3 * Map.ObjectSize;
         auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
         auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
@@ -2416,26 +2390,123 @@ namespace Interface
         auto Current = 0;
 
         std::vector<Button> Controls = {};
+        std::vector<Abilities::Type> Abilities = {};
 
         auto NumControls = 0;
+
+        if (Engine::HasAbility(Character, Abilities::Type::Ambidextrousness))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Ambidextrousness, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::AMBIDEXTROUSNESS));
+
+            Abilities.push_back(Abilities::Type::Ambidextrousness);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::UnarmedMartialArts, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::UNARMED_MARTIAL_ARTS));
+
+            Abilities.push_back(Abilities::Type::UnarmedMartialArts);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Archery))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Archery, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::ARCHERY));
+
+            Abilities.push_back(Abilities::Type::Archery);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Dodging))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Dodging, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::DODGING));
+
+            Abilities.push_back(Abilities::Type::Dodging);
+
+            NumControls++;
+        }
 
         if (Engine::HasAbility(Character, Abilities::Type::QuickThinking))
         {
             Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::QuickThinking), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::QUICKTHINKING));
 
-            NumControls++;
-        }
-
-        if (Engine::HasAbility(Character, Abilities::Type::Call))
-        {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Memorize), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CALL));
+            Abilities.push_back(Abilities::Type::QuickThinking);
 
             NumControls++;
         }
 
-        if (Engine::HasAbility(Character, Abilities::Type::Cast))
+        if (Engine::HasAbility(Character, Abilities::Type::Quarterstaff))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Magic), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CAST));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Quarterstaff, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::QUARTERSTAFF));
+
+            Abilities.push_back(Abilities::Type::Quarterstaff);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Healing))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Healing, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::HEAL));
+
+            Abilities.push_back(Abilities::Type::Healing);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Exorcism))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Exorcism, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::EXORCISM));
+
+            Abilities.push_back(Abilities::Type::Exorcism);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::ESP))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::ESP, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::ESP));
+
+            Abilities.push_back(Abilities::Type::ESP);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::ParanormalSight))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::ParanormalSight, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::PARANORMAL_SIGHT));
+
+            Abilities.push_back(Abilities::Type::ParanormalSight);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Levitation))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Levitation, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::LEVITATION));
+
+            Abilities.push_back(Abilities::Type::Levitation);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::CallToMind))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::CallToMind), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CALL));
+
+            Abilities.push_back(Abilities::Type::CallToMind);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::CastSpell))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::CastSpell), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CAST));
+
+            Abilities.push_back(Abilities::Type::CastSpell);
 
             NumControls++;
         }
@@ -2470,21 +2541,9 @@ namespace Interface
                 {
                     done = true;
                 }
-                else if (Controls[Current].Type == Control::Type::QUICKTHINKING)
+                else if (Current >= 0 && Current < Abilities.size())
                 {
-                    Result = Abilities::Type::QuickThinking;
-
-                    done = true;
-                }
-                else if (Controls[Current].Type == Control::Type::CALL)
-                {
-                    Result = Abilities::Type::Call;
-
-                    done = true;
-                }
-                else if (Controls[Current].Type == Control::Type::CAST)
-                {
-                    Result = Abilities::Type::Cast;
+                    Result = Abilities[Current];
 
                     done = true;
                 }
@@ -3184,10 +3243,10 @@ namespace Interface
         Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
         Controls.push_back(Button(4, Assets::Get(Assets::Type::Exit), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
         Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intWH, Control::Type::MOVE));
-        Controls.push_back(Button(6, Assets::Get(Assets::Type::Attack), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
+        Controls.push_back(Button(6, Assets::Get(Assets::Type::Fight), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
         Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
         Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
-        Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
+        Controls.push_back(Button(9, Assets::Get(Assets::Type::UseAbility), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
         Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
         Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 10, 4, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
 
@@ -3675,133 +3734,132 @@ namespace Interface
                         {
                             SelectedSpell = -1;
 
-                            if (Character.Class != Character::Class::Warrior && Character.Class != Character::Class::Sage)
+                            auto Result = Interface::UseAbility(Renderer, Controls, intBK, Map, Character);
+
+                            if (Result == Abilities::Type::Ambidextrousness || Result == Abilities::Type::UnarmedMartialArts || Result == Abilities::Type::Dodging || Result == Abilities::Type::Quarterstaff)
                             {
-                                auto Result = Interface::UseAbility(Renderer, Controls, intBK, Map, Character);
-
-                                if (Result == Abilities::Type::QuickThinking)
+                                DisplayMessage("This ability is always in effect!", intGR);
+                            }
+                            else if (Result == Abilities::Type::Archery)
+                            {
+                                DisplayMessage("Use the shoot action to attack from range", intGR);
+                            }
+                            else if (Result == Abilities::Type::Healing || Result == Abilities::Type::Exorcism || Result == Abilities::Type::ESP || Result == Abilities::Type::ParanormalSight || Result == Abilities::Type::Levitation)
+                            {
+                                DisplayMessage("You cannot use this ability while in combat", intBK);
+                            }
+                            else if (Result == Abilities::Type::QuickThinking)
+                            {
+                                if (Character.QuickThinking)
                                 {
-                                    if (Character.QuickThinking)
-                                    {
-                                        DisplayMessage("Quick thinking already activated!", intBK);
-                                    }
-                                    else if (!Character.UsedQuickThinking)
-                                    {
-                                        DisplayMessage("Quick thinking activated!", intGR);
-
-                                        Character.QuickThinking = true;
-                                    }
-                                    else
-                                    {
-                                        DisplayMessage("Quick thinking can only be used once per combat!", intBK);
-                                    }
+                                    DisplayMessage("Quick thinking already activated!", intBK);
                                 }
-                                else if (Result == Abilities::Type::Cast)
+                                else if (!Character.UsedQuickThinking)
                                 {
-                                    if (Character.Spells.size() == 0)
-                                    {
-                                        DisplayMessage("You have not called to mind any spells!", intBK);
-                                    }
-                                    else
-                                    {
-                                        SelectedSpell = Interface::SelectSpell(Renderer, Controls, intBK, Map, Character);
+                                    DisplayMessage("Quick thinking activated!", intGR);
 
-                                        // cast spell
-                                        if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
+                                    Character.QuickThinking = true;
+                                }
+                                else
+                                {
+                                    DisplayMessage("Quick thinking can only be used once per combat!", intBK);
+                                }
+                            }
+                            else if (Result == Abilities::Type::CastSpell)
+                            {
+                                if (Character.Spells.size() == 0)
+                                {
+                                    DisplayMessage("You have not called to mind any spells!", intBK);
+                                }
+                                else
+                                {
+                                    SelectedSpell = Interface::SelectSpell(Renderer, Controls, intBK, Map, Character);
+
+                                    // cast spell
+                                    if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
+                                    {
+                                        Spell::Base &Spell = Character.Spells[SelectedSpell];
+
+                                        if (Spell.RequiresTarget)
                                         {
-                                            Spell::Base &Spell = Character.Spells[SelectedSpell];
+                                            CurrentMode = Combat::Mode::CAST;
 
-                                            if (Spell.RequiresTarget)
+                                            if (Spell.Type == Spell::Type::GhastlyTouch)
                                             {
-                                                if (Spell.Type == Spell::Type::GhastlyTouch)
+                                                if (!NearbyMonsters(Map, monsters, PlayerId, false))
                                                 {
-                                                    if (!NearbyMonsters(Map, monsters, PlayerId, false))
-                                                    {
-                                                        DisplayMessage("There are no enemies nearby!", intBK);
+                                                    DisplayMessage("There are no enemies nearby!", intBK);
 
-                                                        CurrentMode = Combat::Mode::NORMAL;
-                                                    }
-                                                    else
-                                                    {
-                                                        CurrentMode = Combat::Mode::CAST;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    CurrentMode = Combat::Mode::CAST;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                // attempt to cast spell
-                                                auto Result = Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell);
-
-                                                if (Result != Spell::Result::NONE)
-                                                {
-                                                    if (Result == Spell::Result::SUCCESS)
-                                                    {
-                                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, -1, Character.Spells[SelectedSpell].Type, CombatRound);
-
-                                                        Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
-
-                                                        SelectedSpell = -1;
-
-                                                        Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
-                                                    }
-
-                                                    CycleCombatants();
-                                                }
-                                                else
-                                                {
                                                     CurrentMode = Combat::Mode::NORMAL;
                                                 }
-
-                                                SelectedSpell = -1;
                                             }
                                         }
                                         else
                                         {
-                                            DisplayMessage("Spellcasting canceled!", intGR);
+                                            // attempt to cast spell
+                                            auto Result = Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell);
+
+                                            if (Result != Spell::Result::NONE)
+                                            {
+                                                if (Result == Spell::Result::SUCCESS)
+                                                {
+                                                    Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, party, monsters, PlayerId, -1, Character.Spells[SelectedSpell].Type, CombatRound);
+
+                                                    Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
+
+                                                    SelectedSpell = -1;
+
+                                                    Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+                                                }
+
+                                                CycleCombatants();
+                                            }
+                                            else
+                                            {
+                                                CurrentMode = Combat::Mode::NORMAL;
+                                            }
+
+                                            SelectedSpell = -1;
                                         }
                                     }
-                                }
-                                else if (Result == Abilities::Type::Call)
-                                {
-                                    auto CalledToMind = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::CALL);
-
-                                    if (CalledToMind >= 0 && CalledToMind < Spell::All.size())
+                                    else
                                     {
-                                        Character.Spells.push_back(Spell::All[CalledToMind]);
-
-                                        auto Forget = -1;
-
-                                        while (Character.Spells.size() > 4)
-                                        {
-                                            Forget = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::FORGET);
-
-                                            if (Forget >= 0 && Forget < Spell::All.size())
-                                            {
-                                                auto Result = Engine::Find(Character, Spell::All[Forget].Type);
-
-                                                if (Result >= 0 && Result < Character.Spells.size())
-                                                {
-                                                    Character.Spells.erase(Character.Spells.begin() + Result);
-                                                }
-                                            }
-                                        }
-
-                                        if (Forget != CalledToMind)
-                                        {
-                                            RenderMessage(Renderer, Controls, Map, intBK, Spell::All[CalledToMind].Name + " called to mind!", intGR);
-
-                                            CycleCombatants();
-                                        }
+                                        DisplayMessage("Spellcasting canceled!", intGR);
                                     }
                                 }
                             }
-                            else
+                            else if (Result == Abilities::Type::CallToMind)
                             {
-                                DisplayMessage("You have no usable special abilities!", intBK);
+                                auto CalledToMind = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::CALL);
+
+                                if (CalledToMind >= 0 && CalledToMind < Spell::All.size())
+                                {
+                                    Character.Spells.push_back(Spell::All[CalledToMind]);
+
+                                    auto Forget = -1;
+
+                                    while (Character.Spells.size() > 4)
+                                    {
+                                        Forget = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::FORGET);
+
+                                        if (Forget >= 0 && Forget < Spell::All.size())
+                                        {
+                                            auto Result = Engine::Find(Character, Spell::All[Forget].Type);
+
+                                            if (Result >= 0 && Result < Character.Spells.size())
+                                            {
+                                                Character.Spells.erase(Character.Spells.begin() + Result);
+                                            }
+                                        }
+                                    }
+
+                                    if (Forget != CalledToMind)
+                                    {
+                                        RenderMessage(Renderer, Controls, Map, intBK, Spell::All[CalledToMind].Name + " called to mind!", intGR);
+
+                                        CycleCombatants();
+                                    }
+                                }
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)
@@ -3858,7 +3916,7 @@ namespace Interface
                                     }
                                     else
                                     {
-                                        DisplayMessage("Attack canceled", intGR);
+                                        DisplayMessage("Fight canceled", intGR);
 
                                         CurrentMode = Combat::Mode::NORMAL;
                                     }
@@ -4238,12 +4296,12 @@ namespace Interface
                                         }
                                         else
                                         {
-                                            DisplayMessage("Attack canceled", intGR);
+                                            DisplayMessage("Fight canceled", intGR);
                                         }
                                     }
                                     else
                                     {
-                                        DisplayMessage("Attack aborted!", intBK);
+                                        DisplayMessage("Fight aborted!", intBK);
                                     }
 
                                     Selected = false;

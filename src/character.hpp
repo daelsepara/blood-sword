@@ -776,7 +776,7 @@ namespace Character
 
             character.Equipment = {Equipment::Sword, Equipment::Silver};
             character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
-            character.Abilities = {Abilities::Type::Call, Abilities::Type::Cast};
+            character.Abilities = {Abilities::Type::CallToMind, Abilities::Type::CastSpell};
 
             character.Asset = Assets::Type::Enchanter;
         }
