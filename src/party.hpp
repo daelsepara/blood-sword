@@ -6,20 +6,20 @@
 #include "book.hpp"
 #include "character.hpp"
 #include "codeword.hpp"
-#include "monster.hpp"
+#include "enemy.hpp"
 
 namespace Party
 {
-    class SurvivingMonsters
+    class SurvivingEnemies
     {
     public:
-        std::vector<Monster::Base> Monsters = {};
+        std::vector<Enemy::Base> Enemies = {};
 
         Book::Type Book = Book::Type::None;
 
         int Story = 0;
 
-        SurvivingMonsters(Book::Type book, int story, std::vector<Monster::Base> monsters) : Monsters(monsters), Book(book), Story(story)
+        SurvivingEnemies(Book::Type book, int story, std::vector<Enemy::Base> enemies) : Enemies(enemies), Book(book), Story(story)
         {
         }
     };
@@ -33,7 +33,7 @@ namespace Party
         std::vector<Book::Type> Completed = {};
 
         // surviving monsters from previous sections
-        std::vector<Party::SurvivingMonsters> Monsters = {};
+        std::vector<Party::SurvivingEnemies> Enemies = {};
 
         // list of codewords
         std::vector<Code::Word> Codewords = {};

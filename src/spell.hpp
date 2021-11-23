@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "assets.hpp"
 
@@ -101,7 +102,7 @@ namespace Spell
     auto WhiteFire = Spell::Base(Spell::Class::Blasting, Spell::Type::WhiteFire, 1, "White Fire", "This Blasting spell strikes one opponent, causing the loss of 2D+2 Endurance (less armour rating).", Assets::Type::WhiteFire, true);
     auto Swordthrust = Spell::Base(Spell::Class::Blasting, Spell::Type::Swordthrust, 2, "Swordthrust", "A Blasting spell affecting one enemy, who loses 3D+3 Endurance; armour reduces the damage in the usual way.", Assets::Type::Swordthrust, true);
     auto EyeOfTheTiger = Spell::Base(Spell::Class::Psychic, Spell::Type::EyeOfTheTiger, 2, "Eye of the Tiger", "When this spell is cast, you can either add +2 to your Fighting Prowess and damage rolls or add +1 to the Fighting Prowess and damage rolls of everyone in the party including yourself. This lasts for four rounds of combat.", Assets::Type::EyeOfTheTiger, false);
-    auto ImmediateDeliverance = Spell::Base(Spell::Class::Psychic, Spell::Type::ImmediateDeliverance, 2, "Immediate Deliverance", "Used during a combat from which you wish to flee, this spell Teleports everyone in the party to the exit (if there is one). You are then ready to beat a retreat in the next round.", Assets::Type::ImmediateDeliverance, false);
+    auto ImmediateDeliverance = Spell::Base(Spell::Class::Psychic, Spell::Type::ImmediateDeliverance, 2, "Immediate Deliverance", "Used during a combat from which you wish to flee, this spell teleports everyone in the party to the exit (if there is one). You are then ready to beat a retreat in the next round.", Assets::Type::ImmediateDeliverance, false);
     auto MistsOfDeath = Spell::Base(Spell::Class::Psychic, Spell::Type::MistsOfDeath, 3, "Mists of Death", "All enemies in the vicinity lose 2D Endurance if they fail to resist this Psychic spell. Armour gives no protection.", Assets::Type::MistsOfDeath, false);
     auto TheVampireSpell = Spell::Base(Spell::Class::Psychic, Spell::Type::TheVampireSpell, 3, "The Vampire Spell", "This Psychic spell can be directed against a single foe, who loses 4D endurance if he fails to resist it. Some of the vital energy he loses is channelled into you: your own Endurance is increased by half the amount he loses (rounded down). Of course, your Endurance still cannot exceed its initial score.", Assets::Type::TheVampireSpell, true);
     auto SheetLightning = Spell::Base(Spell::Class::Blasting, Spell::Type::SheetLightning, 4, "Sheet Lightning", "A powerful Blasting spell that inflicts 2D+2 damage to all opponents in the vicinity. Armour protects from this as usual.", Assets::Type::SheetLightning, false);

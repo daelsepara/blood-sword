@@ -18,7 +18,7 @@ int main(int argc, const char **argv)
 
     if (Window && Renderer)
     {
-        // setup party, monsters, and map
+        // setup party, enemies, and map
         auto party = Party::Base();
 
         party.Members.push_back(Character::Create(Character::Class::Warrior, 2));
@@ -26,12 +26,12 @@ int main(int argc, const char **argv)
         party.Members.push_back(Character::Create(Character::Class::Sage, 2));
         party.Members.push_back(Character::Create(Character::Class::Enchanter, 2));
 
-        auto monsters = std::vector<Monster::Base>();
+        auto enemies = std::vector<Enemy::Base>();
 
-        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-        monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+        enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+        enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+        enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+        enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
 
         std::vector<std::string> map = {
             "#####=#######",
@@ -46,7 +46,7 @@ int main(int argc, const char **argv)
         Assets::Load();
 
         // combat screen
-        Interface::CombatScreen(Window, Renderer, map, party, monsters);
+        Interface::CombatScreen(Window, Renderer, map, party, enemies);
 
         Assets::Unload();
 

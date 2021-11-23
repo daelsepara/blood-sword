@@ -24,7 +24,7 @@ namespace Control
         BACK,
         EXIT,
         PLAYER,
-        MONSTER,
+        ENEMY,
         DESTINATION,
         ABILITY,
         ITEMS,

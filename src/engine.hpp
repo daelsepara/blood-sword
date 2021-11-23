@@ -1,7 +1,7 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
-#include "monster.hpp"
+#include "enemy.hpp"
 #include "party.hpp"
 #include "random.hpp"
 
@@ -131,11 +131,11 @@ namespace Engine
         }
     }
 
-    void Gain(Monster::Base &monster, int damage)
+    void Gain(Enemy::Base &enemy, int damage)
     {
-        monster.Endurance += damage;
+        enemy.Endurance += damage;
 
-        monster.Endurance = std::max(0, monster.Endurance);
+        enemy.Endurance = std::max(0, enemy.Endurance);
     }
 
     int Armour(Character::Base &character)
@@ -192,18 +192,18 @@ namespace Engine
         return result;
     }
 
-    bool IsAlive(Monster::Base &monster)
+    bool IsAlive(Enemy::Base &enemy)
     {
-        return (monster.Endurance > 0);
+        return (enemy.Endurance > 0);
     }
 
-    bool IsAlive(std::vector<Monster::Base> &monsters)
+    bool IsAlive(std::vector<Enemy::Base> &enemys)
     {
         auto result = false;
 
-        for (auto i = 0; i < monsters.size(); i++)
+        for (auto i = 0; i < enemys.size(); i++)
         {
-            if (Engine::IsAlive(monsters[i]))
+            if (Engine::IsAlive(enemys[i]))
             {
                 result = true;
 
@@ -365,13 +365,13 @@ namespace Engine
         return result;
     }
 
-    bool KnockedOff(std::vector<Monster::Base> &monsters)
+    bool KnockedOff(std::vector<Enemy::Base> &enemys)
     {
         auto result = false;
 
-        for (auto i = 0; i < monsters.size(); i++)
+        for (auto i = 0; i < enemys.size(); i++)
         {
-            if (monsters[i].Endurance > 0 && monsters[i].KnockedOff)
+            if (enemys[i].Endurance > 0 && enemys[i].KnockedOff)
             {
                 result = true;
 
@@ -454,13 +454,13 @@ namespace Engine
         }
     }
 
-    bool Enthraled(std::vector<Monster::Base> &monsters)
+    bool Enthraled(std::vector<Enemy::Base> &enemys)
     {
         auto result = true;
 
-        for (auto i = 0; i < monsters.size(); i++)
+        for (auto i = 0; i < enemys.size(); i++)
         {
-            result &= (monsters[i].Enthraled || !Engine::IsAlive(monsters[i]));
+            result &= (enemys[i].Enthraled || !Engine::IsAlive(enemys[i]));
         }
 
         return result;
@@ -498,21 +498,21 @@ namespace Engine
         character.SpellStatus = NewStatus;
     }
 
-    void UpdateSpellStatus(Monster::Base &monster, int CombatRound)
+    void UpdateSpellStatus(Enemy::Base &enemy, int CombatRound)
     {
         std::vector<Spell::Status> NewStatus = {};
 
-        for (auto i = 0; i < monster.SpellStatus.size(); i++)
+        for (auto i = 0; i < enemy.SpellStatus.size(); i++)
         {
-            auto StartRound = std::get<1>(monster.SpellStatus[i]);
+            auto StartRound = std::get<1>(enemy.SpellStatus[i]);
 
             if (CombatRound > StartRound)
             {
-                auto Score = std::get<3>(monster.SpellStatus[i]);
+                auto Score = std::get<3>(enemy.SpellStatus[i]);
 
-                auto Duration = std::get<2>(monster.SpellStatus[i]);
+                auto Duration = std::get<2>(enemy.SpellStatus[i]);
 
-                auto Type = std::get<0>(monster.SpellStatus[i]);
+                auto Type = std::get<0>(enemy.SpellStatus[i]);
 
                 Duration--;
 
@@ -523,11 +523,11 @@ namespace Engine
             }
             else
             {
-                NewStatus.push_back(monster.SpellStatus[i]);
+                NewStatus.push_back(enemy.SpellStatus[i]);
             }
         }
 
-        monster.SpellStatus = NewStatus;
+        enemy.SpellStatus = NewStatus;
     }
 
     int GetStatus(Character::Base &character, Spell::Type status)
@@ -554,13 +554,13 @@ namespace Engine
         return (result >= 0 && result < character.SpellStatus.size());
     }
 
-    int GetStatus(Monster::Base &monster, Spell::Type status)
+    int GetStatus(Enemy::Base &enemy, Spell::Type status)
     {
         auto result = -1;
 
-        for (auto i = 0; i < monster.SpellStatus.size(); i++)
+        for (auto i = 0; i < enemy.SpellStatus.size(); i++)
         {
-            if (std::get<0>(monster.SpellStatus[i]) == status)
+            if (std::get<0>(enemy.SpellStatus[i]) == status)
             {
                 result = i;
 
@@ -571,11 +571,11 @@ namespace Engine
         return result;
     }
 
-    bool HasStatus(Monster::Base &monster, Spell::Type status)
+    bool HasStatus(Enemy::Base &enemy, Spell::Type status)
     {
-        auto result = Engine::GetStatus(monster, status);
+        auto result = Engine::GetStatus(enemy, status);
 
-        return (result >= 0 && result < monster.SpellStatus.size());
+        return (result >= 0 && result < enemy.SpellStatus.size());
     }
 }
 #endif

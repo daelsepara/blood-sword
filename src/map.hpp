@@ -11,7 +11,7 @@ namespace Map
     const char Passable = ' ';
 
     std::string Players = "1234";
-    std::string Monsters = "ABCDEFGHIJ";
+    std::string Enemies = "ABCDEFGHIJ";
 
     typedef std::pair<int, int> Point;
 
@@ -23,7 +23,7 @@ namespace Map
         Wall,
         Exit,
         HotCoals,
-        Monster
+        Enemy
     };
 
     std::map<Map::Object, const char *> Description = {
@@ -33,7 +33,7 @@ namespace Map
         {Map::Object::Wall, "Wall"},
         {Map::Object::Exit, "Exit"},
         {Map::Object::HotCoals, "Hot Coals"},
-        {Map::Object::Monster, "Monster"}};
+        {Map::Object::Enemy, "Enemy"}};
 
     class Tile
     {
@@ -120,7 +120,7 @@ namespace Map
             }
         }
 
-        void Convert(std::vector<std::string> &map, Party::Base &party, std::vector<Monster::Base> &monsters)
+        void Convert(std::vector<std::string> &map, Party::Base &party, std::vector<Enemy::Base> &enemies)
         {
             if (map.size() > 0)
             {
@@ -135,7 +135,7 @@ namespace Map
                     {
                         auto player = Map::Players.find(map[y][x]);
 
-                        auto monster = Map::Monsters.find(map[y][x]);
+                        auto monster = Map::Enemies.find(map[y][x]);
 
                         if (map[y][x] == Map::Wall)
                         {
@@ -175,11 +175,11 @@ namespace Map
                             Tiles[y][x].IsPlayer = true;
                             Tiles[y][x].Id = player + 1;
                         }
-                        else if (monster != std::string::npos && monster >= 0 && monster < monsters.size())
+                        else if (monster != std::string::npos && monster >= 0 && monster < enemies.size())
                         {
                             Tiles[y][x].Asset = Assets::Type::Passable;
                             Tiles[y][x].Type = Map::Object::Passable;
-                            Tiles[y][x].Occupant = Map::Object::Monster;
+                            Tiles[y][x].Occupant = Map::Object::Enemy;
                             Tiles[y][x].IsPassable = true;
                             Tiles[y][x].IsEnemy = true;
                             Tiles[y][x].Id = monster + 1;
@@ -205,7 +205,7 @@ namespace Map
             Initialize(sizex, sizey);
         }
 
-        Base(std::vector<std::string> map, Party::Base &party, std::vector<Monster::Base> &monsters)
+        Base(std::vector<std::string> map, Party::Base &party, std::vector<Enemy::Base> &enemies)
         {
             if (map.size() > 0)
             {
@@ -215,7 +215,7 @@ namespace Map
 
                 Initialize(sizex, sizey);
 
-                Convert(map, party, monsters);
+                Convert(map, party, enemies);
             }
         }
     };

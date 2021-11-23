@@ -31,4 +31,4 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 - Warrior (**DONE**)
 - Trickster (**DONE**)
 - Sage (**DONE**)
-- Enchanter: 11/12 combat spells implemented (**PARTIAL**)
+- Enchanter: (**DONE**)

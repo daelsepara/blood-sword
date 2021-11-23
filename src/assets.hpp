@@ -68,7 +68,7 @@ namespace Assets
         ServileEnthralment,
         EyeOfTheTigerIndividual,
         EyeOfTheTigerParty,
-        Monster = 300,
+        Enemy = 300,
         Barbarian
     };
 

@@ -1,12 +1,13 @@
-#ifndef __MONSTER_HPP__
-#define __MONSTER_HPP__
+#ifndef __ENEMY_HPP__
+#define __ENEMY_HPP__
 
 #include <string>
+#include <vector>
 
 #include "assets.hpp"
 #include "spell.hpp"
 
-namespace Monster
+namespace Enemy
 {
     enum class Type
     {
@@ -17,7 +18,7 @@ namespace Monster
     class Base
     {
     public:
-        Monster::Type Type = Monster::Type::None;
+        Enemy::Type Type = Enemy::Type::None;
 
         std::string Name = "";
 
@@ -47,7 +48,7 @@ namespace Monster
         {
         }
 
-        Base(Monster::Type type, const char *name, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier, int armour, Assets::Type asset)
+        Base(Enemy::Type type, const char *name, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier, int armour, Assets::Type asset)
         {
             Type = type;
 

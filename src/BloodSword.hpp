@@ -41,7 +41,7 @@ namespace fs = std::filesystem;
 #include "fonts.hpp"
 #include "glyphs.hpp"
 #include "input.hpp"
-#include "monster.hpp"
+#include "enemy.hpp"
 #include "party.hpp"
 #include "random.hpp"
 #include "spell.hpp"
