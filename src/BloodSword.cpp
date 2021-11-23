@@ -46,7 +46,12 @@ int main(int argc, const char **argv)
         Assets::Load();
 
         // combat screen
-        Interface::CombatScreen(Window, Renderer, map, party, enemies);
+        // Interface::CombatScreen(Window, Renderer, map, party, enemies);
+
+        // Story Screen
+        Book1::InitializeStories();
+
+        Interface::StoryScreen(Window, Renderer, party, {Book::Type::Book1, 1});
 
         Assets::Unload();
 

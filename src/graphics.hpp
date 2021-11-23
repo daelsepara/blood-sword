@@ -8,7 +8,7 @@ namespace Graphics
     SDL_Surface *CreateImage(const char *image);
     SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
     SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style);
-    SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style);
+    SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style, bool bottom);
 
     std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony);
     std::vector<TextButton> CreateTextButtons(const char **choices, int num, int text_buttonh, int text_x, int text_buttony, int window_width, int window_height);
@@ -19,6 +19,7 @@ namespace Graphics
     void FillWindow(SDL_Renderer *renderer, Uint32 color);
     void PutText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
     void PutTextBox(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
+    void RenderButtons(SDL_Renderer *renderer, std::vector<Button> controls, int current, int space, int pts);
     void RenderCaption(SDL_Renderer *renderer, Button &control, SDL_Color color, Uint32 bg);
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y);
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset);
@@ -215,11 +216,6 @@ namespace Graphics
 
             for (auto i = 0; i < controls.size(); i++)
             {
-                if (controls[i].Type == Control::Type::SCROLL_UP || controls[i].Type == Control::Type::SCROLL_DOWN)
-                {
-                    Graphics::FillRect(renderer, controls[i].W + 2 * border_space, controls[i].H + 2 * border_space, controls[i].X - border_space, controls[i].Y - border_space, controls[i].Color);
-                }
-
                 Graphics::RenderImage(renderer, controls[i].Surface, controls[i].X, controls[i].Y);
 
                 if (i == current)
@@ -249,6 +245,7 @@ namespace Graphics
     void RenderCaption(SDL_Renderer *renderer, Button &control, SDL_Color color, Uint32 bg)
     {
         auto captionx = control.X - text_space;
+
         auto captiony = control.Y + control.H + border_space;
 
         std::string caption = "";
@@ -340,6 +337,26 @@ namespace Graphics
         else if (control.Type == Control::Type::EXIT)
         {
             caption = "Exit";
+        }
+        else if (control.Type == Control::Type::ENCYCLOPEDIA)
+        {
+            caption = "See rules for combat and magic";
+        }
+        else if (control.Type == Control::Type::MAP)
+        {
+            caption = "View map of Legend";
+        }
+        else if (control.Type == Control::Type::GAME)
+        {
+            caption = "Load / Save game";
+        }
+        else if (control.Type == Control::Type::PARTY)
+        {
+            caption = "Mange party";
+        }
+        else if (control.Type == Control::Type::CONTINUE)
+        {
+            caption = "Continue story";
         }
 
         if (caption.length() > 0)
@@ -676,7 +693,7 @@ namespace Graphics
     }
 
     // create text and image with line wrap limit
-    SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style)
+    SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style, bool bottom)
     {
         SDL_Surface *surface = NULL;
 
@@ -717,7 +734,7 @@ namespace Graphics
             text_dst.w = surface->w;
             text_dst.h = surface->h;
             text_dst.x = 0;
-            text_dst.y = image_h + text_space;
+            text_dst.y = bottom ? image_h + text_space : 0;
 
             SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0, 0, 0, 0));
 
@@ -733,6 +750,8 @@ namespace Graphics
                 dst.h = image_surface->h;
                 dst.x = (surface->w - image_surface->w) / 2;
             }
+
+            dst.y = bottom ? 0 : text_surface->h + text_space;
 
             converted_surface = SDL_ConvertSurface(image_surface, surface->format, 0);
 

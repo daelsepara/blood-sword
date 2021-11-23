@@ -169,6 +169,22 @@
             "path": "icons/exit.png"
         },
         {
+            "id": 159,
+            "path": "icons/map.png"
+        },
+        {
+            "id": 160,
+            "path": "icons/encyclopedia.png"
+        },
+        {
+            "id": 161,
+            "path": "icons/game.png"
+        },
+        {
+            "id": 162,
+            "path": "icons/party.png"
+        },
+        {
             "id": 201,
             "path": "images/spells/volcano-spray.png"
         },

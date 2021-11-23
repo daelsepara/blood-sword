@@ -4624,8 +4624,22 @@ namespace Interface
         return next;
     }
 
+    struct ScreenDimensions
+    {
+        int BoxWidth = 0;
+        int BoxHeight = 0;
+        int TextBoxWidth = 0;
+        int TextBoxHeight = 0;
+        int TextBoxX = 0;
+        int TextBoxY = 0;
+        int TextWidth = 0;
+        int TextBounds = 0;
+    };
+
     void ProcessStory(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base &Story)
     {
+        Interface::ScreenDimensions ScreenDimensions;
+
         if (Window && Renderer)
         {
             auto FlashMessage = false;
@@ -4657,7 +4671,7 @@ namespace Interface
                     {
                         auto FlashW = 3 * SCREEN_WIDTH / 5;
 
-                        auto FlashH = 2 * SCREEN_WIDTH / 5;
+                        auto FlashH = SCREEN_HEIGHT / 5;
 
                         Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2);
 
@@ -4675,25 +4689,35 @@ namespace Interface
 
             auto FontSize = TTF_FontHeight(Fonts::Normal);
 
-            SDL_Surface *Background = NULL;
-
             std::vector<Button> Controls = {};
 
-            auto quit = false;
+            auto Quit = false;
 
-            while (!quit)
+            auto IconSize = (buttonw + 2 * border_space);
+            ScreenDimensions.BoxWidth = (SCREEN_WIDTH - 2 * IconSize) / 2 + border_space;
+            ScreenDimensions.BoxHeight = (SCREEN_HEIGHT - 3 * (buttonh + 2 * border_space));
+            ScreenDimensions.TextBoxWidth = ScreenDimensions.BoxWidth;
+            ScreenDimensions.TextBoxHeight = ScreenDimensions.BoxHeight;
+            ScreenDimensions.TextBoxX = IconSize / 2 + ScreenDimensions.BoxWidth - border_space;
+            ScreenDimensions.TextBoxY = IconSize;
+            ScreenDimensions.TextBounds = ScreenDimensions.TextBoxHeight - 2 * text_space;
+            ScreenDimensions.TextWidth = ScreenDimensions.TextBoxWidth - 2 * text_space;
+
+            while (!Quit)
             {
+                SDL_Surface *Text = NULL;
+
                 auto RunOnce = true;
 
                 if (RunOnce)
                 {
                     RunOnce = false;
 
-                    auto jump = Story.Background(Party);
+                    auto Jump = Story.Background(Party);
 
-                    if (jump.first != Book::Type::None)
+                    if (Jump.first != Book::Type::None)
                     {
-                        Story = Interface::FindStory(jump);
+                        Story = Interface::FindStory(Jump);
 
                         continue;
                     }
@@ -4701,20 +4725,178 @@ namespace Interface
                     Story.Event(Party);
                 }
 
-                DisplayMessage("Under Construction", intBK);
+                SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
 
-                RenderFlashMessage();
+                if (!Story.Image.empty() && !Story.Text.empty())
+                {
+                    Text = Graphics::CreateTextAndImage(Story.Text.c_str(), Story.Image.c_str(), FONT_BOOKMAN, FontSize, clrBK, intGR, ScreenDimensions.TextWidth, TTF_STYLE_NORMAL, Story.TopImage);
+                }
+                else if (!Story.Text.empty())
+                {
+                    Text = Glyphs::FormattedText(Story.Text.c_str(), FONT_BOOKMAN, FontSize, clrBK, ScreenDimensions.TextWidth);
+                }
 
-                Input::WaitForNext(Renderer);
+                SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
 
-                quit = true;
-            }
+                auto compact = (Text && Text->h <= text_bounds - 2 * text_space) || !Text;
 
-            if (Background)
-            {
-                SDL_FreeSurface(Background);
+                if (Story.Controls == Story::Controls::Standard)
+                {
+                    Controls = Story::StandardControls(compact);
+                }
 
-                Background = NULL;
+                auto ScrollSpeed = 20;
+                auto Hold = false;
+                auto Selected = false;
+                auto Current = -1;
+                auto Offset = 0;
+                auto Transition = false;
+
+                while (!Transition)
+                {
+                    if (!Story.Title.empty())
+                    {
+                        SDL_SetWindowTitle(Window, Story.Title.c_str());
+                    }
+                    else
+                    {
+                        if (Story.Id != -1)
+                        {
+                            auto StoryId = Story.Id;
+
+                            if (StoryId < 0 && Story.DisplayId >= 0)
+                            {
+                                StoryId = Story.DisplayId;
+                            }
+
+                            std::string title_string = "Blood Sword - " + std::string(Book::Title[Story.Book]) + ": ";
+
+                            SDL_SetWindowTitle(Window, (title_string + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId))).c_str());
+                        }
+                        else
+                        {
+                            std::string title_string = "Blood Sword - " + std::string(Book::Title[Story.Book]) + ": Not Implemented Yet";
+
+                            SDL_SetWindowTitle(Window, title_string.c_str());
+                        }
+                    }
+
+                    Graphics::FillWindow(Renderer, intBK);
+
+                    // text box
+                    Graphics::FillRect(Renderer, ScreenDimensions.TextBoxWidth, ScreenDimensions.TextBoxHeight, ScreenDimensions.TextBoxX, ScreenDimensions.TextBoxY, intGR);
+
+                    SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+
+                    if (!Story.Text.empty() && !Story.Image.empty() && Text)
+                    {
+                        Graphics::RenderImage(Renderer, Text, ScreenDimensions.TextBoxX + text_space, ScreenDimensions.TextBoxY + text_space, ScreenDimensions.TextBounds, Offset);
+                    }
+                    else if (!Story.Text.empty() && Text)
+                    {
+                        Graphics::RenderText(Renderer, Text, 0, ScreenDimensions.TextBoxX + text_space, ScreenDimensions.TextBoxY + text_space, ScreenDimensions.TextBounds, Offset);
+                    }
+
+                    SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
+
+                    // stats/info box
+                    Graphics::DrawRect(Renderer, ScreenDimensions.TextBoxWidth - 2 * border_space, ScreenDimensions.TextBoxHeight, IconSize / 2, ScreenDimensions.TextBoxY, intWH);
+
+                    auto ScrollUp = false;
+
+                    auto ScrollDown = false;
+
+                    RenderFlashMessage();
+
+                    Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+
+                    if (Current >= 0 && Current < Controls.size())
+                    {
+                        Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
+                    }
+
+                    Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold);
+
+                    if (((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold))
+                    {
+                        if (Controls[Current].Type == Control::Type::SCROLL_UP || (Controls[Current].Type == Control::Type::SCROLL_UP && Hold) || ScrollUp)
+                        {
+                            if (Text)
+                            {
+                                if (Offset > 0)
+                                {
+                                    Offset -= ScrollSpeed;
+                                }
+
+                                if (Offset < 0)
+                                {
+                                    Offset = 0;
+                                }
+                            }
+                        }
+                        else if (Controls[Current].Type == Control::Type::SCROLL_DOWN || (Controls[Current].Type == Control::Type::SCROLL_DOWN && Hold) || ScrollDown)
+                        {
+                            if (Text)
+                            {
+                                if (Text->h >= (ScreenDimensions.TextBounds - 2 * text_space))
+                                {
+                                    if (Offset < (Text->h - ScreenDimensions.TextBounds + 2 * text_space))
+                                    {
+                                        Offset += ScrollSpeed;
+                                    }
+
+                                    if (Offset > (Text->h - ScreenDimensions.TextBounds + 2 * text_space))
+                                    {
+                                        Offset = Text->h - ScreenDimensions.TextBounds + 2 * text_space;
+                                    }
+                                }
+                            }
+                        }
+                        else if (Controls[Current].Type == Control::Type::ENCYCLOPEDIA && !Hold)
+                        {
+                            DisplayMessage("Not yet implemented!", intBK);
+
+                            Selected = false;
+                        }
+                        else if (Controls[Current].Type == Control::Type::MAP && !Hold)
+                        {
+                            DisplayMessage("Not yet implemented!", intBK);
+
+                            Selected = false;
+                        }
+                        else if (Controls[Current].Type == Control::Type::PARTY && !Hold)
+                        {
+                            DisplayMessage("Not yet implemented!", intBK);
+
+                            Selected = false;
+                        }
+                        else if (Controls[Current].Type == Control::Type::GAME && !Hold)
+                        {
+                            DisplayMessage("Not yet implemented!", intBK);
+
+                            Selected = false;
+                        }
+                        else if (Controls[Current].Type == Control::Type::CONTINUE && !Hold)
+                        {
+                            DisplayMessage("Not yet implemented!", intBK);
+
+                            Selected = false;
+                        }
+                        else if (Controls[Current].Type == Control::Type::EXIT && !Hold)
+                        {
+                            Transition = true;
+
+                            Quit = true;
+                        }
+                    }
+                }
+
+                if (Text)
+                {
+                    SDL_FreeSurface(Text);
+
+                    Text = NULL;
+                }
             }
         }
     }

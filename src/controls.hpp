@@ -50,6 +50,11 @@ namespace Control
         LEVITATION,
         TEST,
         CHOICE,
+        CONTINUE,
+        MAP,
+        ENCYCLOPEDIA,
+        GAME,
+        PARTY
     };
 
     class Base
