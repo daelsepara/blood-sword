@@ -56,15 +56,13 @@ namespace Interface
     {
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY))
         {
-            if (Map.Tiles[srcY][srcX].IsPlayer)
+            if (Map.Tiles[srcY][srcX].IsPlayer())
             {
-                Map.Tiles[srcY][srcX].IsPlayer = false;
                 Map.Tiles[srcY][srcX].Id = 0;
                 Map.Tiles[srcY][srcX].Occupant = Map::Object::None;
             }
-            else if (Map.Tiles[srcY][srcX].IsEnemy)
+            else if (Map.Tiles[srcY][srcX].IsEnemy())
             {
-                Map.Tiles[srcY][srcX].IsEnemy = false;
                 Map.Tiles[srcY][srcX].Id = 0;
                 Map.Tiles[srcY][srcX].Occupant = Map::Object::None;
             }
@@ -77,9 +75,8 @@ namespace Interface
 
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY) && Interface::ValidX(Map, dstX) && Interface::ValidY(Map, dstY))
         {
-            if (Map.Tiles[srcY][srcX].IsPlayer && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit) && Map.Tiles[dstY][dstX].Occupant == Map::Object::None)
+            if (Map.Tiles[srcY][srcX].IsPlayer() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit()) && Map.Tiles[dstY][dstX].Occupant == Map::Object::None)
             {
-                Map.Tiles[dstY][dstX].IsPlayer = true;
                 Map.Tiles[dstY][dstX].Id = Map.Tiles[srcY][srcX].Id;
                 Map.Tiles[dstY][dstX].Occupant = Map.Tiles[srcY][srcX].Occupant;
 
@@ -87,9 +84,8 @@ namespace Interface
 
                 result = true;
             }
-            else if (Map.Tiles[srcY][srcX].IsEnemy && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy) && Map.Tiles[dstY][dstX].Occupant == Map::Object::None)
+            else if (Map.Tiles[srcY][srcX].IsEnemy() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy) && Map.Tiles[dstY][dstX].Occupant == Map::Object::None)
             {
-                Map.Tiles[dstY][dstX].IsEnemy = true;
                 Map.Tiles[dstY][dstX].Id = Map.Tiles[srcY][srcX].Id;
                 Map.Tiles[dstY][dstX].Occupant = Map.Tiles[srcY][srcX].Occupant;
 
@@ -143,7 +139,7 @@ namespace Interface
 
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY) && Interface::ValidX(Map, dstX) && Interface::ValidY(Map, dstY))
         {
-            if (Map.Tiles[srcY][srcX].IsPlayer && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit))
+            if (Map.Tiles[srcY][srcX].IsPlayer() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit()))
             {
                 auto PlayerId = Map.Tiles[srcY][srcX].Id - 1;
 
@@ -159,7 +155,7 @@ namespace Interface
 
                 result = Interface::Move(Map, srcX, srcY, dstX, dstY);
             }
-            else if (Map.Tiles[srcY][srcX].IsEnemy && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy))
+            else if (Map.Tiles[srcY][srcX].IsEnemy() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy))
             {
                 auto EnemyId = Map.Tiles[srcY][srcX].Id - 1;
 
@@ -283,7 +279,7 @@ namespace Interface
         return result;
     }
 
-    bool AttackedUponMoving(Map::Base &Map, std::vector<Enemy::Base> &Enemies, Character::Base &character, int PlayerId, int &Damages)
+    bool AttackedWhileMoving(Map::Base &Map, std::vector<Enemy::Base> &Enemies, Character::Base &character, int PlayerId, int &Damages)
     {
         auto WasAttacked = false;
 
@@ -2703,15 +2699,15 @@ namespace Interface
 
                 auto ObjectId = Map.Tiles[y][x].Id - 1;
 
-                if (Map.Tiles[y][x].IsPlayer)
+                if (Map.Tiles[y][x].IsPlayer())
                 {
                     Controls.push_back(Button(NumControls, Assets::Get(Party.Members[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
                 }
-                else if (Map.Tiles[y][x].IsEnemy)
+                else if (Map.Tiles[y][x].IsEnemy())
                 {
                     Controls.push_back(Button(NumControls, Enemies[ObjectId].Enthraled ? Assets::Get(Enemies[ObjectId].Asset, 0x66) : Assets::Get(Enemies[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::ENEMY));
                 }
-                else if (Map.Tiles[y][x].IsExit)
+                else if (Map.Tiles[y][x].IsExit())
                 {
                     Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_EXIT));
                 }
@@ -3516,7 +3512,7 @@ namespace Interface
                         {
                             if (Map.Exits.size() > 0)
                             {
-                                if (Map.Tiles[CurrentY][CurrentX].IsExit)
+                                if (Map.Tiles[CurrentY][CurrentX].IsExit())
                                 {
                                     Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " escapes!"), intGR);
 
@@ -3591,7 +3587,7 @@ namespace Interface
                                     auto Damages = 0;
 
                                     // get attacked by a nearby enemy that has a higher awareness
-                                    auto WasAttacked = AttackedUponMoving(Map, Enemies, Character, PlayerId, Damages);
+                                    auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
 
                                     if (CurrentPath[PlayerId].Points.size() > 2)
                                     {
@@ -3635,7 +3631,7 @@ namespace Interface
 
                                     auto Damages = 0;
 
-                                    auto WasAttacked = AttackedUponMoving(Map, Enemies, Character, PlayerId, Damages);
+                                    auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
 
                                     if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, SelectX, SelectY))
                                     {
@@ -3684,7 +3680,7 @@ namespace Interface
                                     {
                                         auto Damages = 0;
 
-                                        auto WasAttacked = AttackedUponMoving(Map, Enemies, Character, PlayerId, Damages);
+                                        auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
 
                                         if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y))
                                         {

@@ -44,20 +44,29 @@ namespace Map
 
         Assets::Type Asset = Assets::Type::None;
 
-        bool IsPlayer = false;
-
-        bool IsEnemy = false;
-
         bool IsPassable = false;
 
         bool IsPassableToEnemy = false;
-
-        bool IsExit = false;
 
         int Id = 0;
 
         Tile()
         {
+        }
+
+        bool IsEnemy()
+        {
+            return Occupant == Map::Object::Enemy;
+        }
+
+        bool IsPlayer()
+        {
+            return Occupant == Map::Object::Player;
+        }
+
+        bool IsExit()
+        {
+            return Type == Map::Object::Exit;
         }
     };
 
@@ -155,7 +164,6 @@ namespace Map
                             Tiles[y][x].Asset = Assets::Type::MapExit;
                             Tiles[y][x].Type = Map::Object::Exit;
                             Tiles[y][x].IsPassable = false;
-                            Tiles[y][x].IsExit = true;
 
                             Exits.push_back(std::make_pair(x, y));
                         }
@@ -172,7 +180,6 @@ namespace Map
                             Tiles[y][x].Type = Map::Object::Passable;
                             Tiles[y][x].Occupant = Map::Object::Player;
                             Tiles[y][x].IsPassable = true;
-                            Tiles[y][x].IsPlayer = true;
                             Tiles[y][x].Id = player + 1;
                         }
                         else if (enemy != std::string::npos && enemy >= 0 && enemy < enemies.size())
@@ -181,7 +188,6 @@ namespace Map
                             Tiles[y][x].Type = Map::Object::Passable;
                             Tiles[y][x].Occupant = Map::Object::Enemy;
                             Tiles[y][x].IsPassable = true;
-                            Tiles[y][x].IsEnemy = true;
                             Tiles[y][x].Id = enemy + 1;
                         }
                         else
