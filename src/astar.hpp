@@ -121,7 +121,7 @@ namespace AStar
 
                     if (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && IsEnemy && map.Tiles[Y][X].IsEnemy)
                     {
-                        // Monsters avoid other monsters as much as possible
+                        // Enemies avoid other enemies as much as possible
                         Cost += 1;
                     }
 

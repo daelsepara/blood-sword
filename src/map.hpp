@@ -135,7 +135,7 @@ namespace Map
                     {
                         auto player = Map::Players.find(map[y][x]);
 
-                        auto monster = Map::Enemies.find(map[y][x]);
+                        auto enemy = Map::Enemies.find(map[y][x]);
 
                         if (map[y][x] == Map::Wall)
                         {
@@ -175,14 +175,14 @@ namespace Map
                             Tiles[y][x].IsPlayer = true;
                             Tiles[y][x].Id = player + 1;
                         }
-                        else if (monster != std::string::npos && monster >= 0 && monster < enemies.size())
+                        else if (enemy != std::string::npos && enemy >= 0 && enemy < enemies.size())
                         {
                             Tiles[y][x].Asset = Assets::Type::Passable;
                             Tiles[y][x].Type = Map::Object::Passable;
                             Tiles[y][x].Occupant = Map::Object::Enemy;
                             Tiles[y][x].IsPassable = true;
                             Tiles[y][x].IsEnemy = true;
-                            Tiles[y][x].Id = monster + 1;
+                            Tiles[y][x].Id = enemy + 1;
                         }
                         else
                         {

@@ -32,7 +32,7 @@ namespace Party
         // completed books
         std::vector<Book::Type> Completed = {};
 
-        // surviving monsters from previous sections
+        // surviving enemies from previous sections
         std::vector<Party::SurvivingEnemies> Enemies = {};
 
         // list of codewords
