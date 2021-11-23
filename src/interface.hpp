@@ -3,6 +3,8 @@
 
 #include "graphics.hpp"
 
+#include "book1.hpp"
+
 namespace Interface
 {
     // (Player/Enemy, Id, Awareness)
@@ -4600,6 +4602,128 @@ namespace Interface
         }
 
         return Combat::Result::DEFEAT;
+    }
+
+    Story::Base &FindStory(Engine::Destination destination)
+    {
+        Story::Base &next = Story::notImplemented;
+
+        auto book = destination.first;
+
+        auto story = destination.second;
+
+        if (book == Book::Type::Book1)
+        {
+            next = Story::FindStory(story, Book1::Stories);
+        }
+
+        next.Book = book;
+
+        next.Id = story;
+
+        return next;
+    }
+
+    void ProcessStory(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base &Story)
+    {
+        if (Window && Renderer)
+        {
+            auto FlashMessage = false;
+
+            auto FlashColor = intGR;
+
+            std::string Message = "";
+
+            Uint32 StartTicks = 0;
+
+            Uint32 Duration = 3000;
+
+            auto DisplayMessage = [&](std::string msg, Uint32 color)
+            {
+                FlashMessage = true;
+
+                Message = msg;
+
+                FlashColor = color;
+
+                StartTicks = SDL_GetTicks();
+            };
+
+            auto RenderFlashMessage = [&]()
+            {
+                if (FlashMessage)
+                {
+                    if ((SDL_GetTicks() - StartTicks) < Duration)
+                    {
+                        auto FlashW = 3 * SCREEN_WIDTH / 5;
+
+                        auto FlashH = 2 * SCREEN_WIDTH / 5;
+
+                        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2);
+
+                        if (FlashColor == intBK)
+                        {
+                            Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2, intWH);
+                        }
+                    }
+                    else
+                    {
+                        FlashMessage = false;
+                    }
+                }
+            };
+
+            auto FontSize = TTF_FontHeight(Fonts::Normal);
+
+            SDL_Surface *Background = NULL;
+
+            std::vector<Button> Controls = {};
+
+            auto quit = false;
+
+            while (!quit)
+            {
+                auto RunOnce = true;
+
+                if (RunOnce)
+                {
+                    RunOnce = false;
+
+                    auto jump = Story.Background(Party);
+
+                    if (jump.first != Book::Type::None)
+                    {
+                        Story = Interface::FindStory(jump);
+
+                        continue;
+                    }
+
+                    Story.Event(Party);
+                }
+
+                DisplayMessage("Under Construction", intBK);
+
+                RenderFlashMessage();
+
+                Input::WaitForNext(Renderer);
+
+                quit = true;
+            }
+
+            if (Background)
+            {
+                SDL_FreeSurface(Background);
+
+                Background = NULL;
+            }
+        }
+    }
+
+    void StoryScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Engine::Destination Destination)
+    {
+        auto Story = Interface::FindStory(Destination);
+
+        return ProcessStory(Window, Renderer, Party, Story);
     }
 }
 #endif

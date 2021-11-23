@@ -1,18 +1,18 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
-#include "enemy.hpp"
 #include "party.hpp"
 #include "random.hpp"
 
 namespace Engine
 {
+    typedef std::pair<Book::Type, int> Destination;
+
     auto Random = Random::Base();
 
     void Randomize()
     {
         Engine::Random.UniformIntDistribution(1, 6);
-
         Engine::Random.UniformDistribution(0, 1.0);
     }
 
