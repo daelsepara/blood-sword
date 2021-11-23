@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__HPP__
-#define __GRAPHICS__HPP__
+#ifndef __GRAPHICS_HPP__
+#define __GRAPHICS_HPP__
 
 #include "BloodSword.hpp"
 

@@ -1,5 +1,5 @@
-#ifndef __GLOBALS__HPP__
-#define __GLOBALS__HPP__
+#ifndef __GLOBALS_HPP__
+#define __GLOBALS_HPP__
 
 #include <SDL.h>
 

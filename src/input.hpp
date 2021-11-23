@@ -1,5 +1,5 @@
-#ifndef __INPUT__HPP__
-#define __INPUT__HPP__
+#ifndef __INPUT_HPP__
+#define __INPUT_HPP__
 
 #include <vector>
 #include <SDL.h>

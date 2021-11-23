@@ -1,9 +1,9 @@
-#ifndef __TACTICAL_MAP_HPP__
-#define __TACTICAL_MAP_HPP__
+#ifndef __MAP_HPP__
+#define __MAP_HPP__
 
 #include "BloodSword.hpp"
 
-namespace TacticalMap
+namespace Map
 {
     const char HotCoals = '%';
     const char Wall = '#';
@@ -26,21 +26,21 @@ namespace TacticalMap
         Monster
     };
 
-    std::map<TacticalMap::Object, const char *> Description = {
-        {TacticalMap::Object::None, "None"},
-        {TacticalMap::Object::Player, "Player"},
-        {TacticalMap::Object::Passable, "Passable"},
-        {TacticalMap::Object::Wall, "Wall"},
-        {TacticalMap::Object::Exit, "Exit"},
-        {TacticalMap::Object::HotCoals, "Hot Coals"},
-        {TacticalMap::Object::Monster, "Monster"}};
+    std::map<Map::Object, const char *> Description = {
+        {Map::Object::None, "None"},
+        {Map::Object::Player, "Player"},
+        {Map::Object::Passable, "Passable"},
+        {Map::Object::Wall, "Wall"},
+        {Map::Object::Exit, "Exit"},
+        {Map::Object::HotCoals, "Hot Coals"},
+        {Map::Object::Monster, "Monster"}};
 
-    class MapObject
+    class Tile
     {
     public:
-        TacticalMap::Object Type = TacticalMap::Object::None;
+        Map::Object Type = Map::Object::None;
 
-        TacticalMap::Object Occupant = TacticalMap::Object::None;
+        Map::Object Occupant = Map::Object::None;
 
         Assets::Type Asset = Assets::Type::None;
 
@@ -56,7 +56,7 @@ namespace TacticalMap
 
         int Id = 0;
 
-        MapObject()
+        Tile()
         {
         }
     };
@@ -65,10 +65,10 @@ namespace TacticalMap
     {
     public:
         // types of objects in the map
-        std::vector<std::vector<TacticalMap::MapObject>> Tiles = {};
+        std::vector<std::vector<Map::Tile>> Tiles = {};
 
         // locations of exits
-        std::vector<TacticalMap::Point> Exits = {};
+        std::vector<Map::Point> Exits = {};
 
         // map dimensions
         int Width = 0;
@@ -116,7 +116,7 @@ namespace TacticalMap
 
             for (auto i = 0; i < sizey; i++)
             {
-                Tiles[i] = std::vector<TacticalMap::MapObject>(sizex);
+                Tiles[i] = std::vector<Map::Tile>(sizex);
             }
         }
 
@@ -133,44 +133,44 @@ namespace TacticalMap
                 {
                     for (auto x = 0; x < map.front().length(); x++)
                     {
-                        auto player = TacticalMap::Players.find(map[y][x]);
+                        auto player = Map::Players.find(map[y][x]);
 
-                        auto monster = TacticalMap::Monsters.find(map[y][x]);
+                        auto monster = Map::Monsters.find(map[y][x]);
 
-                        if (map[y][x] == TacticalMap::Wall)
+                        if (map[y][x] == Map::Wall)
                         {
                             Tiles[y][x].Asset = Assets::Type::Wall;
-                            Tiles[y][x].Type = TacticalMap::Object::Wall;
+                            Tiles[y][x].Type = Map::Object::Wall;
                             Tiles[y][x].IsPassable = false;
                         }
-                        else if (map[y][x] == TacticalMap::HotCoals)
+                        else if (map[y][x] == Map::HotCoals)
                         {
                             Tiles[y][x].Asset = Assets::Type::HotCoals;
-                            Tiles[y][x].Type = TacticalMap::Object::HotCoals;
+                            Tiles[y][x].Type = Map::Object::HotCoals;
                             Tiles[y][x].IsPassable = false;
                             Tiles[y][x].IsPassableToEnemy = true;
                         }
-                        else if (map[y][x] == TacticalMap::Flee)
+                        else if (map[y][x] == Map::Flee)
                         {
                             Tiles[y][x].Asset = Assets::Type::MapExit;
-                            Tiles[y][x].Type = TacticalMap::Object::Exit;
+                            Tiles[y][x].Type = Map::Object::Exit;
                             Tiles[y][x].IsPassable = false;
                             Tiles[y][x].IsExit = true;
 
                             Exits.push_back(std::make_pair(x, y));
                         }
-                        else if (map[y][x] == TacticalMap::Passable)
+                        else if (map[y][x] == Map::Passable)
                         {
                             Tiles[y][x].Asset = Assets::Type::Passable;
-                            Tiles[y][x].Type = TacticalMap::Object::Passable;
+                            Tiles[y][x].Type = Map::Object::Passable;
                             Tiles[y][x].IsPassable = true;
                             Tiles[y][x].IsPassableToEnemy = true;
                         }
                         else if (player != std::string::npos && player >= 0 && player < party.Members.size())
                         {
                             Tiles[y][x].Asset = Assets::Type::Passable;
-                            Tiles[y][x].Type = TacticalMap::Object::Passable;
-                            Tiles[y][x].Occupant = TacticalMap::Object::Player;
+                            Tiles[y][x].Type = Map::Object::Passable;
+                            Tiles[y][x].Occupant = Map::Object::Player;
                             Tiles[y][x].IsPassable = true;
                             Tiles[y][x].IsPlayer = true;
                             Tiles[y][x].Id = player + 1;
@@ -178,8 +178,8 @@ namespace TacticalMap
                         else if (monster != std::string::npos && monster >= 0 && monster < monsters.size())
                         {
                             Tiles[y][x].Asset = Assets::Type::Passable;
-                            Tiles[y][x].Type = TacticalMap::Object::Passable;
-                            Tiles[y][x].Occupant = TacticalMap::Object::Monster;
+                            Tiles[y][x].Type = Map::Object::Passable;
+                            Tiles[y][x].Occupant = Map::Object::Monster;
                             Tiles[y][x].IsPassable = true;
                             Tiles[y][x].IsEnemy = true;
                             Tiles[y][x].Id = monster + 1;
@@ -187,7 +187,7 @@ namespace TacticalMap
                         else
                         {
                             Tiles[y][x].Asset = Assets::Type::Passable;
-                            Tiles[y][x].Type = TacticalMap::Object::Passable;
+                            Tiles[y][x].Type = Map::Object::Passable;
                             Tiles[y][x].IsPassable = true;
                             Tiles[y][x].IsPassableToEnemy = true;
                         }

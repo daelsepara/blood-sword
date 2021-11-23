@@ -1,5 +1,5 @@
-#ifndef __CONTROLS__HPP__
-#define __CONTROLS__HPP__
+#ifndef __CONTROLS_HPP__
+#define __CONTROLS_HPP__
 
 #include "BloodSword.hpp"
 

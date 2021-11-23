@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "tactical_map.hpp"
+#include "map.hpp"
 
 // A C++ version of A* pathfinding algorithm from https://dotnetcoretutorials.com/2020/07/25/a-search-pathfinding-algorithm-in-c/
 // Most of the comments from the original version are preserved and/or have minor modifications.
@@ -92,13 +92,13 @@ namespace AStar
         }
     };
 
-    bool IsPassable(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool isMonster)
+    bool IsPassable(Map::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool isMonster)
     {
         return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && (map.Tiles[Y][X].IsPassable || (Y == target->Y && X == target->X) || (isMonster && map.Tiles[Y][X].IsPassableToEnemy) || (isMonster && map.Tiles[Y][X].IsEnemy) || (!isMonster && map.Tiles[Y][X].IsExit)));
     }
 
     // Get all traversible nodes from current node
-    std::vector<std::shared_ptr<AStar::Node>> Nodes(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target, bool IsEnemy)
+    std::vector<std::shared_ptr<AStar::Node>> Nodes(Map::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target, bool IsEnemy)
     {
         // Define neighbors (X, Y): Up, Down, Left, Right
         std::vector<std::pair<int, int>> neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
@@ -175,7 +175,7 @@ namespace AStar
     }
 
     // Find path from src to dst using the A* algorithm
-    AStar::Path FindPath(TacticalMap::Base &map, int srcX, int srcY, int dstX, int dstY)
+    AStar::Path FindPath(Map::Base &map, int srcX, int srcY, int dstX, int dstY)
     {
         auto path = AStar::Path();
 

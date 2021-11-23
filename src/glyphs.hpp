@@ -1,5 +1,5 @@
-#ifndef __GLYPHS__HPP__
-#define __GLYPHS__HPP__
+#ifndef __GLYPHS_HPP__
+#define __GLYPHS_HPP__
 
 #include <cstring>
 #include <iostream>

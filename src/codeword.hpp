@@ -1,5 +1,5 @@
-#ifndef __CODEWORD__HPP__
-#define __CODEWORD__HPP__
+#ifndef __CODEWORD_HPP__
+#define __CODEWORD_HPP__
 
 #include <map>
 

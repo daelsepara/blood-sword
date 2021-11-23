@@ -1,20 +1,20 @@
-#ifndef __INTERFACE__HPP__
-#define __INTERFACE__HPP__
+#ifndef __INTERFACE_HPP__
+#define __INTERFACE_HPP__
 
 #include "graphics.hpp"
 
 namespace Interface
 {
     // (Player/Monster, Id, Awareness)
-    typedef std::tuple<TacticalMap::Object, int, int> Combatants;
+    typedef std::tuple<Map::Object, int, int> Combatants;
     typedef std::tuple<int, int, int> Targets;
 
-    bool ValidX(TacticalMap::Base &Map, int x)
+    bool ValidX(Map::Base &Map, int x)
     {
         return (x >= 0 && x < Map.Width);
     }
 
-    bool ValidY(TacticalMap::Base &Map, int y)
+    bool ValidY(Map::Base &Map, int y)
     {
         return (y >= 0 && y < Map.Height);
     }
@@ -26,7 +26,7 @@ namespace Interface
         Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
     }
 
-    void RenderMessage(SDL_Renderer *Renderer, std::vector<Button> &Controls, TacticalMap::Base &Map, Uint32 bg, std::string Message, Uint32 FlashColor)
+    void RenderMessage(SDL_Renderer *Renderer, std::vector<Button> &Controls, Map::Base &Map, Uint32 bg, std::string Message, Uint32 FlashColor)
     {
         Uint32 Duration = 1500;
 
@@ -52,7 +52,7 @@ namespace Interface
         SDL_Delay(Duration);
     }
 
-    void Remove(TacticalMap::Base &Map, int srcX, int srcY)
+    void Remove(Map::Base &Map, int srcX, int srcY)
     {
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY))
         {
@@ -60,18 +60,18 @@ namespace Interface
             {
                 Map.Tiles[srcY][srcX].IsPlayer = false;
                 Map.Tiles[srcY][srcX].Id = 0;
-                Map.Tiles[srcY][srcX].Occupant = TacticalMap::Object::None;
+                Map.Tiles[srcY][srcX].Occupant = Map::Object::None;
             }
             else if (Map.Tiles[srcY][srcX].IsEnemy)
             {
                 Map.Tiles[srcY][srcX].IsEnemy = false;
                 Map.Tiles[srcY][srcX].Id = 0;
-                Map.Tiles[srcY][srcX].Occupant = TacticalMap::Object::None;
+                Map.Tiles[srcY][srcX].Occupant = Map::Object::None;
             }
         }
     }
 
-    bool Move(TacticalMap::Base &Map, int srcX, int srcY, int dstX, int dstY)
+    bool Move(Map::Base &Map, int srcX, int srcY, int dstX, int dstY)
     {
         auto result = false;
 
@@ -102,14 +102,14 @@ namespace Interface
         return result;
     }
 
-    bool IsVisible(TacticalMap::Base &Map, int X, int Y)
+    bool IsVisible(Map::Base &Map, int X, int Y)
     {
         auto ValidXY = Interface::ValidX(Map, X) && Interface::ValidY(Map, Y);
 
         return ValidXY && ((X >= Map.MapX) && (X < Map.SizeX + Map.MapX) && (Y >= Map.MapY) && (Y < Map.SizeY + Map.MapY));
     }
 
-    bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, int srcX, int srcY, int dstX, int dstY)
+    bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, int srcX, int srcY, int dstX, int dstY)
     {
         // do not render off screen animations
         if (!Interface::IsVisible(Map, srcX, srcY))
@@ -180,7 +180,7 @@ namespace Interface
         return result;
     }
 
-    int Find(std::vector<Combatants> &Sequence, TacticalMap::Object object, int id)
+    int Find(std::vector<Combatants> &Sequence, Map::Object object, int id)
     {
         auto found = -1;
 
@@ -197,7 +197,7 @@ namespace Interface
         return found;
     }
 
-    void Find(TacticalMap::Base &Map, TacticalMap::Object object, int id, int &LocationX, int &LocationY)
+    void Find(Map::Base &Map, Map::Object object, int id, int &LocationX, int &LocationY)
     {
         bool found = false;
 
@@ -233,7 +233,7 @@ namespace Interface
         return std::abs(dstX - srcX) + std::abs(dstY - srcY);
     }
 
-    bool IsAdjacent(TacticalMap::Base &Map, int AttackerId, TacticalMap::Object AttackerType, int DefenderId, TacticalMap::Object DefenderType)
+    bool IsAdjacent(Map::Base &Map, int AttackerId, Map::Object AttackerType, int DefenderId, Map::Object DefenderType)
     {
         auto AttackerX = -1;
 
@@ -254,12 +254,12 @@ namespace Interface
         return IsValidX && IsValidY && Interface::Distance(AttackerX, AttackerY, DefenderX, DefenderY) <= 1;
     }
 
-    bool IsAdjacent(TacticalMap::Base &Map, int PlayerId, int MonsterId)
+    bool IsAdjacent(Map::Base &Map, int PlayerId, int MonsterId)
     {
-        return Interface::IsAdjacent(Map, PlayerId, TacticalMap::Object::Player, MonsterId, TacticalMap::Object::Monster);
+        return Interface::IsAdjacent(Map, PlayerId, Map::Object::Player, MonsterId, Map::Object::Monster);
     }
 
-    bool NearbyMonsters(TacticalMap::Base &Map, std::vector<Monster::Base> &Monsters, int PlayerId, bool ShootMode)
+    bool NearbyMonsters(Map::Base &Map, std::vector<Monster::Base> &Monsters, int PlayerId, bool ShootMode)
     {
         auto result = false;
 
@@ -271,19 +271,19 @@ namespace Interface
         return result;
     }
 
-    bool NearbyOpponents(TacticalMap::Base &Map, std::vector<Monster::Base> &Monsters, int MonsterId, bool ShootMode)
+    bool NearbyOpponents(Map::Base &Map, std::vector<Monster::Base> &Monsters, int MonsterId, bool ShootMode)
     {
         auto result = false;
 
         for (auto i = 0; i < Monsters.size(); i++)
         {
-            result |= (i != MonsterId && Engine::IsAlive(Monsters[i]) && Interface::IsAdjacent(Map, MonsterId, TacticalMap::Object::Monster, i, TacticalMap::Object::Monster) && ((ShootMode && !Monsters[i].Enthraled) || !ShootMode));
+            result |= (i != MonsterId && Engine::IsAlive(Monsters[i]) && Interface::IsAdjacent(Map, MonsterId, Map::Object::Monster, i, Map::Object::Monster) && ((ShootMode && !Monsters[i].Enthraled) || !ShootMode));
         }
 
         return result;
     }
 
-    bool NearbyExits(TacticalMap::Base &Map, int PlayerId)
+    bool NearbyExits(Map::Base &Map, int PlayerId)
     {
         auto result = false;
 
@@ -291,7 +291,7 @@ namespace Interface
 
         auto PlayerY = -1;
 
-        Interface::Find(Map, TacticalMap::Object::Player, PlayerId, PlayerX, PlayerY);
+        Interface::Find(Map, Map::Object::Player, PlayerId, PlayerX, PlayerY);
 
         if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY))
         {
@@ -309,7 +309,7 @@ namespace Interface
         return result;
     }
 
-    bool AttackedUponMoving(TacticalMap::Base &Map, std::vector<Monster::Base> &monsters, Character::Base &character, int PlayerId, int &Damages)
+    bool AttackedUponMoving(Map::Base &Map, std::vector<Monster::Base> &monsters, Character::Base &character, int PlayerId, int &Damages)
     {
         auto WasAttacked = false;
 
@@ -330,7 +330,7 @@ namespace Interface
         return WasAttacked;
     }
 
-    void DrawPath(SDL_Renderer *Renderer, TacticalMap::Base &Map, AStar::Path &CurrentPath, int CurrentMove, Uint32 color, Uint8 alpha)
+    void DrawPath(SDL_Renderer *Renderer, Map::Base &Map, AStar::Path &CurrentPath, int CurrentMove, Uint32 color, Uint8 alpha)
     {
         if (CurrentMove > 0 && CurrentMove < CurrentPath.Points.size())
         {
@@ -391,7 +391,7 @@ namespace Interface
                   });
     }
 
-    Interface::Targets SelectTarget(TacticalMap::Base &Map, Party::Base &party, int MonsterId)
+    Interface::Targets SelectTarget(Map::Base &Map, Party::Base &party, int MonsterId)
     {
         Interface::Targets NearestPlayer = {-1, -1, -1};
 
@@ -402,7 +402,7 @@ namespace Interface
 
         auto MonsterY = 0;
 
-        Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
+        Interface::Find(Map, Map::Object::Monster, MonsterId, MonsterX, MonsterY);
 
         // cycle through the players
         for (auto i = 0; i < party.Members.size(); i++)
@@ -413,7 +413,7 @@ namespace Interface
 
                 auto LocationY = 0;
 
-                Interface::Find(Map, TacticalMap::Object::Player, i, LocationX, LocationY);
+                Interface::Find(Map, Map::Object::Player, i, LocationX, LocationY);
 
                 auto TempPath = AStar::FindPath(Map, MonsterX, MonsterY, LocationX, LocationY);
 
@@ -439,7 +439,7 @@ namespace Interface
         return NearestPlayer;
     }
 
-    void CharacterSheet(SDL_Renderer *Renderer, TacticalMap::Base &Map, Party::Base &party, TTF_Font *Font, int PlayerId)
+    void CharacterSheet(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &party, TTF_Font *Font, int PlayerId)
     {
         auto FontSize = TTF_FontHeight(Font);
 
@@ -499,7 +499,7 @@ namespace Interface
         }
     }
 
-    void MonsterData(SDL_Renderer *Renderer, TacticalMap::Base &Map, std::vector<Monster::Base> &monsters, TTF_Font *Font, int MonsterId)
+    void MonsterData(SDL_Renderer *Renderer, Map::Base &Map, std::vector<Monster::Base> &monsters, TTF_Font *Font, int MonsterId)
     {
         auto FontSize = TTF_FontHeight(Font);
 
@@ -535,7 +535,7 @@ namespace Interface
         }
     }
 
-    void ShowCoordinates(SDL_Renderer *Renderer, TacticalMap::Base &Map, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, int Current, int SelectedCombatant, TTF_Font *Font, int TextW, int TextX)
+    void ShowCoordinates(SDL_Renderer *Renderer, Map::Base &Map, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, int Current, int SelectedCombatant, TTF_Font *Font, int TextW, int TextX)
     {
         auto ControlType = Controls[Current].Type;
 
@@ -551,7 +551,7 @@ namespace Interface
 
             Graphics::PutText(Renderer, Coordinates.c_str(), Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, Map.DrawY);
 
-            Graphics::PutText(Renderer, TacticalMap::Description[Map.Tiles[SelectY][SelectX].Type], Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, Map.DrawY + (FontSize + text_space));
+            Graphics::PutText(Renderer, Map::Description[Map.Tiles[SelectY][SelectX].Type], Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, Map.DrawY + (FontSize + text_space));
         }
     }
 
@@ -567,7 +567,7 @@ namespace Interface
                       else if (std::get<2>(a) == std::get<2>(b))
                       {
                           // give priority to player character
-                          if (std::get<0>(a) == TacticalMap::Object::Player && std::get<0>(b) == TacticalMap::Object::Monster)
+                          if (std::get<0>(a) == Map::Object::Player && std::get<0>(b) == Map::Object::Monster)
                           {
                               return true;
                           }
@@ -590,7 +590,7 @@ namespace Interface
 
         for (auto i = 0; i < Sequence.size(); i++)
         {
-            if (std::get<0>(Sequence[i]) == TacticalMap::Object::Monster)
+            if (std::get<0>(Sequence[i]) == Map::Object::Monster)
             {
                 if (monsters[std::get<1>(Sequence[i])].KnockedOff)
                 {
@@ -615,13 +615,13 @@ namespace Interface
         Sequence = NewSequence;
     }
 
-    void DealDamage(TacticalMap::Base &Map, std::vector<Monster::Base> &Monsters, int MonsterId, int Damage, bool UseArmour)
+    void DealDamage(Map::Base &Map, std::vector<Monster::Base> &Monsters, int MonsterId, int Damage, bool UseArmour)
     {
         auto MonsterX = -1;
 
         auto MonsterY = -1;
 
-        Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
+        Find(Map, Map::Object::Monster, MonsterId, MonsterX, MonsterY);
 
         auto TotalDamage = std::max(0, Damage - (UseArmour ? Monsters[MonsterId].Armour : 0));
 
@@ -633,7 +633,7 @@ namespace Interface
         }
     }
 
-    Attributes::Result Test(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, Attributes::Type Attribute, bool IsEnemy)
+    Attributes::Result Test(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character, Monster::Base &Monster, Attributes::Type Attribute, bool IsEnemy)
     {
         auto Result = Attributes::Result::NONE;
         auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
@@ -810,7 +810,7 @@ namespace Interface
         return Result;
     }
 
-    bool BreakControl(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Monster::Base &Monster, int Rolls, int Threshold)
+    bool BreakControl(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Monster::Base &Monster, int Rolls, int Threshold)
     {
         auto Result = false;
         auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
@@ -974,7 +974,7 @@ namespace Interface
         }
     }
 
-    int Choose(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
+    int Choose(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
     {
         auto Result = -1;
 
@@ -1054,7 +1054,7 @@ namespace Interface
         return Result;
     }
 
-    void ApplySpellEffects(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Party::Base &Party, std::vector<Monster::Base> &Monsters, int PlayerId, int MonsterId, Spell::Type Spell, int CombatRound)
+    void ApplySpellEffects(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &Party, std::vector<Monster::Base> &Monsters, int PlayerId, int MonsterId, Spell::Type Spell, int CombatRound)
     {
         if (Spell == Spell::Type::VolcanoSpray || Spell == Spell::Type::SheetLightning)
         {
@@ -1244,7 +1244,7 @@ namespace Interface
         }
     }
 
-    Spell::Result CastSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, int SelectedSpell)
+    Spell::Result CastSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character, int SelectedSpell)
     {
         auto Result = Spell::Result::NONE;
         auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
@@ -1422,7 +1422,7 @@ namespace Interface
     }
 
     // fight/shoot encounter between player and monster
-    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Monster::Base &Monster, Combat::FightMode FightMode, bool Attacked)
+    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character, Monster::Base &Monster, Combat::FightMode FightMode, bool Attacked)
     {
         auto Result = Combat::Result::NONE;
         auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
@@ -1861,7 +1861,7 @@ namespace Interface
     }
 
     // fight encounter between monsters
-    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Monster::Base &Monster, Monster::Base &Target)
+    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Monster::Base &Monster, Monster::Base &Target)
     {
         auto Result = Combat::Result::NONE;
         auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
@@ -2156,7 +2156,7 @@ namespace Interface
         return Result;
     }
 
-    int CallToMind(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character, Control::Type Mode)
+    int CallToMind(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character, Control::Type Mode)
     {
         auto FlashMessage = false;
 
@@ -2312,7 +2312,7 @@ namespace Interface
         return Result;
     }
 
-    int SelectSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
+    int SelectSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character)
     {
         auto Result = -1;
 
@@ -2397,7 +2397,7 @@ namespace Interface
         return Result;
     }
 
-    Abilities::Type UseAbility(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, TacticalMap::Base &Map, Character::Base &Character)
+    Abilities::Type UseAbility(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character)
     {
         auto Result = Abilities::Type::None;
 
@@ -2494,7 +2494,7 @@ namespace Interface
         return Result;
     }
 
-    void GenerateMapControls(TacticalMap::Base &Map, std::vector<Button> &Controls, Party::Base &party, std::vector<Monster::Base> &monsters, int NumControls)
+    void GenerateMapControls(Map::Base &Map, std::vector<Button> &Controls, Party::Base &party, std::vector<Monster::Base> &monsters, int NumControls)
     {
         Controls.erase(Controls.begin() + NumControls, Controls.end());
 
@@ -2603,7 +2603,7 @@ namespace Interface
         }
     }
 
-    void RenderMapInfo(SDL_Renderer *Renderer, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, std::vector<AStar::Path> &CurrentPath, std::vector<int> &CurrentMove, Combat::Mode CurrentMode, int CombatRound, int Current, int CurrentCombatant, int SelectedCombatant, int SelectedSpell)
+    void RenderMapInfo(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, std::vector<AStar::Path> &CurrentPath, std::vector<int> &CurrentMove, Combat::Mode CurrentMode, int CombatRound, int Current, int CurrentCombatant, int SelectedCombatant, int SelectedSpell)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
 
@@ -2611,7 +2611,7 @@ namespace Interface
 
         auto MapSizeY = Map.SizeY * Map.ObjectSize;
 
-        auto IsPlayer = std::get<0>(Sequence[CurrentCombatant]) == TacticalMap::Object::Player;
+        auto IsPlayer = std::get<0>(Sequence[CurrentCombatant]) == Map::Object::Player;
 
         if (Current >= 0 && Current < Controls.size())
         {
@@ -2786,7 +2786,7 @@ namespace Interface
         }
     }
 
-    void RenderSelection(SDL_Renderer *Renderer, TacticalMap::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, std::vector<Combatants> &Sequence, int SelectedCombatant)
+    void RenderSelection(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &party, std::vector<Monster::Base> &monsters, std::vector<Combatants> &Sequence, int SelectedCombatant)
     {
         if (SelectedCombatant >= 0 && SelectedCombatant < Sequence.size())
         {
@@ -2798,9 +2798,9 @@ namespace Interface
 
             Interface::Find(Map, std::get<0>(Sequence[SelectedCombatant]), SelectedId, SelectedX, SelectedY);
 
-            auto IsPlayer = std::get<0>(Sequence[SelectedCombatant]) == TacticalMap::Object::Player;
+            auto IsPlayer = std::get<0>(Sequence[SelectedCombatant]) == Map::Object::Player;
 
-            auto IsMonster = std::get<0>(Sequence[SelectedCombatant]) == TacticalMap::Object::Monster;
+            auto IsMonster = std::get<0>(Sequence[SelectedCombatant]) == Map::Object::Monster;
 
             if ((SelectedX - Map.MapX) >= 0 && (SelectedX - Map.MapX) < Map.SizeX && (SelectedY - Map.MapY) >= 0 && (SelectedY - Map.MapY) < Map.SizeY)
             {
@@ -2833,9 +2833,9 @@ namespace Interface
 
                         auto LocationY = -1;
 
-                        Interface::Find(Map, TacticalMap::Object::Monster, SelectedId, MonsterX, MonsterY);
+                        Interface::Find(Map, Map::Object::Monster, SelectedId, MonsterX, MonsterY);
 
-                        Interface::Find(Map, TacticalMap::Object::Player, PlayerId, LocationX, LocationY);
+                        Interface::Find(Map, Map::Object::Player, PlayerId, LocationX, LocationY);
 
                         if (Interface::ValidX(Map, MonsterX) && Interface::ValidY(Map, MonsterY) && Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
                         {
@@ -2875,7 +2875,7 @@ namespace Interface
             StartTicks = SDL_GetTicks();
         };
 
-        auto Map = TacticalMap::Base(map, party, monsters);
+        auto Map = Map::Base(map, party, monsters);
 
         // offsets used to display tactical map
         Map.MapX = 0;
@@ -2927,14 +2927,14 @@ namespace Interface
         {
             auto Awareness = Engine::Awareness(party.Members[i]);
 
-            Sequence.push_back({TacticalMap::Object::Player, i, Awareness});
+            Sequence.push_back({Map::Object::Player, i, Awareness});
         }
 
         for (auto i = 0; i < monsters.size(); i++)
         {
             auto Awareness = monsters[i].Awareness;
 
-            Sequence.push_back({TacticalMap::Object::Monster, i, Awareness});
+            Sequence.push_back({Map::Object::Monster, i, Awareness});
         }
 
         SortCombatants(Sequence);
@@ -2963,12 +2963,12 @@ namespace Interface
 
         auto IsPlayer = [&](int id)
         {
-            return std::get<0>(Sequence[id]) == TacticalMap::Object::Player;
+            return std::get<0>(Sequence[id]) == Map::Object::Player;
         };
 
         auto IsMonster = [&](int id)
         {
-            return std::get<0>(Sequence[id]) == TacticalMap::Object::Monster;
+            return std::get<0>(Sequence[id]) == Map::Object::Monster;
         };
 
         auto GetId = [&](int id)
@@ -3232,7 +3232,7 @@ namespace Interface
 
                     auto PlayerY = -1;
 
-                    Interface::Find(Map, TacticalMap::Object::Player, GetId(CurrentCombatant), PlayerX, PlayerY);
+                    Interface::Find(Map, Map::Object::Player, GetId(CurrentCombatant), PlayerX, PlayerY);
 
                     if (IsVisible(Map, PlayerX, PlayerY))
                     {
@@ -3256,7 +3256,7 @@ namespace Interface
 
                         auto MonsterY = -1;
 
-                        Interface::Find(Map, TacticalMap::Object::Monster, GetId(CurrentCombatant), MonsterX, MonsterY);
+                        Interface::Find(Map, Map::Object::Monster, GetId(CurrentCombatant), MonsterX, MonsterY);
 
                         if (IsVisible(Map, MonsterX, MonsterY))
                         {
@@ -3313,7 +3313,7 @@ namespace Interface
 
                     auto CurrentY = -1;
 
-                    Interface::Find(Map, TacticalMap::Object::Player, PlayerId, CurrentX, CurrentY);
+                    Interface::Find(Map, Map::Object::Player, PlayerId, CurrentX, CurrentY);
 
                     if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
                     {
@@ -3418,7 +3418,7 @@ namespace Interface
 
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.Tiles[SelectY][SelectX].Id - 1);
+                                auto result = Interface::Find(Sequence, Map::Object::Player, Map.Tiles[SelectY][SelectX].Id - 1);
 
                                 if (result != SelectedCombatant)
                                 {
@@ -3814,7 +3814,7 @@ namespace Interface
                             {
                                 SelectedSpell = -1;
 
-                                auto result = Interface::Find(Sequence, TacticalMap::Object::Monster, TargetId);
+                                auto result = Interface::Find(Sequence, Map::Object::Monster, TargetId);
 
                                 if (result != SelectedCombatant)
                                 {
@@ -3991,7 +3991,7 @@ namespace Interface
 
                     Monster::Base &Monster = monsters[MonsterId];
 
-                    Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, CurrentX, CurrentY);
+                    Interface::Find(Map, Map::Object::Monster, MonsterId, CurrentX, CurrentY);
 
                     if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
                     {
@@ -4060,7 +4060,7 @@ namespace Interface
                         {
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.Tiles[SelectY][SelectX].Id - 1);
+                                auto result = Interface::Find(Sequence, Map::Object::Player, Map.Tiles[SelectY][SelectX].Id - 1);
 
                                 if (result != SelectedCombatant)
                                 {
@@ -4188,7 +4188,7 @@ namespace Interface
 
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                auto result = Interface::Find(Sequence, TacticalMap::Object::Monster, TargetId);
+                                auto result = Interface::Find(Sequence, Map::Object::Monster, TargetId);
 
                                 if (result != SelectedCombatant)
                                 {
@@ -4201,7 +4201,7 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::ATTACK)
                             {
-                                if (Interface::IsAdjacent(Map, MonsterId, TacticalMap::Object::Monster, TargetId, TacticalMap::Object::Monster) && Engine::IsAlive(Target))
+                                if (Interface::IsAdjacent(Map, MonsterId, Map::Object::Monster, TargetId, Map::Object::Monster) && Engine::IsAlive(Target))
                                 {
                                     // implement monster vs monster fight
                                     if (MonsterId != TargetId)
@@ -4356,7 +4356,7 @@ namespace Interface
 
                     auto MonsterY = -1;
 
-                    Interface::Find(Map, TacticalMap::Object::Monster, MonsterId, MonsterX, MonsterY);
+                    Interface::Find(Map, Map::Object::Monster, MonsterId, MonsterX, MonsterY);
 
                     auto NearestPlayer = Interface::SelectTarget(Map, party, GetId(CurrentCombatant));
 
@@ -4368,7 +4368,7 @@ namespace Interface
 
                         auto LocationY = -1;
 
-                        Interface::Find(Map, TacticalMap::Object::Player, Target(NearestPlayer), LocationX, LocationY);
+                        Interface::Find(Map, Map::Object::Player, Target(NearestPlayer), LocationX, LocationY);
 
                         if (TargetDistance(NearestPlayer) <= 1)
                         {

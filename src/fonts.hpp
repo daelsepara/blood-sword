@@ -1,5 +1,5 @@
-#ifndef __FONTS__HPP__
-#define __FONTS__HPP__
+#ifndef __FONTS_HPP__
+#define __FONTS_HPP__
 
 #include <SDL_ttf.h>
 

@@ -1,5 +1,5 @@
-#ifndef __BOOK__HPP__
-#define __BOOK__HPP__
+#ifndef __BOOK_HPP__
+#define __BOOK_HPP__
 
 #include <map>
 

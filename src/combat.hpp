@@ -1,5 +1,5 @@
-#ifndef __COMBAT__HPP__
-#define __COMBAT__HPP__
+#ifndef __COMBAT_HPP__
+#define __COMBAT_HPP__
 
 namespace Combat
 {

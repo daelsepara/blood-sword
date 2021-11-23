@@ -46,7 +46,7 @@ namespace fs = std::filesystem;
 #include "random.hpp"
 #include "spell.hpp"
 
-#include "tactical_map.hpp"
+#include "map.hpp"
 #include "engine.hpp"
 #include "astar.hpp"
 
