@@ -3370,7 +3370,7 @@ namespace Interface
                                 Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                             }
                         }
-                        else if (Controls[Current].Type == Control::Type::DEFEND)
+                        else if (Controls[Current].Type == Control::Type::DEFEND && !Hold)
                         {
                             Engine::ResetSpellDifficulty(Character);
 
@@ -3382,11 +3382,11 @@ namespace Interface
 
                             Current = -1;
                         }
-                        else if (Controls[Current].Type == Control::Type::FLEE)
+                        else if (Controls[Current].Type == Control::Type::FLEE && !Hold)
                         {
                             if (Map.Exits.size() > 0)
                             {
-                                if (Interface::NearbyExits(Map, PlayerId))
+                                if (Map.Tiles[CurrentY][CurrentX].IsExit)
                                 {
                                     Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " escapes!"), intGR);
 
@@ -4048,7 +4048,7 @@ namespace Interface
                                 Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
                             }
                         }
-                        else if (Controls[Current].Type == Control::Type::DEFEND)
+                        else if (Controls[Current].Type == Control::Type::DEFEND && !Hold)
                         {
                             CycleCombatants();
 
@@ -4288,7 +4288,7 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                if (Map.Tiles[SelectY][SelectY].IsPassableToEnemy)
+                                if (Map.Tiles[SelectY][SelectX].IsPassableToEnemy)
                                 {
                                     if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                     {
@@ -4332,7 +4332,7 @@ namespace Interface
                                 }
                             }
                         }
-                        else if (Controls[Current].Type == Control::Type::MAP_EXIT && !Hold)
+                        else if (Controls[Current].Type == Control::Type::FLEE && !Hold)
                         {
                             if (CurrentMode == Combat::Mode::MOVE)
                             {
