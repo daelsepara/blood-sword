@@ -32,7 +32,7 @@ int main(int argc, const char **argv)
         monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
         monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
         monsters.push_back(Monster::Base(Monster::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-
+        
         std::vector<std::string> map = {
             "#####=#######",
             "#    3     C#",
@@ -43,6 +43,8 @@ int main(int argc, const char **argv)
             "#D       # A#",
             "#############"};
 
+        monsters[3].Enthraled = true;
+        
         Assets::Load();
 
         // combat screen

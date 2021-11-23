@@ -56,55 +56,17 @@ namespace Interface
     {
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY))
         {
-            if (Map.Objects[srcY][srcX] == TacticalMap::Object::Player)
+            if (Map.Tiles[srcY][srcX].IsPlayer)
             {
-                auto Exit = false;
-
-                for (auto i = 0; i < Map.Exits.size(); i++)
-                {
-                    if (Map.Exits[i].first == srcX && Map.Exits[i].second == srcY)
-                    {
-                        Exit = true;
-
-                        break;
-                    }
-                }
-
-                if (Exit)
-                {
-                    Map.Objects[srcY][srcX] = TacticalMap::Object::Exit;
-                }
-                else
-                {
-                    Map.Objects[srcY][srcX] = TacticalMap::Object::Passable;
-                }
-
-                Map.ObjectID[srcY][srcX] = 0;
+                Map.Tiles[srcY][srcX].IsPlayer = false;
+                Map.Tiles[srcY][srcX].Id = 0;
+                Map.Tiles[srcY][srcX].Occupant = TacticalMap::Object::None;
             }
-            else if (Map.Objects[srcY][srcX] == TacticalMap::Object::Monster)
+            else if (Map.Tiles[srcY][srcX].IsEnemy)
             {
-                auto HotCoals = false;
-
-                for (auto i = 0; i < Map.HotCoals.size(); i++)
-                {
-                    if (Map.HotCoals[i].first == srcX && Map.HotCoals[i].second == srcY)
-                    {
-                        HotCoals = true;
-
-                        break;
-                    }
-                }
-
-                if (HotCoals)
-                {
-                    Map.Objects[srcY][srcX] = TacticalMap::Object::HotCoals;
-                }
-                else
-                {
-                    Map.Objects[srcY][srcX] = TacticalMap::Object::Passable;
-                }
-
-                Map.ObjectID[srcY][srcX] = 0;
+                Map.Tiles[srcY][srcX].IsEnemy = false;
+                Map.Tiles[srcY][srcX].Id = 0;
+                Map.Tiles[srcY][srcX].Occupant = TacticalMap::Object::None;
             }
         }
     }
@@ -115,21 +77,21 @@ namespace Interface
 
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY) && Interface::ValidX(Map, dstX) && Interface::ValidY(Map, dstY))
         {
-            if (Map.Objects[srcY][srcX] == TacticalMap::Object::Player && (Map.Objects[dstY][dstX] == TacticalMap::Object::Passable || Map.Objects[dstY][dstX] == TacticalMap::Object::Exit))
+            if (Map.Tiles[srcY][srcX].IsPlayer && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit))
             {
-                Map.Objects[dstY][dstX] = Map.Objects[srcY][srcX];
-
-                Map.ObjectID[dstY][dstX] = Map.ObjectID[srcY][srcX];
+                Map.Tiles[dstY][dstX].IsPlayer = true;
+                Map.Tiles[dstY][dstX].Id = Map.Tiles[srcY][srcX].Id;
+                Map.Tiles[dstY][dstX].Occupant = Map.Tiles[srcY][srcX].Occupant;
 
                 Remove(Map, srcX, srcY);
 
                 result = true;
             }
-            else if (Map.Objects[srcY][srcX] == TacticalMap::Object::Monster && (Map.Objects[dstY][dstX] == TacticalMap::Object::Passable || Map.Objects[dstY][dstX] == TacticalMap::Object::HotCoals))
+            else if (Map.Tiles[srcY][srcX].IsEnemy && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy))
             {
-                Map.Objects[dstY][dstX] = Map.Objects[srcY][srcX];
-
-                Map.ObjectID[dstY][dstX] = Map.ObjectID[srcY][srcX];
+                Map.Tiles[dstY][dstX].IsEnemy = true;
+                Map.Tiles[dstY][dstX].Id = Map.Tiles[srcY][srcX].Id;
+                Map.Tiles[dstY][dstX].Occupant = Map.Tiles[srcY][srcX].Occupant;
 
                 Remove(Map, srcX, srcY);
 
@@ -181,23 +143,11 @@ namespace Interface
 
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY) && Interface::ValidX(Map, dstX) && Interface::ValidY(Map, dstY))
         {
-            if (Map.Objects[srcY][srcX] == TacticalMap::Object::Player && (Map.Objects[dstY][dstX] == TacticalMap::Object::Passable || Map.Objects[dstY][dstX] == TacticalMap::Object::Exit))
+            if (Map.Tiles[srcY][srcX].IsPlayer && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit))
             {
-                auto Exit = false;
+                auto PlayerId = Map.Tiles[srcY][srcX].Id - 1;
 
-                for (auto i = 0; i < Map.Exits.size(); i++)
-                {
-                    if (Map.Exits[i].first == srcX && Map.Exits[i].second == srcY)
-                    {
-                        Exit = true;
-
-                        break;
-                    }
-                }
-
-                auto PlayerId = Map.ObjectID[srcY][srcX] - 1;
-
-                auto passable = Exit ? Assets::Copy(Assets::Type::MapExit) : Assets::Copy(Assets::Type::Passable);
+                auto passable = Assets::Copy(Map.Tiles[srcY][srcX].Asset);
 
                 auto asset = Assets::Copy(party.Members[PlayerId].Asset);
 
@@ -209,23 +159,11 @@ namespace Interface
 
                 result = Move(Map, srcX, srcY, dstX, dstY);
             }
-            else if (Map.Objects[srcY][srcX] == TacticalMap::Object::Monster && (Map.Objects[dstY][dstX] == TacticalMap::Object::Passable || Map.Objects[dstY][dstX] == TacticalMap::Object::HotCoals))
+            else if (Map.Tiles[srcY][srcX].IsEnemy && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy))
             {
-                auto HotCoals = false;
+                auto MonsterId = Map.Tiles[srcY][srcX].Id - 1;
 
-                for (auto i = 0; i < Map.HotCoals.size(); i++)
-                {
-                    if (Map.HotCoals[i].first == srcX && Map.HotCoals[i].second == srcY)
-                    {
-                        HotCoals = true;
-
-                        break;
-                    }
-                }
-
-                auto MonsterId = Map.ObjectID[srcY][srcX] - 1;
-
-                auto passable = HotCoals ? Assets::Copy(Assets::Type::HotCoals, 0x66) : Assets::Copy(Assets::Type::Passable);
+                auto passable = Map.Tiles[srcY][srcX].IsPassableToEnemy ? Assets::Copy(Map.Tiles[srcY][srcX].Asset, 0x66) : Assets::Copy(Map.Tiles[srcY][srcX].Asset);
 
                 auto asset = monsters[MonsterId].Enthraled ? Assets::Copy(monsters[MonsterId].Asset, 0x66) : Assets::Copy(monsters[MonsterId].Asset);
 
@@ -271,7 +209,7 @@ namespace Interface
         {
             for (auto x = 0; x < Map.Width; x++)
             {
-                if (Map.Objects[y][x] == object && Map.ObjectID[y][x] == (id + 1))
+                if (Map.Tiles[y][x].Occupant == object && Map.Tiles[y][x].Id == (id + 1))
                 {
                     LocationX = x;
 
@@ -613,7 +551,7 @@ namespace Interface
 
             Graphics::PutText(Renderer, Coordinates.c_str(), Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, Map.DrawY);
 
-            Graphics::PutText(Renderer, TacticalMap::Description[Map.Objects[SelectY][SelectX]], Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, Map.DrawY + (FontSize + text_space));
+            Graphics::PutText(Renderer, TacticalMap::Description[Map.Tiles[SelectY][SelectX].Type], Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, Map.DrawY + (FontSize + text_space));
         }
     }
 
@@ -2633,33 +2571,31 @@ namespace Interface
 
                 auto AssetX = Map.DrawX + (x - Map.MapX) * Map.ObjectSize;
 
-                auto Object = Map.Objects[y][x];
+                auto ObjectId = Map.Tiles[y][x].Id - 1;
 
-                auto ObjectId = Map.ObjectID[y][x] - 1;
-
-                if (Object == TacticalMap::Object::Wall)
-                {
-                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Wall), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
-                }
-                else if (Object == TacticalMap::Object::Player)
+                if (Map.Tiles[y][x].IsPlayer)
                 {
                     Controls.push_back(Button(NumControls, Assets::Get(party.Members[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
                 }
-                else if (Object == TacticalMap::Object::HotCoals)
-                {
-                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::HotCoals, 0x66), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
-                }
-                else if (Object == TacticalMap::Object::Exit)
-                {
-                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::MapExit), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_EXIT));
-                }
-                else if (Object == TacticalMap::Object::Monster)
+                else if (Map.Tiles[y][x].IsEnemy)
                 {
                     Controls.push_back(Button(NumControls, monsters[ObjectId].Enthraled ? Assets::Get(monsters[ObjectId].Asset, 0x66) : Assets::Get(monsters[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::MONSTER));
                 }
+                else if (Map.Tiles[y][x].IsExit)
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_EXIT));
+                }
+                else if (Map.Tiles[y][x].IsPassable)
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
+                }
+                else if (Map.Tiles[y][x].IsPassableToEnemy)
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset, 0x66), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
+                }
                 else
                 {
-                    Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Passable), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
+                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
                 }
 
                 NumControls++;
@@ -2700,13 +2636,13 @@ namespace Interface
                 {
                     Graphics::PutText(Renderer, "View party member", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
 
-                    Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
                 else if (ControlType == Control::Type::MONSTER)
                 {
                     Graphics::PutText(Renderer, "View opponent", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
 
-                    Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
                 else
                 {
@@ -2743,34 +2679,31 @@ namespace Interface
                     Graphics::PutText(Renderer, "Move to location", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
                 }
 
-                if (ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT)
+                if ((TargetX != SelectX || TargetY != SelectY) && ((ControlType == Control::Type::DESTINATION) || (IsPlayer && ControlType == Control::Type::MAP_EXIT) || (!IsPlayer && ControlType == Control::Type::MAP_NONE && Map.Tiles[SelectY][SelectX].IsPassableToEnemy)))
                 {
-                    if ((TargetX != SelectX || TargetY != SelectY) && (ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT))
+                    auto PlayerX = -1;
+
+                    auto PlayerY = -1;
+
+                    Interface::Find(Map, std::get<0>(Sequence[CurrentCombatant]), PlayerId, PlayerX, PlayerY);
+
+                    if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY) && Interface::Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
                     {
-                        auto PlayerX = -1;
+                        auto TempPath = AStar::FindPath(Map, PlayerX, PlayerY, SelectX, SelectY);
 
-                        auto PlayerY = -1;
-
-                        Interface::Find(Map, std::get<0>(Sequence[CurrentCombatant]), PlayerId, PlayerX, PlayerY);
-
-                        if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY) && Interface::Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
+                        if (TempPath.Points.size() > 2)
                         {
-                            auto TempPath = AStar::FindPath(Map, PlayerX, PlayerY, SelectX, SelectY);
-
-                            if (TempPath.Points.size() > 2)
-                            {
-                                Interface::DrawPath(Renderer, Map, TempPath, 1, intGR, 0x66);
-                            }
+                            Interface::DrawPath(Renderer, Map, TempPath, 1, intGR, 0x66);
                         }
                     }
                 }
                 else if (ControlType == Control::Type::PLAYER)
                 {
-                    Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
                 else if (ControlType == Control::Type::MONSTER)
                 {
-                    Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
             }
             else if (CurrentMode == Combat::Mode::ATTACK)
@@ -2781,11 +2714,11 @@ namespace Interface
 
                     if (ControlType == Control::Type::PLAYER)
                     {
-                        Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                        Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                     }
                     else if (ControlType == Control::Type::MONSTER)
                     {
-                        Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                        Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                     }
                 }
                 else
@@ -2801,16 +2734,16 @@ namespace Interface
 
                     if (ControlType == Control::Type::PLAYER)
                     {
-                        Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                        Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                     }
                     else if (ControlType == Control::Type::MONSTER)
                     {
-                        Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                        Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                     }
                 }
                 else
                 {
-                    Graphics::PutText(Renderer, "Shoot at a target from range", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                    Graphics::PutText(Renderer, "Shoot at target from range", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
                 }
             }
             else if (CurrentMode == Combat::Mode::CAST && ControlType == Control::Type::MONSTER)
@@ -2823,7 +2756,7 @@ namespace Interface
 
                     Graphics::PutText(Renderer, cast.c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
 
-                    Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    Interface::MonsterData(Renderer, Map, monsters, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
             }
             else if (CurrentMode == Combat::Mode::CAST && ControlType == Control::Type::PLAYER)
@@ -2836,7 +2769,7 @@ namespace Interface
 
                     Graphics::PutText(Renderer, cast.c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
 
-                    Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.ObjectID[SelectY][SelectX] - 1);
+                    Interface::CharacterSheet(Renderer, Map, party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
             }
             else if (CurrentMode == Combat::Mode::CAST)
@@ -3485,7 +3418,7 @@ namespace Interface
 
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.ObjectID[SelectY][SelectX] - 1);
+                                auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.Tiles[SelectY][SelectX].Id - 1);
 
                                 if (result != SelectedCombatant)
                                 {
@@ -3873,7 +3806,7 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)
                         {
-                            auto TargetId = Map.ObjectID[SelectY][SelectX] - 1;
+                            auto TargetId = Map.Tiles[SelectY][SelectX].Id - 1;
 
                             Monster::Base &Target = monsters[TargetId];
 
@@ -4125,11 +4058,9 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::PLAYER && !Hold)
                         {
-                            SelectedSpell = -1;
-
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.ObjectID[SelectY][SelectX] - 1);
+                                auto result = Interface::Find(Sequence, TacticalMap::Object::Player, Map.Tiles[SelectY][SelectX].Id - 1);
 
                                 if (result != SelectedCombatant)
                                 {
@@ -4161,8 +4092,6 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                SelectedSpell = -1;
-
                                 if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                 {
                                     auto MonsterPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
@@ -4253,7 +4182,7 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::MONSTER && !Hold)
                         {
-                            auto TargetId = Map.ObjectID[SelectY][SelectX] - 1;
+                            auto TargetId = Map.Tiles[SelectY][SelectX].Id - 1;
 
                             Monster::Base &Target = monsters[TargetId];
 
@@ -4359,7 +4288,48 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                DisplayMessage("Cannot move there!", intBK);
+                                if (Map.Tiles[SelectY][SelectY].IsPassableToEnemy)
+                                {
+                                    if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
+                                    {
+                                        auto MonsterPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
+
+                                        if (MonsterPath.Points.size() > 2)
+                                        {
+                                            if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, MonsterPath.Points[1].X, MonsterPath.Points[1].Y))
+                                            {
+                                                DisplayMessage("Path blocked!", intBK);
+                                            }
+                                            else
+                                            {
+                                                Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+
+                                                CycleCombatants();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            DisplayMessage("Path blocked!", intBK);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, party, monsters, CurrentX, CurrentY, SelectX, SelectY))
+                                        {
+                                            DisplayMessage("Path Blocked!", intBK);
+                                        }
+                                        else
+                                        {
+                                            Interface::GenerateMapControls(Map, Controls, party, monsters, StartMap);
+
+                                            CycleCombatants();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    DisplayMessage("Cannot move there!", intBK);
+                                }
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_EXIT && !Hold)

@@ -94,11 +94,11 @@ namespace AStar
 
     bool IsPassable(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool isMonster)
     {
-        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && (map.Objects[Y][X] == TacticalMap::Object::Passable || (Y == target->Y && X == target->X) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::HotCoals) || (isMonster && map.Objects[Y][X] == TacticalMap::Object::Monster) || (!isMonster && map.Objects[Y][X] == TacticalMap::Object::Exit)));
+        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && (map.Tiles[Y][X].IsPassable || (Y == target->Y && X == target->X) || (isMonster && map.Tiles[Y][X].IsPassableToEnemy) || (isMonster && map.Tiles[Y][X].IsEnemy) || (!isMonster && map.Tiles[Y][X].IsExit)));
     }
 
     // Get all traversible nodes from current node
-    std::vector<std::shared_ptr<AStar::Node>> Nodes(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target, bool isMonster)
+    std::vector<std::shared_ptr<AStar::Node>> Nodes(TacticalMap::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target, bool IsEnemy)
     {
         // Define neighbors (X, Y): Up, Down, Left, Right
         std::vector<std::pair<int, int>> neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
@@ -112,14 +112,14 @@ namespace AStar
                 auto index = 0;
 
                 // Check if within map boundaries and if passable and/or leads to destination
-                if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second, isMonster))
+                if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second, IsEnemy))
                 {
                     auto X = current->X + neighbors[i].first;
                     auto Y = current->Y + neighbors[i].second;
 
                     auto Cost = current->Cost + 1;
 
-                    if (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && isMonster && map.Objects[Y][X] == TacticalMap::Object::Monster)
+                    if (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && IsEnemy && map.Tiles[Y][X].IsEnemy)
                     {
                         // Monsters avoid other monsters as much as possible
                         Cost += 1;
@@ -201,7 +201,7 @@ namespace AStar
 
             active.push_back(start);
 
-            auto isMonster = map.Objects[srcY][srcX] == TacticalMap::Object::Monster;
+            auto IsEnemy = map.Tiles[srcY][srcX].IsEnemy;
 
             while (active.size() > 0)
             {
@@ -234,7 +234,7 @@ namespace AStar
 
                 AStar::Remove(active, check);
 
-                auto nodes = AStar::Nodes(map, check, end, isMonster);
+                auto nodes = AStar::Nodes(map, check, end, IsEnemy);
 
                 for (auto i = 0; i < nodes.size(); i++)
                 {
