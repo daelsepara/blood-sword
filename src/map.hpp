@@ -68,6 +68,11 @@ namespace Map
         {
             return Type == Map::Object::Exit;
         }
+
+        bool IsOccupied()
+        {
+            return Occupant != Map::Object::None;
+        }
     };
 
     class Base

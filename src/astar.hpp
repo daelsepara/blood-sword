@@ -94,7 +94,7 @@ namespace AStar
 
     bool IsPassable(Map::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool IsEnemy)
     {
-        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && (map.Tiles[Y][X].IsPassable || (Y == target->Y && X == target->X) || (IsEnemy && map.Tiles[Y][X].IsPassableToEnemy) || (IsEnemy && map.Tiles[Y][X].IsEnemy()) || (!IsEnemy && map.Tiles[Y][X].IsExit())));
+        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && ((map.Tiles[Y][X].IsPassable && !map.Tiles[Y][X].IsOccupied()) || (Y == target->Y && X == target->X) || (IsEnemy && map.Tiles[Y][X].IsPassableToEnemy && !map.Tiles[Y][X].IsOccupied()) || (!IsEnemy && map.Tiles[Y][X].IsExit())));
     }
 
     // Get all traversible nodes from current node

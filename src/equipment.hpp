@@ -28,7 +28,7 @@ namespace Equipment
     public:
         Equipment::Type Type = Equipment::Type::None;
 
-        Equipment::Weapon WeaponType = Equipment::Weapon::None;
+        Equipment::Weapon Weapon = Equipment::Weapon::None;
 
         // For Money Pouch
         int Gold = 0;
@@ -70,7 +70,7 @@ namespace Equipment
 
             Description = description;
 
-            WeaponType = weapon;
+            Weapon = weapon;
 
             Attribute = Attributes::Type::FightingProwess;
         }
@@ -83,7 +83,7 @@ namespace Equipment
 
             Description = description;
 
-            WeaponType = weapon;
+            Weapon = weapon;
 
             Attribute = attribute;
 

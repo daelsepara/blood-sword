@@ -139,7 +139,7 @@ namespace Interface
 
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY) && Interface::ValidX(Map, dstX) && Interface::ValidY(Map, dstY))
         {
-            if (Map.Tiles[srcY][srcX].IsPlayer() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit()))
+            if (Map.Tiles[srcY][srcX].IsPlayer() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit()) && !Map.Tiles[dstY][dstX].IsOccupied())
             {
                 auto PlayerId = Map.Tiles[srcY][srcX].Id - 1;
 
@@ -155,7 +155,7 @@ namespace Interface
 
                 result = Interface::Move(Map, srcX, srcY, dstX, dstY);
             }
-            else if (Map.Tiles[srcY][srcX].IsEnemy() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy))
+            else if (Map.Tiles[srcY][srcX].IsEnemy() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy) && !Map.Tiles[dstY][dstX].IsOccupied())
             {
                 auto EnemyId = Map.Tiles[srcY][srcX].Id - 1;
 
@@ -413,13 +413,19 @@ namespace Interface
     {
         auto FontSize = TTF_FontHeight(Font);
 
-        auto FightingProwess = Engine::FightingProwess(Party.Members[PlayerId]);
-        auto PsychicAbility = Engine::PsychicAbility(Party.Members[PlayerId]);
-        auto Awareness = Engine::Awareness(Party.Members[PlayerId]);
+        // add equipment bonuses
+        auto EquipmentFPR = Engine::Equipment(Party.Members[PlayerId], Attributes::Type::FightingProwess, false);
+        auto EquipmentPSY = Engine::Equipment(Party.Members[PlayerId], Attributes::Type::PsychicAbility, false);
+        auto EquipmentAWR = Engine::Equipment(Party.Members[PlayerId], Attributes::Type::Awareness, false);
+        auto Weapons = Engine::Equipment(Party.Members[PlayerId], Attributes::Type::FightingProwess, true);
+
+        auto FightingProwess = Engine::FightingProwess(Party.Members[PlayerId]) + (EquipmentFPR.size() > 0 ? EquipmentFPR[0].Score : 0) + (Weapons.size() > 0 ? Weapons[0].Score : 0);
+        auto PsychicAbility = Engine::PsychicAbility(Party.Members[PlayerId]) + (EquipmentPSY.size() > 0 ? EquipmentPSY[0].Score : 0);
+        auto Awareness = Engine::Awareness(Party.Members[PlayerId]) + (EquipmentAWR.size() > 0 ? EquipmentAWR[0].Score : 0);
         auto Endurance = Engine::Endurance(Party.Members[PlayerId]);
         auto Armour = Engine::Armour(Party.Members[PlayerId]);
         auto Damage = Party.Members[PlayerId].Damage;
-        auto DamageModifier = Party.Members[PlayerId].DamageModifier;
+        auto DamageModifier = Party.Members[PlayerId].DamageModifier + (Weapons.size() > 0 ? Weapons[0].Damage : 0);
 
         Graphics::PutText(Renderer, Character::Description[Party.Members[PlayerId].Class], Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY);
         Graphics::PutText(Renderer, std::string("RANK: " + std::to_string(Party.Members[PlayerId].Rank)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + (FontSize + 2));
@@ -667,17 +673,20 @@ namespace Interface
 
         auto AttributeValue = 0;
 
+        auto Equipment = Engine::Equipment(Character, Attribute, false);
+        auto Weapons = Engine::Equipment(Character, Attribute, true);
+
         if (Attribute == Attributes::Type::FightingProwess)
         {
-            AttributeValue = IsEnemy ? Enemy.FightingProwess : Engine::FightingProwess(Character);
+            AttributeValue = IsEnemy ? Enemy.FightingProwess : (Engine::FightingProwess(Character) + (Equipment.size() > 0 ? Equipment[0].Score : 0) + (Weapons.size() > 0 ? Weapons[0].Score : 0));
         }
         else if (Attribute == Attributes::Type::PsychicAbility)
         {
-            AttributeValue = IsEnemy ? Enemy.PsychicAbility : Engine::PsychicAbility(Character);
+            AttributeValue = IsEnemy ? Enemy.PsychicAbility : (Engine::PsychicAbility(Character) + (Equipment.size() > 0 ? Equipment[0].Score : 0));
         }
         else if (Attribute == Attributes::Type::Awareness)
         {
-            AttributeValue = IsEnemy ? Enemy.Awareness : Engine::Awareness(Character);
+            AttributeValue = IsEnemy ? Enemy.Awareness : (Engine::Awareness(Character) + (Equipment.size() > 0 ? Equipment[0].Score : 0));
         }
 
         while (!done)
@@ -1360,7 +1369,10 @@ namespace Interface
 
         Spell::Base &Spell = Character.Spells[SelectedSpell];
 
-        auto PsychicAbility = Engine::PsychicAbility(Character) - Character.Spells.size();
+        auto Equipment = Engine::Equipment(Character, Attributes::Type::PsychicAbility, false);
+
+        // compute effective Psychic Ability including bonus from equipment
+        auto PsychicAbility = (Engine::PsychicAbility(Character) - Character.Spells.size()) + (Equipment.size() > 0 ? Equipment[0].Score : 0);
 
         while (!done)
         {
@@ -1573,10 +1585,11 @@ namespace Interface
             auto Quarterstaff = false;
 
             auto CurrentStage = Combat::Stage::START;
-            auto Weapons = Engine::Weapons(Character, Attributes::Type::FightingProwess);
-            auto FightingProwess = Engine::FightingProwess(Character) + (Weapons.size() > Round ? Weapons[Round].Score : 0);
+            auto Weapons = Engine::Weapons(Character);
+            auto Equipment = Engine::Equipment(Character, Attributes::Type::FightingProwess, false);
+            auto FightingProwess = Engine::FightingProwess(Character) + (Weapons.size() > Round ? Weapons[Round].Score : 0) + (Equipment.size() > 0 ? Equipment[0].Score : 0);
             auto Damage = Character.Damage;
-            auto DamageModifier = Character.DamageModifier + (Weapons.size() > Round ? Weapons[Round].Damage : 0);
+            auto DamageModifier = Character.DamageModifier + (Weapons.size() > Round ? Weapons[Round].Damage : 0) + (Equipment.size() > 0 ? Equipment[0].Damage : 0);
             auto Armour = Engine::Armour(Character);
 
             if (!Attacked && Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
@@ -2650,7 +2663,7 @@ namespace Interface
                 }
                 else
                 {
-                    if (CtrlX < 7)
+                    if (CtrlX < 6)
                     {
                         CtrlDn = CtrlX + 5;
                     }
@@ -3300,7 +3313,7 @@ namespace Interface
 
         Engine::ResetSpellDifficulty(Party);
 
-        auto StartMap = 12;
+        auto StartMap = 11;
         auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
         auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
 
@@ -3314,8 +3327,7 @@ namespace Interface
         Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
         Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
         Controls.push_back(Button(9, Assets::Get(Assets::Type::UseAbility), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
-        Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
-        Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 10, 4, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
+        Controls.push_back(Button(10, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 5 ? BottomMapX + 5 : 10, 4, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
 
         // generate controls within the map window
         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
@@ -3669,6 +3681,10 @@ namespace Interface
                         else if (Controls[Current].Type == Control::Type::MOVE && !Hold)
                         {
                             if (CurrentMode == Combat::Mode::NORMAL)
+                            {
+                                CurrentMode = Combat::Mode::MOVE;
+                            }
+                            else if (CurrentMode == Combat::Mode::ATTACK)
                             {
                                 CurrentMode = Combat::Mode::MOVE;
                             }

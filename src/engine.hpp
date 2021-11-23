@@ -75,6 +75,34 @@ namespace Engine
         }
     };
 
+    // list of equipment with the attribute and sorted in descending order
+    std::vector<Equipment::Base> Equipment(Character::Base &character, Attributes::Type attribute, bool IsWeapon)
+    {
+        std::vector<Equipment::Base> equipment = {};
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            if (character.Equipment[i].Attribute == attribute && (character.Equipment[i].Type == Equipment::Type::Normal || (IsWeapon && character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].Weapon != Equipment::Weapon::Bow)))
+            {
+                equipment.push_back(character.Equipment[i]);
+            }
+        }
+
+        if (equipment.size() > 1)
+        {
+            std::sort(equipment.begin(), equipment.end(), [attribute](Equipment::Base &a, Equipment::Base &b) -> bool
+                      { return (a.Attribute == attribute) && a.Score > b.Score; });
+        }
+
+        return equipment;
+    }
+
+    // list of weapons with the attributes and sorted in descending order
+    std::vector<Equipment::Base> Weapons(Character::Base &character)
+    {
+        return Engine::Equipment(character, Attributes::Type::FightingProwess, true);
+    }
+
     int FightingProwess(Character::Base &character)
     {
         return Engine::Score(character, Attributes::Type::FightingProwess);
@@ -237,7 +265,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].WeaponType != Equipment::Weapon::Bow)
+            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].Weapon != Equipment::Weapon::Bow)
             {
                 result = true;
 
@@ -254,7 +282,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].WeaponType == weapon)
+            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].Weapon == weapon)
             {
                 result = true;
 
@@ -263,25 +291,6 @@ namespace Engine
         }
 
         return result;
-    }
-
-    // list of weapons with the attributes and sorted in descending order
-    std::vector<Equipment::Base> Weapons(Character::Base &character, Attributes::Type attribute)
-    {
-        std::vector<Equipment::Base> weapons = {};
-
-        for (auto i = 0; i < character.Equipment.size(); i++)
-        {
-            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].WeaponType != Equipment::Weapon::Bow)
-            {
-                weapons.push_back(character.Equipment[i]);
-            }
-        }
-
-        std::sort(weapons.begin(), weapons.end(), [attribute](Equipment::Base &a, Equipment::Base &b) -> bool
-                  { return (a.Attribute == attribute) && a.Score > b.Score; });
-
-        return weapons;
     }
 
     bool CanShoot(Character::Base &character)
@@ -295,7 +304,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].WeaponType == Equipment::Weapon::Bow)
+            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].Weapon == Equipment::Weapon::Bow)
             {
                 result = true;
 
