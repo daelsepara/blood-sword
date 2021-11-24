@@ -1,5 +1,14 @@
 #include "interface.hpp"
 
+bool compare(std::string s1, std::string s2)
+{
+    //convert s1 and s2 into lower case strings
+    transform(s1.begin(), s1.end(), s1.begin(), ::tolower);
+    transform(s2.begin(), s2.end(), s2.begin(), ::tolower);
+
+    return (s1.compare(s2) == 0);
+}
+
 int main(int argc, const char **argv)
 {
     SDL_Window *Window = NULL;
@@ -45,13 +54,35 @@ int main(int argc, const char **argv)
 
         Assets::Load();
 
+        auto story = 1;
+        auto combat = false;
+
+        if (argc > 1)
+        {
+            std::string arg = argv[1];
+
+            if (compare(arg, "combat"))
+            {
+                combat = true;
+            }
+            else
+            {
+                story = std::atoi(arg.c_str());
+            }
+        }
+
         // combat screen
-        // Interface::CombatScreen(Window, Renderer, map, party, enemies);
+        if (combat)
+        {
+            Interface::CombatScreen(Window, Renderer, map, party, enemies);
+        }
+        else
+        {
+            // Story Screen
+            Book1::InitializeStories();
 
-        // Story Screen
-        Book1::InitializeStories();
-
-        Interface::StoryScreen(Window, Renderer, party, {Book::Type::Book1, 1});
+            Interface::StoryScreen(Window, Renderer, party, {Book::Type::Book1, story});
+        }
 
         Assets::Unload();
 

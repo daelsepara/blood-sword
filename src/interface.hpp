@@ -7,9 +7,32 @@
 
 namespace Interface
 {
-    // (Player/Enemy, Id, Awareness)
+    // (player/enemy, id, awareness)
     typedef std::tuple<Map::Object, int, int> Combatants;
+
+    // player id, distance, endurance
     typedef std::tuple<int, int, int> Targets;
+
+    struct ScreenDimensions
+    {
+        int ObjectSize = 0;
+        int IconSize = 0;
+        int BoxWidth = 0;
+        int BoxHeight = 0;
+
+        int TextBoxWidth = 0;
+        int TextBoxHeight = 0;
+        int TextBoxX = 0;
+        int TextBoxY = 0;
+        int TextWidth = 0;
+        int TextBounds = 0;
+
+        int InfoBoxWidth = 0;
+        int InfoBoxHeight = 0;
+        int InfoBoxX = 0;
+        int InfoBoxY = 0;
+        int InfoWidth = 0;
+    };
 
     bool ValidX(Map::Base &Map, int x)
     {
@@ -107,6 +130,115 @@ namespace Interface
         return ValidXY && ((X >= Map.MapX) && (X < Map.SizeX + Map.MapX) && (Y >= Map.MapY) && (Y < Map.SizeY + Map.MapY));
     }
 
+    void GenerateMapControls(Map::Base &Map, std::vector<Button> &Controls, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int NumControls)
+    {
+        Controls.erase(Controls.begin() + NumControls, Controls.end());
+
+        for (auto y = Map.MapY; y < Map.MapY + Map.SizeY; y++)
+        {
+            auto AssetY = Map.DrawY + (y - Map.MapY) * Map.ObjectSize;
+
+            auto CtrlY = (y - Map.MapY);
+
+            for (auto x = Map.MapX; x < Map.MapX + Map.SizeX; x++)
+            {
+                auto CtrlUp = NumControls;
+                auto CtrlDn = NumControls;
+                auto CtrlLt = NumControls;
+                auto CtrlRt = NumControls;
+
+                auto CtrlX = (x - Map.MapX);
+
+                if (CtrlY > 0)
+                {
+                    CtrlUp = NumControls - Map.SizeX;
+                }
+
+                if (CtrlY < Map.SizeY - 1)
+                {
+                    CtrlDn = NumControls + Map.SizeX;
+                }
+                else
+                {
+                    if (CtrlX < 6)
+                    {
+                        CtrlDn = CtrlX + 5;
+                    }
+                    else
+                    {
+                        CtrlDn = 5;
+                    }
+                }
+
+                if (CtrlX > 0)
+                {
+                    CtrlLt = NumControls - 1;
+                }
+                else
+                {
+                    if (CtrlY < Map.SizeY / 2)
+                    {
+                        if (CtrlY == 0)
+                        {
+                            CtrlLt = 0;
+                        }
+                        else
+                        {
+                            CtrlLt = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (CtrlY == Map.SizeY - 1)
+                        {
+                            CtrlLt = 3;
+                        }
+                        else
+                        {
+                            CtrlLt = 2;
+                        }
+                    }
+                }
+
+                if (CtrlX < Map.SizeX - 1)
+                {
+                    CtrlRt = NumControls + 1;
+                }
+
+                auto AssetX = Map.DrawX + (x - Map.MapX) * Map.ObjectSize;
+
+                auto ObjectId = Map.Tiles[y][x].Id - 1;
+
+                if (Map.Tiles[y][x].IsPlayer())
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Party.Members[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
+                }
+                else if (Map.Tiles[y][x].IsEnemy())
+                {
+                    Controls.push_back(Button(NumControls, Enemies[ObjectId].Enthraled ? Assets::Get(Enemies[ObjectId].Asset, 0x66) : Assets::Get(Enemies[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::ENEMY));
+                }
+                else if (Map.Tiles[y][x].IsExit())
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_EXIT));
+                }
+                else if (Map.Tiles[y][x].IsPassable)
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
+                }
+                else if (Map.Tiles[y][x].IsPassableToEnemy)
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset, 0x66), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
+                }
+                else
+                {
+                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
+                }
+
+                NumControls++;
+            }
+        }
+    }
+
     bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int srcX, int srcY, int dstX, int dstY)
     {
         // do not render off screen animations
@@ -117,23 +249,40 @@ namespace Interface
             return Interface::Move(Map, srcX, srcY, dstX, dstY);
         }
 
+        auto Sign = [&](int Value)
+        {
+            return Value >= 0 ? 1 : -1;
+        };
+
+        auto Draw = [&](SDL_Surface *passable, SDL_Surface *asset, int X, int Y, int Delay)
+        {
+            RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+            Graphics::RenderImage(Renderer, passable, Map.DrawX + (srcX - Map.MapX) * Map.ObjectSize, Map.DrawY + (srcY - Map.MapY) * Map.ObjectSize);
+
+            Graphics::RenderImage(Renderer, asset, X, Y);
+
+            SDL_RenderPresent(Renderer);
+
+            SDL_Delay(Delay);
+        };
+
         auto Animate = [&](SDL_Surface *passable, SDL_Surface *asset)
         {
             auto DeltaX = (dstX - srcX);
 
             auto DeltaY = (dstY - srcY);
 
-            for (auto i = 0; i < Map.ObjectSize; i += 5)
+            // move along x
+            for (auto i = 0; i < std::abs(DeltaX) * Map.ObjectSize; i += 5)
             {
-                RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+                Draw(passable, asset, Map.DrawX + (srcX - Map.MapX) * Map.ObjectSize + Sign(DeltaX) * i, Map.DrawY + (srcY - Map.MapY) * Map.ObjectSize, 5);
+            }
 
-                Graphics::RenderImage(Renderer, passable, Map.DrawX + (srcX - Map.MapX) * Map.ObjectSize, Map.DrawY + (srcY - Map.MapY) * Map.ObjectSize);
-
-                Graphics::RenderImage(Renderer, asset, Map.DrawX + (srcX - Map.MapX) * Map.ObjectSize + DeltaX * i, Map.DrawY + (srcY - Map.MapY) * Map.ObjectSize + DeltaY * i);
-
-                SDL_RenderPresent(Renderer);
-
-                SDL_Delay(5);
+            // move along y, assumes movement along x was successful
+            for (auto i = 0; i < std::abs(DeltaY) * Map.ObjectSize; i += 5)
+            {
+                Draw(passable, asset, Map.DrawX + (dstX - Map.MapX) * Map.ObjectSize, Map.DrawY + (srcY - Map.MapY) * Map.ObjectSize + Sign(DeltaY) * i, 5);
             }
         };
 
@@ -700,18 +849,18 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
-            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " ATTRIBUTE TEST").c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " TEST").c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
 
             if (IsEnemy)
             {
-                Graphics::PutText(Renderer, Enemy.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+                Graphics::PutText(Renderer, Enemy.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
             }
             else
             {
-                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
             }
 
-            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
 
             if (CurrentStage == Attributes::Stage::TEST && Result == Attributes::Result::NONE)
             {
@@ -1035,7 +1184,7 @@ namespace Interface
         return Result;
     }
 
-    void TeleportToExits(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &Party)
+    void TeleportToExits(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int StartMap)
     {
         if (Map.Exits.empty())
         {
@@ -1058,7 +1207,7 @@ namespace Interface
 
                         for (auto j = 0; j < Map.Exits.size(); j++)
                         {
-                            if (Interface::Move(Map, PlayerX, PlayerY, Map.Exits[j].first, Map.Exits[j].second))
+                            if (Interface::AnimateMove(Renderer, BattleScreen, bg, Map, Party, Enemies, PlayerX, PlayerY, Map.Exits[j].first, Map.Exits[j].second))
                             {
                                 teleported = true;
 
@@ -1079,7 +1228,7 @@ namespace Interface
 
                                     if (Interface::ValidX(Map, X) && Interface::ValidY(Map, Y) && Map.Tiles[Y][X].Occupant == Map::Object::None)
                                     {
-                                        teleported = Interface::Move(Map, PlayerX, PlayerY, X, Y);
+                                        teleported = Interface::AnimateMove(Renderer, BattleScreen, bg, Map, Party, Enemies, PlayerX, PlayerY, X, Y);
                                     }
 
                                     if (teleported)
@@ -1096,13 +1245,15 @@ namespace Interface
                         }
                     }
                 }
+
+                Interface::GenerateMapControls(Map, BattleScreen, Party, Enemies, StartMap);
             }
 
             Interface::RenderMessage(Renderer, BattleScreen, Map, bg, "Party teleported near the exits!", intGR);
         }
     }
 
-    void ApplySpellEffects(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int PlayerId, int EnemyId, Spell::Type Spell, int CombatRound)
+    void ApplySpellEffects(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int PlayerId, int EnemyId, Spell::Type Spell, int CombatRound, int StartMap)
     {
         if (Spell == Spell::Type::VolcanoSpray || Spell == Spell::Type::SheetLightning)
         {
@@ -1292,7 +1443,7 @@ namespace Interface
         }
         else if (Spell == Spell::Type::ImmediateDeliverance)
         {
-            Interface::TeleportToExits(Renderer, BattleScreen, bg, Map, Party);
+            Interface::TeleportToExits(Renderer, BattleScreen, bg, Map, Party, Enemies, StartMap);
         }
     }
 
@@ -2635,115 +2786,6 @@ namespace Interface
         return Result;
     }
 
-    void GenerateMapControls(Map::Base &Map, std::vector<Button> &Controls, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int NumControls)
-    {
-        Controls.erase(Controls.begin() + NumControls, Controls.end());
-
-        for (auto y = Map.MapY; y < Map.MapY + Map.SizeY; y++)
-        {
-            auto AssetY = Map.DrawY + (y - Map.MapY) * Map.ObjectSize;
-
-            auto CtrlY = (y - Map.MapY);
-
-            for (auto x = Map.MapX; x < Map.MapX + Map.SizeX; x++)
-            {
-                auto CtrlUp = NumControls;
-                auto CtrlDn = NumControls;
-                auto CtrlLt = NumControls;
-                auto CtrlRt = NumControls;
-
-                auto CtrlX = (x - Map.MapX);
-
-                if (CtrlY > 0)
-                {
-                    CtrlUp = NumControls - Map.SizeX;
-                }
-
-                if (CtrlY < Map.SizeY - 1)
-                {
-                    CtrlDn = NumControls + Map.SizeX;
-                }
-                else
-                {
-                    if (CtrlX < 6)
-                    {
-                        CtrlDn = CtrlX + 5;
-                    }
-                    else
-                    {
-                        CtrlDn = 5;
-                    }
-                }
-
-                if (CtrlX > 0)
-                {
-                    CtrlLt = NumControls - 1;
-                }
-                else
-                {
-                    if (CtrlY < Map.SizeY / 2)
-                    {
-                        if (CtrlY == 0)
-                        {
-                            CtrlLt = 0;
-                        }
-                        else
-                        {
-                            CtrlLt = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (CtrlY == Map.SizeY - 1)
-                        {
-                            CtrlLt = 3;
-                        }
-                        else
-                        {
-                            CtrlLt = 2;
-                        }
-                    }
-                }
-
-                if (CtrlX < Map.SizeX - 1)
-                {
-                    CtrlRt = NumControls + 1;
-                }
-
-                auto AssetX = Map.DrawX + (x - Map.MapX) * Map.ObjectSize;
-
-                auto ObjectId = Map.Tiles[y][x].Id - 1;
-
-                if (Map.Tiles[y][x].IsPlayer())
-                {
-                    Controls.push_back(Button(NumControls, Assets::Get(Party.Members[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
-                }
-                else if (Map.Tiles[y][x].IsEnemy())
-                {
-                    Controls.push_back(Button(NumControls, Enemies[ObjectId].Enthraled ? Assets::Get(Enemies[ObjectId].Asset, 0x66) : Assets::Get(Enemies[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::ENEMY));
-                }
-                else if (Map.Tiles[y][x].IsExit())
-                {
-                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_EXIT));
-                }
-                else if (Map.Tiles[y][x].IsPassable)
-                {
-                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
-                }
-                else if (Map.Tiles[y][x].IsPassableToEnemy)
-                {
-                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset, 0x66), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
-                }
-                else
-                {
-                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
-                }
-
-                NumControls++;
-            }
-        }
-    }
-
     void RenderMapInfo(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, std::vector<AStar::Path> &CurrentPath, std::vector<int> &CurrentMove, Combat::Mode CurrentMode, int CombatRound, int Current, int CurrentCombatant, int SelectedCombatant, int SelectedSpell)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
@@ -3900,7 +3942,7 @@ namespace Interface
                                             {
                                                 if (Result == Spell::Result::SUCCESS)
                                                 {
-                                                    Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, Party, Enemies, PlayerId, -1, Character.Spells[SelectedSpell].Type, CombatRound);
+                                                    Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, Party, Enemies, PlayerId, -1, Character.Spells[SelectedSpell].Type, CombatRound, StartMap);
 
                                                     Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
 
@@ -4096,7 +4138,7 @@ namespace Interface
                                     if (Result == Spell::Result::SUCCESS)
                                     {
                                         // apply spell effects
-                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, Party, Enemies, PlayerId, TargetId, Character.Spells[SelectedSpell].Type, CombatRound);
+                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, Party, Enemies, PlayerId, TargetId, Character.Spells[SelectedSpell].Type, CombatRound, StartMap);
 
                                         Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
 
@@ -4624,26 +4666,6 @@ namespace Interface
         return Next;
     }
 
-    struct ScreenDimensions
-    {
-        int IconSize = 0;
-        int BoxWidth = 0;
-        int BoxHeight = 0;
-
-        int TextBoxWidth = 0;
-        int TextBoxHeight = 0;
-        int TextBoxX = 0;
-        int TextBoxY = 0;
-        int TextWidth = 0;
-        int TextBounds = 0;
-
-        int InfoBoxWidth = 0;
-        int InfoBoxHeight = 0;
-        int InfoBoxX = 0;
-        int InfoBoxY = 0;
-        int InfoWidth = 0;
-    };
-
     void DisplayParty(SDL_Renderer *Renderer, Party::Base &Party, ScreenDimensions &Screen)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
@@ -4759,7 +4781,8 @@ namespace Interface
 
         auto Controls = std::vector<Button>();
 
-        Controls.push_back(Button(0, Assets::Get(Assets::Type::Back), 0, 0, 0, 0, TextButtonX, OffsetY, intWH, Control::Type::BACK));
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::Items), 0, 1, 0, 0, TextButtonX, OffsetY, intWH, Control::Type::ITEMS));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::Back), 0, 1, 1, 1, TextButtonX + Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
 
         auto done = false;
 
@@ -4922,7 +4945,6 @@ namespace Interface
     Attributes::Result Test(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, ScreenDimensions &Screen, Story::Base *Story, Party::Base &Party, int Character, Attributes::Type Attribute)
     {
         auto Result = Attributes::Result::NONE;
-        auto ObjectSize = 64;
         auto WindowW = 3 * SCREEN_WIDTH / 5;
         auto WindowH = 4 * Screen.TextBoxHeight / 5;
         auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
@@ -5009,9 +5031,9 @@ namespace Interface
 
             Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " TEST").c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
 
-            Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+            Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
 
-            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
 
             if (CurrentStage == Attributes::Stage::TEST && Result == Attributes::Result::NONE)
             {
@@ -5044,18 +5066,18 @@ namespace Interface
                 // show casting results
                 for (auto i = 0; i < TestRolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (ObjectSize + 2 * text_space), TextY + 4 * RowHeight, ObjectSize, ObjectSize);
+                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Screen.ObjectSize + 2 * text_space), TextY + 5 * RowHeight, Screen.ObjectSize, Screen.ObjectSize);
                 }
 
-                Graphics::PutText(Renderer, ("Test Score: " + std::to_string(TestSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + 5 * RowHeight + ObjectSize);
+                Graphics::PutText(Renderer, ("Test Score: " + std::to_string(TestSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + 6 * RowHeight + Screen.ObjectSize);
 
                 if (Result == Attributes::Result::SUCCESS)
                 {
-                    Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " test passed!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + 6 * RowHeight + ObjectSize);
+                    Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " test passed!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + 7 * RowHeight + Screen.ObjectSize);
                 }
                 else
                 {
-                    Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " test failed!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + 6 * RowHeight + ObjectSize);
+                    Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " test failed!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + 7 * RowHeight + Screen.ObjectSize);
                 }
             }
 
@@ -5402,6 +5424,7 @@ namespace Interface
             Screen.InfoWidth = Screen.InfoBoxWidth - 2 * text_space;
             Screen.InfoBoxX = Screen.IconSize / 2;
             Screen.InfoBoxY = Screen.IconSize;
+            Screen.ObjectSize = buttonw;
 
             while (!Quit)
             {
