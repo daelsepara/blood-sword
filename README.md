@@ -44,6 +44,8 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 
 ![Manage Adventurer](/screenshots/manage-adventurer.png)
 
+![Adventure Sheet](/screenshots/adventurer-stats.png)
+
 ## Character classes in implemented in combat
 
 - Warrior (**DONE**)

@@ -567,7 +567,7 @@ namespace Interface
         return NearestPlayer;
     }
 
-    void CharacterSheet(SDL_Renderer *Renderer, Character::Base &Character, TTF_Font *Font, int TextWidth, int X, int Y, bool FlipColors)
+    void CharacterSheet(SDL_Renderer *Renderer, Character::Base &Character, TTF_Font *Font, int TextWidth, int X, int Y, Uint32 Bg, bool FlipColors)
     {
         auto FontSize = TTF_FontHeight(Font);
 
@@ -585,20 +585,20 @@ namespace Interface
         auto Damage = Character.Damage;
         auto DamageModifier = Character.DamageModifier + (Weapons.size() > 0 ? Weapons[0].Damage : 0);
 
-        Graphics::PutText(Renderer, Character::ClassName[Character.Class], Font, 0, FlipColors ? clrWH : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y);
-        Graphics::PutText(Renderer, std::string("RANK: " + std::to_string(Character.Rank)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(FightingProwess)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 2 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(PsychicAbility)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 3 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("AWARENESS: " + std::to_string(Awareness)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 4 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("ENDURANCE: " + std::to_string(Endurance)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 5 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(Armour)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 6 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(Damage) + (DamageModifier >= 0 ? "D+" : "D") + std::to_string(DamageModifier)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 7 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("EXPERIENCE: " + std::to_string(Character.ExperiencePoints)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 8 * (FontSize + 2));
+        Graphics::PutText(Renderer, Character::ClassName[Character.Class], Font, 0, FlipColors ? clrBK : clrGR, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y);
+        Graphics::PutText(Renderer, std::string("RANK: " + std::to_string(Character.Rank)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(FightingProwess)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 2 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(PsychicAbility)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 3 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("AWARENESS: " + std::to_string(Awareness)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 4 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("ENDURANCE: " + std::to_string(Endurance)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 5 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(Armour)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 6 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(Damage) + (DamageModifier >= 0 ? "D+" : "D") + std::to_string(DamageModifier)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 7 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("EXPERIENCE: " + std::to_string(Character.ExperiencePoints)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 8 * (FontSize + 2));
     }
 
     void CharacterSheet(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, TTF_Font *Font, int PlayerId)
     {
-        Interface::CharacterSheet(Renderer, Party.Members[PlayerId], Font, Map.TextRightWidth, Map.TextRightX, Map.DrawY, false);
+        Interface::CharacterSheet(Renderer, Party.Members[PlayerId], Font, Map.TextRightWidth, Map.TextRightX, Map.DrawY, intBK, false);
 
         auto FontSize = TTF_FontHeight(Font);
 
@@ -4783,7 +4783,7 @@ namespace Interface
         auto RowHeight = TTF_FontHeight(Fonts::Normal);
         auto TextY = WindowY + 2 * text_space;
         auto ButtonX = WindowX + 2 * text_space;
-        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + text_space + FontSize);
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + FontSize + border_pts);
 
         auto Hold = false;
         auto Selected = false;
@@ -4793,35 +4793,35 @@ namespace Interface
 
         auto Controls = std::vector<Button>();
 
-        Controls.push_back(Button(0, Assets::Get(Assets::Type::Encyclopedia), 0, 1, 0, 0, ButtonX, OffsetY, intWH, Control::Type::INFO));
-        Controls.push_back(Button(1, Assets::Get(Assets::Type::Stats), 0, 2, 1, 1, ButtonX + Screen.IconSize, OffsetY, intWH, Control::Type::STATS));
-        Controls.push_back(Button(2, Assets::Get(Assets::Type::UseAbility), 1, 3, 2, 2, ButtonX + 2 * Screen.IconSize, OffsetY, intWH, Control::Type::ABILITY));
-        Controls.push_back(Button(3, Assets::Get(Assets::Type::Items), 2, 4, 3, 3, ButtonX + 3 * Screen.IconSize, OffsetY, intWH, Control::Type::ITEMS));
-        Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), 3, 4, 3, 3, ButtonX + 4 * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::Encyclopedia), 0, 1, 0, 0, ButtonX, OffsetY, intBK, Control::Type::INFO));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::Stats), 0, 2, 1, 1, ButtonX + Screen.IconSize, OffsetY, intBK, Control::Type::STATS));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::UseAbility), 1, 3, 2, 2, ButtonX + 2 * Screen.IconSize, OffsetY, intBK, Control::Type::ABILITY));
+        Controls.push_back(Button(3, Assets::Get(Assets::Type::Items), 2, 4, 3, 3, ButtonX + 3 * Screen.IconSize, OffsetY, intBK, Control::Type::ITEMS));
+        Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), 3, 4, 3, 3, ButtonX + 4 * Screen.IconSize, OffsetY, intBK, Control::Type::BACK));
 
         auto done = false;
 
         while (!done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
-            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
-            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
 
             if (Current >= 0 && Current < Controls.size() && Controls[Current].Type == Control::Type::STATS)
             {
-                Interface::CharacterSheet(Renderer, Party.Members[Character], Fonts::Normal, WindowTextWidth, ButtonX, TextY, true);
+                Interface::CharacterSheet(Renderer, Party.Members[Character], Fonts::Normal, WindowTextWidth, ButtonX, TextY, intWH, true);
             }
             else
             {
-                Graphics::PutText(Renderer, Character::ClassName[Party.Members[Character].Class], Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY);
-                Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY + 2 * RowHeight);
+                Graphics::PutText(Renderer, Character::ClassName[Party.Members[Character].Class], Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY);
+                Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intWH, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY + 2 * RowHeight);
             }
 
             Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
 
             if (Current >= 0 && Current < Controls.size())
             {
-                Graphics::RenderCaption(Renderer, Controls[Current], clrGR, intBK);
+                Graphics::RenderCaption(Renderer, Controls[Current], clrBK, intWH);
             }
 
             Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);

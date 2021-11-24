@@ -17,12 +17,12 @@ const SDL_Color clrMG = {191, 0, 191, 0};
 const SDL_Color clrLM = {255, 0, 255, 0};
 const SDL_Color clrBR = {132, 85, 62, 0};
 const SDL_Color clrRD = {255, 0, 0, 0};
-const SDL_Color clrGR = {127, 127, 127, 255};
+const SDL_Color clrGR = {96, 96, 96, 255};
 
 const Uint32 intBK = 0x00000000;
 const Uint32 intRD = 0xFFFF0000;
 const Uint32 intWH = 0xFFFFFFFF;
-const Uint32 intGR = 0xFF7F7F7F;
+const Uint32 intGR = 0xFF606060;
 const Uint32 intGN = 0xFF064A3E;
 const Uint32 intLG = 0xFF4F9937;
 const Uint32 intYW = 0xFFF7AD07;
