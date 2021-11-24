@@ -22,6 +22,14 @@ namespace Attributes
         {Attributes::Type::Endurance, "ENDURANCE"},
     };
 
+    std::map<Attributes::Type, const char*> Abbreviation = {
+        {Attributes::Type::None, "NONE"},
+        {Attributes::Type::FightingProwess, "FPR"},
+        {Attributes::Type::PsychicAbility, "PSY"},
+        {Attributes::Type::Awareness, "AWR"},
+        {Attributes::Type::Endurance, "END"},
+    };
+
     class Base
     {
     public:

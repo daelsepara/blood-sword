@@ -4708,7 +4708,6 @@ namespace Interface
             Graphics::PutText(Renderer, ("PSY: " + std::to_string(PsychicAbility)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + 2 * FontSize);
             Graphics::PutText(Renderer, ("END: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 3 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + 2 * FontSize);
             Graphics::PutText(Renderer, ("DMG: " + (std::to_string(Damage) + "D" + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 5 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + 2 * FontSize);
-            
         }
 
         // stats/info box
@@ -4773,6 +4772,54 @@ namespace Interface
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
+    std::string ItemString(Equipment::Base &Equipment)
+    {
+        std::string ItemString = Equipment.Name;
+        std::string Modifiers = "";
+        auto ModCount = 0;
+
+        if (Equipment.Type != Equipment::Type::Quiver && Equipment.Type != Equipment::Type::MoneyPouch)
+        {
+            if (Equipment.Attribute != Attributes::Type::None && Equipment.Score != 0)
+            {
+                Modifiers += (Equipment.Score >= 0 ? "+" : "") + std::to_string(Equipment.Score);
+                Modifiers += " " + std::string(Attributes::Abbreviation[Equipment.Attribute]);
+                ModCount++;
+            }
+
+            if (Equipment.Damage != 0)
+            {
+                if (ModCount > 0)
+                {
+                    Modifiers += ", ";
+                }
+
+                Modifiers += (Equipment.Damage >= 0 ? "+" : "") + std::to_string(Equipment.Damage) + " DMG";
+
+                ModCount++;
+            }
+        }
+        else if (Equipment.Type == Equipment::Type::Quiver)
+        {
+            Modifiers += std::to_string(Equipment.Arrows) + " arrow(s)";
+
+            ModCount++;
+        }
+        else if (Equipment.Type == Equipment::Type::MoneyPouch)
+        {
+            Modifiers += std::to_string(Equipment.Gold) + " gold piece(s)";
+
+            ModCount++;
+        }
+
+        if (ModCount > 0)
+        {
+            ItemString += " [ " + Modifiers + " ]";
+        }
+
+        return ItemString;
+    }
+
     void ManageAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int Character)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
@@ -4781,7 +4828,8 @@ namespace Interface
         auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto WindowTextWidth = WindowW - 4 * text_space;
-        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto ColumnWidth = WindowTextWidth / 2;
+        auto MidColumn = WindowX + ColumnWidth + 2 * text_space;
         auto TextY = WindowY + 2 * text_space;
         auto ButtonX = WindowX + 2 * text_space;
         auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + FontSize + border_pts);
@@ -4808,14 +4856,29 @@ namespace Interface
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
 
-            if (Current >= 0 && Current < Controls.size() && Controls[Current].Type == Control::Type::STATS)
+            Graphics::PutText(Renderer, Character::ClassName[Party.Members[Character].Class], Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
+
+            if (Current >= 0 && Current < Controls.size())
             {
-                Interface::CharacterSheet(Renderer, Party.Members[Character], Fonts::Normal, WindowTextWidth, ButtonX, TextY, intWH, true);
+                if (Controls[Current].Type == Control::Type::STATS)
+                {
+                    Interface::CharacterSheet(Renderer, Party.Members[Character], Fonts::Normal, WindowTextWidth, ButtonX, TextY, intWH, true);
+                }
+                else if (Controls[Current].Type == Control::Type::ITEMS)
+                {
+                    for (auto i = 0; i < Party.Members[Character].Equipment.size(); i++)
+                    {
+                        Graphics::PutText(Renderer, Interface::ItemString(Party.Members[Character].Equipment[i]).c_str(), Fonts::Normal, 0, clrGR, intWH, TTF_STYLE_NORMAL, ColumnWidth, FontSize, i < 5 ? ButtonX : MidColumn, TextY + 2 * FontSize + (i < 5 ? i : i - 5) * FontSize);
+                    }
+                }
+                else
+                {
+                    Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY + 2 * FontSize);
+                }
             }
             else
             {
-                Graphics::PutText(Renderer, Character::ClassName[Party.Members[Character].Class], Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY);
-                Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intWH, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY + 2 * RowHeight);
+                Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY + 2 * FontSize);
             }
 
             Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
