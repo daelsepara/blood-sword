@@ -586,5 +586,29 @@ namespace Engine
 
         return (result >= 0 && result < enemy.SpellStatus.size());
     }
+
+    int Find(Party::Base &party, Character::Class member)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]) && party.Members[i].Class == member)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool IsPresent(Party::Base &party, Character::Class member)
+    {
+        auto result = Engine::Find(party, member);
+
+        return result >= 0 && result < party.Members.size();
+    }
 }
 #endif

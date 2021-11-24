@@ -24,6 +24,8 @@ namespace Choice
     public:
         Engine::Destination Destination = {Book::Type::None, 0};
 
+        Engine::Destination DestinationFail = {Book::Type::None, 0};
+
         Character::Class Character = Character::Class::None;
 
         Attributes::Type Attribute = Attributes::Type::None;
@@ -60,11 +62,15 @@ namespace Choice
             Type = Choice::Type::Character;
         }
 
-        Base(const char *choice, Engine::Destination destination, Attributes::Type attribute)
+        Base(const char *choice, Engine::Destination destination, Engine::Destination destinationFail, Character::Class character, Attributes::Type attribute)
         {
             Text = choice;
 
             Destination = destination;
+
+            DestinationFail = destinationFail;
+
+            Character = character;
 
             Attribute = attribute;
 
@@ -189,6 +195,19 @@ namespace Story
         return controls;
     }
 
+    std::vector<Button> ExitControls()
+    {
+        auto controls = std::vector<Button>();
+
+        auto IconSize = (buttonw + 2 * text_space);
+        auto OffsetY = SCREEN_HEIGHT - 2 * (IconSize - text_space);
+        auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * text_space);
+
+        controls.push_back(Button(0, Assets::Get(Assets::Type::Exit), 0, 0, 0, 0, LastX, OffsetY, intWH, Control::Type::EXIT));
+
+        return controls;
+    }
+
     class NotImplemented : public Story::Base
     {
     public:
@@ -200,23 +219,27 @@ namespace Story
 
             Title = "Not implemented yet";
 
-            Controls = {};
+            Controls = Story::Controls::None;
         }
     };
 
     auto notImplemented = NotImplemented();
 
-    Story::Base &FindStory(int id, std::vector<std::reference_wrapper<Story::Base>> &Stories)
+    Story::Base *FindStory(int id, std::vector<Story::Base *> &Stories)
     {
-        Story::Base &story = notImplemented;
+        Story::Base *story = &notImplemented;
+
+        bool found = false;
 
         if (Stories.size() > 0)
         {
             for (auto i = 0; i < Stories.size(); i++)
             {
-                if (Stories[i].get().Id == id)
+                if (Stories[i]->Id == id)
                 {
-                    story = Stories[i].get();
+                    story = Stories[i];
+
+                    found = true;
 
                     break;
                 }

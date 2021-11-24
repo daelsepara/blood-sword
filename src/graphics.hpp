@@ -5,6 +5,7 @@
 
 namespace Graphics
 {
+    SDL_Surface *CreateHeaderButton(SDL_Window *window, const char *font, int font_size, const char *text, SDL_Color color, Uint32 bg, int w, int h, int x);
     SDL_Surface *CreateImage(const char *image);
     SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
     SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style);
@@ -677,6 +678,65 @@ namespace Graphics
         }
     }
 
+    SDL_Surface *CreateHeaderButton(SDL_Window *window, const char *font, int font_size, const char *text, SDL_Color color, Uint32 bg, int w, int h, int x)
+    {
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+        auto button = SDL_CreateRGBSurface(0, w, h, 32, bg == 0 ? 0xFF000000 : 0, bg == 0 ? 0x00FF0000 : 0, bg == 0 ? 0x0000FF00 : 0, bg == 0 ? 0x000000FF : 0);
+#else
+        auto button = SDL_CreateRGBSurface(0, w, h, 32, bg == 0 ? 0x000000FF : 0, bg == 0 ? 0x0000FF00 : 0, bg == 0 ? 0x00FF0000 : 0, bg == 0 ? 0xFF000000 : 0);
+#endif
+
+        auto text_surface = Graphics::CreateText(text, font, font_size, color, w, TTF_STYLE_NORMAL);
+
+        SDL_Surface *converted_text = NULL;
+
+        if (button && text_surface)
+        {
+            SDL_Rect dst;
+
+            dst.w = button->w;
+            dst.h = button->h;
+            dst.x = 0;
+            dst.y = 0;
+
+            dst.x = x < 0 ? (button->w - text_surface->w) / 2 : x;
+            dst.y = (button->h - text_surface->h) / 2;
+
+            if (bg != 0)
+            {
+                SDL_FillRect(button, NULL, bg);
+
+                SDL_BlitSurface(text_surface, NULL, button, &dst);
+            }
+            else
+            {
+                SDL_FillRect(button, NULL, SDL_MapRGBA(button->format, 0, 0, 0, 0));
+
+                converted_text = SDL_ConvertSurface(text_surface, button->format, 0);
+
+                SDL_SetSurfaceAlphaMod(converted_text, SDL_ALPHA_OPAQUE);
+
+                SDL_BlitSurface(converted_text, NULL, button, &dst);
+            }
+        }
+
+        if (text_surface)
+        {
+            SDL_FreeSurface(text_surface);
+
+            text_surface = NULL;
+        }
+
+        if (converted_text)
+        {
+            SDL_FreeSurface(converted_text);
+
+            converted_text = NULL;
+        }
+
+        return button;
+    }
+
     SDL_Surface *CreateImage(const char *image)
     {
         auto surface = IMG_Load(image);
@@ -761,7 +821,6 @@ namespace Graphics
         return surface;
     }
 
-    // create text image with line wrap limit
     SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style)
     {
         SDL_Surface *surface = NULL;

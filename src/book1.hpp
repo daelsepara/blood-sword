@@ -5,7 +5,7 @@
 
 namespace Book1
 {
-    auto Stories = std::vector<std::reference_wrapper<Story::Base>>();
+    auto Stories = std::vector<Story::Base *>();
 
     class Story001 : public Story::Base
     {
@@ -25,20 +25,130 @@ namespace Book1
             Choices.clear();
             Choices.push_back(Choice::Base("Ignore the drunken merchant and go over to the booth", {Book::Type::Book1, 452}));
             Choices.push_back(Choice::Base("Talk to the merchant", {Book::Type::Book1, 69}));
-            Choices.push_back(Choice::Base("TRICKSTER wishes to act", {Book::Type::Book1, 58}, Character::Class::Trickster));
-            Choices.push_back(Choice::Base("SAGE wishes to try something", {Book::Type::Book1, 18}, Character::Class::Sage));
-            Choices.push_back(Choice::Base("ENCHANTER wishes something", {Book::Type::Book1, 398}, Character::Class::Enchanter));
+            Choices.push_back(Choice::Base("[TRICKSTER] Try something", {Book::Type::Book1, 58}, Character::Class::Trickster));
+            Choices.push_back(Choice::Base("[SAGE] Try something", {Book::Type::Book1, 18}, Character::Class::Sage));
+            Choices.push_back(Choice::Base("[ENCHANTER] Try something", {Book::Type::Book1, 398}, Character::Class::Enchanter));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story018 : public Story::Base
+    {
+    public:
+        Story018()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 18;
+
+            Text = "(SAGE) You have spent years studying a hundred tomes and crumbling parchments full of ancient knowledge. Surely somewhere you must have read something concerning the magi of Krarth? You dear your mind of all distractions, and gradually the din of the crowds fades away. You see countless old documents with your inner eye, and mentally sift them until you have found what you seek.<i>[The olive-green pennant represents Magus Kalugen, who is overlord of this citadel. A man of notorious cruelty, he has already won so many concessions this year from his fellow magi that he stands to gain very little from winning the contest. Magus Balhazar, whose pennant is a brilliant scarlet, is in quite the opposite position. He desperately needs to win the contest or he will have to cede much of his land -- including thousands of acres of valuable pine forest -- to his rivals. Magus Vyl is perhaps rather appropriately represented by a pennant of sombre black and purple. He is widely reputed to be one of the undead - a vampire who shuns the day and stalks the night in search of blood.]</i>";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 1}; };
+    };
+
+    class Story058 : public Story::Base
+    {
+    public:
+        Story058()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 58;
+
+            Text = "[TRICKSTER] Under the merchant's beer-stained fur jacket you notice a bulging money-pouch. Being a Trickster, your thoughts naturally turn to theft.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Try to rob the merchant", {Book::Type::Book1, 121}, {Book::Type::Book1, 181}, Character::Class::Trickster, Attributes::Type::Awareness));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story069 : public Story::Base
+    {
+    public:
+        Story069()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 69;
+
+            Text = "He lurches from side to side, struggling to focus on you. Giving vent to an enormous belch, he says, 'Lookin' fer employ with a magus, you'll be, I don' wonder. There's three still wantin' champions fer the contest -- that's their pennants over by that booth ...\n\n'Magus Vyl is the worst o' the lot, but then 'e's a vampire an' I shouldn't speak ill o' the dead. Kalugen -- lord o' this city, as you'll know - well, 'e ain't much better, an' he's not in the contest to win, I've 'eard. But the third - Magus Balhazar -- is the best of a bad bunch, 'cause 'e's got most to lose in the contest, an' 'e'll be rewardin' 'is champions the best on account o' that.'\n\nAny hopes you might have of questioning the merchant further are soon dashed. Exhausted by the effort of speaking, he favours you with a broad grin and then falls like a plank on the cobblestones. A boot in the ribs does nothing to rouse him from his drunken stupor, so you decide to approach the booth.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 452}; };
+    };
+
+    class Story398 : public Story::Base
+    {
+    public:
+        Story398()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 398;
+
+            Text = "[ENCHANTER] You consider your various spells. Two non-combat spells might be of use to you now. But which? Make your choice";
+
+            Image = "images/book1/merchants.png";
+
+            TopImage = false;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Cast the Prediction spell", {Book::Type::Book1, 442}));
+            Choices.push_back(Choice::Base("Opt for the Summon Faltyn spell", {Book::Type::Book1, 242}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story452 : public Story::Base
+    {
+    public:
+        Story452()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 452;
+
+            Text = "You saunter up to the booth. The three pennants flutter forlornly in the evening breeze. You return the cold stares of the magi's stewards with a scowl.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Take the olive-green pennant", {Book::Type::Book1, 52}));
+            Choices.push_back(Choice::Base("Take the scarlet pennant", {Book::Type::Book1, 28}));
+            Choices.push_back(Choice::Base("Select the black and purple pennant", {Book::Type::Book1, 381}));
+            Choices.push_back(Choice::Base("Try talking to the stewards first", {Book::Type::Book1, 227}));
 
             Controls = Story::Controls::Standard;
         }
     };
 
     auto story001 = Story001();
+    auto story018 = Story018();
+    auto story058 = Story058();
+    auto story069 = Story069();
+    auto story398 = Story398();
+    auto story452 = Story452();
 
     void InitializeStories()
     {
         Book1::Stories = {
-            story001};
+            &story001,
+            &story018,
+            &story058,
+            &story069,
+            &story398,
+            &story452};
     }
 }
 #endif
