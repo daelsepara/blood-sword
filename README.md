@@ -30,6 +30,14 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 
 ![Story Screen](/screenshots/story-screen.png)
 
+**Choice Screen**
+
+![Choice Screen](/screenshots/choice-screen.png)
+
+**Test Abilities**
+
+![Test Abilities](/screenshots/test-abilities.png)
+
 ## Character classes in implemented in combat
 
 - Warrior (**DONE**)

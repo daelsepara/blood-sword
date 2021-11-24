@@ -403,7 +403,7 @@ namespace Graphics
         }
         else if (control.Type == Control::Type::PARTY)
         {
-            caption = "Mange party";
+            caption = "Manage party";
         }
         else if (control.Type == Control::Type::CONTINUE)
         {
