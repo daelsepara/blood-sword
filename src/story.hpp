@@ -167,18 +167,17 @@ namespace Story
 
         if (!compact)
         {
-            controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, 1, 0, 1, SCREEN_WIDTH - (buttonw + 4 * border_space), (buttonh + 3 * border_space), intWH, Control::Type::SCROLL_UP));
-
-            controls.push_back(Button(1, Assets::Get(Assets::Type::Down), 0, 2, 0, 2, SCREEN_WIDTH - (buttonw + 4 * border_space), SCREEN_HEIGHT - 3 * (buttonh + 2 * border_space) + border_space, intWH, Control::Type::SCROLL_DOWN));
+            controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, 1, 0, 1, SCREEN_WIDTH - (buttonw + 4 * text_space), (buttonh + 3 * text_space), intWH, Control::Type::SCROLL_UP));
+            controls.push_back(Button(1, Assets::Get(Assets::Type::Down), 0, 2, 0, 2, SCREEN_WIDTH - (buttonw + 4 * text_space), SCREEN_HEIGHT - 3 * (buttonh + 2 * text_space) + text_space, intWH, Control::Type::SCROLL_DOWN));
 
             idx = 2;
         }
 
-        auto IconSize = (buttonw + 2 * border_space);
+        auto IconSize = (buttonw + 2 * text_space);
         auto BoxWidth = (SCREEN_WIDTH - 2 * IconSize) / 2;
-        auto OffsetX = IconSize / 2 + BoxWidth + border_space;
-        auto OffsetY = SCREEN_HEIGHT - 2 * (IconSize - border_space);
-        auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * border_space);
+        auto OffsetX = IconSize / 2 + BoxWidth + text_space;
+        auto OffsetY = SCREEN_HEIGHT - 2 * (IconSize - text_space);
+        auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * text_space);
 
         controls.push_back(Button(idx, Assets::Get(Assets::Type::Encyclopedia), idx, idx + 1, compact ? idx : 1, idx, OffsetX, OffsetY, intWH, Control::Type::ENCYCLOPEDIA));
         controls.push_back(Button(idx + 1, Assets::Get(Assets::Type::Map), idx, idx + 2, compact ? idx + 1 : 1, idx, OffsetX + gridsize, OffsetY, intWH, Control::Type::MAP));

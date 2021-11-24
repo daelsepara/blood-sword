@@ -24,6 +24,7 @@ namespace Graphics
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y);
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset);
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset);
+    void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y);
     void RenderTextButtons(SDL_Renderer *renderer, std::vector<TextButton> controls, const char *ttf, int current, int fontsize, int style);
     void SetWindowIcon(SDL_Window *window, const char *icon);
     void StretchImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int w, int h);
@@ -157,6 +158,55 @@ namespace Graphics
         }
     }
 
+    void PutText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int x, int y)
+    {
+        if (renderer)
+        {
+            TTF_SetFontStyle(font, style);
+
+            auto surface = TTF_RenderText_Blended(font, text, fg);
+
+            if (surface)
+            {
+                if (x < 0)
+                {
+                    Graphics::FillRect(renderer, surface->w, surface->h, (SCREEN_WIDTH - surface->w) / 2, (SCREEN_HEIGHT - surface->h) / 2, bg);
+                }
+                else
+                {
+                    Graphics::FillRect(renderer, surface->w, surface->h, x, y, bg);
+                }
+
+                if (space > 0)
+                {
+                    if (x < 0)
+                    {
+                        Graphics::RenderText(renderer, surface, 0, (SCREEN_WIDTH - surface->w) / 2 + space, (SCREEN_HEIGHT - surface->h) / 2 + space, surface->h - 2 * space, 0);
+                    }
+                    else
+                    {
+                        Graphics::RenderText(renderer, surface, 0, x + space, y + space);
+                    }
+                }
+                else
+                {
+                    if (x < 0)
+                    {
+                        Graphics::RenderText(renderer, surface, 0, (SCREEN_WIDTH - surface->w) / 2, (SCREEN_HEIGHT - surface->h) / 2);
+                    }
+                    else
+                    {
+                        Graphics::RenderText(renderer, surface, 0, x, y);
+                    }
+                }
+
+                SDL_FreeSurface(surface);
+
+                surface = NULL;
+            }
+        }
+    }
+
     void PutTextBox(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y)
     {
         if (renderer)
@@ -246,7 +296,7 @@ namespace Graphics
     {
         auto captionx = control.X - text_space;
 
-        auto captiony = control.Y + control.H + border_space;
+        auto captiony = control.Y + control.H + text_space;
 
         std::string caption = "";
 
@@ -484,6 +534,46 @@ namespace Graphics
 
                 dst.w = text->w;
                 dst.h = text->h < bounds ? text->h : bounds;
+                dst.x = x;
+                dst.y = y;
+
+                if (bg != 0)
+                {
+                    SDL_SetRenderDrawColor(renderer, R(bg), G(bg), B(bg), A(bg));
+                    SDL_RenderFillRect(renderer, &dst);
+                }
+
+                auto texture = SDL_CreateTextureFromSurface(renderer, text);
+
+                if (texture)
+                {
+                    SDL_RenderCopy(renderer, texture, &src, &dst);
+
+                    SDL_DestroyTexture(texture);
+
+                    texture = NULL;
+                }
+            }
+        }
+    }
+
+    // Render text
+    void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y)
+    {
+        if (renderer)
+        {
+            if (text && renderer)
+            {
+                SDL_Rect dst;
+                SDL_Rect src;
+
+                src.w = text->w;
+                src.h = text->h;
+                src.y = 0;
+                src.x = 0;
+
+                dst.w = text->w;
+                dst.h = text->h;
                 dst.x = x;
                 dst.y = y;
 

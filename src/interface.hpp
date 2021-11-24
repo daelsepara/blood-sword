@@ -25,7 +25,7 @@ namespace Interface
     {
         Graphics::FillWindow(Renderer, bg);
 
-        Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+        Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
     void RenderMessage(SDL_Renderer *Renderer, std::vector<Button> &Controls, Map::Base &Map, Uint32 bg, std::string Message, Uint32 FlashColor)
@@ -744,7 +744,7 @@ namespace Interface
                 // show casting results
                 for (auto i = 0; i < TestRolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
                 Graphics::PutText(Renderer, ("Test Score: " + std::to_string(TestSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -891,7 +891,7 @@ namespace Interface
                 // show casting results
                 for (auto i = 0; i < Rolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[TestRolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::StretchImage(Renderer, dice[TestRolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
                 Graphics::PutText(Renderer, ("Score: " + std::to_string(TestSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -941,7 +941,7 @@ namespace Interface
     void RenderChoiceCaption(SDL_Renderer *renderer, Button &control, std::string caption, SDL_Color color, Uint32 bg)
     {
         auto captionx = control.X - text_space;
-        auto captiony = control.Y + control.H + border_space;
+        auto captiony = control.Y + control.H + text_space;
 
         if (caption.length() > 0)
         {
@@ -979,12 +979,12 @@ namespace Interface
 
         for (auto i = 0; i < Assets.size(); i++)
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets[NumControls]), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CHOICE));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets[NumControls]), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::CHOICE));
 
             NumControls++;
         }
 
-        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
+        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
 
         auto done = false;
 
@@ -999,7 +999,7 @@ namespace Interface
 
             Graphics::PutText(Renderer, Message, Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
 
-            Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
 
             if (Current >= 0 && Current < Controls.size())
             {
@@ -1424,7 +1424,7 @@ namespace Interface
                 // show casting results
                 for (auto i = 0; i < CastingRolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
                 Graphics::PutText(Renderer, ("Score: " + std::to_string(CastingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -1652,8 +1652,8 @@ namespace Interface
                 // character stats
                 auto Endurance = Engine::Endurance(Character);
                 Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
-                Graphics::PutText(Renderer, ("FP: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
-                Graphics::PutText(Renderer, ("EN: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 2 * RowHeight);
+                Graphics::PutText(Renderer, ("FPR: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
+                Graphics::PutText(Renderer, ("END: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 2 * RowHeight);
                 Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D" + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier)))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
                 Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 4 * RowHeight);
 
@@ -1693,8 +1693,8 @@ namespace Interface
 
                 // Enemy stats
                 Graphics::PutText(Renderer, Enemy.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
-                Graphics::PutText(Renderer, ("FP: " + std::to_string(Enemy.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + RowHeight);
-                Graphics::PutText(Renderer, ("EN: " + std::to_string(Enemy.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 2 * RowHeight);
+                Graphics::PutText(Renderer, ("FPR: " + std::to_string(Enemy.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + RowHeight);
+                Graphics::PutText(Renderer, ("END: " + std::to_string(Enemy.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 2 * RowHeight);
                 Graphics::PutText(Renderer, ("DMG: " + std::to_string(Enemy.Damage) + "D" + (Enemy.DamageModifier < 0 ? "" : "+") + std::to_string(Enemy.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
                 Graphics::PutText(Renderer, ("ARM: " + std::to_string(Enemy.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 4 * RowHeight);
 
@@ -1754,7 +1754,7 @@ namespace Interface
                     // show fight results
                     for (auto i = 0; i < FightRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
                     Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -1810,7 +1810,7 @@ namespace Interface
                         // show fight results
                         for (auto i = 0; i < FightRolls; i++)
                         {
-                            Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                            Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                         }
 
                         Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -1829,7 +1829,7 @@ namespace Interface
                         // show damage results
                         for (auto i = 0; i < DamageRolls; i++)
                         {
-                            Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                            Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                         }
 
                         Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -2018,8 +2018,8 @@ namespace Interface
 
             // character stats
             Graphics::PutText(Renderer, Enemy.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
-            Graphics::PutText(Renderer, ("FP: " + std::to_string(Enemy.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
-            Graphics::PutText(Renderer, ("EN: " + std::to_string(Enemy.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, ("FPR: " + std::to_string(Enemy.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+            Graphics::PutText(Renderer, ("END: " + std::to_string(Enemy.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
             Graphics::PutText(Renderer, ("DMG: " + std::to_string(Enemy.Damage) + "D" + (Enemy.DamageModifier < 0 ? "" : "+") + std::to_string(Enemy.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Enemy.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 4 * RowHeight);
 
@@ -2043,8 +2043,8 @@ namespace Interface
 
             // Enemy stats
             Graphics::PutText(Renderer, Target.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY);
-            Graphics::PutText(Renderer, ("FP: " + std::to_string(Target.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + RowHeight);
-            Graphics::PutText(Renderer, ("EN: " + std::to_string(Target.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, ("FPR: " + std::to_string(Target.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + RowHeight);
+            Graphics::PutText(Renderer, ("END: " + std::to_string(Target.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 2 * RowHeight);
             Graphics::PutText(Renderer, ("DMG: " + std::to_string(Target.Damage) + "D" + (Target.DamageModifier < 0 ? "" : "+") + std::to_string(Target.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Target.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 4 * RowHeight);
 
@@ -2101,7 +2101,7 @@ namespace Interface
                 // show fight results
                 for (auto i = 0; i < FightRolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
                 Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -2136,7 +2136,7 @@ namespace Interface
                     // show fight results
                     for (auto i = 0; i < FightRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
                     Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -2148,7 +2148,7 @@ namespace Interface
                     // show damage results
                     for (auto i = 0; i < DamageRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * border_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
                     Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -2242,10 +2242,10 @@ namespace Interface
         auto WindowH = 9 * Map.ObjectSize;
         auto WindowX = Map.DrawX + Map.ObjectSize;
         auto WindowY = (SCREEN_HEIGHT - WindowH) / 2;
-        auto WindowButtonX = WindowX + 4 * border_space;
-        auto WindowButtonY = WindowY + FontSize + 4 * border_space;
-        auto WindowButtonGridX = Map.ObjectSize + 2 * border_space;
-        auto WindowButtonGridY = Map.ObjectSize + 2 * border_space;
+        auto WindowButtonX = WindowX + 4 * text_space;
+        auto WindowButtonY = WindowY + FontSize + 4 * text_space;
+        auto WindowButtonGridX = Map.ObjectSize + 2 * text_space;
+        auto WindowButtonGridY = Map.ObjectSize + 2 * text_space;
 
         auto RenderFlashMessage = [&]()
         {
@@ -2306,7 +2306,7 @@ namespace Interface
 
             Graphics::PutText(Renderer, (std::string("Select a spell to ") + std::string(Mode == Control::Type::CALL ? "call to mind" : "forget")).c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 5 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
 
-            Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
 
             if (Current >= 0 && Current < Controls.size())
             {
@@ -2393,12 +2393,12 @@ namespace Interface
 
         for (auto i = 0; i < Character.Spells.size(); i++)
         {
-            Controls.push_back(Button(Controls.size(), Assets::Get(Character.Spells[i].Asset), i > 0 ? i - 1 : 0, i < Character.Spells.size() - 1 ? i + 1 : i, i, i, WindowButtonX + i * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CAST));
+            Controls.push_back(Button(Controls.size(), Assets::Get(Character.Spells[i].Asset), i > 0 ? i - 1 : 0, i < Character.Spells.size() - 1 ? i + 1 : i, i, i, WindowButtonX + i * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::CAST));
 
             NumControls++;
         }
 
-        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : NumControls, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
+        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : NumControls, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
 
         auto done = false;
 
@@ -2413,14 +2413,14 @@ namespace Interface
 
             Graphics::PutText(Renderer, "Select a spell to cast", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
 
-            Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
 
             if (Current >= 0 && Current < Character.Spells.size())
             {
                 // render spell names
                 auto captionx = Controls[Current].X - text_space;
 
-                auto captiony = Controls[Current].Y + Controls[Current].H + border_space;
+                auto captiony = Controls[Current].Y + Controls[Current].H + text_space;
 
                 std::string caption = "Cast " + Character.Spells[Current].Name + " (" + std::string(Spell::ClassDescription[Character.Spells[Current].Class]) + ")";
 
@@ -2478,7 +2478,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::Ambidextrousness))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Ambidextrousness, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::AMBIDEXTROUSNESS));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Ambidextrousness, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::AMBIDEXTROUSNESS));
 
             Abilities.push_back(Abilities::Type::Ambidextrousness);
 
@@ -2487,7 +2487,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::UnarmedMartialArts, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::UNARMED_MARTIAL_ARTS));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::UnarmedMartialArts, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::UNARMED_MARTIAL_ARTS));
 
             Abilities.push_back(Abilities::Type::UnarmedMartialArts);
 
@@ -2496,7 +2496,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::Archery))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Archery, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::ARCHERY));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Archery, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::ARCHERY));
 
             Abilities.push_back(Abilities::Type::Archery);
 
@@ -2505,7 +2505,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::Dodging))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Dodging, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::DODGING));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Dodging, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::DODGING));
 
             Abilities.push_back(Abilities::Type::Dodging);
 
@@ -2514,7 +2514,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::QuickThinking))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::QuickThinking), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::QUICKTHINKING));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::QuickThinking), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::QUICKTHINKING));
 
             Abilities.push_back(Abilities::Type::QuickThinking);
 
@@ -2523,7 +2523,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::Quarterstaff))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Quarterstaff, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::QUARTERSTAFF));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Quarterstaff, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::QUARTERSTAFF));
 
             Abilities.push_back(Abilities::Type::Quarterstaff);
 
@@ -2532,7 +2532,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::Healing))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Healing, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::HEAL));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Healing, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::HEAL));
 
             Abilities.push_back(Abilities::Type::Healing);
 
@@ -2541,7 +2541,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::Exorcism))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Exorcism, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::EXORCISM));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Exorcism, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::EXORCISM));
 
             Abilities.push_back(Abilities::Type::Exorcism);
 
@@ -2550,7 +2550,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::ESP))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::ESP, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::ESP));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::ESP, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::ESP));
 
             Abilities.push_back(Abilities::Type::ESP);
 
@@ -2559,7 +2559,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::ParanormalSight))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::ParanormalSight, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::PARANORMAL_SIGHT));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::ParanormalSight, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::PARANORMAL_SIGHT));
 
             Abilities.push_back(Abilities::Type::ParanormalSight);
 
@@ -2568,7 +2568,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::Levitation))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Levitation, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::LEVITATION));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Levitation, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::LEVITATION));
 
             Abilities.push_back(Abilities::Type::Levitation);
 
@@ -2577,7 +2577,7 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::CallToMind))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::CallToMind), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CALL));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::CallToMind), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::CALL));
 
             Abilities.push_back(Abilities::Type::CallToMind);
 
@@ -2586,14 +2586,14 @@ namespace Interface
 
         if (Engine::HasAbility(Character, Abilities::Type::CastSpell))
         {
-            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::CastSpell), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::CAST));
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::CastSpell), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::CAST));
 
             Abilities.push_back(Abilities::Type::CastSpell);
 
             NumControls++;
         }
 
-        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * border_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
+        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
 
         auto done = false;
 
@@ -2608,7 +2608,7 @@ namespace Interface
 
             Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
 
-            Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
 
             if (Current >= 0 && Current < Controls.size())
             {
@@ -3268,23 +3268,23 @@ namespace Interface
 
         Map.TextX = Map.DrawX;
 
-        Map.TextY = Map.DrawY - 2 * border_space - FontSize;
+        Map.TextY = Map.DrawY - 2 * text_space - FontSize;
 
         Map.TextWidth = (Map.Width < 13 ? 13 : Map.Width) * Map.ObjectSize;
 
-        Map.TextRightX = Map.DrawX + (Map.ObjectSize * Map.SizeX + border_space);
+        Map.TextRightX = Map.DrawX + (Map.ObjectSize * Map.SizeX + text_space);
 
         Map.TextRightWidth = SCREEN_WIDTH - Map.TextRightX;
 
-        auto MapButtonSize = Map.ObjectSize + 2 * border_space;
+        auto MapButtonSize = Map.ObjectSize + 2 * text_space;
         auto MapSizeX = Map.SizeX * Map.ObjectSize;
         auto MapSizeY = Map.SizeY * Map.ObjectSize;
         auto MapButtonsX = Map.DrawX - MapButtonSize;
-        auto MapButtonsY = Map.DrawY + border_space;
+        auto MapButtonsY = Map.DrawY + text_space;
         auto MapButtonsGridSize = MapSizeY / 4;
 
         auto ActionsX = Map.DrawX;
-        auto ActionsY = Map.DrawY + MapSizeY + 2 * border_space;
+        auto ActionsY = Map.DrawY + MapSizeY + 2 * text_space;
         auto ActionsGrid = MapButtonSize;
 
         auto RenderFlashMessage = [&]()
@@ -3320,9 +3320,9 @@ namespace Interface
         auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
 
         Controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, Map.MapY > 0 ? intWH : intGR, Control::Type::MAP_UP));
-        Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * border_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
-        Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * border_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
-        Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * border_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * text_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * text_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
+        Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * text_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
         Controls.push_back(Button(4, Assets::Get(Assets::Type::Exit), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
         Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intWH, Control::Type::MOVE));
         Controls.push_back(Button(6, Assets::Get(Assets::Type::Fight), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
@@ -4626,19 +4626,60 @@ namespace Interface
 
     struct ScreenDimensions
     {
+        int IconSize = 0;
         int BoxWidth = 0;
         int BoxHeight = 0;
+
         int TextBoxWidth = 0;
         int TextBoxHeight = 0;
         int TextBoxX = 0;
         int TextBoxY = 0;
         int TextWidth = 0;
         int TextBounds = 0;
+
+        int InfoBoxWidth = 0;
+        int InfoBoxHeight = 0;
+        int InfoBoxX = 0;
+        int InfoBoxY = 0;
+        int InfoWidth = 0;
     };
+
+    void DisplayParty(SDL_Renderer *Renderer, Party::Base &Party, ScreenDimensions &Screen)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+
+        for (auto i = 0; i < Party.Members.size(); i++)
+        {
+            auto EquipmentFPR = Engine::Equipment(Party.Members[i], Attributes::Type::FightingProwess, false);
+            auto EquipmentPSY = Engine::Equipment(Party.Members[i], Attributes::Type::PsychicAbility, false);
+            auto EquipmentAWR = Engine::Equipment(Party.Members[i], Attributes::Type::Awareness, false);
+            auto Weapons = Engine::Equipment(Party.Members[i], Attributes::Type::FightingProwess, true);
+
+            auto FightingProwess = Engine::FightingProwess(Party.Members[i]) + (EquipmentFPR.size() > 0 ? EquipmentFPR[0].Score : 0) + (Weapons.size() > 0 ? Weapons[0].Score : 0);
+            auto PsychicAbility = Engine::PsychicAbility(Party.Members[i]) + (EquipmentPSY.size() > 0 ? EquipmentPSY[0].Score : 0);
+            auto Awareness = Engine::Awareness(Party.Members[i]) + (EquipmentAWR.size() > 0 ? EquipmentAWR[0].Score : 0);
+            auto Endurance = Engine::Endurance(Party.Members[i]);
+            auto Armour = Engine::Armour(Party.Members[i]);
+            auto Damage = Party.Members[i].Damage;
+            auto DamageModifier = Party.Members[i].DamageModifier + (Weapons.size() > 0 ? Weapons[0].Damage : 0);
+
+            Graphics::RenderImage(Renderer, Assets::Get(Party.Members[i].Asset), Screen.InfoBoxX + text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + text_space);
+            Graphics::PutText(Renderer, Character::Description[Party.Members[i].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + text_space, Screen.InfoBoxX + (i + 1) * (Screen.IconSize + FontSize));
+            Graphics::PutText(Renderer, ("FPR " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + text_space);
+            Graphics::PutText(Renderer, ("AWR " + std::to_string(Awareness)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 3 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + text_space);
+            Graphics::PutText(Renderer, ("PSY " + std::to_string(PsychicAbility)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + FontSize + text_space);
+            Graphics::PutText(Renderer, ("END " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 3 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + FontSize + text_space);
+            Graphics::PutText(Renderer, ("ARM " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 5 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + text_space);
+            Graphics::PutText(Renderer, ("DMG " + (std::to_string(Damage) + "D" + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 5 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + FontSize + text_space);
+        }
+
+        // stats/info box
+        Graphics::DrawRect(Renderer, Screen.InfoBoxWidth, Screen.InfoBoxHeight, Screen.InfoBoxX, Screen.InfoBoxY, intWH);
+    }
 
     void ProcessStory(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base &Story)
     {
-        Interface::ScreenDimensions ScreenDimensions;
+        Interface::ScreenDimensions Screen;
 
         if (Window && Renderer)
         {
@@ -4693,15 +4734,20 @@ namespace Interface
 
             auto Quit = false;
 
-            auto IconSize = (buttonw + 2 * border_space);
-            ScreenDimensions.BoxWidth = (SCREEN_WIDTH - 2 * IconSize) / 2 + border_space;
-            ScreenDimensions.BoxHeight = (SCREEN_HEIGHT - 3 * (buttonh + 2 * border_space));
-            ScreenDimensions.TextBoxWidth = ScreenDimensions.BoxWidth;
-            ScreenDimensions.TextBoxHeight = ScreenDimensions.BoxHeight;
-            ScreenDimensions.TextBoxX = IconSize / 2 + ScreenDimensions.BoxWidth - border_space;
-            ScreenDimensions.TextBoxY = IconSize;
-            ScreenDimensions.TextBounds = ScreenDimensions.TextBoxHeight - 2 * text_space;
-            ScreenDimensions.TextWidth = ScreenDimensions.TextBoxWidth - 2 * text_space;
+            Screen.IconSize = (buttonw + 2 * text_space);
+            Screen.BoxWidth = (SCREEN_WIDTH - 2 * Screen.IconSize) / 2 + text_space;
+            Screen.BoxHeight = (SCREEN_HEIGHT - 3 * (buttonh + 2 * text_space));
+            Screen.TextBoxWidth = Screen.BoxWidth;
+            Screen.TextBoxHeight = Screen.BoxHeight;
+            Screen.TextBoxX = Screen.IconSize / 2 + Screen.BoxWidth - text_space;
+            Screen.TextBoxY = Screen.IconSize;
+            Screen.TextBounds = Screen.TextBoxHeight - 2 * text_space;
+            Screen.TextWidth = Screen.TextBoxWidth - 2 * text_space;
+            Screen.InfoBoxWidth = Screen.TextBoxWidth - 2 * text_space;
+            Screen.InfoBoxHeight = Screen.TextBoxHeight;
+            Screen.InfoWidth = Screen.InfoBoxWidth - 2 * text_space;
+            Screen.InfoBoxX = Screen.IconSize / 2;
+            Screen.InfoBoxY = Screen.IconSize;
 
             while (!Quit)
             {
@@ -4725,24 +4771,21 @@ namespace Interface
                     Story.Event(Party);
                 }
 
-                SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
-
+                // generate story text/image surface
                 if (!Story.Image.empty() && !Story.Text.empty())
                 {
-                    Text = Graphics::CreateTextAndImage(Story.Text.c_str(), Story.Image.c_str(), FONT_BOOKMAN, FontSize, clrBK, intGR, ScreenDimensions.TextWidth, TTF_STYLE_NORMAL, Story.TopImage);
+                    Text = Graphics::CreateTextAndImage(Story.Text.c_str(), Story.Image.c_str(), FONT_BOOKMAN, FontSize, clrBK, intGR, Screen.TextWidth, TTF_STYLE_NORMAL, Story.TopImage);
                 }
                 else if (!Story.Text.empty())
                 {
-                    Text = Glyphs::FormattedText(Story.Text.c_str(), FONT_BOOKMAN, FontSize, clrBK, ScreenDimensions.TextWidth);
+                    Text = Glyphs::FormattedText(Story.Text.c_str(), FONT_BOOKMAN, FontSize, clrBK, Screen.TextWidth);
                 }
 
-                SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
-
-                auto compact = (Text && Text->h <= text_bounds - 2 * text_space) || !Text;
+                auto Compact = (Text && Text->h <= Screen.TextBounds - 2 * text_space) || !Text;
 
                 if (Story.Controls == Story::Controls::Standard)
                 {
-                    Controls = Story::StandardControls(compact);
+                    Controls = Story::StandardControls(Compact);
                 }
 
                 auto ScrollSpeed = 20;
@@ -4754,8 +4797,12 @@ namespace Interface
 
                 while (!Transition)
                 {
+                    std::string title_string = "";
+
                     if (!Story.Title.empty())
                     {
+                        title_string = Story.Title;
+
                         SDL_SetWindowTitle(Window, Story.Title.c_str());
                     }
                     else
@@ -4769,13 +4816,13 @@ namespace Interface
                                 StoryId = Story.DisplayId;
                             }
 
-                            std::string title_string = "Blood Sword - " + std::string(Book::Title[Story.Book]) + ": ";
+                            title_string = "Blood Sword - " + std::string(Book::Title[Story.Book]) + ": " + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId));
 
-                            SDL_SetWindowTitle(Window, (title_string + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId))).c_str());
+                            SDL_SetWindowTitle(Window, title_string.c_str());
                         }
                         else
                         {
-                            std::string title_string = "Blood Sword - " + std::string(Book::Title[Story.Book]) + ": Not Implemented Yet";
+                            title_string = "Blood Sword - " + std::string(Book::Title[Story.Book]) + ": Not Implemented Yet";
 
                             SDL_SetWindowTitle(Window, title_string.c_str());
                         }
@@ -4783,24 +4830,23 @@ namespace Interface
 
                     Graphics::FillWindow(Renderer, intBK);
 
-                    // text box
-                    Graphics::FillRect(Renderer, ScreenDimensions.TextBoxWidth, ScreenDimensions.TextBoxHeight, ScreenDimensions.TextBoxX, ScreenDimensions.TextBoxY, intGR);
+                    // title string
+                    Graphics::PutText(Renderer, title_string.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
 
-                    SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+                    // text box
+                    Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intGR);
 
                     if (!Story.Text.empty() && !Story.Image.empty() && Text)
                     {
-                        Graphics::RenderImage(Renderer, Text, ScreenDimensions.TextBoxX + text_space, ScreenDimensions.TextBoxY + text_space, ScreenDimensions.TextBounds, Offset);
+                        Graphics::RenderImage(Renderer, Text, Screen.TextBoxX + text_space, Screen.TextBoxY + text_space, Screen.TextBounds, Offset);
                     }
                     else if (!Story.Text.empty() && Text)
                     {
-                        Graphics::RenderText(Renderer, Text, 0, ScreenDimensions.TextBoxX + text_space, ScreenDimensions.TextBoxY + text_space, ScreenDimensions.TextBounds, Offset);
+                        Graphics::RenderText(Renderer, Text, 0, Screen.TextBoxX + text_space, Screen.TextBoxY + text_space, Screen.TextBounds, Offset);
                     }
 
-                    SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
-
-                    // stats/info box
-                    Graphics::DrawRect(Renderer, ScreenDimensions.TextBoxWidth - 2 * border_space, ScreenDimensions.TextBoxHeight, IconSize / 2, ScreenDimensions.TextBoxY, intWH);
+                    // party display
+                    Interface::DisplayParty(Renderer, Party, Screen);
 
                     auto ScrollUp = false;
 
@@ -4808,14 +4854,14 @@ namespace Interface
 
                     RenderFlashMessage();
 
-                    Graphics::RenderButtons(Renderer, Controls, Current, border_space, border_pts);
+                    Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
 
                     if (Current >= 0 && Current < Controls.size())
                     {
                         Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
                     }
 
-                    Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold);
+                    Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
 
                     if (((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold))
                     {
@@ -4838,16 +4884,16 @@ namespace Interface
                         {
                             if (Text)
                             {
-                                if (Text->h >= (ScreenDimensions.TextBounds - 2 * text_space))
+                                if (Text->h >= (Screen.TextBounds - 2 * text_space))
                                 {
-                                    if (Offset < (Text->h - ScreenDimensions.TextBounds + 2 * text_space))
+                                    if (Offset < (Text->h - Screen.TextBounds + 2 * text_space))
                                     {
                                         Offset += ScrollSpeed;
                                     }
 
-                                    if (Offset > (Text->h - ScreenDimensions.TextBounds + 2 * text_space))
+                                    if (Offset > (Text->h - Screen.TextBounds + 2 * text_space))
                                     {
-                                        Offset = Text->h - ScreenDimensions.TextBounds + 2 * text_space;
+                                        Offset = Text->h - Screen.TextBounds + 2 * text_space;
                                     }
                                 }
                             }
