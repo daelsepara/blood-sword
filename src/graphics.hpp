@@ -18,6 +18,7 @@ namespace Graphics
     void DrawRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
     void FillRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
     void FillWindow(SDL_Renderer *renderer, Uint32 color);
+    void PutText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int x, int y);
     void PutText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
     void PutTextBox(SDL_Renderer *renderer, const char *text, TTF_Font *font, int space, SDL_Color fg, Uint32 bg, int style, int w, int h, int x, int y);
     void RenderButtons(SDL_Renderer *renderer, std::vector<Button> controls, int current, int space, int pts);
@@ -114,7 +115,7 @@ namespace Graphics
         {
             TTF_SetFontStyle(font, style);
 
-            auto surface = TTF_RenderText_Blended_Wrapped(font, text, fg, w - 2 * space);
+            auto surface = Glyphs::FormattedText(text, font, fg, w - 2 * space);
 
             if (surface)
             {
@@ -165,7 +166,12 @@ namespace Graphics
         {
             TTF_SetFontStyle(font, style);
 
-            auto surface = TTF_RenderText_Blended(font, text, fg);
+            auto w = 0;
+            auto h = 0;
+
+            TTF_SizeText(font, text, &w, &h);
+
+            auto surface = Glyphs::FormattedText(text, font, fg, w);
 
             if (surface)
             {

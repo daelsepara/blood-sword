@@ -4774,7 +4774,7 @@ namespace Interface
 
     std::string ItemString(Equipment::Base &Equipment)
     {
-        std::string ItemString = Equipment.Name;
+        std::string ItemString = "<b>" + Equipment.Name + "</b>";
         std::string Modifiers = "";
         auto ModCount = 0;
 
@@ -4801,20 +4801,20 @@ namespace Interface
         }
         else if (Equipment.Type == Equipment::Type::Quiver)
         {
-            Modifiers += std::to_string(Equipment.Arrows) + " arrow(s)";
+            Modifiers += std::to_string(Equipment.Arrows) + " arrow" + (Equipment.Arrows != 1 ? "s" : "");
 
             ModCount++;
         }
         else if (Equipment.Type == Equipment::Type::MoneyPouch)
         {
-            Modifiers += std::to_string(Equipment.Gold) + " gold piece(s)";
+            Modifiers += std::to_string(Equipment.Gold) + " gold piece" + (Equipment.Gold != 1 ? "s" : "");
 
             ModCount++;
         }
 
         if (ModCount > 0)
         {
-            ItemString += " [ " + Modifiers + " ]";
+            ItemString += " [" + Modifiers + "]";
         }
 
         return ItemString;

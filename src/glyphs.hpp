@@ -219,10 +219,8 @@ namespace Glyphs
         }
     }
 
-    SDL_Surface *FormattedText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap)
+    SDL_Surface *FormattedText(const char *text, TTF_Font *font, SDL_Color textColor, int wrap)
     {
-        auto font = TTF_OpenFont(ttf, font_size);
-
         auto width = wrap;
 
         auto height = 0;
@@ -426,6 +424,15 @@ namespace Glyphs
                 }
             }
         }
+
+        return surface;
+    }
+
+    SDL_Surface *FormattedText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap)
+    {
+        auto font = TTF_OpenFont(ttf, font_size);
+
+        auto surface = Glyphs::FormattedText(text, font, textColor, wrap);
 
         if (font)
         {
