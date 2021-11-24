@@ -185,6 +185,10 @@
             "path": "icons/party.png"
         },
         {
+            "id": 163,
+            "path": "icons/stats.png"
+        },
+        {
             "id": 201,
             "path": "images/spells/volcano-spray.png"
         },

@@ -421,6 +421,14 @@ namespace Graphics
         {
             caption = "Manage party";
         }
+        else if (control.Type == Control::Type::INFO)
+        {
+            caption = "Background";
+        }
+        else if (control.Type == Control::Type::STATS)
+        {
+            caption = "Adventure sheet";
+        }
         else if (control.Type == Control::Type::CONTINUE)
         {
             caption = "Continue story";

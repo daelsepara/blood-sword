@@ -58,7 +58,9 @@ namespace Control
         MAP,
         ENCYCLOPEDIA,
         GAME,
-        PARTY
+        PARTY,
+        INFO,
+        STATS
     };
 
     class Base

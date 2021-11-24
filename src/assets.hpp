@@ -57,6 +57,7 @@ namespace Assets
         Encyclopedia,
         Game,
         Party,
+        Stats,
         Cast = 200,
         VolcanoSpray,
         Nighthowl,
