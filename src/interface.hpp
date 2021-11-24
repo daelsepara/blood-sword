@@ -4810,9 +4810,9 @@ namespace Interface
         auto Result = Attributes::Result::NONE;
         auto ObjectSize = 64;
         auto WindowW = 3 * SCREEN_WIDTH / 5;
-        auto WindowH = 3 * SCREEN_HEIGHT / 5;
+        auto WindowH = 4 * Screen.TextBoxHeight / 5;
         auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
-        auto WindowY = (SCREEN_HEIGHT - WindowH) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto ColumnWidth = WindowW - 4 * text_space;
         auto RowHeight = TTF_FontHeight(Fonts::Normal);
         auto TextY = WindowY + 2 * text_space;
