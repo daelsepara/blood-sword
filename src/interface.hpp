@@ -4797,7 +4797,7 @@ namespace Interface
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
-            Graphics::PutText(Renderer, "Manage Adventurer", Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+            Graphics::PutText(Renderer, Character::ClassName[Party.Members[Character].Class], Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
             Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
 
             Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
