@@ -100,10 +100,6 @@ namespace Book1
 
             Text = "[ENCHANTER] You consider your various spells. Two non-combat spells might be of use to you now. But which? Make your choice";
 
-            Image = "images/book1/merchants.png";
-
-            TopImage = false;
-
             Choices.clear();
             Choices.push_back(Choice::Base("Cast the Prediction spell", {Book::Type::Book1, 442}));
             Choices.push_back(Choice::Base("Opt for the Summon Faltyn spell", {Book::Type::Book1, 242}));
