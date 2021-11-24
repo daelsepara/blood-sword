@@ -4678,6 +4678,120 @@ namespace Interface
         Graphics::DrawRect(Renderer, Screen.InfoBoxWidth, Screen.InfoBoxHeight, Screen.InfoBoxX, Screen.InfoBoxY, intWH);
     }
 
+    void RenderStoryScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &Controls, SDL_Surface *Text, int Current, int Offset)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+
+        std::string title_string = "";
+
+        if (!Story->Title.empty())
+        {
+            title_string = Story->Title;
+
+            SDL_SetWindowTitle(Window, Story->Title.c_str());
+        }
+        else
+        {
+            if (Story->Id != -1)
+            {
+                auto StoryId = Story->Id;
+
+                if (StoryId < 0 && Story->DisplayId >= 0)
+                {
+                    StoryId = Story->DisplayId;
+                }
+
+                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": " + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId));
+
+                SDL_SetWindowTitle(Window, title_string.c_str());
+            }
+            else
+            {
+                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": Not Implemented Yet";
+
+                SDL_SetWindowTitle(Window, title_string.c_str());
+            }
+        }
+
+        Graphics::FillWindow(Renderer, intBK);
+
+        // title string
+        Graphics::PutText(Renderer, title_string.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
+
+        // text box
+        Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intGR);
+
+        if (!Story->Text.empty() && !Story->Image.empty() && Text)
+        {
+            Graphics::RenderImage(Renderer, Text, Screen.TextBoxX + text_space, Screen.TextBoxY + text_space, Screen.TextBounds, Offset);
+        }
+        else if (!Story->Text.empty() && Text)
+        {
+            Graphics::RenderText(Renderer, Text, 0, Screen.TextBoxX + text_space, Screen.TextBoxY + text_space, Screen.TextBounds, Offset);
+        }
+
+        // party display
+        Interface::DisplayParty(Renderer, Party, Screen);
+
+        Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+    }
+
+    void ManageParty(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 4 * Screen.TextBoxHeight / 5;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto ColumnWidth = WindowW - 4 * text_space;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto TextY = WindowY + 2 * text_space;
+
+        auto TextButtonX = WindowX + 2 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
+
+        auto Controls = std::vector<Button>();
+
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::Back), 0, 0, 0, 0, TextButtonX, OffsetY, intWH, Control::Type::BACK));
+
+        auto done = false;
+
+        while (!done)
+        {
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, "Manage Party", Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrGR, intBK);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    done = true;
+                }
+            }
+        }
+    }
+
     std::vector<Button> CreateChoices(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Choice::Base> Choices, ScreenDimensions &Screen, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
@@ -4868,7 +4982,7 @@ namespace Interface
         auto AttributeValue = 0;
 
         auto Equipment = Engine::Equipment(Party.Members[Character], Attribute, false);
-        
+
         auto Weapons = Engine::Equipment(Party.Members[Character], Attribute, true);
 
         if (Attribute == Attributes::Type::FightingProwess)
@@ -5338,74 +5452,21 @@ namespace Interface
                 auto Current = -1;
                 auto Offset = 0;
                 auto Transition = false;
+                auto ScrollUp = false;
+                auto ScrollDown = false;
 
                 while (!Transition)
                 {
-                    std::string title_string = "";
-
-                    if (!Story->Title.empty())
-                    {
-                        title_string = Story->Title;
-
-                        SDL_SetWindowTitle(Window, Story->Title.c_str());
-                    }
-                    else
-                    {
-                        if (Story->Id != -1)
-                        {
-                            auto StoryId = Story->Id;
-
-                            if (StoryId < 0 && Story->DisplayId >= 0)
-                            {
-                                StoryId = Story->DisplayId;
-                            }
-
-                            title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": " + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId));
-
-                            SDL_SetWindowTitle(Window, title_string.c_str());
-                        }
-                        else
-                        {
-                            title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": Not Implemented Yet";
-
-                            SDL_SetWindowTitle(Window, title_string.c_str());
-                        }
-                    }
-
-                    Graphics::FillWindow(Renderer, intBK);
-
-                    // title string
-                    Graphics::PutText(Renderer, title_string.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
-
-                    // text box
-                    Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intGR);
-
-                    if (!Story->Text.empty() && !Story->Image.empty() && Text)
-                    {
-                        Graphics::RenderImage(Renderer, Text, Screen.TextBoxX + text_space, Screen.TextBoxY + text_space, Screen.TextBounds, Offset);
-                    }
-                    else if (!Story->Text.empty() && Text)
-                    {
-                        Graphics::RenderText(Renderer, Text, 0, Screen.TextBoxX + text_space, Screen.TextBoxY + text_space, Screen.TextBounds, Offset);
-                    }
-
-                    // party display
-                    Interface::DisplayParty(Renderer, Party, Screen);
-
-                    auto ScrollUp = false;
-
-                    auto ScrollDown = false;
+                    Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, Controls, Text, Current, Offset);
 
                     RenderFlashMessage();
-
-                    Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
 
                     if (Current >= 0 && Current < Controls.size())
                     {
                         Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
                     }
 
-                    Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+                    Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold);
 
                     if (((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold))
                     {
@@ -5456,7 +5517,9 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::PARTY && !Hold)
                         {
-                            DisplayMessage("Not yet implemented!", intBK);
+                            Interface::ManageParty(Window, Renderer, Controls, Party, Story, Screen, Text, Offset);
+
+                            Current = -1;
 
                             Selected = false;
                         }
