@@ -301,7 +301,23 @@ namespace Graphics
 
         std::string caption = "";
 
-        if (control.Type == Control::Type::ITEMS)
+        if (control.Type == Control::Type::WARRIOR)
+        {
+            caption = "WARRIOR";
+        }
+        else if (control.Type == Control::Type::TRICKSTER)
+        {
+            caption = "TRICKSTER";
+        }
+        else if (control.Type == Control::Type::SAGE)
+        {
+            caption = "SAGE";
+        }
+        else if (control.Type == Control::Type::ENCHANTER)
+        {
+            caption = "ENCHANTER";
+        }
+        else if (control.Type == Control::Type::ITEMS)
         {
             caption = "Items";
         }

@@ -13,6 +13,13 @@ namespace Interface
     // player id, distance, endurance
     typedef std::tuple<int, int, int> Targets;
 
+    // character class to control type mapping
+    std::map<Character::Class, Control::Type> PlayerControls = {
+        {Character::Class::Warrior, Control::Type::WARRIOR},
+        {Character::Class::Trickster, Control::Type::TRICKSTER},
+        {Character::Class::Sage, Control::Type::SAGE},
+        {Character::Class::Enchanter, Control::Type::ENCHANTER}};
+
     struct ScreenDimensions
     {
         int ObjectSize = 0;
@@ -578,7 +585,7 @@ namespace Interface
         auto Damage = Party.Members[PlayerId].Damage;
         auto DamageModifier = Party.Members[PlayerId].DamageModifier + (Weapons.size() > 0 ? Weapons[0].Damage : 0);
 
-        Graphics::PutText(Renderer, Character::Description[Party.Members[PlayerId].Class], Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY);
+        Graphics::PutText(Renderer, Character::ClassName[Party.Members[PlayerId].Class], Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY);
         Graphics::PutText(Renderer, std::string("RANK: " + std::to_string(Party.Members[PlayerId].Rank)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + (FontSize + 2));
         Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(FightingProwess)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 2 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(PsychicAbility)).c_str(), Font, 0, clrWH, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + 3 * (FontSize + 2));
@@ -857,7 +864,7 @@ namespace Interface
             }
             else
             {
-                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
+                Graphics::PutText(Renderer, Character::ClassName[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
             }
 
             Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
@@ -1340,7 +1347,7 @@ namespace Interface
 
                     auto Endurance = Damage / 2;
 
-                    Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (std::string(Character::Description[Party.Members[PlayerId].Class]) + " gains " + std::to_string(Endurance) + " endurance!").c_str(), intGR);
+                    Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (std::string(Character::ClassName[Party.Members[PlayerId].Class]) + " gains " + std::to_string(Endurance) + " endurance!").c_str(), intGR);
 
                     Engine::Gain(Party.Members[PlayerId], Attributes::Type::Endurance, Endurance);
                 }
@@ -1537,7 +1544,7 @@ namespace Interface
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
             // character stats
-            Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+            Graphics::PutText(Renderer, Character::ClassName[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
             Graphics::PutText(Renderer, ("PSYCHIC ABILITY: " + std::to_string(PsychicAbility) + " (-" + std::to_string(Character.Spells.size()) + ")").c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
             Graphics::PutText(Renderer, ("SPELL: " + Spell.Name).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
             Graphics::PutText(Renderer, ("DIFFICULTY: " + std::to_string(CastingRolls) + "D" + (Spell.Difficulty < 0 ? "" : "+") + std::to_string(Spell.Difficulty)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
@@ -1802,7 +1809,7 @@ namespace Interface
 
                 // character stats
                 auto Endurance = Engine::Endurance(Character);
-                Graphics::PutText(Renderer, Character::Description[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
+                Graphics::PutText(Renderer, Character::ClassName[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
                 Graphics::PutText(Renderer, ("FPR: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
                 Graphics::PutText(Renderer, ("END: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 2 * RowHeight);
                 Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D" + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier)))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
@@ -1912,11 +1919,11 @@ namespace Interface
 
                     if (Attacked)
                     {
-                        Graphics::PutText(Renderer, (Enemy.Name + " hits the " + std::string(Character::Description[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                        Graphics::PutText(Renderer, (Enemy.Name + " hits the " + std::string(Character::ClassName[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                     }
                     else
                     {
-                        Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + " hits " + Enemy.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                        Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Character.Class]) + " hits " + Enemy.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                     }
 
                     if (!CalculatedDamage)
@@ -1972,7 +1979,7 @@ namespace Interface
                         }
                         else
                         {
-                            Graphics::PutText(Renderer, ("The " + std::string(Character::Description[Character.Class]) + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                            Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Character.Class]) + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                         }
                     }
                     else
@@ -3570,7 +3577,7 @@ namespace Interface
                             {
                                 if (Map.Tiles[CurrentY][CurrentX].IsExit())
                                 {
-                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " escapes!"), intGR);
+                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " escapes!"), intGR);
 
                                     Interface::Remove(Map, CurrentX, CurrentY);
 
@@ -3657,7 +3664,7 @@ namespace Interface
 
                                             if (WasAttacked)
                                             {
-                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intBK);
+                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " was attacked!"), intBK);
 
                                                 Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
@@ -3699,7 +3706,7 @@ namespace Interface
 
                                         if (WasAttacked)
                                         {
-                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intBK);
+                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " was attacked!"), intBK);
 
                                             Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
@@ -3753,7 +3760,7 @@ namespace Interface
                                             // get attacked by a nearby enemy that has a higher awareness
                                             if (WasAttacked)
                                             {
-                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::Description[Character.Class]) + " was attacked!"), intBK);
+                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " was attacked!"), intBK);
 
                                                 Engine::Gain(Character, Attributes::Type::Endurance, Damages);
 
@@ -4574,7 +4581,7 @@ namespace Interface
 
                             if (!Engine::IsAlive(Party.Members[PlayerId]))
                             {
-                                Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::Description[Party.Members[PlayerId].Class]) + " killed!", intBK);
+                                Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[PlayerId].Class]) + " killed!", intBK);
 
                                 Interface::Remove(Map, LocationX, LocationY);
 
@@ -4686,7 +4693,7 @@ namespace Interface
             auto DamageModifier = Party.Members[i].DamageModifier + (Weapons.size() > 0 ? Weapons[0].Damage : 0);
 
             Graphics::RenderImage(Renderer, Assets::Get(Party.Members[i].Asset), Screen.InfoBoxX + text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + text_space);
-            Graphics::PutText(Renderer, Character::Description[Party.Members[i].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + text_space, Screen.InfoBoxX + (i + 1) * (Screen.IconSize + FontSize));
+            Graphics::PutText(Renderer, Character::ClassName[Party.Members[i].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + text_space, Screen.InfoBoxX + (i + 1) * (Screen.IconSize + FontSize));
             Graphics::PutText(Renderer, ("FPR: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + text_space);
             Graphics::PutText(Renderer, ("AWR: " + std::to_string(Awareness)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 3 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + text_space);
             Graphics::PutText(Renderer, ("PSY: " + std::to_string(PsychicAbility)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + FontSize + text_space);
@@ -4758,7 +4765,7 @@ namespace Interface
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
-    void ManageParty(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
+    void ManageAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int Character)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
         auto WindowW = 3 * SCREEN_WIDTH / 5;
@@ -4768,8 +4775,8 @@ namespace Interface
         auto ColumnWidth = WindowW - 4 * text_space;
         auto RowHeight = TTF_FontHeight(Fonts::Normal);
         auto TextY = WindowY + 2 * text_space;
-
         auto TextButtonX = WindowX + 2 * text_space;
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
 
         auto Hold = false;
         auto Selected = false;
@@ -4777,24 +4784,21 @@ namespace Interface
         auto ScrollDown = false;
         auto Current = 0;
 
-        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
-
         auto Controls = std::vector<Button>();
 
-        Controls.push_back(Button(0, Assets::Get(Assets::Type::Items), 0, 1, 0, 0, TextButtonX, OffsetY, intWH, Control::Type::ITEMS));
-        Controls.push_back(Button(1, Assets::Get(Assets::Type::Back), 0, 1, 1, 1, TextButtonX + Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::UseAbility), 0, 1, 0, 0, TextButtonX, OffsetY, intWH, Control::Type::ABILITY));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::Items), 0, 2, 1, 1, TextButtonX + Screen.IconSize, OffsetY, intWH, Control::Type::ITEMS));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::Back), 1, 2, 2, 2, TextButtonX + 2 * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
 
         auto done = false;
 
         while (!done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
-
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
-
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
-
-            Graphics::PutText(Renderer, "Manage Party", Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+            Graphics::PutText(Renderer, "Manage Adventurer", Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+            Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
 
             Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
 
@@ -4813,6 +4817,78 @@ namespace Interface
                 }
             }
         }
+    }
+
+    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage)
+    {
+        auto Result = -1;
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 2 * Screen.TextBoxHeight / 5;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto ColumnWidth = WindowW - 4 * text_space;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto TextY = WindowY + 2 * text_space;
+
+        auto TextButtonX = WindowX + 2 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
+
+        auto Controls = std::vector<Button>();
+
+        for (auto i = 0; i < Party.Members.size(); i++)
+        {
+            Controls.push_back(Button(i, Assets::Get(Party.Members[i].Asset), i > 0 ? i - 1 : i, i + 1, i, i, TextButtonX + i * Screen.IconSize, OffsetY, intWH, Interface::PlayerControls[Party.Members[i].Class]));
+        }
+
+        auto idx = Controls.size();
+
+        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx > 0 ? idx - 1 : idx, idx, idx, idx, TextButtonX + idx * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
+
+        auto done = false;
+
+        while (!done)
+        {
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, SelectMessage, Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrGR, intBK);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    done = true;
+                }
+                else if (Current >= 0 && Current < Party.Members.size() && !Hold)
+                {
+                    Result = Current;
+
+                    done = true;
+                }
+            }
+        }
+
+        return Result;
     }
 
     std::vector<Button> CreateChoices(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Choice::Base> Choices, ScreenDimensions &Screen, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight)
@@ -5031,7 +5107,7 @@ namespace Interface
 
             Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + " TEST").c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
 
-            Graphics::PutText(Renderer, Character::Description[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, Character::ClassName[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
 
             Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
 
@@ -5293,7 +5369,7 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    DisplayMessage(("No " + std::string(Character::Description[Story->Choices[Choice].Character]) + "s present in your party!").c_str(), intBK);
+                                    DisplayMessage(("No " + std::string(Character::ClassName[Story->Choices[Choice].Character]) + "s present in your party!").c_str(), intBK);
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::Attribute)
@@ -5319,7 +5395,7 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    DisplayMessage(("No " + std::string(Character::Description[Story->Choices[Choice].Character]) + "s present in your party!").c_str(), intBK);
+                                    DisplayMessage(("No " + std::string(Character::ClassName[Story->Choices[Choice].Character]) + "s present in your party!").c_str(), intBK);
                                 }
                             }
                         }
@@ -5540,7 +5616,12 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::PARTY && !Hold)
                         {
-                            Interface::ManageParty(Window, Renderer, Controls, Party, Story, Screen, Text, Offset);
+                            auto Character = Party.Members.size() > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Party, Story, Screen, Text, Offset, "Select adventurer to manage") : 0;
+
+                            if (Character >= 0 && Character < Party.Members.size())
+                            {
+                                Interface::ManageAdventurer(Window, Renderer, Controls, Party, Story, Screen, Text, Offset, Character);
+                            }
 
                             Current = -1;
 

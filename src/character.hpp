@@ -21,12 +21,19 @@ namespace Character
         Enchanter
     };
 
-    std::map<Character::Class, const char *> Description = {
+    std::map<Character::Class, const char *> ClassName = {
         {Class::None, "UNKNOWN"},
         {Class::Warrior, "WARRIOR"},
         {Class::Trickster, "TRICKSTER"},
         {Class::Sage, "SAGE"},
         {Class::Enchanter, "ENCHANTER"}};
+
+    std::map<Character::Class, const char *> Description = {
+        {Class::None, "Records Expunged"},
+        {Class::Warrior, "You are the master of the fighting arts. You have better Fighting Prowess than any other adventuring type at the same rank, and when you strike a blow you inflict more damage. These advantages give you a real edge in any fight, but you do not get things all your own way. Because you are of noble birth and follow the honourable traditions of your ancestors, you must be careful to stay true to the code of chivalry. There may be consequences if you behave in a dishonourable, cowardly or uncouth manner."},
+        {Class::Trickster, "Some Adventurers are honest, chivalrous and honourable. Not you. You are basically a rogue -- a likeable rogue, perhaps, but a rogue nonetheless. You live by your wits. If you can win a fight by trickery or by shooting someone in the back, you will. Cunning is your main weapon. But when you have to face someone in a straight fight, you are no pushover. After the WARRIOR, you are perhaps the best fighter in any party."},
+        {Class::Sage, "Your upbringing has been in the spartan Monastery of Illumination on the barren island of Kaxos. There you studied the Mystic Way -- a series of demanding psionic disciplines and rigorous physical training."},
+        {Class::Enchanter, "Forget the mundane arts of swordplay. You can use a sword if you have to, but your true forte is in the manipulation of occult powers of Sorcery."}};
 
     class Base
     {

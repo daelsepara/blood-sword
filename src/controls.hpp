@@ -13,6 +13,10 @@ namespace Control
     {
         NONE = -1,
         ANY = 0,
+        WARRIOR,
+        TRICKSTER,
+        SAGE,
+        ENCHANTER,
         SCROLL_UP,
         SCROLL_DOWN,
         MAP_NONE,

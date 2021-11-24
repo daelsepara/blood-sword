@@ -43,4 +43,4 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 - Warrior (**DONE**)
 - Trickster (**DONE**)
 - Sage (**DONE**)
-- Enchanter: (**DONE**)
+- Enchanter (**DONE**)
