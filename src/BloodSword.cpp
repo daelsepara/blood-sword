@@ -11,11 +11,11 @@ bool compare(std::string s1, std::string s2)
 
 int main(int argc, const char **argv)
 {
-    SDL_Window *Window = NULL;
+    SDL_Window *window = NULL;
 
-    SDL_Renderer *Renderer = NULL;
+    SDL_Renderer *renderer = NULL;
 
-    Graphics::CreateWindow(SDL_INIT_VIDEO | SDL_INIT_AUDIO, &Window, &Renderer, "Blood Sword");
+    Graphics::CreateWindow(SDL_INIT_VIDEO | SDL_INIT_AUDIO, &window, &renderer, "Blood Sword");
 
     Input::InitializeGamePads();
 
@@ -25,7 +25,7 @@ int main(int argc, const char **argv)
 
     Fonts::Initialize();
 
-    if (Window && Renderer)
+    if (window && renderer)
     {
         // setup party, enemies, and map
         auto party = Party::Base();
@@ -41,16 +41,6 @@ int main(int argc, const char **argv)
         enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
         enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
         enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-
-        std::vector<std::string> map = {
-            "#####=#######",
-            "#    3     C#",
-            "#### ########",
-            "=4        2 =",
-            "#%1%######  #",
-            "#% %#%% B#  #",
-            "#D       # A#",
-            "#############"};
 
         Assets::Load();
 
@@ -74,30 +64,34 @@ int main(int argc, const char **argv)
         // combat screen
         if (combat)
         {
-            Interface::CombatScreen(Window, Renderer, map, party, enemies);
+            auto map = Map::Base();
+
+            map.Load("maps/test.map", party, enemies);
+
+            Interface::CombatScreen(window, renderer, map, party, enemies);
         }
         else
         {
             // Story Screen
             Book1::InitializeStories();
 
-            Interface::StoryScreen(Window, Renderer, party, {Book::Type::Book1, story});
+            Interface::StoryScreen(window, renderer, party, {Book::Type::Book1, story});
         }
 
         Assets::Unload();
 
-        if (Renderer)
+        if (renderer)
         {
-            SDL_DestroyRenderer(Renderer);
+            SDL_DestroyRenderer(renderer);
 
-            Renderer = NULL;
+            renderer = NULL;
         }
 
-        if (Window)
+        if (window)
         {
-            SDL_DestroyWindow(Window);
+            SDL_DestroyWindow(window);
 
-            Window = NULL;
+            window = NULL;
         }
     }
 

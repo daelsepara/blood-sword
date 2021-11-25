@@ -229,6 +229,57 @@ namespace Map
                 Convert(map, party, enemies);
             }
         }
+
+        void Load(const char *filename, Party::Base &party, std::vector<Enemy::Base> &enemies)
+        {
+            std::vector<std::string> map = {};
+
+            std::fstream file(filename);
+
+            std::string str;
+
+            if (file.is_open())
+            {
+                while(std::getline(file, str))
+		        {
+                    map.push_back(str);
+                }
+
+                file.close();
+            }
+
+            if (map.size() > 0)
+            {
+                auto sizey = map.size();
+
+                auto sizex = map.front().size();
+
+                Initialize(sizex, sizey);
+
+                Convert(map, party, enemies);
+            }
+        }
+
+        std::string Load(const char *filename)
+        {
+            std::vector<std::string> map = {};
+
+            std::fstream file(filename);
+
+            std::string str;
+
+            if (file.is_open())
+            {
+                while(std::getline(file, str))
+		        {
+                    map.push_back(str);
+                }
+
+                file.close();
+            }
+
+            return map;
+        }
     };
 }
 #endif

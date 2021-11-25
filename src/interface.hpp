@@ -3087,7 +3087,7 @@ namespace Interface
         }
     }
 
-    Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<std::string> &map, Party::Base &Party, std::vector<Enemy::Base> &Enemies)
+    Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies)
     {
         auto FlashMessage = false;
 
@@ -3109,8 +3109,6 @@ namespace Interface
 
             StartTicks = SDL_GetTicks();
         };
-
-        auto Map = Map::Base(map, Party, Enemies);
 
         // offsets used to display tactical map
         Map.MapX = 0;
