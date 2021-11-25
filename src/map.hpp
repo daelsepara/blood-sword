@@ -84,6 +84,9 @@ namespace Map
         // locations of exits
         std::vector<Map::Point> Exits = {};
 
+        // tracks the location where the players escaped (pale)
+        std::vector<std::tuple<int, int, int>> Escape = {};
+
         // map dimensions
         int Width = 0;
 

@@ -141,7 +141,9 @@ namespace Story
 
         std::string Title = "";
 
-        std::string Map = "";
+        std::string MapFile = "";
+
+        Map::Base Map = Map::Base();
 
         std::string Image = "";
 
@@ -163,6 +165,8 @@ namespace Story
         virtual void Event(Party::Base &Party){};
         // Jump to next book/section
         virtual Engine::Destination Continue(Party::Base &Party) { return {Book::Type::None, 0}; };
+        // Handle special after combat events
+        virtual void AfterCombat(Party::Base &Party){};
 
         Base()
         {
