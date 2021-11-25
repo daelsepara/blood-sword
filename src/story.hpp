@@ -166,7 +166,7 @@ namespace Story
         // Jump to next book/section
         virtual Engine::Destination Continue(Party::Base &Party) { return {Book::Type::None, 0}; };
         // Handle special after combat events
-        virtual void AfterCombat(Party::Base &Party){};
+        virtual void AfterCombat(Party::Base &Party, Combat::Result Result){};
 
         Base()
         {

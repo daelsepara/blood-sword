@@ -19,6 +19,8 @@ namespace Assets
         Wall,
         MapExit,
         HotCoals,
+        Stairs,
+        WindowMystical,
         Up = 100,
         Left,
         Right,
@@ -76,7 +78,8 @@ namespace Assets
         EyeOfTheTigerIndividual,
         EyeOfTheTigerParty,
         Enemies = 300,
-        Barbarian
+        Barbarian,
+        NinjaAssassin
     };
 
     typedef std::pair<Assets::Type, SDL_Surface *> Surface;

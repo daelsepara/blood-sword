@@ -33,6 +33,14 @@
             "path": "images/map/hot-coals.png"
         },
         {
+            "id": 9,
+            "path": "images/map/stairs.png"
+        },
+        {
+            "id": 10,
+            "path": "images/map/window-mystical.png"
+        },
+        {
             "id": 100,
             "path": "icons/up.png"
         },
@@ -255,6 +263,10 @@
         {
             "id": 301,
             "path": "images/monsters/barbarian.png"
+        },
+        {
+            "id": 302,
+            "path": "images/monsters/ninja-assassin.png"
         }
     ]
 }

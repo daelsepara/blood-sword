@@ -3624,8 +3624,6 @@ namespace Interface
 
                                     Interface::Remove(Map, CurrentX, CurrentY);
 
-                                    Map.Escape.push_back({PlayerId, CurrentX, CurrentY});
-
                                     Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
                                     Character.Escaped = true;

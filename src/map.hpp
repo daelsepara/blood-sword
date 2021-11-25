@@ -9,6 +9,8 @@ namespace Map
     const char Wall = '#';
     const char Flee = '=';
     const char Passable = ' ';
+    const char Stairs = '/';
+    const char WindowMystical = '@';
 
     std::string Players = "1234";
     std::string Enemies = "ABCDEFGHIJ";
@@ -23,7 +25,9 @@ namespace Map
         Wall,
         Exit,
         HotCoals,
-        Enemy
+        Stairs,
+        Enemy,
+        WindowMystical
     };
 
     std::map<Map::Object, const char *> Description = {
@@ -33,7 +37,9 @@ namespace Map
         {Map::Object::Wall, "Wall"},
         {Map::Object::Exit, "Exit"},
         {Map::Object::HotCoals, "Hot Coals"},
-        {Map::Object::Enemy, "Enemy"}};
+        {Map::Object::Enemy, "Enemy"},
+        {Map::Object::Stairs, "Stairs (Exit)"},
+        {Map::Object::WindowMystical, "Window"}};
 
     class Tile
     {
@@ -83,9 +89,6 @@ namespace Map
 
         // locations of exits
         std::vector<Map::Point> Exits = {};
-
-        // tracks the location where the players escaped (pale)
-        std::vector<std::tuple<int, int, int>> Escape = {};
 
         // map dimensions
         int Width = 0;
@@ -158,20 +161,30 @@ namespace Map
                         {
                             Tiles[y][x].Asset = Assets::Type::Wall;
                             Tiles[y][x].Type = Map::Object::Wall;
-                            Tiles[y][x].IsPassable = false;
                         }
                         else if (map[y][x] == Map::HotCoals)
                         {
                             Tiles[y][x].Asset = Assets::Type::HotCoals;
                             Tiles[y][x].Type = Map::Object::HotCoals;
-                            Tiles[y][x].IsPassable = false;
+                            Tiles[y][x].IsPassableToEnemy = true;
+                        }
+                        else if (map[y][x] == Map::WindowMystical)
+                        {
+                            Tiles[y][x].Asset = Assets::Type::WindowMystical;
+                            Tiles[y][x].Type = Map::Object::WindowMystical;
                             Tiles[y][x].IsPassableToEnemy = true;
                         }
                         else if (map[y][x] == Map::Flee)
                         {
                             Tiles[y][x].Asset = Assets::Type::MapExit;
                             Tiles[y][x].Type = Map::Object::Exit;
-                            Tiles[y][x].IsPassable = false;
+
+                            Exits.push_back(std::make_pair(x, y));
+                        }
+                        else if (map[y][x] == Map::Stairs)
+                        {
+                            Tiles[y][x].Asset = Assets::Type::Stairs;
+                            Tiles[y][x].Type = Map::Object::Exit;
 
                             Exits.push_back(std::make_pair(x, y));
                         }
