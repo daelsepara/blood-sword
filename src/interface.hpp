@@ -4844,14 +4844,14 @@ namespace Interface
         {
             if (Start > 0)
             {
-                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Up), idx, idx, idx, idx + 1, WindowTextX + Controls[0].W + 2 * text_space, WindowTextY + 2 * text_space, Highlight, Control::Type::SCROLL_UP));
+                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Up), idx, idx, idx, idx + 1, WindowTextX + Controls[0].W + 3 * text_space, WindowTextY + 2 * text_space, Highlight, Control::Type::SCROLL_UP));
 
                 idx += 1;
             }
 
             if (Equipment.size() - Last > 0)
             {
-                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Down), idx, idx, Start > 0 ? idx - 1 : idx, idx + 1, WindowTextX + Controls[0].W + 2 * text_space, Controls[Last - Start - 1].Y - border_pts, Highlight, Control::Type::SCROLL_DOWN));
+                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Down), idx, idx, Start > 0 ? idx - 1 : idx, idx + 1, WindowTextX + Controls[0].W + 3 * text_space, Controls[Last - Start - 1].Y - border_pts, Highlight, Control::Type::SCROLL_DOWN));
 
                 idx += 1;
             }
@@ -4904,6 +4904,8 @@ namespace Interface
 
         auto done = false;
 
+        auto Selection = std::vector<int>();
+
         while (!done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
@@ -4912,11 +4914,11 @@ namespace Interface
 
             if (Mode == Equipment::Mode::DROP)
             {
-                Graphics::PutText(Renderer, "Select an item to drop", Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX + text_space, TextY);
+                Graphics::PutText(Renderer, "Select an item to drop", Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
             }
             else
             {
-                Graphics::PutText(Renderer, (std::string(Character::ClassName[Party.Members[Character].Class]) + "'s items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX + text_space, TextY);
+                Graphics::PutText(Renderer, (std::string(Character::ClassName[Party.Members[Character].Class]) + "'s items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
             }
 
             // render choice boxes
@@ -4924,7 +4926,14 @@ namespace Interface
             {
                 if (Controls[i].Type == Control::Type::CHOICE)
                 {
-                    Graphics::DrawRect(Renderer, Controls[i].W + 2 * border_pts, Controls[i].H + 2 * border_pts, Controls[i].X - border_pts, Controls[i].Y - border_pts, intGR);
+                    if (Engine::InList(Selection, ItemOffset + i))
+                    {
+                        Graphics::ThickRect(Renderer, Controls[i].W, Controls[i].H, Controls[i].X, Controls[i].Y, intGR, border_pts);
+                    }
+                    else
+                    {
+                        Graphics::DrawRect(Renderer, Controls[i].W + 2 * border_pts, Controls[i].H + 2 * border_pts, Controls[i].X - border_pts, Controls[i].Y - border_pts, intGR);
+                    }
                 }
             }
 
@@ -4943,7 +4952,7 @@ namespace Interface
                 {
                     done = true;
                 }
-                if (Controls[Current].Type == Control::Type::SCROLL_UP || (Controls[Current].Type == Control::Type::SCROLL_UP && Hold) || ScrollUp)
+                else if (Controls[Current].Type == Control::Type::SCROLL_UP || (Controls[Current].Type == Control::Type::SCROLL_UP && Hold) || ScrollUp)
                 {
                     if (ItemOffset > 0)
                     {
@@ -5004,11 +5013,22 @@ namespace Interface
                         }
                     }
 
-                    if (Story->Choices.size() - Last <= 0)
+                    if (Equipment.size() - Last <= 0)
                     {
                         Selected = false;
 
                         Current = -1;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::CHOICE && !Hold)
+                {
+                    if (!Engine::InList(Selection, Current + ItemOffset))
+                    {
+                        Selection.push_back(Current + ItemOffset);
+                    }
+                    else
+                    {
+                        Engine::Erase(Selection, Current + ItemOffset);
                     }
                 }
             }
@@ -5097,6 +5117,8 @@ namespace Interface
                     {
                         Interface::ItemScreen(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Character, Equipment::Mode::USE);
                     }
+
+                    Current = -1;
                 }
             }
         }

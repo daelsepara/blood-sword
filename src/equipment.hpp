@@ -172,9 +172,9 @@ namespace Equipment
             }
         }
 
-        std::string String()
+        std::string String(bool strong = false)
         {
-            std::string ItemString = "<b>" + Name + "</b>";
+            std::string ItemString = (strong ? "<b>" : "") + Name + (strong ? "</b>" : "");
 
             std::string Modifiers = "";
 
@@ -196,7 +196,7 @@ namespace Equipment
                         Modifiers += ", ";
                     }
 
-                    Modifiers += "armour: " + std::to_string(Rating);
+                    Modifiers += "armour " + std::to_string(Rating);
                     
                     ModCount++;
                 }

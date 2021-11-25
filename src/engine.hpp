@@ -610,5 +610,40 @@ namespace Engine
 
         return result >= 0 && result < party.Members.size();
     }
+
+    template <typename T>
+    int Find(std::vector<T> &selection, T value)
+    {
+        int result = -1;
+
+        for (auto i = 0; i < selection.size(); i++)
+        {
+            if (selection[i] == value)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    template <typename T>
+    bool InList(std::vector<T> &selection, T value)
+    {
+        auto result = Engine::Find(selection, value);
+
+        return result >= 0 && result < selection.size();
+    }
+
+    template <typename T>
+    void Erase(std::vector<T> &selection, T value)
+    {
+        if (Engine::InList(selection, value))
+        {
+            selection.erase(selection.begin() + Engine::Find(selection, value));
+        }
+    }
 }
 #endif
