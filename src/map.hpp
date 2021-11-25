@@ -240,8 +240,8 @@ namespace Map
 
             if (file.is_open())
             {
-                while(std::getline(file, str))
-		        {
+                while (std::getline(file, str))
+                {
                     map.push_back(str);
                 }
 
@@ -260,7 +260,7 @@ namespace Map
             }
         }
 
-        std::string Load(const char *filename)
+        std::vector<std::string> Load(const char *filename)
         {
             std::vector<std::string> map = {};
 
@@ -270,8 +270,8 @@ namespace Map
 
             if (file.is_open())
             {
-                while(std::getline(file, str))
-		        {
+                while (std::getline(file, str))
+                {
                     map.push_back(str);
                 }
 
