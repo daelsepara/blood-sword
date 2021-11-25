@@ -623,6 +623,18 @@ namespace Interface
         auto Damage = Character.Damage;
         auto DamageModifier = Character.DamageModifier + (Weapons.size() > 0 ? Weapons[0].Damage : 0);
 
+        if (Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
+        {
+            auto EyeResult = Engine::GetStatus(Character, Spell::Type::EyeOfTheTiger);
+
+            if (EyeResult >= 0 && EyeResult < Character.SpellStatus.size())
+            {
+                FightingProwess += std::get<3>(Character.SpellStatus[EyeResult]);
+
+                DamageModifier += std::get<3>(Character.SpellStatus[EyeResult]);
+            }
+        }
+
         Graphics::PutText(Renderer, Character::ClassName[Character.Class], Font, 0, FlipColors ? clrBK : clrGR, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y);
         Graphics::PutText(Renderer, std::string("RANK: " + std::to_string(Character.Rank)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + (FontSize + 2));
         Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(FightingProwess)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 2 * (FontSize + 2));
@@ -1461,10 +1473,10 @@ namespace Interface
                 {
                     Interface::RenderMessage(Renderer, BattleScreen, Map, bg, "You gain +2 Fighting Prowess and +2 to Damage!", intGR);
 
-                    Party.Members[PlayerId].SpellStatus.push_back({Spell::Type::EyeOfTheTiger, CombatRound, 4, 2});
+                    Party.Members[PlayerId].SpellStatus.push_back({Spell::Type::EyeOfTheTiger, CombatRound, 5, 2});
                 }
             }
-            else if (Result == 0)
+            else if (Result == 1)
             {
                 Interface::RenderMessage(Renderer, BattleScreen, Map, bg, "Party gains +1 Fighting Prowess and +1 to Damage!", intGR);
 
@@ -1472,9 +1484,9 @@ namespace Interface
                 {
                     if (Engine::IsAlive(Party.Members[i]))
                     {
-                        if (!Engine::HasStatus(Party.Members[PlayerId], Spell::Type::EyeOfTheTiger))
+                        if (!Engine::HasStatus(Party.Members[i], Spell::Type::EyeOfTheTiger))
                         {
-                            Party.Members[PlayerId].SpellStatus.push_back({Spell::Type::EyeOfTheTiger, CombatRound, i == PlayerId ? 5 : 4, 1});
+                            Party.Members[i].SpellStatus.push_back({Spell::Type::EyeOfTheTiger, CombatRound, i == PlayerId ? 5 : 4, 1});
                         }
                     }
                 }
@@ -1797,6 +1809,8 @@ namespace Interface
             auto DamageModifier = Character.DamageModifier + (Weapons.size() > Round ? Weapons[Round].Damage : 0) + (Equipment.size() > 0 ? Equipment[0].Damage : 0);
             auto Armour = Engine::Armour(Character);
 
+            DamageModifier = FightMode == Combat::FightMode::SHOOT ? 0 : DamageModifier;
+
             if (!Attacked && Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
             {
                 auto EyeResult = Engine::GetStatus(Character, Spell::Type::EyeOfTheTiger);
@@ -1809,7 +1823,7 @@ namespace Interface
                 }
             }
 
-            if (Weapons.size() < Round && !Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts))
+            if (Weapons.size() < Round && !Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts) && FightMode != Combat::FightMode::SHOOT)
             {
                 FightingProwess = std::max(0, FightingProwess - 2);
 
@@ -1857,7 +1871,7 @@ namespace Interface
                 Graphics::PutText(Renderer, Character::ClassName[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY);
                 Graphics::PutText(Renderer, ("FPR: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + RowHeight);
                 Graphics::PutText(Renderer, ("END: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 2 * RowHeight);
-                Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D" + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier)))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
+                Graphics::PutText(Renderer, ("DMG: " + (FightMode == Combat::FightMode::SHOOT ? "1D" : (std::to_string(Damage) + "D")) + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 3 * RowHeight);
                 Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? MidWindow : TextButtonX, TextY + 4 * RowHeight);
 
                 auto StatusOffset = 5;
@@ -4616,7 +4630,7 @@ namespace Interface
 
                         auto LocationY = -1;
 
-                        Interface::Find(Map, Map::Object::Player, Target(NearestPlayer), LocationX, LocationY);
+                        Interface::Find(Map, Map::Object::Player, PlayerId, LocationX, LocationY);
 
                         if (TargetDistance(NearestPlayer) <= 1)
                         {
@@ -4639,16 +4653,36 @@ namespace Interface
                         }
                         else
                         {
-                            // TODO: check if enemy can shoot from range (enemy-specific)
-
-                            // close distance
-                            auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
-
-                            if (EnemyPath.Points.size() > 2)
+                            // check if enemy can shoot from range (enemy-specific)
+                            if (Enemies[EnemyId].CanMove)
                             {
-                                Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyX, EnemyY, EnemyPath.Points[1].X, EnemyPath.Points[1].Y);
+                                // close distance
+                                auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
 
-                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                if (EnemyPath.Points.size() > 2)
+                                {
+                                    Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyX, EnemyY, EnemyPath.Points[1].X, EnemyPath.Points[1].Y);
+
+                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                }
+                            }
+                            else if (Enemies[EnemyId].CanShoot)
+                            {
+                                auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[PlayerId], Enemies[EnemyId], Combat::FightMode::SHOOT, true);
+
+                                if (!Engine::IsAlive(Party.Members[PlayerId]))
+                                {
+                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[PlayerId].Class]) + " killed!", intBK);
+
+                                    Interface::Remove(Map, LocationX, LocationY);
+
+                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                }
+
+                                if (Result != Combat::Result::UNSUCCESSFUL)
+                                {
+                                    Engine::ResetSpellDifficulty(Party.Members[PlayerId]);
+                                }
                             }
                         }
                     }

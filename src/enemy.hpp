@@ -40,6 +40,10 @@ namespace Enemy
 
         bool Enthraled = false;
 
+        bool CanMove = true;
+
+        bool CanShoot = false;
+
         std::vector<Spell::Status> SpellStatus = {};
 
         Assets::Type Asset = Assets::Type::None;
