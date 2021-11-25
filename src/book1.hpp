@@ -33,6 +33,35 @@ namespace Book1
         }
     };
 
+    class Story002 : public Story::Base
+    {
+    public:
+        Story002()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 2;
+
+            Text = "You look down with disgust on the bloated grey bodies of the corpses, now oozing a vile pus which stains the carpet hideously. On one of the dead hands you notice a <b>ruby ring</b>, which you may take if you wish.\n\nOne of the mirrors remains unbroken. There was no corpse behind this one, and when you go closer to inspect it you realise that it is actually a disguised secret door.";
+
+            Image = "images/book1/filler1.png";
+
+            TopImage = false;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Slide back the mirror and see what lies beyond,", {Book::Type::Book1, 379}));
+            Choices.push_back(Choice::Base("Continue to the end of the corridor and try the bronze double doors", {Book::Type::Book1, 456}));
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment = {Equipment::RubyRing};
+
+            Limit = 1;
+        }
+    };
+
     class Story018 : public Story::Base
     {
     public:
@@ -130,6 +159,7 @@ namespace Book1
     };
 
     auto story001 = Story001();
+    auto story002 = Story002();
     auto story018 = Story018();
     auto story058 = Story058();
     auto story069 = Story069();
@@ -139,7 +169,7 @@ namespace Book1
     void InitializeStories()
     {
         Book1::Stories = {
-            &story001,
+            &story001, &story002,
             &story018,
             &story058,
             &story069,

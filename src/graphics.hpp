@@ -451,6 +451,10 @@ namespace Graphics
         {
             caption = "Drop";
         }
+        else if (control.Type == Control::Type::TAKE)
+        {
+            caption = "Take item";
+        }
 
         if (caption.length() > 0)
         {

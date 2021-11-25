@@ -26,19 +26,21 @@ namespace Equipment
     // for non-weapon, non-quiver, non-money-pouches items, e.g. unique items
     enum class Item
     {
-        Any = 0
+        Any = 0,
+        RubyRing
     };
 
     enum class Mode
     {
         USE,
-        DROP
+        DROP,
+        TAKE
     };
 
     class Base
     {
     public:
-        Equipment::Class Class = Equipment::Class::None;
+        Equipment::Class Class = Equipment::Class::Normal;
 
         Equipment::Weapon Weapon = Equipment::Weapon::None;
 
@@ -249,6 +251,9 @@ namespace Equipment
     auto RingMail = Equipment::Base(Equipment::Class::Armour, "ringmail", "ringmail", 2);
     auto Silver = Equipment::Base(Equipment::Class::Armour, "silver armour", "silvers armour", 2);
     auto StuddedLeather = Equipment::Base(Equipment::Class::Armour, "studded leather", "studded leather", 2);
+
+    // book 1 items
+    auto RubyRing = Equipment::Base(Equipment::Item::RubyRing, "ruby ring", "ruby ring");
 }
 
 #endif

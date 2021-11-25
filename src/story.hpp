@@ -151,7 +151,9 @@ namespace Story
 
         std::vector<Enemy::Base> Enemies = {};
 
-        std::vector<Equipment::Base> Equiment = {};
+        std::vector<Equipment::Base> Equipment = {};
+
+        int Limit = 0;
 
         Story::Controls Controls = Story::Controls::None;
 

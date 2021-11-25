@@ -63,7 +63,8 @@ namespace Control
         STATS,
         USE,
         DROP,
-        TRANSFER
+        TRANSFER,
+        TAKE
     };
 
     class Base

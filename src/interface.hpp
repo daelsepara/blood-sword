@@ -4811,7 +4811,7 @@ namespace Interface
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
-    std::vector<Button> EquipmentList(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Equipment::Base> &Equipment, int WindowW, int WindowH, int WindowTextX, int WindowTextY, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight)
+    std::vector<Button> EquipmentList(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Equipment::Base> &Equipment, int WindowW, int WindowH, int WindowTextX, int WindowTextY, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight, Equipment::Mode Mode)
     {
         auto IconSize = (buttonw + 2 * text_space);
         auto FontSize = TTF_FontHeight(Fonts::Normal);
@@ -4857,10 +4857,18 @@ namespace Interface
 
         idx = (int)Controls.size();
 
-        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Use), idx, idx + 1, idx > 0 ? idx - 1 : idx, idx, WindowTextX, OffsetY, Highlight, Control::Type::USE));
-        Controls.push_back(Button(idx + 1, Assets::Get(Assets::Type::Transfer), idx, idx + 2, idx > 0 ? idx - 1 : idx + 1, idx + 1, WindowTextX + IconSize, OffsetY, Highlight, Control::Type::TRANSFER));
-        Controls.push_back(Button(idx + 2, Assets::Get(Assets::Type::Cancel), idx + 1, idx + 3, idx > 0 ? idx - 1 : idx + 2, idx + 2, WindowTextX + 2 * IconSize, OffsetY, Highlight, Control::Type::DROP));
-        Controls.push_back(Button(idx + 3, Assets::Get(Assets::Type::Back), idx + 2, idx + 3, idx > 0 ? idx - 1 : idx + 3, idx + 3, WindowTextX + 3 * IconSize, OffsetY, Highlight, Control::Type::BACK));
+        if (Mode == Equipment::Mode::USE || Mode == Equipment::Mode::DROP)
+        {
+            Controls.push_back(Button(idx, Assets::Get(Assets::Type::Use), idx, idx + 1, idx > 0 ? idx - 1 : idx, idx, WindowTextX, OffsetY, Highlight, Control::Type::USE));
+            Controls.push_back(Button(idx + 1, Assets::Get(Assets::Type::Transfer), idx, idx + 2, idx > 0 ? idx - 1 : idx + 1, idx + 1, WindowTextX + IconSize, OffsetY, Highlight, Control::Type::TRANSFER));
+            Controls.push_back(Button(idx + 2, Assets::Get(Assets::Type::Cancel), idx + 1, idx + 3, idx > 0 ? idx - 1 : idx + 2, idx + 2, WindowTextX + 2 * IconSize, OffsetY, Highlight, Control::Type::DROP));
+            Controls.push_back(Button(idx + 3, Assets::Get(Assets::Type::Back), idx + 2, idx + 3, idx > 0 ? idx - 1 : idx + 3, idx + 3, WindowTextX + 3 * IconSize, OffsetY, Highlight, Control::Type::BACK));
+        }
+        else if (Mode == Equipment::Mode::TAKE)
+        {
+            Controls.push_back(Button(idx, Assets::Get(Assets::Type::Use), idx, idx + 1, idx > 0 ? idx - 1 : idx, idx, WindowTextX, OffsetY, Highlight, Control::Type::TAKE));
+            Controls.push_back(Button(idx + 1, Assets::Get(Assets::Type::Back), idx, idx + 1, idx > 0 ? idx - 1 : idx + 1, idx + 1, WindowTextX + IconSize, OffsetY, Highlight, Control::Type::BACK));
+        }
 
         return Controls;
     }
@@ -4941,6 +4949,78 @@ namespace Interface
         return Result;
     }
 
+    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage)
+    {
+        auto Result = -1;
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 2 * Screen.TextBoxHeight / 5;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto WindowTextWidth = WindowW - 4 * text_space;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto TextY = WindowY + 2 * text_space;
+
+        auto ButtonX = WindowX + 2 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
+
+        auto Controls = std::vector<Button>();
+
+        for (auto i = 0; i < Party.Members.size(); i++)
+        {
+            Controls.push_back(Button(i, Assets::Get(Party.Members[i].Asset), i > 0 ? i - 1 : i, i + 1, i, i, ButtonX + i * Screen.IconSize, OffsetY, intWH, Interface::PlayerControls[Party.Members[i].Class]));
+        }
+
+        auto idx = Controls.size();
+
+        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx > 0 ? idx - 1 : idx, idx, idx, idx, ButtonX + idx * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
+
+        auto done = false;
+
+        while (!done)
+        {
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, SelectMessage, Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrGR, intBK);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    done = true;
+                }
+                else if (Current >= 0 && Current < Party.Members.size() && !Hold)
+                {
+                    Result = Current;
+
+                    done = true;
+                }
+            }
+        }
+
+        return Result;
+    }
+
     void ItemScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int Character, Equipment::Mode Mode)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
@@ -4974,7 +5054,7 @@ namespace Interface
         auto Bg = intWH;
         auto Highlight = intBK;
 
-        auto Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight);
+        auto Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Mode);
 
         auto done = false;
 
@@ -5060,7 +5140,7 @@ namespace Interface
                             Last = Equipment.size();
                         }
 
-                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight);
+                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Mode);
 
                         SDL_Delay(50);
                     }
@@ -5093,7 +5173,7 @@ namespace Interface
                             Last = Equipment.size();
                         }
 
-                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight);
+                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Equipment::Mode::TAKE);
 
                         SDL_Delay(50);
 
@@ -5162,11 +5242,221 @@ namespace Interface
                                     Last = Equipment.size();
                                 }
 
-                                Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight);
+                                Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Mode);
 
                                 Current = -1;
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    void TakeScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 12 * FontSize + Screen.IconSize;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto WindowTextWidth = WindowW - 4 * text_space;
+        auto TextY = WindowY + 2 * text_space;
+        auto ButtonX = WindowX + 2 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+        auto ScrollSpeed = 1;
+
+        auto ItemOffset = 0;
+        auto Limit = (8 * FontSize) / (2 * FontSize + 2 * text_space);
+        auto Last = ItemOffset + Limit;
+
+        std::vector<Equipment::Base> &Equipment = Story->Equipment;
+
+        if (Last > Equipment.size())
+        {
+            Last = Equipment.size();
+        }
+
+        auto Fg = clrGR;
+        auto Bg = intWH;
+        auto Highlight = intBK;
+
+        auto Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Equipment::Mode::TAKE);
+
+        auto done = false;
+
+        auto Selection = std::vector<int>();
+
+        std::string TakeLimit = "";
+
+        if (Story->Limit > 0 && Limit < Story->Equipment.size())
+        {
+            if (Story->Limit == 1)
+            {
+                TakeLimit = "Select which item to take";
+            }
+            else
+            {
+                TakeLimit = "You may take up to " + std::to_string(Story->Limit) + " items";
+            }
+        }
+        else
+        {
+            TakeLimit = "Select items to take";
+        }
+
+        while (!done)
+        {
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
+
+            Graphics::PutText(Renderer, TakeLimit.c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
+
+            // render choice boxes
+            for (auto i = 0; i < Controls.size(); i++)
+            {
+                if (Controls[i].Type == Control::Type::CHOICE)
+                {
+                    if (Engine::InList(Selection, ItemOffset + i))
+                    {
+                        Graphics::ThickRect(Renderer, Controls[i].W, Controls[i].H, Controls[i].X, Controls[i].Y, intGR, border_pts);
+                    }
+                    else
+                    {
+                        Graphics::DrawRect(Renderer, Controls[i].W + 2 * border_pts, Controls[i].H + 2 * border_pts, Controls[i].X - border_pts, Controls[i].Y - border_pts, intGR);
+                    }
+                }
+            }
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrBK, intWH);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    done = true;
+                }
+                else if (Controls[Current].Type == Control::Type::SCROLL_UP || (Controls[Current].Type == Control::Type::SCROLL_UP && Hold) || ScrollUp)
+                {
+                    if (ItemOffset > 0)
+                    {
+                        ItemOffset -= ScrollSpeed;
+
+                        if (ItemOffset < 0)
+                        {
+                            ItemOffset = 0;
+                        }
+
+                        Last = ItemOffset + Limit;
+
+                        if (Last > Equipment.size())
+                        {
+                            Last = Equipment.size();
+                        }
+
+                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Equipment::Mode::TAKE);
+
+                        SDL_Delay(50);
+                    }
+
+                    if (ItemOffset <= 0)
+                    {
+                        Current = -1;
+
+                        Selected = false;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::SCROLL_DOWN || (Controls[Current].Type == Control::Type::SCROLL_DOWN && Hold) || ScrollDown)
+                {
+                    if (Equipment.size() - Last > 0)
+                    {
+                        if (ItemOffset < Equipment.size() - Limit)
+                        {
+                            ItemOffset += ScrollSpeed;
+                        }
+
+                        if (ItemOffset > Equipment.size() - Limit)
+                        {
+                            ItemOffset = Equipment.size() - Limit;
+                        }
+
+                        Last = ItemOffset + Limit;
+
+                        if (Last > Equipment.size())
+                        {
+                            Last = Equipment.size();
+                        }
+
+                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Equipment::Mode::TAKE);
+
+                        SDL_Delay(50);
+
+                        if (ItemOffset > 0)
+                        {
+                            Current = Interface::FindControl(Controls, Control::Type::SCROLL_DOWN);
+                        }
+                    }
+
+                    if (Equipment.size() - Last <= 0)
+                    {
+                        Selected = false;
+
+                        Current = -1;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::CHOICE && !Hold)
+                {
+                    if (!Engine::InList(Selection, Current + ItemOffset))
+                    {
+                        if ((Story->Limit > 0 && Selection.size() <= Story->Limit) || Story->Limit == 0)
+                        {
+                            Selection.push_back(Current + ItemOffset);
+                        }
+                    }
+                    else
+                    {
+                        Engine::Erase(Selection, Current + ItemOffset);
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::TAKE && !Hold)
+                {
+                    if (Equipment.size() > 0 && Selection.size() > 0)
+                    {
+                        for (auto i = 0; i < Selection.size(); i++)
+                        {
+                            std::string TakeMessage = "Give the " + Equipment[Selection[i]].Name + " to";
+
+                            auto Character = Interface::SelectAdventurer(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, TakeMessage.c_str());
+
+                            if (Character >= 0 && Character < Party.Members.size())
+                            {
+                                Party.Members[Character].Equipment.push_back(Equipment[Selection[i]]);
+
+                                while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
+                                {
+                                    Interface::ItemScreen(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Character, Equipment::Mode::DROP);
+                                }
+                            }
+                        }
+
+                        Equipment.clear();
+
+                        Selection.clear();
+
+                        done = true;
                     }
                 }
             }
@@ -5262,78 +5552,6 @@ namespace Interface
                 }
             }
         }
-    }
-
-    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage)
-    {
-        auto Result = -1;
-        auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
-        auto WindowH = 2 * Screen.TextBoxHeight / 5;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
-        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
-        auto WindowTextWidth = WindowW - 4 * text_space;
-        auto RowHeight = TTF_FontHeight(Fonts::Normal);
-        auto TextY = WindowY + 2 * text_space;
-
-        auto ButtonX = WindowX + 2 * text_space;
-
-        auto Hold = false;
-        auto Selected = false;
-        auto ScrollUp = false;
-        auto ScrollDown = false;
-        auto Current = 0;
-
-        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
-
-        auto Controls = std::vector<Button>();
-
-        for (auto i = 0; i < Party.Members.size(); i++)
-        {
-            Controls.push_back(Button(i, Assets::Get(Party.Members[i].Asset), i > 0 ? i - 1 : i, i + 1, i, i, ButtonX + i * Screen.IconSize, OffsetY, intWH, Interface::PlayerControls[Party.Members[i].Class]));
-        }
-
-        auto idx = Controls.size();
-
-        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx > 0 ? idx - 1 : idx, idx, idx, idx, ButtonX + idx * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
-
-        auto done = false;
-
-        while (!done)
-        {
-            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
-
-            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
-
-            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
-
-            Graphics::PutText(Renderer, SelectMessage, Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY);
-
-            Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
-
-            if (Current >= 0 && Current < Controls.size())
-            {
-                Graphics::RenderCaption(Renderer, Controls[Current], clrGR, intBK);
-            }
-
-            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
-
-            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
-            {
-                if (Controls[Current].Type == Control::Type::BACK && !Hold)
-                {
-                    done = true;
-                }
-                else if (Current >= 0 && Current < Party.Members.size() && !Hold)
-                {
-                    Result = Current;
-
-                    done = true;
-                }
-            }
-        }
-
-        return Result;
     }
 
     std::vector<Button> CreateChoices(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Choice::Base> &Choices, ScreenDimensions &Screen, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight)
@@ -6063,6 +6281,16 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::CONTINUE && !Hold)
                         {
+                            if (Story->Equipment.size() > 0)
+                            {
+                                Interface::TakeScreen(Window, Renderer, Controls, Party, Story, Screen, Text, Offset);
+                            }
+
+                            if (Story->Equipment.size() > 0)
+                            {
+                                continue;
+                            }
+
                             // handle encumbrance
                             for (auto i = 0; i < Party.Members.size(); i++)
                             {
