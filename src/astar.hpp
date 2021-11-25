@@ -92,13 +92,13 @@ namespace AStar
         }
     };
 
-    bool IsPassable(Map::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool IsEnemy)
+    bool IsPassable(Map::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool isEnemy, bool ignore)
     {
-        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && ((map.Tiles[Y][X].IsPassable && !map.Tiles[Y][X].IsOccupied()) || (Y == target->Y && X == target->X) || (IsEnemy && map.Tiles[Y][X].IsPassableToEnemy && !map.Tiles[Y][X].IsOccupied()) || (!IsEnemy && map.Tiles[Y][X].IsExit())));
+        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && ((map.Tiles[Y][X].IsPassable && ((ignore && isEnemy) || !map.Tiles[Y][X].IsOccupied())) || (Y == target->Y && X == target->X) || (isEnemy && map.Tiles[Y][X].IsPassableToEnemy && (ignore || !map.Tiles[Y][X].IsOccupied())) || (!isEnemy && map.Tiles[Y][X].IsExit())));
     }
 
     // Get all traversible nodes from current node
-    std::vector<std::shared_ptr<AStar::Node>> Nodes(Map::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target, bool IsEnemy)
+    std::vector<std::shared_ptr<AStar::Node>> Nodes(Map::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target, bool isEnemy, bool ignore)
     {
         // Define neighbors (X, Y): Up, Down, Left, Right
         std::vector<std::pair<int, int>> neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
@@ -112,14 +112,14 @@ namespace AStar
                 auto index = 0;
 
                 // Check if within map boundaries and if passable and/or leads to destination
-                if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second, IsEnemy))
+                if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second, isEnemy, ignore))
                 {
                     auto X = current->X + neighbors[i].first;
                     auto Y = current->Y + neighbors[i].second;
 
                     auto Cost = current->Cost + 1;
 
-                    if (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && IsEnemy && map.Tiles[Y][X].IsEnemy())
+                    if (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && isEnemy && map.Tiles[Y][X].IsEnemy())
                     {
                         // Enemies avoid other enemies as much as possible
                         Cost += 1;
@@ -175,7 +175,7 @@ namespace AStar
     }
 
     // Find path from src to dst using the A* algorithm
-    AStar::Path FindPath(Map::Base &map, int srcX, int srcY, int dstX, int dstY)
+    AStar::Path FindPath(Map::Base &map, int srcX, int srcY, int dstX, int dstY, bool ignore)
     {
         auto path = AStar::Path();
 
@@ -201,7 +201,7 @@ namespace AStar
 
             active.push_back(start);
 
-            auto IsEnemy = map.Tiles[srcY][srcX].IsEnemy();
+            auto isEnemy = map.Tiles[srcY][srcX].IsEnemy();
 
             while (active.size() > 0)
             {
@@ -234,7 +234,7 @@ namespace AStar
 
                 AStar::Remove(active, check);
 
-                auto nodes = AStar::Nodes(map, check, end, IsEnemy);
+                auto nodes = AStar::Nodes(map, check, end, isEnemy, ignore);
 
                 for (auto i = 0; i < nodes.size(); i++)
                 {
@@ -268,6 +268,11 @@ namespace AStar
         }
 
         return path;
+    }
+
+    AStar::Path FindPath(Map::Base &map, int srcX, int srcY, int dstX, int dstY)
+    {
+        return AStar::FindPath(map, srcX, srcY, dstX, dstY, false);
     }
 }
 #endif

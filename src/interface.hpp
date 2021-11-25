@@ -519,6 +519,37 @@ namespace Interface
                   });
     }
 
+    std::vector<Targets> CycleTargets(Map::Base &Map, Party::Base &Party, int EnemyX, int EnemyY, bool ignore)
+    {
+        auto Distances = std::vector<Targets>();
+
+        // cycle through the players
+        for (auto i = 0; i < Party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(Party.Members[i]) > 0 && !Party.Members[i].Escaped)
+            {
+                auto LocationX = 0;
+
+                auto LocationY = 0;
+
+                Interface::Find(Map, Map::Object::Player, i, LocationX, LocationY);
+
+                auto TempPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, ignore);
+
+                if (TempPath.Points.size() > 0)
+                {
+                    Distances.push_back({i, Interface::Distance(EnemyX, EnemyY, LocationX, LocationY), Engine::Endurance(Party.Members[i])});
+                }
+                else
+                {
+                    Distances.push_back({i, (Map.SizeX * Map.SizeY), Engine::Endurance(Party.Members[i])});
+                }
+            }
+        }
+
+        return Distances;
+    }
+
     Interface::Targets SelectTarget(Map::Base &Map, Party::Base &Party, int EnemyId)
     {
         Interface::Targets NearestPlayer = {-1, -1, -1};
@@ -532,29 +563,7 @@ namespace Interface
 
         Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
-        // cycle through the players
-        for (auto i = 0; i < Party.Members.size(); i++)
-        {
-            if (Engine::IsAlive(Party.Members[i]) > 0 && !Party.Members[i].Escaped)
-            {
-                auto LocationX = 0;
-
-                auto LocationY = 0;
-
-                Interface::Find(Map, Map::Object::Player, i, LocationX, LocationY);
-
-                auto TempPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY);
-
-                if (TempPath.Points.size() > 0)
-                {
-                    Distances.push_back({i, Interface::Distance(EnemyX, EnemyY, LocationX, LocationY), Engine::Endurance(Party.Members[i])});
-                }
-                else
-                {
-                    Distances.push_back({i, (Map.SizeX * Map.SizeY), Engine::Endurance(Party.Members[i])});
-                }
-            }
-        }
+        Distances = Interface::CycleTargets(Map, Party, EnemyX, EnemyY, false);
 
         if (Distances.size() > 0)
         {
@@ -562,6 +571,18 @@ namespace Interface
             SortTargets(Distances);
 
             NearestPlayer = Distances.front();
+        }
+        else
+        {
+            Distances = Interface::CycleTargets(Map, Party, EnemyX, EnemyY, true);
+
+            if (Distances.size() > 0)
+            {
+                // sort players based on distance and endurance
+                SortTargets(Distances);
+
+                NearestPlayer = Distances.front();
+            }
         }
 
         return NearestPlayer;
@@ -1672,7 +1693,7 @@ namespace Interface
         FightControls1[1].Color = intBK;
         FightControls1[1].Type = Control::Type::BACK;
 
-        const char *FightChoices2[2] = {"FIGHT"}; // Enemy attacks
+        const char *FightChoices2[2] = {FightMode == Combat::FightMode::FIGHT ? "FIGHT" : "SHOOT"}; // Enemy attacks
         auto FightControls2 = Graphics::CreateFixedTextButtons(FightChoices2, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         FightControls2[0].Fg = clrWH;
         FightControls2[0].Highlight = intGR;
@@ -1894,7 +1915,7 @@ namespace Interface
 
                     auto FightResult = (!Attacked ? FightingProwess : Enemy.FightingProwess) >= FightingSum;
 
-                    if (FightMode == Combat::FightMode::SHOOT)
+                    if (FightMode == Combat::FightMode::SHOOT && !Attacked)
                     {
                         Engine::ShootArrow(Character);
                     }
@@ -1922,7 +1943,7 @@ namespace Interface
                         Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                    Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                     if (Attacked)
                     {
@@ -1960,7 +1981,7 @@ namespace Interface
 
                         CalculatedDamage = true;
 
-                        if (Quarterstaff && DamageSum > 0)
+                        if (!Attacked && Quarterstaff && DamageSum > 0)
                         {
                             Enemy.KnockedOff = true;
 
@@ -2082,7 +2103,7 @@ namespace Interface
     }
 
     // fight encounter between Enemies
-    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Enemy::Base &Enemy, Enemy::Base &Target)
+    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Enemy::Base &Enemy, Enemy::Base &Target, Combat::FightMode FightMode)
     {
         auto Result = Combat::Result::NONE;
         auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
@@ -2100,7 +2121,7 @@ namespace Interface
         auto TextButtonY = (WindowY + WindowH) - (text_buttonh + 2 * text_space);
         auto TextWidth = WindowW - 3 * text_space;
 
-        const char *FightChoices1[2] = {"FIGHT", "CANCEL"}; // player attacks
+        const char *FightChoices1[2] = {(FightMode != Combat::FightMode::SHOOT ? "FIGHT" : "SHOOT"), "CANCEL"}; // player attacks
 
         auto FightControls1 = Graphics::CreateFixedTextButtons(FightChoices1, 2, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         FightControls1[0].Fg = clrWH;
@@ -2112,7 +2133,7 @@ namespace Interface
         FightControls1[1].Color = intBK;
         FightControls1[1].Type = Control::Type::BACK;
 
-        const char *FightChoices2[2] = {"FIGHT"}; // Enemy attacks
+        const char *FightChoices2[2] = {(FightMode != Combat::FightMode::SHOOT ? "FIGHT" : "SHOOT")}; // Enemy attacks
         auto FightControls2 = Graphics::CreateFixedTextButtons(FightChoices2, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         FightControls2[0].Fg = clrWH;
         FightControls2[0].Highlight = intGR;
@@ -2162,7 +2183,7 @@ namespace Interface
         auto FightRolls = 2;
         FightRolls += Engine::HasStatus(Enemy, Spell::Type::Nighthowl) ? 1 : 0;
 
-        auto DamageRolls = Enemy.Damage;
+        auto DamageRolls = FightMode != Combat::FightMode::SHOOT ? Enemy.Damage : 1;
 
         std::vector<int> Rolls(FightRolls, 0);
         std::vector<int> Damages(DamageRolls, 0);
@@ -2210,7 +2231,7 @@ namespace Interface
             Graphics::PutText(Renderer, Target.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY);
             Graphics::PutText(Renderer, ("FPR: " + std::to_string(Target.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + RowHeight);
             Graphics::PutText(Renderer, ("END: " + std::to_string(Target.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 2 * RowHeight);
-            Graphics::PutText(Renderer, ("DMG: " + std::to_string(Target.Damage) + "D" + (Target.DamageModifier < 0 ? "" : "+") + std::to_string(Target.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 3 * RowHeight);
+            Graphics::PutText(Renderer, ("DMG: " + (FightMode != Combat::FightMode::SHOOT ? std::to_string(Target.Damage) : "1") + "D" + (FightMode != Combat::FightMode::SHOOT ? ((Target.DamageModifier < 0 ? "" : "+") + std::to_string(Target.DamageModifier)) : "")).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Target.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 4 * RowHeight);
 
             auto TargetOffset = 5;
@@ -2269,7 +2290,7 @@ namespace Interface
                     Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
-                Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                 Graphics::PutText(Renderer, (Enemy.Name + " hits " + Target.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
 
@@ -2304,7 +2325,7 @@ namespace Interface
                         Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                    Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
 
                     Graphics::PutText(Renderer, (Enemy.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
                 }
@@ -2886,7 +2907,7 @@ namespace Interface
 
                     if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY) && Interface::Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
                     {
-                        auto TempPath = AStar::FindPath(Map, PlayerX, PlayerY, SelectX, SelectY);
+                        auto TempPath = AStar::FindPath(Map, PlayerX, PlayerY, SelectX, SelectY, IsPlayer ? false : true);
 
                         if (TempPath.Points.size() > 2)
                         {
@@ -3036,7 +3057,7 @@ namespace Interface
 
                         if (Interface::ValidX(Map, EnemyX) && Interface::ValidY(Map, EnemyY) && Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
                         {
-                            auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY);
+                            auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
 
                             if (EnemyPath.Points.size() > 2)
                             {
@@ -4430,7 +4451,7 @@ namespace Interface
                                         else
                                         {
                                             // Enemy vs Enemy fight
-                                            Result = Interface::Fight(Renderer, Controls, intBK, Map, Enemy, Target);
+                                            Result = Interface::Fight(Renderer, Controls, intBK, Map, Enemy, Target, Combat::FightMode::FIGHT);
 
                                             if (!Engine::IsAlive(Target))
                                             {
@@ -4470,6 +4491,7 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::SHOOT)
                             {
+                                // only specific enemies can shoot, e.g. ninja assassins with shurikens
                                 DisplayMessage("This creature cannot attack from range!", intBK);
 
                                 CurrentMode = Combat::Mode::NORMAL;
@@ -4602,8 +4624,10 @@ namespace Interface
                         }
                         else
                         {
+                            // TODO: check if enemy can shoot from range (enemy-specific)
+
                             // close distance
-                            auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY);
+                            auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
 
                             if (EnemyPath.Points.size() > 2)
                             {
