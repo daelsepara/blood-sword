@@ -4982,6 +4982,11 @@ namespace Interface
 
         auto Selection = std::vector<int>();
 
+        if (Equipment.size() > Party.Members[Character].Encumbrance)
+        {
+            Mode = Equipment::Mode::DROP;
+        }
+        
         while (!done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
@@ -4990,7 +4995,7 @@ namespace Interface
 
             if (Mode == Equipment::Mode::DROP)
             {
-                Graphics::PutText(Renderer, "Select an item to drop", Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
+                Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Party.Members[Character].Class]) + " is carrying too many items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
             }
             else
             {
@@ -5026,7 +5031,14 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
-                    done = true;
+                    if (Equipment.size() > Party.Members[Character].Encumbrance)
+                    {
+                        Mode = Equipment::Mode::DROP;
+                    }
+                    else
+                    {
+                        done = true;
+                    }
                 }
                 else if (Controls[Current].Type == Control::Type::SCROLL_UP || (Controls[Current].Type == Control::Type::SCROLL_UP && Hold) || ScrollUp)
                 {
