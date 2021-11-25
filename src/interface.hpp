@@ -4796,54 +4796,6 @@ namespace Interface
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
-    std::string ItemString(Equipment::Base &Equipment)
-    {
-        std::string ItemString = "<b>" + Equipment.Name + "</b>";
-        std::string Modifiers = "";
-        auto ModCount = 0;
-
-        if (Equipment.Type != Equipment::Type::Quiver && Equipment.Type != Equipment::Type::MoneyPouch)
-        {
-            if (Equipment.Attribute != Attributes::Type::None && Equipment.Score != 0)
-            {
-                Modifiers += (Equipment.Score >= 0 ? "+" : "") + std::to_string(Equipment.Score);
-                Modifiers += " " + std::string(Attributes::Abbreviation[Equipment.Attribute]);
-                ModCount++;
-            }
-
-            if (Equipment.Damage != 0)
-            {
-                if (ModCount > 0)
-                {
-                    Modifiers += ", ";
-                }
-
-                Modifiers += (Equipment.Damage >= 0 ? "+" : "") + std::to_string(Equipment.Damage) + " DMG";
-
-                ModCount++;
-            }
-        }
-        else if (Equipment.Type == Equipment::Type::Quiver)
-        {
-            Modifiers += std::to_string(Equipment.Arrows) + " arrow" + (Equipment.Arrows != 1 ? "s" : "");
-
-            ModCount++;
-        }
-        else if (Equipment.Type == Equipment::Type::MoneyPouch)
-        {
-            Modifiers += std::to_string(Equipment.Gold) + " gold piece" + (Equipment.Gold != 1 ? "s" : "");
-
-            ModCount++;
-        }
-
-        if (ModCount > 0)
-        {
-            ItemString += " [" + Modifiers + "]";
-        }
-
-        return ItemString;
-    }
-
     void ManageAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int Character)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
@@ -4892,7 +4844,7 @@ namespace Interface
                 {
                     for (auto i = 0; i < Party.Members[Character].Equipment.size(); i++)
                     {
-                        Graphics::PutText(Renderer, Interface::ItemString(Party.Members[Character].Equipment[i]).c_str(), Fonts::Normal, 0, clrGR, intWH, TTF_STYLE_NORMAL, ColumnWidth, FontSize, i < 5 ? ButtonX : MidColumn, TextY + 2 * FontSize + (i < 5 ? i : i - 5) * FontSize);
+                        Graphics::PutText(Renderer, Party.Members[Character].Equipment[i].String().c_str(), Fonts::Normal, 0, clrGR, intWH, TTF_STYLE_NORMAL, ColumnWidth, FontSize, i < 5 ? ButtonX : MidColumn, TextY + 2 * FontSize + (i < 5 ? i : i - 5) * FontSize);
                     }
                 }
                 else

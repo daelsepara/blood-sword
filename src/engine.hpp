@@ -82,7 +82,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Attribute == attribute && (character.Equipment[i].Type == Equipment::Type::Normal || (IsWeapon && character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].Weapon != Equipment::Weapon::Bow)))
+            if (character.Equipment[i].Attribute == attribute && (character.Equipment[i].Class == Equipment::Class::Normal || (IsWeapon && character.Equipment[i].Class == Equipment::Class::Weapon && character.Equipment[i].Weapon != Equipment::Weapon::Bow)))
             {
                 equipment.push_back(character.Equipment[i]);
             }
@@ -172,7 +172,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Type == Equipment::Type::Armour && character.Equipment[i].Rating > armour)
+            if (character.Equipment[i].Class == Equipment::Class::Armour && character.Equipment[i].Rating > armour)
             {
                 armour = character.Equipment[i].Rating;
             }
@@ -265,7 +265,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].Weapon != Equipment::Weapon::Bow)
+            if (character.Equipment[i].Class == Equipment::Class::Weapon && character.Equipment[i].Weapon != Equipment::Weapon::Bow)
             {
                 result = true;
 
@@ -282,7 +282,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].Weapon == weapon)
+            if (character.Equipment[i].Class == Equipment::Class::Weapon && character.Equipment[i].Weapon == weapon)
             {
                 result = true;
 
@@ -304,7 +304,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Type == Equipment::Type::Weapon && character.Equipment[i].Weapon == Equipment::Weapon::Bow)
+            if (character.Equipment[i].Class == Equipment::Class::Weapon && character.Equipment[i].Weapon == Equipment::Weapon::Bow)
             {
                 result = true;
 
@@ -321,7 +321,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Type == Equipment::Type::Quiver && character.Equipment[i].Arrows > 0)
+            if (character.Equipment[i].Class == Equipment::Class::Quiver && character.Equipment[i].Arrows > 0)
             {
                 result += character.Equipment[i].Arrows;
             }
@@ -343,7 +343,7 @@ namespace Engine
         {
             for (auto i = 0; i < character.Equipment.size(); i++)
             {
-                if (character.Equipment[i].Type == Equipment::Type::Quiver && character.Equipment[i].Arrows > 0)
+                if (character.Equipment[i].Class == Equipment::Class::Quiver && character.Equipment[i].Arrows > 0)
                 {
                     character.Equipment[i].Arrows--;
 
@@ -397,7 +397,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Type == Equipment::Type::MoneyPouch && character.Equipment[i].Gold > 0)
+            if (character.Equipment[i].Class == Equipment::Class::MoneyPouch && character.Equipment[i].Gold > 0)
             {
                 result += character.Equipment[i].Gold;
             }

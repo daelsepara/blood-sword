@@ -750,7 +750,7 @@ namespace Character
             Character::Warrior(character);
 
             character.Equipment = {Equipment::Sword, Equipment::ChainMail};
-            character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
+            character.Equipment.push_back(Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Abilities = {Abilities::Type::Ambidextrousness, Abilities::Type::UnarmedMartialArts};
 
             character.Asset = Assets::Type::Warrior;
@@ -760,8 +760,8 @@ namespace Character
             Character::Trickster(character);
 
             character.Equipment = {Equipment::Sword, Equipment::Bow, Equipment::StuddedLeather};
-            character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
-            character.Equipment.push_back(Equipment::Base(Equipment::Type::Quiver, "quiver", "quiver", 6, 6));
+            character.Equipment.push_back(Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
+            character.Equipment.push_back(Equipment::Base(Equipment::Class::Quiver, "quiver", "quiver", 6, 6));
             character.Abilities = {Abilities::Type::Archery, Abilities::Type::Dodging, Abilities::Type::QuickThinking};
 
             character.Asset = Assets::Type::Trickster;
@@ -771,8 +771,8 @@ namespace Character
             Character::Sage(character);
 
             character.Equipment = {Equipment::Quarterstaff, Equipment::Bow, Equipment::RingMail};
-            character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
-            character.Equipment.push_back(Equipment::Base(Equipment::Type::Quiver, "quiver", "quiver", 6, 6));
+            character.Equipment.push_back(Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
+            character.Equipment.push_back(Equipment::Base(Equipment::Class::Quiver, "quiver", "quiver", 6, 6));
             character.Abilities = {Abilities::Type::Archery, Abilities::Type::Quarterstaff, Abilities::Type::Healing, Abilities::Type::Exorcism, Abilities::Type::ESP, Abilities::Type::ParanormalSight, Abilities::Type::Levitation};
 
             character.Asset = Assets::Type::Sage;
@@ -782,7 +782,7 @@ namespace Character
             Character::Enchanter(character);
 
             character.Equipment = {Equipment::Sword, Equipment::Silver};
-            character.Equipment.push_back(Equipment::Base(Equipment::Type::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
+            character.Equipment.push_back(Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Abilities = {Abilities::Type::CallToMind, Abilities::Type::CastSpell};
 
             character.Asset = Assets::Type::Enchanter;
