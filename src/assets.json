@@ -189,6 +189,14 @@
             "path": "icons/stats.png"
         },
         {
+            "id": 164,
+            "path": "icons/use.png"
+        },
+        {
+            "id": 165,
+            "path": "icons/transfer.png"
+        },
+        {
             "id": 201,
             "path": "images/spells/volcano-spray.png"
         },

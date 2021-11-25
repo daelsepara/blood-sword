@@ -151,6 +151,8 @@ namespace Story
 
         std::vector<Enemy::Base> Enemies = {};
 
+        std::vector<Equipment::Base> Equiment = {};
+
         Story::Controls Controls = Story::Controls::None;
 
         // Handle background events

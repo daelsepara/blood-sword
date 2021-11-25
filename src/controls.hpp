@@ -60,7 +60,10 @@ namespace Control
         GAME,
         PARTY,
         INFO,
-        STATS
+        STATS,
+        USE,
+        DROP,
+        TRANSFER
     };
 
     class Base

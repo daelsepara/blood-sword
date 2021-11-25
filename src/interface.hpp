@@ -51,6 +51,23 @@ namespace Interface
         return (y >= 0 && y < Map.Height);
     }
 
+    int FindControl(std::vector<Button> &controls, Control::Type control)
+    {
+        auto found = -1;
+
+        for (auto i = 0; i < controls.size(); i++)
+        {
+            if (controls[i].Type == control)
+            {
+                found = i;
+
+                break;
+            }
+        }
+
+        return found;
+    }
+
     void RenderCombatScreen(SDL_Renderer *Renderer, std::vector<Button> &Controls, int Current, Uint32 bg)
     {
         Graphics::FillWindow(Renderer, bg);
@@ -2639,7 +2656,7 @@ namespace Interface
         return Result;
     }
 
-    Abilities::Type UseAbility(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character)
+    Abilities::Type Abilities(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character)
     {
         auto Result = Abilities::Type::None;
 
@@ -3405,7 +3422,7 @@ namespace Interface
         Controls.push_back(Button(6, Assets::Get(Assets::Type::Fight), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
         Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
         Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
-        Controls.push_back(Button(9, Assets::Get(Assets::Type::UseAbility), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
+        Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
         Controls.push_back(Button(10, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 5 ? BottomMapX + 5 : 10, 4, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
 
         // generate controls within the map window
@@ -3896,7 +3913,7 @@ namespace Interface
                         {
                             SelectedSpell = -1;
 
-                            auto Result = Interface::UseAbility(Renderer, Controls, intBK, Map, Character);
+                            auto Result = Interface::Abilities(Renderer, Controls, intBK, Map, Character);
 
                             if (Result == Abilities::Type::Ambidextrousness || Result == Abilities::Type::UnarmedMartialArts || Result == Abilities::Type::Dodging || Result == Abilities::Type::Quarterstaff)
                             {
@@ -4796,11 +4813,213 @@ namespace Interface
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
+    std::vector<Button> EquipmentList(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Equipment::Base> Equipment, int WindowW, int WindowH, int WindowTextX, int WindowTextY, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight)
+    {
+        auto IconSize = (buttonw + 2 * text_space);
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowTextWidth = WindowW - (IconSize + 5 * text_space);
+        auto OffsetY = (WindowTextY + WindowH) - (IconSize + 2 * (FontSize + text_space));
+
+        auto Controls = std::vector<Button>();
+
+        if (Equipment.size() > 0)
+        {
+            for (auto i = 0; i < Last - Start; i++)
+            {
+                auto index = Start + i;
+
+                auto y = (i > 0 ? Controls[i - 1].Y + Controls[i - 1].H + 3 * text_space : WindowTextY + 2 * text_space);
+
+                Controls.push_back(Button(i, Graphics::CreateHeaderButton(Window, FONT_BOOKMAN, FontSize, Equipment[index].String().c_str(), Fg, Bg, WindowTextWidth - 2 * text_space, FontSize * 2, text_space), i, i, (i > 0 ? i - 1 : i), i + 1, WindowTextX, y, Highlight, Control::Type::CHOICE));
+
+                Controls[i].W = Controls[i].Surface->w;
+
+                Controls[i].H = Controls[i].Surface->h;
+            }
+        }
+
+        auto idx = (int)Controls.size();
+
+        if (Equipment.size() > Limit)
+        {
+            if (Start > 0)
+            {
+                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Up), idx, idx, idx, idx + 1, WindowTextX + Controls[0].W + 2 * text_space, WindowTextY + 2 * text_space, Highlight, Control::Type::SCROLL_UP));
+
+                idx += 1;
+            }
+
+            if (Equipment.size() - Last > 0)
+            {
+                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Down), idx, idx, Start > 0 ? idx - 1 : idx, idx + 1, WindowTextX + Controls[0].W + 2 * text_space, Controls[Last - Start - 1].Y - border_pts, Highlight, Control::Type::SCROLL_DOWN));
+
+                idx += 1;
+            }
+        }
+
+        idx = (int)Controls.size();
+
+        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Use), idx, idx + 1, idx > 0 ? idx - 1 : idx, idx, WindowTextX, OffsetY, Highlight, Control::Type::USE));
+        Controls.push_back(Button(idx + 1, Assets::Get(Assets::Type::Transfer), idx, idx + 2, idx > 0 ? idx - 1 : idx + 1, idx + 1, WindowTextX + IconSize, OffsetY, Highlight, Control::Type::TRANSFER));
+        Controls.push_back(Button(idx + 2, Assets::Get(Assets::Type::Cancel), idx + 1, idx + 3, idx > 0 ? idx - 1 : idx + 2, idx + 2, WindowTextX + 2 * IconSize, OffsetY, Highlight, Control::Type::DROP));
+        Controls.push_back(Button(idx + 3, Assets::Get(Assets::Type::Back), idx + 2, idx + 3, idx > 0 ? idx - 1 : idx + 3, idx + 3, WindowTextX + 3 * IconSize, OffsetY, Highlight, Control::Type::BACK));
+
+        return Controls;
+    }
+
+    void ItemScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int Character, Equipment::Mode Mode)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 12 * FontSize + Screen.IconSize;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto WindowTextWidth = WindowW - 4 * text_space;
+        auto TextY = WindowY + 2 * text_space;
+        auto ButtonX = WindowX + 2 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+        auto ScrollSpeed = 1;
+
+        auto ItemOffset = 0;
+        auto Limit = (10 * FontSize) / (2 * FontSize + 2 * text_space);
+        auto Last = ItemOffset + Limit;
+
+        std::vector<Equipment::Base> &Equipment = Party.Members[Character].Equipment;
+
+        if (Last > Equipment.size())
+        {
+            Last = Equipment.size();
+        }
+
+        auto Fg = clrGR;
+        auto Bg = intWH;
+        auto Highlight = intBK;
+
+        auto Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight);
+
+        auto done = false;
+
+        while (!done)
+        {
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
+
+            if (Mode == Equipment::Mode::DROP)
+            {
+                Graphics::PutText(Renderer, "Select an item to drop", Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX + text_space, TextY);
+            }
+            else
+            {
+                Graphics::PutText(Renderer, (std::string(Character::ClassName[Party.Members[Character].Class]) + "'s items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX + text_space, TextY);
+            }
+
+            // render choice boxes
+            for (auto i = 0; i < Controls.size(); i++)
+            {
+                if (Controls[i].Type == Control::Type::CHOICE)
+                {
+                    Graphics::DrawRect(Renderer, Controls[i].W + 2 * border_pts, Controls[i].H + 2 * border_pts, Controls[i].X - border_pts, Controls[i].Y - border_pts, intGR);
+                }
+            }
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrBK, intWH);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    done = true;
+                }
+                if (Controls[Current].Type == Control::Type::SCROLL_UP || (Controls[Current].Type == Control::Type::SCROLL_UP && Hold) || ScrollUp)
+                {
+                    if (ItemOffset > 0)
+                    {
+                        ItemOffset -= ScrollSpeed;
+
+                        if (ItemOffset < 0)
+                        {
+                            ItemOffset = 0;
+                        }
+
+                        Last = ItemOffset + Limit;
+
+                        if (Last > Equipment.size())
+                        {
+                            Last = Equipment.size();
+                        }
+
+                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight);
+
+                        SDL_Delay(50);
+                    }
+
+                    if (ItemOffset <= 0)
+                    {
+                        Current = -1;
+
+                        Selected = false;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::SCROLL_DOWN || (Controls[Current].Type == Control::Type::SCROLL_DOWN && Hold) || ScrollDown)
+                {
+                    if (Equipment.size() - Last > 0)
+                    {
+                        if (ItemOffset < Equipment.size() - Limit)
+                        {
+                            ItemOffset += ScrollSpeed;
+                        }
+
+                        if (ItemOffset > Equipment.size() - Limit)
+                        {
+                            ItemOffset = Equipment.size() - Limit;
+                        }
+
+                        Last = ItemOffset + Limit;
+
+                        if (Last > Equipment.size())
+                        {
+                            Last = Equipment.size();
+                        }
+
+                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight);
+
+                        SDL_Delay(50);
+
+                        if (ItemOffset > 0)
+                        {
+                            Current = Interface::FindControl(Controls, Control::Type::SCROLL_DOWN);
+                        }
+                    }
+
+                    if (Story->Choices.size() - Last <= 0)
+                    {
+                        Selected = false;
+
+                        Current = -1;
+                    }
+                }
+            }
+        }
+    }
+
     void ManageAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int Character)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
         auto WindowW = 3 * SCREEN_WIDTH / 5;
-        auto WindowH = 4 * Screen.TextBoxHeight / 5;
+        auto WindowH = 12 * FontSize + Screen.IconSize;
         auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto WindowTextWidth = WindowW - 4 * text_space;
@@ -4820,7 +5039,7 @@ namespace Interface
 
         Controls.push_back(Button(0, Assets::Get(Assets::Type::Encyclopedia), 0, 1, 0, 0, ButtonX, OffsetY, intBK, Control::Type::INFO));
         Controls.push_back(Button(1, Assets::Get(Assets::Type::Stats), 0, 2, 1, 1, ButtonX + Screen.IconSize, OffsetY, intBK, Control::Type::STATS));
-        Controls.push_back(Button(2, Assets::Get(Assets::Type::UseAbility), 1, 3, 2, 2, ButtonX + 2 * Screen.IconSize, OffsetY, intBK, Control::Type::ABILITY));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::Ability), 1, 3, 2, 2, ButtonX + 2 * Screen.IconSize, OffsetY, intBK, Control::Type::ABILITY));
         Controls.push_back(Button(3, Assets::Get(Assets::Type::Items), 2, 4, 3, 3, ButtonX + 3 * Screen.IconSize, OffsetY, intBK, Control::Type::ITEMS));
         Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), 3, 4, 3, 3, ButtonX + 4 * Screen.IconSize, OffsetY, intBK, Control::Type::BACK));
 
@@ -4871,6 +5090,13 @@ namespace Interface
                 if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
                     done = true;
+                }
+                if (Controls[Current].Type == Control::Type::ITEMS && !Hold)
+                {
+                    if (!Party.Members[Character].Equipment.empty())
+                    {
+                        Interface::ItemScreen(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Character, Equipment::Mode::USE);
+                    }
                 }
             }
         }
@@ -4995,26 +5221,9 @@ namespace Interface
         auto OffsetY = SCREEN_HEIGHT - 2 * (IconSize - text_space);
         auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * text_space);
 
-        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx, idx, idx > 0 ? idx - 1 : idx, idx, LastX, OffsetY, intWH, Control::Type::BACK));
+        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx, idx, idx > 0 ? idx - 1 : idx, idx, LastX, OffsetY, Highlight, Control::Type::BACK));
 
         return Controls;
-    }
-
-    int FindControl(std::vector<Button> &controls, Control::Type control)
-    {
-        auto found = -1;
-
-        for (auto i = 0; i < controls.size(); i++)
-        {
-            if (controls[i].Type == control)
-            {
-                found = i;
-
-                break;
-            }
-        }
-
-        return found;
     }
 
     void RenderChoiceScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &Controls, int Current, Uint32 Bg)

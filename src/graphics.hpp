@@ -329,7 +329,7 @@ namespace Graphics
         }
         else if (control.Type == Control::Type::ABILITY)
         {
-            caption = "Use Ability";
+            caption = "Abilities";
         }
         else if (control.Type == Control::Type::MOVE)
         {
@@ -438,6 +438,18 @@ namespace Graphics
         else if (control.Type == Control::Type::CONTINUE)
         {
             caption = "Continue story";
+        }
+        else if (control.Type == Control::Type::USE)
+        {
+            caption = "Use";
+        }
+        else if (control.Type == Control::Type::TRANSFER)
+        {
+            caption = "Transfer";
+        }
+        else if (control.Type == Control::Type::DROP)
+        {
+            caption = "Drop";
         }
 
         if (caption.length() > 0)
@@ -716,7 +728,7 @@ namespace Graphics
         auto button = SDL_CreateRGBSurface(0, w, h, 32, bg == 0 ? 0x000000FF : 0, bg == 0 ? 0x0000FF00 : 0, bg == 0 ? 0x00FF0000 : 0, bg == 0 ? 0xFF000000 : 0);
 #endif
 
-        auto text_surface = Graphics::CreateText(text, font, font_size, color, w, TTF_STYLE_NORMAL);
+        auto text_surface = Glyphs::FormattedText(text, font, font_size, color, w);
 
         SDL_Surface *converted_text = NULL;
 

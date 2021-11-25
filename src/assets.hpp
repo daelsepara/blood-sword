@@ -24,7 +24,7 @@ namespace Assets
         Right,
         Down,
         Back,
-        UseAbility,
+        Ability,
         Move,
         Healing,
         Fight,
@@ -58,7 +58,9 @@ namespace Assets
         Game,
         Party,
         Stats,
-        Cast = 200,
+        Use,
+        Transfer,
+        Spells = 200,
         VolcanoSpray,
         Nighthowl,
         WhiteFire,
@@ -73,7 +75,7 @@ namespace Assets
         ServileEnthralment,
         EyeOfTheTigerIndividual,
         EyeOfTheTigerParty,
-        Enemy = 300,
+        Enemies = 300,
         Barbarian
     };
 

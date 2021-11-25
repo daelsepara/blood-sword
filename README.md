@@ -52,3 +52,17 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 - Trickster (**DONE**)
 - Sage (**DONE**)
 - Enchanter (**DONE**)
+
+## Debugging
+
+** Testing Combat **
+
+```
+./BloodSword.exe combat
+```
+
+** Jump to story section in Book 1 **
+
+```
+./BloodSword.exe [section number]
+```

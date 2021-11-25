@@ -29,6 +29,12 @@ namespace Equipment
         Any = 0
     };
 
+    enum class Mode
+    {
+        USE,
+        DROP
+    };
+
     class Base
     {
     public:
