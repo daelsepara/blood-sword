@@ -4982,13 +4982,17 @@ namespace Interface
 
         auto Selection = std::vector<int>();
 
-        if (Equipment.size() > Party.Members[Character].Encumbrance)
-        {
-            Mode = Equipment::Mode::DROP;
-        }
-        
         while (!done)
         {
+            if (Equipment.size() > Party.Members[Character].Encumbrance)
+            {
+                Mode = Equipment::Mode::DROP;
+            }
+            else
+            {
+                Mode = Equipment::Mode::USE;
+            }
+
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
@@ -6061,6 +6065,15 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::CONTINUE && !Hold)
                         {
+                            // handle encumbrance
+                            for (auto i = 0; i < Party.Members.size(); i++)
+                            {
+                                while (Party.Members[i].Equipment.size() > Party.Members[i].Encumbrance)
+                                {
+                                    Interface::ItemScreen(Window, Renderer, Controls, Party, Story, Screen, Text, Offset, i, Equipment::Mode::DROP);
+                                }
+                            }
+
                             auto Next = Interface::RenderChoices(Window, Renderer, Party, Story, Screen);
 
                             if (Next->Id != Story->Id || Story->Book != Next->Book)
