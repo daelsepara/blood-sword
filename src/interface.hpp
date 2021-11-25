@@ -4794,7 +4794,7 @@ namespace Interface
         Graphics::PutText(Renderer, title_string.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
 
         // text box
-        Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intGR);
+        Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intWH);
 
         if (!Story->Text.empty() && !Story->Image.empty() && Text)
         {
@@ -5451,13 +5451,13 @@ namespace Interface
                                 }
                             }
                         }
-
-                        Equipment.clear();
-
-                        Selection.clear();
-
-                        done = true;
                     }
+
+                    Equipment.clear();
+
+                    Selection.clear();
+
+                    done = true;
                 }
             }
         }
@@ -5650,7 +5650,7 @@ namespace Interface
         Interface::DisplayParty(Renderer, Party, Screen);
 
         // text box
-        Graphics::DrawRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intWH);
+        Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intWH);
 
         // render choice boxes
         for (auto i = 0; i < Controls.size(); i++)
@@ -5906,7 +5906,7 @@ namespace Interface
 
             auto Fg = clrBK;
             auto Bg = intGR;
-            auto Highlight = intWH;
+            auto Highlight = intBK;
 
             auto Controls = Interface::CreateChoices(Window, Renderer, Story->Choices, Screen, Offset, Last, Limit, Fg, Bg, Highlight);
 
@@ -6234,16 +6234,16 @@ namespace Interface
                         {
                             if (Text)
                             {
-                                if (Text->h >= (Screen.TextBounds - 2 * text_space))
+                                if (Text->h >= (Screen.TextBounds))
                                 {
-                                    if (Offset < (Text->h - Screen.TextBounds + 2 * text_space))
+                                    if (Offset < (Text->h - Screen.TextBounds))
                                     {
                                         Offset += ScrollSpeed;
                                     }
 
-                                    if (Offset > (Text->h - Screen.TextBounds + 2 * text_space))
+                                    if (Offset > (Text->h - Screen.TextBounds))
                                     {
-                                        Offset = Text->h - Screen.TextBounds + 2 * text_space;
+                                        Offset = Text->h - Screen.TextBounds;
                                     }
                                 }
                             }
