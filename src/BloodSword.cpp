@@ -45,7 +45,10 @@ int main(int argc, const char **argv)
         Assets::Load();
 
         auto story = 1;
-        auto combat = false;
+
+        auto combat1 = false;
+
+        auto combat2 = false;
 
         if (argc > 1)
         {
@@ -53,7 +56,11 @@ int main(int argc, const char **argv)
 
             if (compare(arg, "combat"))
             {
-                combat = true;
+                combat1 = true;
+            }
+            else if (compare(arg, "map"))
+            {
+                combat2 = true;
             }
             else
             {
@@ -62,7 +69,7 @@ int main(int argc, const char **argv)
         }
 
         // combat screen
-        if (combat)
+        if (combat1)
         {
             auto map = Map::Base();
 
@@ -71,6 +78,23 @@ int main(int argc, const char **argv)
             map.Convert(map_text, party, enemies);
 
             map.Save("maps/test.json");
+
+            Interface::CombatScreen(window, renderer, map, party, enemies);
+        }
+        else if (combat2)
+        {
+            auto map = Map::Base();
+
+            auto map_text = map.Read("maps/book1/map003.map");
+
+            map.Convert(map_text, party, enemies);
+
+            map.Save("maps/book1/map003.json");
+
+            map.Put(4, 0, Map::Object::Enemy, 0);
+            map.Put(0, 4, Map::Object::Enemy, 1);
+            map.Put(4, 8, Map::Object::Enemy, 2);
+            map.Put(8, 4, Map::Object::Enemy, 3);
 
             Interface::CombatScreen(window, renderer, map, party, enemies);
         }

@@ -644,6 +644,17 @@ namespace Interface
         Graphics::PutText(Renderer, std::string("EXPERIENCE: " + std::to_string(Character.ExperiencePoints)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 8 * (FontSize + 2));
     }
 
+    void ShowCoordinates(SDL_Renderer *Renderer, Map::Object Type, int X, int Y, TTF_Font *Font, int TextW, int TextX, int TextY)
+    {
+        auto FontSize = TTF_FontHeight(Font);
+
+        std::string Coordinates = "(" + std::to_string(X) + ", " + std::to_string(Y) + ")";
+
+        Graphics::PutText(Renderer, Coordinates.c_str(), Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY);
+
+        Graphics::PutText(Renderer, Map::Description[Type], Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, TextY + (FontSize + text_space));
+    }
+
     void CharacterSheet(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, TTF_Font *Font, int PlayerId)
     {
         Interface::CharacterSheet(Renderer, Party.Members[PlayerId], Font, Map.TextRightWidth, Map.TextRightX, Map.DrawY, intBK, false);
@@ -686,6 +697,19 @@ namespace Interface
 
             TextOffset++;
         }
+
+        auto LocationX = -1;
+
+        auto LocationY = -1;
+
+        Interface::Find(Map, Map::Object::Player, PlayerId, LocationX, LocationY);
+
+        if (Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
+        {
+            Interface::ShowCoordinates(Renderer, Map.Tiles[LocationY][LocationX].Type, LocationX, LocationY, Font, Map.TextRightWidth, Map.TextRightX - text_space, Map.DrawY + TextOffset * (FontSize + 2));
+
+            TextOffset += 2;
+        }
     }
 
     void EnemyData(SDL_Renderer *Renderer, Map::Base &Map, std::vector<Enemy::Base> &Enemies, TTF_Font *Font, int EnemyId)
@@ -722,13 +746,25 @@ namespace Interface
 
             RowOffset++;
         }
+
+        auto LocationX = -1;
+
+        auto LocationY = -1;
+
+        Interface::Find(Map, Map::Object::Enemy, EnemyId, LocationX, LocationY);
+
+        if (Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
+        {
+            Interface::ShowCoordinates(Renderer, Map.Tiles[LocationY][LocationX].Type, LocationX, LocationY, Font, Map.TextRightWidth, Map.TextRightX - text_space, Map.DrawY + RowOffset * (FontSize + 2));
+
+            RowOffset += 2;
+            ;
+        }
     }
 
     void ShowCoordinates(SDL_Renderer *Renderer, Map::Base &Map, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, int Current, int SelectedCombatant, TTF_Font *Font, int TextW, int TextX)
     {
         auto ControlType = Controls[Current].Type;
-
-        auto FontSize = TTF_FontHeight(Font);
 
         if ((SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()) && (ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT))
         {
@@ -736,11 +772,7 @@ namespace Interface
 
             auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
 
-            std::string Coordinates = "(" + std::to_string(SelectX) + ", " + std::to_string(SelectY) + ")";
-
-            Graphics::PutText(Renderer, Coordinates.c_str(), Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, Map.DrawY);
-
-            Graphics::PutText(Renderer, Map::Description[Map.Tiles[SelectY][SelectX].Type], Font, text_space, clrWH, intBK, TTF_STYLE_NORMAL, TextW, FontSize, TextX, Map.DrawY + (FontSize + text_space));
+            Interface::ShowCoordinates(Renderer, Map.Tiles[SelectY][SelectX].Type, SelectX, SelectY, Font, TextW, TextX, Map.DrawY);
         }
     }
 
@@ -2881,7 +2913,7 @@ namespace Interface
             {
                 if (ControlType == Control::Type::PLAYER)
                 {
-                    Graphics::PutText(Renderer, "View Party member", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                    Graphics::PutText(Renderer, "View party member", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
 
                     Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
@@ -2893,7 +2925,7 @@ namespace Interface
                 }
                 else
                 {
-                    Graphics::PutText(Renderer, ("Combat Round: " + std::to_string(CombatRound + 1)).c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                    Graphics::PutText(Renderer, ("Round: " + std::to_string(CombatRound + 1)).c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
                 }
             }
             else if (CurrentMode == Combat::Mode::MOVE)
@@ -3449,7 +3481,7 @@ namespace Interface
         Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
         Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
         Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
-        Controls.push_back(Button(10, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 5 ? BottomMapX + 5 : 10, 4, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
+        Controls.push_back(Button(10, Assets::Get(Assets::Type::Flee), 9, 4, Map.SizeX > 5 ? BottomMapX + 5 : 10, 4, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
 
         // generate controls within the map window
         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);

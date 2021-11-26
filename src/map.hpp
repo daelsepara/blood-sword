@@ -248,6 +248,27 @@ namespace Map
             }
         }
 
+        void Put(int x, int y, Map::Object object, int id)
+        {
+            if (x >= 0 && x < Width && y >= 0 && y < Height)
+            {
+                this->Tiles[y][x].Occupant = object;
+                this->Tiles[y][x].Id = id + 1;
+            }
+        }
+
+        void Put(int x, int y, Map::Object type, Assets::Type asset, bool isPassable, bool isPassableToEnemy)
+        {
+            if (x >= 0 && x < Width && y >= 0 && y < Height)
+            {
+                this->Tiles[y][x].Occupant = Map::Object::None;
+                this->Tiles[y][x].Type = type;
+                this->Tiles[y][x].Asset = asset;
+                this->Tiles[y][x].IsPassable = isPassable;
+                this->Tiles[y][x].IsPassableToEnemy = isPassableToEnemy;
+            }
+        }
+
         void Load(const char *filename, Party::Base &party, std::vector<Enemy::Base> &enemies)
         {
             std::vector<std::string> map = {};
