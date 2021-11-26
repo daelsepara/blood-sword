@@ -1936,8 +1936,6 @@ namespace Interface
                     RowOffset++;
                 }
 
-                auto ResultsY = (RowOffset + 6) * RowHeight + 4 * text_space;
-
                 // Enemy stats
                 Graphics::PutText(Renderer, Enemy.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
                 Graphics::PutText(Renderer, ("FPR: " + std::to_string(Enemy.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + RowHeight);
@@ -2004,15 +2002,15 @@ namespace Interface
                         Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                    Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
 
                     if (Attacked)
                     {
-                        Graphics::PutText(Renderer, (Enemy.Name + " hits the " + std::string(Character::ClassName[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                        Graphics::PutText(Renderer, (Enemy.Name + " hits the " + std::string(Character::ClassName[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 5) * RowHeight);
                     }
                     else
                     {
-                        Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Character.Class]) + " hits " + Enemy.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                        Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Character.Class]) + " hits " + Enemy.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 5) * RowHeight);
                     }
 
                     if (!CalculatedDamage)
@@ -2060,15 +2058,15 @@ namespace Interface
                             Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                         }
 
-                        Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                        Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
 
                         if (Attacked)
                         {
-                            Graphics::PutText(Renderer, (Enemy.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                            Graphics::PutText(Renderer, (Enemy.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 5) * RowHeight);
                         }
                         else
                         {
-                            Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Character.Class]) + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                            Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Character.Class]) + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 5) * RowHeight);
                         }
                     }
                     else
@@ -2079,7 +2077,7 @@ namespace Interface
                             Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                         }
 
-                        Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                        Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
 
                         if (!AssignedDamage)
                         {
@@ -2286,8 +2284,6 @@ namespace Interface
                 EnemyOffset++;
             }
 
-            auto ResultsY = (EnemyOffset + 6) * RowHeight + 4 * text_space;
-
             // Enemy stats
             Graphics::PutText(Renderer, Target.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY);
             Graphics::PutText(Renderer, ("FPR: " + std::to_string(Target.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + RowHeight);
@@ -2351,9 +2347,9 @@ namespace Interface
                     Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
-                Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
 
-                Graphics::PutText(Renderer, (Enemy.Name + " hits " + Target.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                Graphics::PutText(Renderer, (Enemy.Name + " hits " + Target.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 5) * RowHeight);
 
                 if (!CalculatedDamage)
                 {
@@ -2386,9 +2382,9 @@ namespace Interface
                         Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                    Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
 
-                    Graphics::PutText(Renderer, (Enemy.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY + RowHeight);
+                    Graphics::PutText(Renderer, (Enemy.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 5) * RowHeight);
                 }
                 else
                 {
@@ -2398,7 +2394,7 @@ namespace Interface
                         Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
+                    Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
 
                     if (!AssignedDamage)
                     {
