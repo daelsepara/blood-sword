@@ -1,7 +1,8 @@
 #ifndef __MAP_HPP__
 #define __MAP_HPP__
 
-#include "BloodSword.hpp"
+#include <fstream>
+#include "party.hpp"
 
 namespace Map
 {

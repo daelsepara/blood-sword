@@ -8,7 +8,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#include "globals.hpp"
+#include "fonts.hpp"
 
 namespace Glyphs
 {

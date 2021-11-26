@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "spell.hpp"
+#include "character.hpp"
 
 namespace Enemy
 {

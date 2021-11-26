@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "book.hpp"
-#include "character.hpp"
 #include "codeword.hpp"
 #include "enemy.hpp"
 

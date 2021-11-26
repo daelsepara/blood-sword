@@ -1,7 +1,31 @@
 #ifndef __GLOBALS_HPP__
 #define __GLOBALS_HPP__
 
+// Standard Libraries
+#include <chrono>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <tuple>
+#include <vector>
+
+namespace fs = std::filesystem;
+
+// Using SDL
 #include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_mixer.h>
+#include <SDL_ttf.h>
+
+// JSON Library for loading/saving games
+#include "nlohmann/json.hpp"
 
 const char *FONT_BOOKMAN = "fonts/bookman-old-style.ttf";
 
