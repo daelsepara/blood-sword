@@ -758,21 +758,6 @@ namespace Interface
             Interface::ShowCoordinates(Renderer, Map.Tiles[LocationY][LocationX].Type, LocationX, LocationY, Font, Map.TextRightWidth, Map.TextRightX - text_space, Map.DrawY + RowOffset * (FontSize + 2));
 
             RowOffset += 2;
-            ;
-        }
-    }
-
-    void ShowCoordinates(SDL_Renderer *Renderer, Map::Base &Map, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, int Current, int SelectedCombatant, TTF_Font *Font, int TextW, int TextX)
-    {
-        auto ControlType = Controls[Current].Type;
-
-        if ((SelectedCombatant < 0 || SelectedCombatant >= Sequence.size()) && (ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT))
-        {
-            auto SelectX = Map.MapX + (Controls[Current].X - Map.DrawX) / Map.ObjectSize;
-
-            auto SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
-
-            Interface::ShowCoordinates(Renderer, Map.Tiles[SelectY][SelectX].Type, SelectX, SelectY, Font, TextW, TextX, Map.DrawY);
         }
     }
 
@@ -2888,6 +2873,8 @@ namespace Interface
 
         auto IsPlayer = std::get<0>(Sequence[CurrentCombatant]) == Map::Object::Player;
 
+        auto NoneSelected = (SelectedCombatant < 0 || SelectedCombatant >= Sequence.size());
+
         if (Current >= 0 && Current < Controls.size())
         {
             auto ControlType = Controls[Current].Type;
@@ -2903,21 +2890,28 @@ namespace Interface
                 SelectY = Map.MapY + (Controls[Current].Y - Map.DrawY) / Map.ObjectSize;
             }
 
-            Interface::ShowCoordinates(Renderer, Map, Controls, Sequence, Current, SelectedCombatant, Fonts::Normal, Map.TextWidth, Map.TextRightX);
+            if (ControlType == Control::Type::PLAYER && NoneSelected)
+            {
+                Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
+            }
+            else if (ControlType == Control::Type::ENEMY && NoneSelected)
+            {
+                Interface::EnemyData(Renderer, Map, Enemies, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
+            }
+            else if ((ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT) && NoneSelected)
+            {
+                Interface::ShowCoordinates(Renderer, Map.Tiles[SelectX][SelectY].Type, SelectX, SelectY, Fonts::Normal, Map.TextWidth, Map.TextRightX, Map.DrawY);
+            }
 
             if (CurrentMode == Combat::Mode::NORMAL)
             {
                 if (ControlType == Control::Type::PLAYER)
                 {
                     Graphics::PutText(Renderer, "View party member", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
-
-                    Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
                 else if (ControlType == Control::Type::ENEMY)
                 {
                     Graphics::PutText(Renderer, "View opponent", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
-
-                    Interface::EnemyData(Renderer, Map, Enemies, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
                 else
                 {
@@ -2972,29 +2966,12 @@ namespace Interface
                         }
                     }
                 }
-                else if (ControlType == Control::Type::PLAYER)
-                {
-                    Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
-                }
-                else if (ControlType == Control::Type::ENEMY)
-                {
-                    Interface::EnemyData(Renderer, Map, Enemies, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
-                }
             }
             else if (CurrentMode == Combat::Mode::ATTACK)
             {
                 if (ControlType == Control::Type::PLAYER || ControlType == Control::Type::ENEMY)
                 {
                     Graphics::PutText(Renderer, "Fight target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
-
-                    if (ControlType == Control::Type::PLAYER)
-                    {
-                        Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
-                    }
-                    else if (ControlType == Control::Type::ENEMY)
-                    {
-                        Interface::EnemyData(Renderer, Map, Enemies, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
-                    }
                 }
                 else
                 {
@@ -3006,15 +2983,6 @@ namespace Interface
                 if (ControlType == Control::Type::PLAYER || ControlType == Control::Type::ENEMY)
                 {
                     Graphics::PutText(Renderer, "Shoot at target", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
-
-                    if (ControlType == Control::Type::PLAYER)
-                    {
-                        Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
-                    }
-                    else if (ControlType == Control::Type::ENEMY)
-                    {
-                        Interface::EnemyData(Renderer, Map, Enemies, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
-                    }
                 }
                 else
                 {
@@ -3030,8 +2998,6 @@ namespace Interface
                     std::string cast = "Cast " + Party.Members[PlayerId].Spells[SelectedSpell].Name + " on target";
 
                     Graphics::PutText(Renderer, cast.c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
-
-                    Interface::EnemyData(Renderer, Map, Enemies, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
             }
             else if (CurrentMode == Combat::Mode::CAST && ControlType == Control::Type::PLAYER)
@@ -3043,8 +3009,6 @@ namespace Interface
                     std::string cast = "Cast " + Party.Members[PlayerId].Spells[SelectedSpell].Name + " on target";
 
                     Graphics::PutText(Renderer, cast.c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
-
-                    Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
             }
             else if (CurrentMode == Combat::Mode::CAST)
@@ -3180,7 +3144,7 @@ namespace Interface
         // size of viewable grid
         Map.SizeX = (SCREEN_WIDTH - 2 * PaddingX) / Map.ObjectSize;
 
-        Map.SizeY = (SCREEN_HEIGHT - 2 * PaddingY) / Map.ObjectSize;
+        Map.SizeY = (SCREEN_HEIGHT - PaddingY) / Map.ObjectSize;
 
         if (Map.SizeX > Map.Width)
         {
