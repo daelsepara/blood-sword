@@ -567,7 +567,7 @@ namespace Interface
         return Distances;
     }
 
-    Interface::Targets SelectTarget(Map::Base &Map, Party::Base &Party, int EnemyId)
+    Interface::Targets SelectTarget(Map::Base &Map, Party::Base &Party, int EnemyId, bool ignore)
     {
         Interface::Targets NearestPlayer = {-1, -1, -1};
 
@@ -580,7 +580,7 @@ namespace Interface
 
         Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
-        Distances = Interface::CycleTargets(Map, Party, EnemyX, EnemyY, false);
+        Distances = Interface::CycleTargets(Map, Party, EnemyX, EnemyY, ignore);
 
         if (Distances.size() > 0)
         {
@@ -3067,8 +3067,8 @@ namespace Interface
 
                 if (!Enemies[SelectedId].Enthraled)
                 {
-                    // Show potential target
-                    auto NearestPlayer = Interface::SelectTarget(Map, Party, SelectedId);
+                    // show potential target
+                    auto NearestPlayer = Interface::SelectTarget(Map, Party, SelectedId, Enemies[SelectedId].CanShoot);
 
                     auto PlayerId = std::get<0>(NearestPlayer);
 
@@ -4620,7 +4620,7 @@ namespace Interface
 
                     Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
-                    auto NearestPlayer = Interface::SelectTarget(Map, Party, GetId(CurrentCombatant));
+                    auto NearestPlayer = Interface::SelectTarget(Map, Party, GetId(CurrentCombatant), Enemies[EnemyId].CanShoot);
 
                     auto PlayerId = Target(NearestPlayer);
 
