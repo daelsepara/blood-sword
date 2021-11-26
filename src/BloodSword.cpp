@@ -66,7 +66,11 @@ int main(int argc, const char **argv)
         {
             auto map = Map::Base();
 
-            map.Load("maps/test.map", party, enemies);
+            auto map_text = map.Read("maps/test.map");
+
+            map.Convert(map_text, party, enemies);
+
+            map.Save("maps/test.json");
 
             Interface::CombatScreen(window, renderer, map, party, enemies);
         }

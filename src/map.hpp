@@ -1,7 +1,6 @@
 #ifndef __MAP_HPP__
 #define __MAP_HPP__
 
-#include <fstream>
 #include "party.hpp"
 
 namespace Map
@@ -202,6 +201,7 @@ namespace Map
                             Tiles[y][x].Type = Map::Object::Passable;
                             Tiles[y][x].Occupant = Map::Object::Player;
                             Tiles[y][x].IsPassable = true;
+                            Tiles[y][x].IsPassableToEnemy = true;
                             Tiles[y][x].Id = player + 1;
                         }
                         else if (enemy != std::string::npos && enemy >= 0 && enemy < enemies.size())
@@ -210,6 +210,7 @@ namespace Map
                             Tiles[y][x].Type = Map::Object::Passable;
                             Tiles[y][x].Occupant = Map::Object::Enemy;
                             Tiles[y][x].IsPassable = true;
+                            Tiles[y][x].IsPassableToEnemy = true;
                             Tiles[y][x].Id = enemy + 1;
                         }
                         else
@@ -277,7 +278,7 @@ namespace Map
             }
         }
 
-        std::vector<std::string> Load(const char *filename)
+        std::vector<std::string> Read(const char *filename)
         {
             std::vector<std::string> map = {};
 
@@ -296,6 +297,58 @@ namespace Map
             }
 
             return map;
+        }
+
+        // save into a json file
+        void Save(const char *filename)
+        {
+            nlohmann::json map;
+
+            map["width"] = this->Width;
+
+            map["height"] = this->Height;
+
+            nlohmann::json tiles;
+
+            for (auto y = 0; y < Height; y++)
+            {
+                std::vector<nlohmann::json> row;
+
+                for (auto x = 0; x < Width; x++)
+                {
+                    nlohmann::json tile;
+
+                    tile.emplace("type", this->Tiles[y][x].Type);
+                    tile.emplace("occupant", this->Tiles[y][x].Occupant);
+                    tile.emplace("asset", this->Tiles[y][x].Asset);
+                    tile.emplace("isPassable", this->Tiles[y][x].IsPassable);
+                    tile.emplace("isPassableToEnemy", this->Tiles[y][x].IsPassableToEnemy);
+                    tile.emplace("id", this->Tiles[y][x].Id);
+
+                    row.push_back(tile);
+                }
+
+                map["tiles"].push_back(row);
+            }
+
+            for (auto i = 0; i < this->Exits.size(); i++)
+            {
+                nlohmann::json exit;
+
+                exit.emplace("x", this->Exits[i].first);
+                exit.emplace("y", this->Exits[i].second);
+
+                map["exits"].push_back(exit);
+            }
+
+            std::ofstream file(filename);
+
+            if (file.is_open())
+            {
+                file << map.dump();
+
+                file.close();
+            }
         }
     };
 }
