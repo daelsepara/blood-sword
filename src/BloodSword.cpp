@@ -43,6 +43,8 @@ int main(int argc, const char **argv)
 
         auto combat2 = false;
 
+        auto combat3 = false;
+
         if (argc > 1)
         {
             std::string arg = argv[1];
@@ -51,9 +53,13 @@ int main(int argc, const char **argv)
             {
                 combat1 = true;
             }
-            else if (compare(arg, "ninja"))
+            else if (compare(arg, "shoot"))
             {
                 combat2 = true;
+            }
+            else if (compare(arg, "load"))
+            {
+                combat3 = true;
             }
             else
             {
@@ -74,7 +80,7 @@ int main(int argc, const char **argv)
             enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
             enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
             enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-            
+
             map.Convert(map_text, party, enemies);
 
             Interface::CombatScreen(window, renderer, map, party, enemies);
@@ -83,32 +89,47 @@ int main(int argc, const char **argv)
         {
             auto map = Map::Base();
 
-            auto map_text = map.Read("maps/book1/map003.map");
+            if (map.Load("maps/book1/map003.json"))
+            {
+                auto enemies = std::vector<Enemy::Base>();
 
-            auto enemies = std::vector<Enemy::Base>();
+                enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+                enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+                enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+                enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 4", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
 
-            enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-            enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-            enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-            enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 4", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+                enemies[0].CanMove = false;
+                enemies[1].CanMove = false;
+                enemies[2].CanMove = false;
+                enemies[3].CanMove = false;
+                enemies[0].CanShoot = true;
+                enemies[1].CanShoot = true;
+                enemies[2].CanShoot = true;
+                enemies[3].CanShoot = true;
 
-            enemies[0].CanMove = false;
-            enemies[1].CanMove = false;
-            enemies[2].CanMove = false;
-            enemies[3].CanMove = false;
-            enemies[0].CanShoot = true;
-            enemies[1].CanShoot = true;
-            enemies[2].CanShoot = true;
-            enemies[3].CanShoot = true;
+                map.Put(4, 0, Map::Object::Enemy, 0);
+                map.Put(0, 4, Map::Object::Enemy, 1);
+                map.Put(4, 8, Map::Object::Enemy, 2);
+                map.Put(8, 4, Map::Object::Enemy, 3);
 
-            map.Convert(map_text, party, enemies);
+                Interface::CombatScreen(window, renderer, map, party, enemies);
+            }
+        }
+        else if (combat3)
+        {
+            auto map = Map::Base();
 
-            map.Put(4, 0, Map::Object::Enemy, 0);
-            map.Put(0, 4, Map::Object::Enemy, 1);
-            map.Put(4, 8, Map::Object::Enemy, 2);
-            map.Put(8, 4, Map::Object::Enemy, 3);
+            if (map.Load("maps/test.json"))
+            {
+                auto enemies = std::vector<Enemy::Base>();
 
-            Interface::CombatScreen(window, renderer, map, party, enemies);
+                enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+                enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+                enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+                enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+
+                Interface::CombatScreen(window, renderer, map, party, enemies);
+            }
         }
         else
         {

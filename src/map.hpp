@@ -138,6 +138,8 @@ namespace Map
             {
                 Tiles[i] = std::vector<Map::Tile>(sizex);
             }
+
+            Exits.clear();
         }
 
         void Convert(std::vector<std::string> &map, Party::Base &party, std::vector<Enemy::Base> &enemies)
@@ -318,6 +320,89 @@ namespace Map
             }
 
             return map;
+        }
+
+        // load from json file
+        bool Load(const char *filename)
+        {
+            auto LoadError = false;
+
+            std::ifstream file(filename);
+
+            if (file.good())
+            {
+                auto data = nlohmann::json::parse(file);
+
+                this->Width = !data["width"].is_null() ? (int)data["width"] : 0;
+
+                this->Height = !data["height"].is_null() ? (int)data["height"] : 0;
+
+                auto LoadError = false;
+
+                if (this->Width > 0 && this->Height > 0)
+                {
+                    this->Initialize(this->Width, this->Height);
+
+                    if (!data["tiles"].is_null() && data["tiles"].is_array() && data["tiles"].size() == this->Height)
+                    {
+                        for (auto y = 0; y < this->Height; y++)
+                        {
+                            if (!data["tiles"][y].is_null() && data["tiles"][y].is_array() && data["tiles"][y].size() == this->Width)
+                            {
+                                for (auto x = 0; x < this->Width; x++)
+                                {
+                                    this->Tiles[y][x].Type = !data["tiles"][y][x]["type"].is_null() ? static_cast<Map::Object>((int)data["tiles"][y][x]["type"]) : Map::Object::None;
+                                    this->Tiles[y][x].Occupant = !data["tiles"][y][x]["occupant"].is_null() ? static_cast<Map::Object>((int)data["tiles"][y][x]["occupant"]) : Map::Object::None;
+                                    this->Tiles[y][x].Asset = !data["tiles"][y][x]["asset"].is_null() ? static_cast<Assets::Type>((int)data["tiles"][y][x]["asset"]) : Assets::Type::None;
+                                    this->Tiles[y][x].IsPassable = !data["tiles"][y][x]["isPassable"].is_null() ? (bool)data["tiles"][y][x]["isPassable"] : false;
+                                    this->Tiles[y][x].IsPassableToEnemy = !data["tiles"][y][x]["isPassableToEnemy"].is_null() ? (bool)data["tiles"][y][x]["isPassableToEnemy"] : false;
+                                    this->Tiles[y][x].Id = !data["tiles"][y][x]["id"].is_null() ? (int)data["tiles"][y][x]["id"] : 0;
+                                }
+                            }
+                            else
+                            {
+                                LoadError = true;
+
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LoadError = true;
+                    }
+
+                    if (!data["exits"].is_null() && data["exits"].is_array() && data["exits"].size() > 0)
+                    {
+                        for (auto i = 0; i < data["exits"].size(); i++)
+                        {
+                            auto x = !data["exits"][i]["x"].is_null() ? (int)data["exits"][i]["x"] : -1;
+                            auto y = !data["exits"][i]["y"].is_null() ? (int)data["exits"][i]["y"] : -1;
+
+                            if (x >= 0 && x < this->Width && y >= 0 && y < this->Height)
+                            {
+                                this->Exits.push_back({x, y});
+                            }
+                            else
+                            {
+                                LoadError = true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    LoadError = true;
+                }
+
+                file.close();
+            }
+            else
+            {
+                LoadError = true;
+            }
+
+            return !LoadError;
         }
 
         // save into a json file
