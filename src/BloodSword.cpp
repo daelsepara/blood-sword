@@ -77,8 +77,6 @@ int main(int argc, const char **argv)
 
             map.Convert(map_text, party, enemies);
 
-            map.Save("maps/test.json");
-
             Interface::CombatScreen(window, renderer, map, party, enemies);
         }
         else if (combat2)
@@ -88,8 +86,6 @@ int main(int argc, const char **argv)
             auto map_text = map.Read("maps/book1/map003.map");
 
             map.Convert(map_text, party, enemies);
-
-            map.Save("maps/book1/map003.json");
 
             map.Put(4, 0, Map::Object::Enemy, 0);
             map.Put(0, 4, Map::Object::Enemy, 1);
