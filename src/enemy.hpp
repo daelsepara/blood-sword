@@ -11,7 +11,8 @@ namespace Enemy
     enum class Type
     {
         None = 0,
-        Barbarian
+        Barbarian,
+        NinjaAssassin
     };
 
     class Base

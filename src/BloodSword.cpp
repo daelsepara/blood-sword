@@ -35,13 +35,6 @@ int main(int argc, const char **argv)
         party.Members.push_back(Character::Create(Character::Class::Sage, 2));
         party.Members.push_back(Character::Create(Character::Class::Enchanter, 2));
 
-        auto enemies = std::vector<Enemy::Base>();
-
-        enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-        enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-        enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-        enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-
         Assets::Load();
 
         auto story = 1;
@@ -58,7 +51,7 @@ int main(int argc, const char **argv)
             {
                 combat1 = true;
             }
-            else if (compare(arg, "map"))
+            else if (compare(arg, "ninja"))
             {
                 combat2 = true;
             }
@@ -75,6 +68,13 @@ int main(int argc, const char **argv)
 
             auto map_text = map.Read("maps/test.map");
 
+            auto enemies = std::vector<Enemy::Base>();
+
+            enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+            enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+            enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+            enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+            
             map.Convert(map_text, party, enemies);
 
             Interface::CombatScreen(window, renderer, map, party, enemies);
@@ -84,6 +84,22 @@ int main(int argc, const char **argv)
             auto map = Map::Base();
 
             auto map_text = map.Read("maps/book1/map003.map");
+
+            auto enemies = std::vector<Enemy::Base>();
+
+            enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+            enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+            enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+            enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 4", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+
+            enemies[0].CanMove = false;
+            enemies[1].CanMove = false;
+            enemies[2].CanMove = false;
+            enemies[3].CanMove = false;
+            enemies[0].CanShoot = true;
+            enemies[1].CanShoot = true;
+            enemies[2].CanShoot = true;
+            enemies[3].CanShoot = true;
 
             map.Convert(map_text, party, enemies);
 

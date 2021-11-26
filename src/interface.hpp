@@ -477,9 +477,9 @@ namespace Interface
     {
         if (CurrentMove > 0 && CurrentMove < CurrentPath.Points.size())
         {
-            auto TargetX = CurrentPath.Points.back().X - Map.MapX;
+            auto TargetX = CurrentPath.Points.back().X;
 
-            auto TargetY = CurrentPath.Points.back().Y - Map.MapY;
+            auto TargetY = CurrentPath.Points.back().Y;
 
             SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
 
@@ -487,21 +487,21 @@ namespace Interface
 
             for (auto i = CurrentMove; i < CurrentPath.Points.size() - 1; i++)
             {
-                auto X = CurrentPath.Points[i].X - Map.MapX;
+                auto X = CurrentPath.Points[i].X;
 
-                auto Y = CurrentPath.Points[i].Y - Map.MapY;
+                auto Y = CurrentPath.Points[i].Y;
 
-                if (Interface::IsVisible(Map, X + Map.MapX, Y + Map.MapY))
+                if (Interface::IsVisible(Map, X, Y))
                 {
-                    Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + X * Map.ObjectSize, Map.DrawY + Y * Map.ObjectSize, Color);
+                    Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + (X - Map.MapX) * Map.ObjectSize, Map.DrawY + (Y - Map.MapY) * Map.ObjectSize, Color);
                 }
             }
 
             SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
 
-            if (Interface::IsVisible(Map, TargetX + Map.MapX, TargetY + Map.MapY))
+            if (Interface::IsVisible(Map, TargetX, TargetY))
             {
-                Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + TargetX * Map.ObjectSize + 2 * border_pts, Map.DrawY + TargetY * Map.ObjectSize + 2 * border_pts, color, border_pts);
+                Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (TargetX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (TargetY - Map.MapY) * Map.ObjectSize + 2 * border_pts, color, border_pts);
             }
         }
     }
@@ -3129,15 +3129,15 @@ namespace Interface
                             }
                             else
                             {
-                                if (Interface::IsVisible(Map, LocationX + Map.MapX, LocationY + Map.MapY))
+                                if (Interface::IsVisible(Map, LocationX, LocationY))
                                 {
                                     SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
 
-                                    Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + LocationX * Map.ObjectSize, Map.DrawY + LocationY * Map.ObjectSize, O(intWH, 0x66));
+                                    Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + (LocationX - Map.MapX) * Map.ObjectSize, Map.DrawY + (LocationY - Map.MapY) * Map.ObjectSize, O(intGR, 0x66));
 
                                     SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
 
-                                    Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + LocationX * Map.ObjectSize + 2 * border_pts, Map.DrawY + LocationY * Map.ObjectSize + 2 * border_pts, intWH, border_pts);
+                                    Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (LocationX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (LocationY - Map.MapY) * Map.ObjectSize + 2 * border_pts, intWH, border_pts);
                                 }
                             }
                         }
