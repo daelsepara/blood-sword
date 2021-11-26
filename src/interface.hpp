@@ -2900,7 +2900,7 @@ namespace Interface
             }
             else if ((ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT) && NoneSelected)
             {
-                Interface::ShowCoordinates(Renderer, Map.Tiles[SelectX][SelectY].Type, SelectX, SelectY, Fonts::Normal, Map.TextWidth, Map.TextRightX, Map.DrawY);
+                Interface::ShowCoordinates(Renderer, Map.Tiles[SelectY][SelectX].Type, SelectX, SelectY, Fonts::Normal, Map.TextWidth, Map.TextRightX, Map.DrawY);
             }
 
             if (CurrentMode == Combat::Mode::NORMAL)

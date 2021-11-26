@@ -72,7 +72,7 @@ namespace Map
 
         bool IsExit()
         {
-            return Type == Map::Object::Exit;
+            return (Type == Map::Object::Exit || Type == Map::Object::Stairs);
         }
 
         bool IsOccupied()
@@ -186,7 +186,7 @@ namespace Map
                         else if (map[y][x] == Map::Stairs)
                         {
                             Tiles[y][x].Asset = Assets::Type::Stairs;
-                            Tiles[y][x].Type = Map::Object::Exit;
+                            Tiles[y][x].Type = Map::Object::Stairs;
 
                             Exits.push_back(std::make_pair(x, y));
                         }
