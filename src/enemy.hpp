@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "assets.hpp"
 #include "spell.hpp"
 
 namespace Enemy

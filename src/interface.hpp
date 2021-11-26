@@ -1,8 +1,6 @@
 #ifndef __INTERFACE_HPP__
 #define __INTERFACE_HPP__
 
-#include "graphics.hpp"
-
 #include "book1.hpp"
 
 namespace Interface
@@ -3088,11 +3086,27 @@ namespace Interface
 
                         if (Interface::ValidX(Map, EnemyX) && Interface::ValidY(Map, EnemyY) && Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
                         {
-                            auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
-
-                            if (EnemyPath.Points.size() > 2)
+                            if (Enemies[SelectedId].CanMove)
                             {
-                                Interface::DrawPath(Renderer, Map, EnemyPath, 1, intGR, 0x66);
+                                auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
+
+                                if (EnemyPath.Points.size() > 2)
+                                {
+                                    Interface::DrawPath(Renderer, Map, EnemyPath, 1, intGR, 0x66);
+                                }
+                            }
+                            else
+                            {
+                                if (Interface::IsVisible(Map, LocationX + Map.MapX, LocationY + Map.MapY))
+                                {
+                                    SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+
+                                    Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + LocationX * Map.ObjectSize, Map.DrawY + LocationY * Map.ObjectSize, O(intWH, 0x66));
+
+                                    SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
+
+                                    Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + LocationX * Map.ObjectSize + 2 * border_pts, Map.DrawY + LocationY * Map.ObjectSize + 2 * border_pts, intWH, border_pts);
+                                }
                             }
                         }
                     }

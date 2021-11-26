@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "abilities.hpp"
-#include "assets.hpp"
 #include "attributes.hpp"
 #include "equipment.hpp"
 #include "spell.hpp"

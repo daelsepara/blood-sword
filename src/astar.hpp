@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "map.hpp"
+#include "graphics.hpp"
 
 // A C++ version of A* pathfinding algorithm from https://dotnetcoretutorials.com/2020/07/25/a-search-pathfinding-algorithm-in-c/
 // Most of the comments from the original version are preserved and/or have minor modifications.

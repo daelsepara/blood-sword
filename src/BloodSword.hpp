@@ -29,27 +29,10 @@ namespace fs = std::filesystem;
 
 // Blood Sword includes
 #include "globals.hpp"
-#include "abilities.hpp"
-#include "assets.hpp"
-#include "attributes.hpp"
-#include "book.hpp"
-#include "character.hpp"
-#include "controls.hpp"
 #include "combat.hpp"
-#include "equipment.hpp"
 #include "fonts.hpp"
 #include "glyphs.hpp"
-#include "input.hpp"
-#include "enemy.hpp"
 #include "party.hpp"
 #include "random.hpp"
-#include "spell.hpp"
-
-// Map
-#include "map.hpp"
-#include "astar.hpp"
-
-// Utilities
-#include "engine.hpp"
 
 #endif

@@ -1,8 +1,7 @@
 #ifndef __ENGINE_HPP__
 #define __ENGINE_HPP__
 
-#include "party.hpp"
-#include "random.hpp"
+#include "astar.hpp"
 
 namespace Engine
 {
