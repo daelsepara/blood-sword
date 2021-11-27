@@ -149,6 +149,84 @@ namespace Book1
         }
     };
 
+    class Story005 : public Story::Base
+    {
+    public:
+        Story005()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 5;
+
+            Text = "You slip down through the rock like a ghost, feeling the solid surroundings only as a faint chill against your skin. It is rather like sinking through thick, cold tar.\n\nAt last Kief's spell brings you to the lower levels of the Battlepits. You emerge from a rough stone ceiling and drift gently down to solidify on a set of crude steps. An up-draught from below brings a stifling dank heat.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 356}; };
+    };
+
+    class Story006 : public Story::Base
+    {
+    public:
+        Engine::Destination Destination = {};
+
+        Story006()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 6;
+
+            Text = "You wrench up the grating and drop lithely to the floor in the midst of the astonished Barbarians. They reach for their axes, but they are taken by surprise.\n\n<b>NOTE</b>\n\nYou get one free action before the normal sequence of combat begins.";
+
+            MapFile = "maps/book1/map006.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            SurprisedEnemy = true;
+
+            Enemies.clear();
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+        }
+
+        void SetupCombat(Map::Base &Map, Party::Base &Party)
+        {
+            Map.Put(2, 2, Map::Object::Enemy, 0);
+            Map.Put(3, 3, Map::Object::Enemy, 1);
+            Map.Put(2, 5, Map::Object::Enemy, 2);
+            Map.Put(3, 5, Map::Object::Enemy, 3);
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            Choices.clear();
+
+            if (Result == Combat::Result::ESCAPED)
+            {
+                Destination = {Book::Type::Book1, 43};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 191};
+            }
+        }
+
+        Engine::Destination Continue(Party::Base &Party)
+        {
+            return Destination;
+        }
+    };
+
     class Story018 : public Story::Base
     {
     public:
@@ -249,6 +327,8 @@ namespace Book1
     auto story002 = Story002();
     auto story003 = Story003();
     auto story004 = Story004();
+    auto story005 = Story005();
+    auto story006 = Story006();
     auto story018 = Story018();
     auto story058 = Story058();
     auto story069 = Story069();
@@ -258,7 +338,7 @@ namespace Book1
     void InitializeStories()
     {
         Book1::Stories = {
-            &story001, &story002, &story003, &story004,
+            &story001, &story002, &story003, &story004, &story005, &story006,
             &story018,
             &story058,
             &story069,

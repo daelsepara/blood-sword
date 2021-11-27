@@ -418,7 +418,7 @@ namespace Interface
 
         auto IsValidX = Interface::ValidX(Map, AttackerX) && Interface::ValidX(Map, DefenderX);
 
-        auto IsValidY = Interface::ValidY(Map, AttackerY) && Interface::ValidX(Map, DefenderY);
+        auto IsValidY = Interface::ValidY(Map, AttackerY) && Interface::ValidY(Map, DefenderY);
 
         return IsValidX && IsValidY && Interface::Distance(AttackerX, AttackerY, DefenderX, DefenderY) <= 1;
     }
@@ -462,7 +462,7 @@ namespace Interface
         {
             Enemy::Base &Enemy = Enemies[i];
 
-            if (Engine::IsAlive(Enemy) && Interface::IsAdjacent(Map, PlayerId, i) && Enemy.Awareness >= Engine::Awareness(character))
+            if (Engine::IsAlive(Enemy) && Interface::IsAdjacent(Map, PlayerId, i) && Enemy.Awareness >= Engine::Awareness(character) && !character.ActFirst)
             {
                 WasAttacked = true;
 
@@ -3107,8 +3107,10 @@ namespace Interface
         }
     }
 
-    Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies)
+    Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, Story::Base *Story, Map::Base &Map, Party::Base &Party)
     {
+        std::vector<Enemy::Base> &Enemies = Story->Enemies;
+
         auto Exit = false;
 
         auto FlashMessage = false;
@@ -3216,6 +3218,8 @@ namespace Interface
 
         auto QuickThinkingRound = false;
 
+        auto ActFirstRound = (Story->SurprisedEnemy || Story->SurprisedByEnemy) ? true : false;
+
         auto IsPlayer = [&](int id)
         {
             return std::get<0>(Sequence[id]) == Map::Object::Player;
@@ -3261,6 +3265,35 @@ namespace Interface
             return next;
         };
 
+        auto NextFirst = [&]()
+        {
+            auto next = 0;
+
+            for (auto i = 0; i < Sequence.size(); i++)
+            {
+                if (IsPlayer(i) && Story->SurprisedEnemy)
+                {
+                    if (Party.Members[GetId(i)].ActFirst)
+                    {
+                        next = i;
+
+                        break;
+                    }
+                }
+                else if (IsEnemy(i) && Story->SurprisedByEnemy)
+                {
+                    if (Enemies[GetId(i)].ActFirst)
+                    {
+                        next = i;
+
+                        break;
+                    }
+                }
+            }
+
+            return next;
+        };
+
         auto Controls = std::vector<Button>();
 
         auto CycleCombatants = [&]()
@@ -3274,6 +3307,11 @@ namespace Interface
                     Party.Members[GetId(CurrentCombatant)].UsedQuickThinking = true;
                 }
 
+                if (ActFirstRound && Party.Members[GetId(CurrentCombatant)].ActFirst)
+                {
+                    Party.Members[GetId(CurrentCombatant)].ActFirst = false;
+                }
+
                 if (!QuickThinkingRound)
                 {
                     Engine::UpdateSpellStatus(Party.Members[GetId(CurrentCombatant)], CombatRound);
@@ -3285,6 +3323,11 @@ namespace Interface
                 if (Enemies[GetId(CurrentCombatant)].KnockedOff)
                 {
                     Enemies[GetId(CurrentCombatant)].KnockedOff = false;
+                }
+
+                if (ActFirstRound && Enemies[GetId(CurrentCombatant)].ActFirst)
+                {
+                    Enemies[GetId(CurrentCombatant)].ActFirst = false;
                 }
 
                 if (!QuickThinkingRound)
@@ -3302,7 +3345,28 @@ namespace Interface
                     break;
                 }
 
-                if (QuickThinkingRound)
+                if (ActFirstRound)
+                {
+                    if (Story->SurprisedEnemy && Engine::ActingFirst(Party))
+                    {
+                        CurrentCombatant = NextFirst();
+                    }
+                    else if (Story->SurprisedByEnemy && Engine::ActingFirst(Story->Enemies))
+                    {
+                        CurrentCombatant = NextFirst();
+                    }
+                    else
+                    {
+                        Interface::RenderMessage(Renderer, Controls, Map, intBK, "Surprise attack ends!", intGR);
+
+                        ActFirstRound = false;
+
+                        CurrentCombatant = 0;
+
+                        Current = 0;
+                    }
+                }
+                else if (QuickThinkingRound)
                 {
                     if (Engine::QuickThinking(Party))
                     {
@@ -3327,8 +3391,18 @@ namespace Interface
 
                     if (CurrentCombatant >= Sequence.size())
                     {
-                        if (Engine::KnockedOff(Enemies))
+                        if (ActFirstRound && Story->SurprisedEnemy && Engine::ActingFirst(Party))
                         {
+                            CurrentCombatant = NextFirst();
+                        }
+                        else if (ActFirstRound && Story->SurprisedByEnemy && Engine::ActingFirst(Story->Enemies))
+                        {
+                            CurrentCombatant = NextFirst();
+                        }
+                        else if (Engine::KnockedOff(Enemies))
+                        {
+                            ActFirstRound = false;
+
                             KnockedOffSequence(Sequence, Enemies);
 
                             CurrentCombatant = 0;
@@ -3336,6 +3410,8 @@ namespace Interface
                         else if (Engine::QuickThinking(Party))
                         {
                             Interface::RenderMessage(Renderer, Controls, Map, intBK, "Quick thinking round begins!", intGR);
+
+                            ActFirstRound = false;
 
                             QuickThinkingRound = true;
 
@@ -3346,6 +3422,8 @@ namespace Interface
                         else
                         {
                             SortCombatants(Sequence);
+
+                            ActFirstRound = false;
 
                             QuickThinkingRound = false;
 
@@ -3447,6 +3525,27 @@ namespace Interface
 
         // generate controls within the map window
         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+
+        // setup surprise first round attacks
+        Engine::NormalCombat(Party);
+        
+        Engine::NormalCombat(Story->Enemies);
+
+        if (ActFirstRound)
+        {
+            if (Story->SurprisedEnemy)
+            {
+                Engine::ActFirst(Party);
+            }
+            else if (Story->SurprisedByEnemy)
+            {
+                Engine::ActFirst(Story->Enemies);
+            }
+
+            CurrentCombatant = NextFirst();
+
+            Interface::RenderMessage(Renderer, Controls, Map, intBK, "Surprise attack begins!", intGR);
+        }
 
         if (Window && Renderer && Map.Width > 0 && Map.Height > 0)
         {
@@ -6505,7 +6604,7 @@ namespace Interface
                                 {
                                     Story->SetupCombat(Map, Party);
 
-                                    Result = Interface::CombatScreen(Window, Renderer, Map, Party, Story->Enemies);
+                                    Result = Interface::CombatScreen(Window, Renderer, Story, Map, Party);
 
                                     if (Result == Combat::Result::NONE)
                                     {

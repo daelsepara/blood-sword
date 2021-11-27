@@ -230,11 +230,15 @@ namespace Story
 
         std::vector<Choice::Base> Choices = {};
 
-        std::vector<Enemy::Base> Enemies = {};
-
         std::vector<Equipment::Base> Equipment = {};
 
         int Limit = 0;
+
+        bool SurprisedEnemy = false;
+
+        bool SurprisedByEnemy = false;
+
+        std::vector<Enemy::Base> Enemies = {};
 
         Story::Controls Controls = Story::Controls::None;
 

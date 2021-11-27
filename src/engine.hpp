@@ -435,6 +435,62 @@ namespace Engine
         return result;
     }
 
+    bool ActingFirst(Party::Base &party)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]) && party.Members[i].ActFirst)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool ActingFirst(std::vector<Enemy::Base> &enemies)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < enemies.size(); i++)
+        {
+            if (Engine::IsAlive(enemies[i]) && enemies[i].ActFirst)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    void ActFirst(Party::Base &party)
+    {
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]))
+            {
+                party.Members[i].ActFirst = true;
+            }
+        }
+    }
+
+    void ActFirst(std::vector<Enemy::Base> &enemies)
+    {
+        for (auto i = 0; i < enemies.size(); i++)
+        {
+            if (Engine::IsAlive(enemies[i]))
+            {
+                enemies[i].ActFirst = true;
+            }
+        }
+    }
+
     bool KnockedOff(std::vector<Enemy::Base> &enemys)
     {
         auto result = false;
@@ -480,6 +536,25 @@ namespace Engine
             party.Members[i].IsDefending = false;
         }
     }
+
+    void NormalCombat(Party::Base &party)
+    {
+        // clear act first flag
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            party.Members[i].ActFirst = false;
+        }
+    }
+
+    void NormalCombat(std::vector<Enemy::Base> &enemies)
+    {
+        // clear act first flag
+        for (auto i = 0; i < enemies.size(); i++)
+        {
+            enemies[i].ActFirst = false;
+        }
+    }
+
 
     int Find(Character::Base &character, Spell::Type spell)
     {

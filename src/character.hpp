@@ -75,6 +75,9 @@ namespace Character
 
         Assets::Type Asset = Assets::Type::None;
 
+        // acts first before normal combat sequence
+        bool ActFirst = false;
+
         Base()
         {
         }
