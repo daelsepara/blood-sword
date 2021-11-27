@@ -777,9 +777,13 @@ namespace Interface
                           {
                               return true;
                           }
-                          else
+                          else if (std::get<0>(a) == Map::Object::Enemy && std::get<0>(b) == Map::Object::Player)
                           {
                               return false;
+                          }
+                          else
+                          {
+                              return true;
                           }
                       }
                       else
@@ -3109,6 +3113,9 @@ namespace Interface
 
     Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, Story::Base *Story, Map::Base &Map, Party::Base &Party)
     {
+        // remove non-existent players and enemies
+        Map.Clean(Party, Story->Enemies);
+
         std::vector<Enemy::Base> &Enemies = Story->Enemies;
 
         auto Exit = false;
@@ -6697,6 +6704,150 @@ namespace Interface
         ProcessStory(Window, Renderer, Party, Story);
     }
 
+    Party::Base CreateParty(SDL_Window *Window, SDL_Renderer *Renderer)
+    {
+        auto Party = Party::Base();
+
+        if (Window && Renderer)
+        {
+            auto FontSize = TTF_FontHeight(Fonts::Normal);
+
+            auto Selection = std::vector<int>();
+
+            auto Controls = std::vector<Button>();
+
+            auto CurrentCharacter = 0;
+
+            auto GridSize = (buttonw + 4 * text_space);
+
+            auto ButtonX = (SCREEN_WIDTH - 6 * GridSize) / 2;
+
+            auto ButtonY = SCREEN_HEIGHT - (buttonh + FontSize + 4 * text_space);
+
+            auto BackgroundWidth = 3 * SCREEN_WIDTH / 5;
+            auto BackgroundHeight = 10 * FontSize;
+
+            Controls.push_back(Button(0, Assets::Get(Assets::Type::Warrior), 0, 1, 0, 0, ButtonX, ButtonY, intWH, Control::Type::WARRIOR));
+            Controls.push_back(Button(1, Assets::Get(Assets::Type::Trickster), 0, 2, 1, 1, ButtonX + GridSize, ButtonY, intWH, Control::Type::TRICKSTER));
+            Controls.push_back(Button(2, Assets::Get(Assets::Type::Sage), 1, 3, 2, 2, ButtonX + 2 * GridSize, ButtonY, intWH, Control::Type::SAGE));
+            Controls.push_back(Button(3, Assets::Get(Assets::Type::Enchanter), 2, 4, 3, 3, ButtonX + 3 * GridSize, ButtonY, intWH, Control::Type::ENCHANTER));
+            Controls.push_back(Button(4, Assets::Get(Assets::Type::Ok), 3, 5, 4, 4, ButtonX + 4 * GridSize, ButtonY, intWH, Control::Type::CONFIRM));
+            Controls.push_back(Button(5, Assets::Get(Assets::Type::Back), 4, 5, 5, 5, ButtonX + 5 * GridSize, ButtonY, intWH, Control::Type::BACK));
+
+            std::vector<Character::Class> Classes = {Character::Class::Warrior, Character::Class::Trickster, Character::Class::Sage, Character::Class::Enchanter};
+
+            auto Hold = false;
+            auto Selected = false;
+            auto ScrollUp = false;
+            auto ScrollDown = false;
+            auto Current = 0;
+            auto Done = false;
+
+            auto SelectText = Graphics::CreateText("Choose adventurers to add to your party", Fonts::Normal, clrGR, TTF_STYLE_NORMAL);
+
+            while (!Done)
+            {
+                Graphics::FillWindow(Renderer, intBK);
+
+                if (Current >= 0 && Current < Classes.size())
+                {
+                    CurrentCharacter = Current;
+                }
+
+                if (CurrentCharacter >= 0 && CurrentCharacter < Classes.size())
+                {
+                    Graphics::RenderImage(Renderer, SelectText, (SCREEN_WIDTH - SelectText->w) / 2, (SCREEN_HEIGHT - BackgroundHeight) / 2 - (SelectText->h + 3 * text_space));
+
+                    Graphics::PutText(Renderer, (std::string(Character::ClassName[Classes[CurrentCharacter]]) + "\n\n" + std::string(Character::Description[Classes[CurrentCharacter]])).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, BackgroundWidth, BackgroundHeight, (SCREEN_WIDTH - BackgroundWidth) / 2, (SCREEN_HEIGHT - BackgroundHeight) / 2);
+
+                    Graphics::ThickRect(Renderer, BackgroundWidth + 2 * text_space, BackgroundHeight + 2 * text_space, (SCREEN_WIDTH - (BackgroundWidth + 2 * text_space)) / 2, (SCREEN_HEIGHT - (BackgroundHeight + 2 * text_space)) / 2, intGR, border_pts);
+                }
+
+                Graphics::RenderButtons(Renderer, Controls, Current, 0, border_pts);
+
+                for (auto i = 0; i < Classes.size(); i++)
+                {
+                    if (Engine::InList(Selection, i) && i != Current)
+                    {
+                        Graphics::ThickRect(Renderer, Controls[i].W, Controls[i].H, Controls[i].X, Controls[i].Y, intGR, border_pts);
+                    }
+                }
+
+                if (Current >= 0 && Current < Controls.size())
+                {
+                    Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
+                }
+
+                Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+                if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+                {
+                    if (Current >= 0 && Current < Classes.size() && !Hold)
+                    {
+                        if (!Engine::InList(Selection, Current))
+                        {
+                            Selection.push_back(Current);
+                        }
+                        else
+                        {
+                            Engine::Erase(Selection, Current);
+                        }
+                    }
+                    else if (Controls[Current].Type == Control::Type::CONFIRM && !Hold)
+                    {
+                        if (Selection.size() > 0)
+                        {
+                            Party.Members.clear();
+
+                            auto Rank = 8;
+
+                            if (Selection.size() <= 1)
+                            {
+                                Rank = 8;
+                            }
+                            else if (Selection.size() == 2)
+                            {
+                                Rank = 4;
+                            }
+                            else if (Selection.size() == 3)
+                            {
+                                Rank = 3;
+                            }
+                            else if (Selection.size() >= 4)
+                            {
+                                Rank = 2;
+                            }
+
+                            for (auto i = 0; i < Selection.size(); i++)
+                            {
+                                Party.Members.push_back(Character::Create(Classes[Selection[i]], Rank));
+                            }
+                        }
+
+                        Done = true;
+                    }
+                    else if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                    {
+                        Done = true;
+
+                        Current = -1;
+
+                        Selected = false;
+                    }
+                }
+            }
+
+            if (SelectText)
+            {
+                SDL_FreeSurface(SelectText);
+
+                SelectText = NULL;
+            }
+        }
+
+        return Party;
+    }
+
     void MainScreen(SDL_Window *Window, SDL_Renderer *Renderer, Engine::Destination Destination)
     {
         // initialize books
@@ -6722,14 +6873,13 @@ namespace Interface
 
         auto Authors = Graphics::CreateText("DAVE MORRIS & OLIVER JOHNSON's", Fonts::Normal, clrWH, TTF_STYLE_NORMAL);
         auto Logo = Graphics::CreateImage("images/blood-sword.png");
-        
+
         auto Hold = false;
         auto Selected = false;
         auto ScrollUp = false;
         auto ScrollDown = false;
         auto Current = 0;
         auto Done = false;
-        
 
         if (Window && Renderer)
         {
@@ -6755,14 +6905,12 @@ namespace Interface
                     if (Controls[Current].Type == Control::Type::NEW && !Hold)
                     {
                         // TODO: select number and composition of party
-                        auto Party = Party::Base();
+                        auto Party = Interface::CreateParty(Window, Renderer);
 
-                        Party.Members.push_back(Character::Create(Character::Class::Warrior, 2));
-                        Party.Members.push_back(Character::Create(Character::Class::Trickster, 2));
-                        Party.Members.push_back(Character::Create(Character::Class::Sage, 2));
-                        Party.Members.push_back(Character::Create(Character::Class::Enchanter, 2));
-
-                        Interface::StoryScreen(Window, Renderer, Party, Destination);
+                        if (Party.Members.size() > 0)
+                        {
+                            Interface::StoryScreen(Window, Renderer, Party, Destination);
+                        }
 
                         Current = -1;
 

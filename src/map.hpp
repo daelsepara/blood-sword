@@ -456,6 +456,32 @@ namespace Map
                 file.close();
             }
         }
+
+        void Clean(Party::Base &party, std::vector<Enemy::Base> &enemies)
+        {
+            for (auto y = 0; y < this->Height; y++)
+            {
+                for (auto x = 0; x < this->Width; x++)
+                {
+                    Map::Object &Occupant = Tiles[y][x].Occupant;
+                    
+                    int &Id =  Tiles[y][x].Id;
+
+                    if (Occupant == Map::Object::Player && Id > party.Members.size())
+                    {
+                        Occupant = Map::Object::None;
+
+                        Id = 0;
+                    }
+                    else if (Occupant == Map::Object::Enemy && Id > enemies.size())
+                    {
+                        Occupant = Map::Object::None;
+
+                        Id = 0;
+                    }
+                }
+            }
+        }
     };
 }
 #endif

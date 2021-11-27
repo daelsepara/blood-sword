@@ -459,6 +459,10 @@ namespace Graphics
         {
             caption = "Take item";
         }
+        else if (control.Type == Control::Type::CONFIRM)
+        {
+            caption = "Confirm Selection";
+        }
 
         if (caption.length() > 0)
         {

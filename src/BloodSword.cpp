@@ -27,14 +27,6 @@ int main(int argc, const char **argv)
 
     if (window && renderer)
     {
-        // setup party, enemies, and map
-        auto party = Party::Base();
-
-        party.Members.push_back(Character::Create(Character::Class::Warrior, 2));
-        party.Members.push_back(Character::Create(Character::Class::Trickster, 2));
-        party.Members.push_back(Character::Create(Character::Class::Sage, 2));
-        party.Members.push_back(Character::Create(Character::Class::Enchanter, 2));
-
         Assets::Load();
 
         auto story = 1;
@@ -80,58 +72,13 @@ int main(int argc, const char **argv)
         // combat screen
         if (combat1)
         {
-            auto map = Map::Base();
+            auto party = Interface::CreateParty(window, renderer);
 
-            auto map_text = map.Read("maps/test.map");
-
-            auto story = Story::Base();
-
-            story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-            story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-            story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-            story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-
-            map.Convert(map_text, party, story.Enemies);
-
-            Interface::CombatScreen(window, renderer, &story, map, party);
-        }
-        else if (combat2)
-        {
-            auto map = Map::Base();
-
-            if (map.Load("maps/book1/map003.json"))
+            if (party.Members.size() > 0)
             {
-                auto story = Story::Base();
+                auto map = Map::Base();
 
-                story.Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-                story.Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-                story.Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-                story.Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 4", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-
-                story.Enemies[0].CanMove = false;
-                story.Enemies[1].CanMove = false;
-                story.Enemies[2].CanMove = false;
-                story.Enemies[3].CanMove = false;
-                story.Enemies[0].CanShoot = true;
-                story.Enemies[1].CanShoot = true;
-                story.Enemies[2].CanShoot = true;
-                story.Enemies[3].CanShoot = true;
-
-                map.Put(4, 0, Map::Object::Enemy, 0);
-                map.Put(0, 4, Map::Object::Enemy, 1);
-                map.Put(4, 8, Map::Object::Enemy, 2);
-                map.Put(8, 4, Map::Object::Enemy, 3);
-
-                Interface::CombatScreen(window, renderer, &story, map, party);
-            }
-        }
-        else if (combat3)
-        {
-            auto map = Map::Base();
-
-            if (map.Load("maps/test.json"))
-            {
-                auto enemies = std::vector<Enemy::Base>();
+                auto map_text = map.Read("maps/test.map");
 
                 auto story = Story::Base();
 
@@ -140,11 +87,73 @@ int main(int argc, const char **argv)
                 story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
                 story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
 
+                map.Convert(map_text, party, story.Enemies);
+
                 Interface::CombatScreen(window, renderer, &story, map, party);
+            }
+        }
+        else if (combat2)
+        {
+            auto party = Interface::CreateParty(window, renderer);
+
+            if (party.Members.size() > 0)
+            {
+                auto map = Map::Base();
+
+                if (map.Load("maps/book1/map003.json"))
+                {
+                    auto story = Story::Base();
+
+                    story.Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+                    story.Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+                    story.Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+                    story.Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 4", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+
+                    story.Enemies[0].CanMove = false;
+                    story.Enemies[1].CanMove = false;
+                    story.Enemies[2].CanMove = false;
+                    story.Enemies[3].CanMove = false;
+                    story.Enemies[0].CanShoot = true;
+                    story.Enemies[1].CanShoot = true;
+                    story.Enemies[2].CanShoot = true;
+                    story.Enemies[3].CanShoot = true;
+
+                    map.Put(4, 0, Map::Object::Enemy, 0);
+                    map.Put(0, 4, Map::Object::Enemy, 1);
+                    map.Put(4, 8, Map::Object::Enemy, 2);
+                    map.Put(8, 4, Map::Object::Enemy, 3);
+
+                    Interface::CombatScreen(window, renderer, &story, map, party);
+                }
+            }
+        }
+        else if (combat3)
+        {
+            auto party = Interface::CreateParty(window, renderer);
+
+            if (party.Members.size() > 0)
+            {
+                auto map = Map::Base();
+
+                if (map.Load("maps/test.json"))
+                {
+                    auto enemies = std::vector<Enemy::Base>();
+
+                    auto story = Story::Base();
+
+                    story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+                    story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+                    story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+                    story.Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
+
+                    Interface::CombatScreen(window, renderer, &story, map, party);
+                }
             }
         }
         else if (convert)
         {
+            auto party = Party::Base();
+
             auto map = Map::Base();
 
             auto map_string = map.Read((map_file).c_str());

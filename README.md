@@ -6,6 +6,10 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 
 ## Current Progress
 
+**Create Party**
+
+![Create Party](/screenshots/create-party.png)
+
 **Combat Screen**
 
 ![Combat Screen](/screenshots/combat-screen.png)
