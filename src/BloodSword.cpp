@@ -169,10 +169,7 @@ int main(int argc, const char **argv)
         }
         else
         {
-            // Story Screen
-            Book1::InitializeStories();
-
-            Interface::StoryScreen(window, renderer, party, {Book::Type::Book1, story});
+            Interface::MainScreen(window, renderer, {Book::Type::Book1, story});
         }
 
         Assets::Unload();

@@ -6696,5 +6696,103 @@ namespace Interface
 
         ProcessStory(Window, Renderer, Party, Story);
     }
+
+    void MainScreen(SDL_Window *Window, SDL_Renderer *Renderer, Engine::Destination Destination)
+    {
+        // initialize books
+        Book1::InitializeStories();
+
+        Control::Type ControlTypes[4] = {Control::Type::NEW, Control::Type::LOAD, Control::Type::ENCYCLOPEDIA, Control::Type::EXIT};
+
+        const char *MainChoices[4] = {"NEW GAME", "LOAD GAME", "ABOUT", "EXIT"};
+
+        auto TextButtonX = (SCREEN_WIDTH - 4 * (text_buttonw + text_space)) / 2;
+
+        auto TextButtonY = SCREEN_HEIGHT - (text_buttonh + 6 * text_space);
+
+        auto Controls = Graphics::CreateFixedTextButtons(MainChoices, 4, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+
+        for (auto i = 0; i < Controls.size(); i++)
+        {
+            Controls[i].Fg = clrWH;
+            Controls[i].Highlight = intGR;
+            Controls[i].Color = intBK;
+            Controls[i].Type = ControlTypes[i];
+        }
+
+        auto Authors = Graphics::CreateText("DAVE MORRIS & OLIVER JOHNSON's", Fonts::Normal, clrWH, TTF_STYLE_NORMAL);
+        auto Logo = Graphics::CreateImage("images/blood-sword.png");
+        
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+        auto Done = false;
+        
+
+        if (Window && Renderer)
+        {
+            while (!Done)
+            {
+                Graphics::FillWindow(Renderer, intBK);
+
+                if (Logo && Authors)
+                {
+                    auto LogoY = (TextButtonY - (Logo->h + Authors->h + text_space)) / 2;
+
+                    Graphics::RenderImage(Renderer, Authors, (SCREEN_WIDTH - Authors->w) / 2, LogoY);
+
+                    Graphics::RenderImage(Renderer, Logo, (SCREEN_WIDTH - Logo->w) / 2, LogoY + (Authors->h + text_space));
+                }
+
+                Graphics::RenderTextButtons(Renderer, Controls, Fonts::Normal, Current, TTF_STYLE_NORMAL);
+
+                Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+                if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+                {
+                    if (Controls[Current].Type == Control::Type::NEW && !Hold)
+                    {
+                        // TODO: select number and composition of party
+                        auto Party = Party::Base();
+
+                        Party.Members.push_back(Character::Create(Character::Class::Warrior, 2));
+                        Party.Members.push_back(Character::Create(Character::Class::Trickster, 2));
+                        Party.Members.push_back(Character::Create(Character::Class::Sage, 2));
+                        Party.Members.push_back(Character::Create(Character::Class::Enchanter, 2));
+
+                        Interface::StoryScreen(Window, Renderer, Party, Destination);
+
+                        Current = -1;
+
+                        Selected = false;
+                    }
+                    else if (Controls[Current].Type == Control::Type::EXIT && !Hold)
+                    {
+                        Done = true;
+
+                        Current = -1;
+
+                        Selected = false;
+                    }
+                }
+            }
+        }
+
+        if (Logo)
+        {
+            SDL_FreeSurface(Logo);
+
+            Logo = NULL;
+        }
+
+        if (Authors)
+        {
+            SDL_FreeSurface(Authors);
+
+            Authors = NULL;
+        }
+    }
 }
 #endif

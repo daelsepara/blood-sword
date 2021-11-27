@@ -1,5 +1,7 @@
 # Blood Sword (Work-In-Progress)
 
+![Main Screen](/screenshots/main-screen.png)
+
 This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Oliver Johnson.
 
 ## Current Progress

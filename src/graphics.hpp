@@ -9,6 +9,8 @@ namespace Graphics
     SDL_Surface *CreateHeaderButton(SDL_Window *window, const char *font, int font_size, const char *text, SDL_Color color, Uint32 bg, int w, int h, int x);
     SDL_Surface *CreateImage(const char *image);
     SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
+    SDL_Surface *CreateText(const char *text, TTF_Font *font, SDL_Color textColor, int style);
+    SDL_Surface *CreateText(const char *text, TTF_Font *font, SDL_Color textColor, int wrap, int style);
     SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style);
     SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style, bool bottom);
 
@@ -29,6 +31,7 @@ namespace Graphics
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset);
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y);
     void RenderTextButtons(SDL_Renderer *renderer, std::vector<TextButton> controls, const char *ttf, int current, int fontsize, int style);
+    void RenderTextButtons(SDL_Renderer *renderer, std::vector<TextButton> controls, TTF_Font *font, int current, int style);
     void SetWindowIcon(SDL_Window *window, const char *icon);
     void StretchImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int w, int h);
     void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts);
@@ -645,50 +648,69 @@ namespace Graphics
         }
     }
 
+    void RenderTextButtons(SDL_Renderer *renderer, std::vector<TextButton> controls, TTF_Font *font, int current, int style)
+    {
+        if (font)
+        {
+            auto fontsize = TTF_FontHeight(font);
+
+            if (controls.size() > 0)
+            {
+                for (auto i = 0; i < controls.size(); i++)
+                {
+                    auto text = Graphics::CreateText(controls[i].Text, font, controls[i].Fg, controls[i].W, style);
+
+                    auto x = controls[i].X + (controls[i].W - text->w) / 2;
+                    auto y = controls[i].Y + (controls[i].H - text->h) / 2;
+
+                    SDL_Rect rect;
+
+                    rect.w = controls[i].W;
+                    rect.h = controls[i].H;
+                    rect.x = controls[i].X;
+                    rect.y = controls[i].Y;
+
+                    if (i == current)
+                    {
+                        SDL_SetRenderDrawColor(renderer, R(controls[i].Highlight), G(controls[i].Highlight), B(controls[i].Highlight), A(controls[i].Highlight));
+                    }
+                    else
+                    {
+                        SDL_SetRenderDrawColor(renderer, R(controls[i].Color), G(controls[i].Color), B(controls[i].Color), A(controls[i].Color));
+                    }
+
+                    SDL_RenderFillRect(renderer, &rect);
+
+                    if (i == current)
+                    {
+                        Graphics::RenderText(renderer, text, controls[i].Highlight, x, y, 2 * fontsize, 0);
+                    }
+                    else
+                    {
+                        Graphics::RenderText(renderer, text, controls[i].Color, x, y, 2 * fontsize, 0);
+
+                        Graphics::DrawRect(renderer, controls[i].W, controls[i].H, controls[i].X, controls[i].Y, controls[i].Highlight);
+                    }
+
+                    SDL_FreeSurface(text);
+
+                    text = NULL;
+                }
+            }
+        }
+    }
+
     void RenderTextButtons(SDL_Renderer *renderer, std::vector<TextButton> controls, const char *ttf, int current, int fontsize, int style)
     {
-        if (controls.size() > 0)
+        auto font = TTF_OpenFont(ttf, fontsize);
+
+        if (font)
         {
-            for (auto i = 0; i < controls.size(); i++)
-            {
-                auto text = Graphics::CreateText(controls[i].Text, ttf, fontsize, controls[i].Fg, controls[i].W, style);
+            Graphics::RenderTextButtons(renderer, controls, font, current, style);
 
-                auto x = controls[i].X + (controls[i].W - text->w) / 2;
-                auto y = controls[i].Y + (controls[i].H - text->h) / 2;
+            TTF_CloseFont(font);
 
-                SDL_Rect rect;
-
-                rect.w = controls[i].W;
-                rect.h = controls[i].H;
-                rect.x = controls[i].X;
-                rect.y = controls[i].Y;
-
-                if (i == current)
-                {
-                    SDL_SetRenderDrawColor(renderer, R(controls[i].Highlight), G(controls[i].Highlight), B(controls[i].Highlight), A(controls[i].Highlight));
-                }
-                else
-                {
-                    SDL_SetRenderDrawColor(renderer, R(controls[i].Color), G(controls[i].Color), B(controls[i].Color), A(controls[i].Color));
-                }
-
-                SDL_RenderFillRect(renderer, &rect);
-
-                if (i == current)
-                {
-                    Graphics::RenderText(renderer, text, controls[i].Highlight, x, y, 2 * fontsize, 0);
-                }
-                else
-                {
-                    Graphics::RenderText(renderer, text, controls[i].Color, x, y, 2 * fontsize, 0);
-
-                    Graphics::DrawRect(renderer, controls[i].W, controls[i].H, controls[i].X, controls[i].Y, controls[i].Highlight);
-                }
-
-                SDL_FreeSurface(text);
-
-                text = NULL;
-            }
+            font = NULL;
         }
     }
 
@@ -868,6 +890,34 @@ namespace Graphics
         return surface;
     }
 
+    SDL_Surface *CreateText(const char *text, TTF_Font *font, SDL_Color textColor, int style)
+    {
+        SDL_Surface *surface = NULL;
+
+        if (font)
+        {
+            TTF_SetFontStyle(font, style);
+
+            surface = TTF_RenderText_Blended(font, text, textColor);
+        }
+
+        return surface;
+    }
+
+    SDL_Surface *CreateText(const char *text, TTF_Font *font, SDL_Color textColor, int wrap, int style)
+    {
+        SDL_Surface *surface = NULL;
+
+        if (font)
+        {
+            TTF_SetFontStyle(font, style);
+
+            surface = TTF_RenderText_Blended_Wrapped(font, text, textColor, wrap);
+        }
+
+        return surface;
+    }
+
     SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style)
     {
         SDL_Surface *surface = NULL;
@@ -876,9 +926,7 @@ namespace Graphics
 
         if (font)
         {
-            TTF_SetFontStyle(font, style);
-
-            surface = TTF_RenderText_Blended_Wrapped(font, text, textColor, wrap);
+            surface = Graphics::CreateText(text, font, textColor, wrap, style);
 
             TTF_CloseFont(font);
 
