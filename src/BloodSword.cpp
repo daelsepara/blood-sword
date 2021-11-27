@@ -45,6 +45,10 @@ int main(int argc, const char **argv)
 
         auto combat3 = false;
 
+        auto convert = false;
+
+        std::string map_file = "";
+
         if (argc > 1)
         {
             std::string arg = argv[1];
@@ -60,6 +64,12 @@ int main(int argc, const char **argv)
             else if (compare(arg, "load"))
             {
                 combat3 = true;
+            }
+            else if (compare(arg, "convert") && argc > 2)
+            {
+                convert = true;
+
+                map_file = argv[2];
             }
             else
             {
@@ -129,6 +139,30 @@ int main(int argc, const char **argv)
                 enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
 
                 Interface::CombatScreen(window, renderer, map, party, enemies);
+            }
+        }
+        else if (convert)
+        {
+            auto map = Map::Base();
+
+            auto map_string = map.Read((map_file).c_str());
+
+            auto enemies = std::vector<Enemy::Base>();
+
+            if (!map_string.empty())
+            {
+                map.Convert(map_string, party, enemies);
+
+                auto pos = map_file.find_last_of('.');
+
+                if (pos >= 0 && pos < map_file.length())
+                {
+                    map.Save((map_file.substr(0, pos) + ".json").c_str());
+                }
+                else
+                {
+                    map.Save((map_file + ".json").c_str());
+                }
             }
         }
         else
