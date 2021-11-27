@@ -3528,7 +3528,7 @@ namespace Interface
 
         // setup surprise first round attacks
         Engine::NormalCombat(Party);
-        
+
         Engine::NormalCombat(Story->Enemies);
 
         if (ActFirstRound)
@@ -6353,6 +6353,19 @@ namespace Interface
 
                                         DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!").c_str(), intBK);
                                     }
+                                }
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::Select)
+                            {
+                                auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, Story->Choices[Choice].SelectMessage.c_str()) : Engine::First(Party);
+
+                                if (Character >= 0 && Character < Party.Members.size())
+                                {
+                                    Party.LastSelected = Character;
+
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                    Done = true;
                                 }
                             }
                         }

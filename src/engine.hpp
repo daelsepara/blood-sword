@@ -203,6 +203,23 @@ namespace Engine
         return result;
     }
 
+    int First(Party::Base &party)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]))
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
     bool IsAlive(Party::Base &party)
     {
         auto result = false;

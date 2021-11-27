@@ -40,6 +40,11 @@ namespace Party
         Book::Type Book = Book::Type::None;
 
         int Story = 0;
+
+        // Last selected character
+        int LastSelected = -1;
+        // Last selected value
+        int LastValue = 0;
     };
 }
 #endif

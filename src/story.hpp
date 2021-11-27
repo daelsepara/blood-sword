@@ -23,7 +23,9 @@ namespace Choice
         Discharge,
         Pay,
         DropWeapon,
-        DropItem
+        DropItem,
+        Select,
+        SelectValue
     };
 
     class Base
@@ -48,6 +50,8 @@ namespace Choice
         Equipment::Item Item = Equipment::Item::Any;
 
         Equipment::Weapon Weapon = Equipment::Weapon::None;
+
+        std::string SelectMessage = "";
 
         std::string Text = "";
 
@@ -189,6 +193,17 @@ namespace Choice
             Type = type;
 
             Weapon = weapon;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Choice::Type type, std::string select)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Type = type;
+
+            SelectMessage = select;
         }
     };
 }

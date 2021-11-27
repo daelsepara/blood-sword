@@ -227,6 +227,69 @@ namespace Book1
         }
     };
 
+    class Story007 : public Story::Base
+    {
+    public:
+        Story007()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 7;
+
+            Image = "images/book1/filler2.png";
+
+            TopImage = true;
+
+            Text = "(TRICKSTER) A commanding voice rings out over the clash of swords and the screams of the crowd. A majestic, scarlet-robed figure sweeps forwards through the mob, which parts and shrinks away. The wounded guard lowers his sword. 'My lord,' he says, 'I was about to apprehend this common thief.'\n\n'Be silent,' commands the robed man. 'You were about to lose your life, you clumsy wretch. If you were in my service, I'd feed you to the nightgaunts. Begone!'\n\nThe red-robed man turns to you as the guard blanches, bows stiffly and is gone. He smiles coldly at you. 'Your fencing technique is passable, and may be more rewarding to you than your thievery.'";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; };
+    };
+
+    class Story008 : public Story::Base
+    {
+    public:
+        Story008()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 8;
+
+            Text = "You glance around. Far across the cavern you can see the end of a tunnel that leads further into the Battlepits. A faint, winking light can be seen at the end of it. The shore of the lake is covered with several large mounds made of piled stones. These look suspiciously like graves to you. You can also see in your torchlight a large block of opaque, murky ice, and beyond that there is the dull glow of red ritual candles that cast a dull glow on a bronze shrine that has been set up against one of the cavern walls. Fiercely burning braziers stand to either side of the shrine.\n\nYou now have a number of options.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Explore one of the mounds by clearing away some of the rocks", {Book::Type::Book1, 42}, Choice::Type::Select, "Assign adventurer to this task"));
+            Choices.push_back(Choice::Base("Approach the shrine", {Book::Type::Book1, 71}));
+            Choices.push_back(Choice::Base("Investigate the ice block", {Book::Type::Book1, 334}));
+            Choices.push_back(Choice::Base("Leave the cavern by the tunnel", {Book::Type::Book1, 279}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story009 : public Story::Base
+    {
+    public:
+        Story009()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 9;
+
+            Text = "(SAGE)\n\n<i>[The green potion is a healing draught. The black potion is chimera spittle, a delayed-action poison. The effervescent liquid is an antidote to chimera spittle. The slimy green potion is deadly. You cannot identify the colourless liquid.]</i>";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 103}; };
+    };
+
     class Story018 : public Story::Base
     {
     public:
@@ -329,6 +392,9 @@ namespace Book1
     auto story004 = Story004();
     auto story005 = Story005();
     auto story006 = Story006();
+    auto story007 = Story007();
+    auto story008 = Story008();
+    auto story009 = Story009();
     auto story018 = Story018();
     auto story058 = Story058();
     auto story069 = Story069();
@@ -338,7 +404,7 @@ namespace Book1
     void InitializeStories()
     {
         Book1::Stories = {
-            &story001, &story002, &story003, &story004, &story005, &story006,
+            &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009,
             &story018,
             &story058,
             &story069,
