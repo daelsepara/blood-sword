@@ -51,6 +51,7 @@ namespace Book1
             Choices.clear();
             Choices.push_back(Choice::Base("Slide back the mirror and see what lies beyond", {Book::Type::Book1, 379}));
             Choices.push_back(Choice::Base("Continue to the end of the corridor and try the bronze double doors", {Book::Type::Book1, 456}));
+            
             Controls = Story::Controls::Standard;
         }
 
@@ -262,7 +263,7 @@ namespace Book1
             Text = "You glance around. Far across the cavern you can see the end of a tunnel that leads further into the Battlepits. A faint, winking light can be seen at the end of it. The shore of the lake is covered with several large mounds made of piled stones. These look suspiciously like graves to you. You can also see in your torchlight a large block of opaque, murky ice, and beyond that there is the dull glow of red ritual candles that cast a dull glow on a bronze shrine that has been set up against one of the cavern walls. Fiercely burning braziers stand to either side of the shrine.\n\nYou now have a number of options.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Explore one of the mounds by clearing away some of the rocks", {Book::Type::Book1, 42}, Choice::Type::Select, "Assign adventurer to this task"));
+            Choices.push_back(Choice::Base("Explore one of the mounds by clearing away some of the rocks", {Book::Type::Book1, 42}, Choice::Type::Select, "Assign an adventurer to this task"));
             Choices.push_back(Choice::Base("Approach the shrine", {Book::Type::Book1, 71}));
             Choices.push_back(Choice::Base("Investigate the ice block", {Book::Type::Book1, 334}));
             Choices.push_back(Choice::Base("Leave the cavern by the tunnel", {Book::Type::Book1, 279}));
