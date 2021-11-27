@@ -16,7 +16,10 @@ namespace Choice
         Attribute,
         Character,
         Equipment,
-        Codeword
+        Codeword,
+        Shoot,
+        Discharge,
+        Pay
     };
 
     class Base
@@ -38,9 +41,15 @@ namespace Choice
 
         std::vector<Equipment::Base> Equipment = {};
 
+        std::vector<Equipment::Item> Items = {};
+
         std::string Text = "";
 
         std::string Bye = "";
+
+        int Charge = 0;
+
+        int Gold = 0;
 
         Base(const char *choice, Engine::Destination destination)
         {

@@ -49,7 +49,7 @@ namespace Book1
             TopImage = false;
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Slide back the mirror and see what lies beyond,", {Book::Type::Book1, 379}));
+            Choices.push_back(Choice::Base("Slide back the mirror and see what lies beyond", {Book::Type::Book1, 379}));
             Choices.push_back(Choice::Base("Continue to the end of the corridor and try the bronze double doors", {Book::Type::Book1, 456}));
             Controls = Story::Controls::Standard;
         }

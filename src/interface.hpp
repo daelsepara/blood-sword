@@ -5623,7 +5623,7 @@ namespace Interface
 
                 auto y = (i > 0 ? Controls[i - 1].Y + Controls[i - 1].H + 3 * text_space : Screen.TextBoxY + 2 * text_space);
 
-                Controls.push_back(Button(i, Graphics::CreateHeaderButton(Window, FONT_BOOKMAN, FontSize, Choices[index].Text.c_str(), Fg, Bg, Screen.TextWidth - 2 * text_space, FontSize * 2, text_space), i, i, (i > 0 ? i - 1 : i), i + 1, Screen.TextBoxX + 2 * text_space, y, Highlight, Control::Type::CHOICE));
+                Controls.push_back(Button(i, Graphics::CreateHeaderButton(Window, FONT_BOOKMAN, FontSize, Choices[index].Text.c_str(), Fg, Bg, Screen.TextWidth - 2 * text_space, (FontSize * 3 + text_space), text_space), i, i, (i > 0 ? i - 1 : i), i + 1, Screen.TextBoxX + 2 * text_space, y, Highlight, Control::Type::CHOICE));
 
                 Controls[i].W = Controls[i].Surface->w;
 
@@ -5951,7 +5951,7 @@ namespace Interface
             auto ScrollSpeed = 1;
 
             auto Offset = 0;
-            auto Limit = (Screen.TextBounds) / (2 * FontSize + 2 * text_space);
+            auto Limit = (Screen.TextBounds) / (2 * FontSize + 4 * text_space);
             auto Last = Offset + Limit;
 
             if (Last > Story->Choices.size())
