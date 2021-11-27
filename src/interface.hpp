@@ -614,7 +614,7 @@ namespace Interface
         auto Weapons = Engine::Equipment(Character, Attributes::Type::FightingProwess, true);
 
         auto FightingProwess = Engine::FightingProwess(Character) + (EquipmentFPR.size() > 0 ? EquipmentFPR[0].Score : 0) + (Weapons.size() > 0 ? Weapons[0].Score : 0);
-        auto PsychicAbility = Engine::PsychicAbility(Character) + (EquipmentPSY.size() > 0 ? EquipmentPSY[0].Score : 0);
+        auto PsychicAbility = Engine::PsychicAbility(Character) + (EquipmentPSY.size() > 0 ? EquipmentPSY[0].Score : 0) - Character.Spells.size();
         auto Awareness = Engine::Awareness(Character) + (EquipmentAWR.size() > 0 ? EquipmentAWR[0].Score : 0);
         auto Endurance = Engine::Endurance(Character);
         auto Armour = Engine::Armour(Character);
@@ -636,7 +636,7 @@ namespace Interface
         Graphics::PutText(Renderer, Character::ClassName[Character.Class], Font, 0, FlipColors ? clrBK : clrGR, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y);
         Graphics::PutText(Renderer, std::string("RANK: " + std::to_string(Character.Rank)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + (FontSize + 2));
         Graphics::PutText(Renderer, std::string("FIGHTING PROWESS: " + std::to_string(FightingProwess)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 2 * (FontSize + 2));
-        Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(PsychicAbility)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 3 * (FontSize + 2));
+        Graphics::PutText(Renderer, std::string("PSYCHIC ABILITY: " + std::to_string(PsychicAbility) + (Character.Spells.size() > 0 ? (" (-" + std::to_string(Character.Spells.size()) + ")") : "")).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 3 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("AWARENESS: " + std::to_string(Awareness)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 4 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("ENDURANCE: " + std::to_string(Endurance)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 5 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(Armour)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 6 * (FontSize + 2));
@@ -916,7 +916,7 @@ namespace Interface
         }
         else if (Attribute == Attributes::Type::PsychicAbility)
         {
-            AttributeValue = IsEnemy ? Enemy.PsychicAbility : (Engine::PsychicAbility(Character) + (Equipment.size() > 0 ? Equipment[0].Score : 0));
+            AttributeValue = IsEnemy ? Enemy.PsychicAbility : (Engine::PsychicAbility(Character) + (Equipment.size() > 0 ? Equipment[0].Score : 0) - Character.Spells.size());
         }
         else if (Attribute == Attributes::Type::Awareness)
         {
@@ -943,7 +943,7 @@ namespace Interface
                 Graphics::PutText(Renderer, Character::ClassName[Character.Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
             }
 
-            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
+            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue) + (Attribute == Attributes::Type::PsychicAbility && !IsEnemy && Character.Spells.size() > 0 ? (" (-" + std::to_string(Character.Spells.size()) + ")") : "")).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
 
             if (CurrentStage == Attributes::Stage::TEST && Result == Attributes::Result::NONE)
             {
@@ -972,6 +972,7 @@ namespace Interface
                 CurrentStage = Attributes::Stage::END;
             }
             else if (CurrentStage == Attributes::Stage::END)
+
             {
                 // show casting results
                 for (auto i = 0; i < TestRolls; i++)
@@ -4892,7 +4893,7 @@ namespace Interface
             auto Weapons = Engine::Equipment(Party.Members[i], Attributes::Type::FightingProwess, true);
 
             auto FightingProwess = Engine::FightingProwess(Party.Members[i]) + (EquipmentFPR.size() > 0 ? EquipmentFPR[0].Score : 0) + (Weapons.size() > 0 ? Weapons[0].Score : 0);
-            auto PsychicAbility = Engine::PsychicAbility(Party.Members[i]) + (EquipmentPSY.size() > 0 ? EquipmentPSY[0].Score : 0);
+            auto PsychicAbility = Engine::PsychicAbility(Party.Members[i]) + (EquipmentPSY.size() > 0 ? EquipmentPSY[0].Score : 0) - Party.Members[i].Spells.size();
             auto Awareness = Engine::Awareness(Party.Members[i]) + (EquipmentAWR.size() > 0 ? EquipmentAWR[0].Score : 0);
             auto Endurance = Engine::Endurance(Party.Members[i]);
             auto Armour = Engine::Armour(Party.Members[i]);
@@ -4905,7 +4906,7 @@ namespace Interface
             Graphics::PutText(Renderer, ("FPR: " + std::to_string(FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + FontSize);
             Graphics::PutText(Renderer, ("AWR: " + std::to_string(Awareness)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 3 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + FontSize);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 5 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + FontSize);
-            Graphics::PutText(Renderer, ("PSY: " + std::to_string(PsychicAbility)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + 2 * FontSize);
+            Graphics::PutText(Renderer, ("PSY: " + std::to_string(PsychicAbility) + (Party.Members[i].Spells.size() > 0 ? (" (-" + std::to_string(Party.Members[i].Spells.size()) + ")") : "")).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + 2 * FontSize);
             Graphics::PutText(Renderer, ("END: " + std::to_string(Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 3 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + 2 * FontSize);
             Graphics::PutText(Renderer, ("DMG: " + (std::to_string(Damage) + "D" + (DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier))).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + 5 * Screen.IconSize + 2 * text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + 2 * FontSize);
         }
@@ -5968,7 +5969,7 @@ namespace Interface
         }
         else if (Attribute == Attributes::Type::PsychicAbility)
         {
-            AttributeValue = (Engine::PsychicAbility(Party.Members[Character]) + (Equipment.size() > 0 ? Equipment[0].Score : 0));
+            AttributeValue = (Engine::PsychicAbility(Party.Members[Character]) + (Equipment.size() > 0 ? Equipment[0].Score : 0) - Party.Members[Character].Spells.size());
         }
         else if (Attribute == Attributes::Type::Awareness)
         {
@@ -5988,7 +5989,7 @@ namespace Interface
 
             Graphics::PutText(Renderer, Character::ClassName[Party.Members[Character].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
 
-            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
+            Graphics::PutText(Renderer, (std::string(Attributes::Description[Attribute]) + ": " + std::to_string(AttributeValue) + (Attribute == Attributes::Type::PsychicAbility && Party.Members[Character].Spells.size() > 0 ? (" (-" + std::to_string(Party.Members[Character].Spells.size())) : "")).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
 
             if (CurrentStage == Attributes::Stage::TEST && Result == Attributes::Result::NONE)
             {
