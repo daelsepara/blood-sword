@@ -280,7 +280,7 @@ namespace Book1
 
             Id = 9;
 
-            Text = "(SAGE)\n\n<i>[The green potion is a healing draught. The black potion is chimera spittle, a delayed-action poison. The effervescent liquid is an antidote to chimera spittle. The slimy green potion is deadly. You cannot identify the colourless liquid.]</i>";
+            Text = "(SAGE)\n\n<i>The green potion is a healing draught. The black potion is chimera spittle, a delayed-action poison. The effervescent liquid is an antidote to chimera spittle. The slimy green potion is deadly. You cannot identify the colourless liquid.</i>";
 
             Choices.clear();
 
