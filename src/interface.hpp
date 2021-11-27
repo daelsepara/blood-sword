@@ -5873,14 +5873,14 @@ namespace Interface
         {
             if (Start > 0)
             {
-                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Up), idx, idx, idx, idx + 1, SCREEN_WIDTH - (buttonw + 4 * text_space), (buttonh + 3 * text_space), Highlight, Control::Type::SCROLL_UP));
+                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Up), idx, idx, idx, idx + 1, SCREEN_WIDTH - (buttonw + 4 * text_space), (buttonh + 3 * text_space), Highlight == intBK ? intWH : Highlight, Control::Type::SCROLL_UP));
 
                 idx += 1;
             }
 
             if (Choices.size() - Last > 0)
             {
-                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Down), idx, idx, Start > 0 ? idx - 1 : idx, idx + 1, SCREEN_WIDTH - (buttonw + 4 * text_space), SCREEN_HEIGHT - 3 * (buttonh + 2 * text_space) + text_space, Highlight, Control::Type::SCROLL_DOWN));
+                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Down), idx, idx, Start > 0 ? idx - 1 : idx, idx + 1, SCREEN_WIDTH - (buttonw + 4 * text_space), SCREEN_HEIGHT - 3 * (buttonh + 2 * text_space) + text_space, Highlight == intBK ? intWH : Highlight, Control::Type::SCROLL_DOWN));
 
                 idx += 1;
             }
@@ -6129,7 +6129,7 @@ namespace Interface
             auto ScrollSpeed = 1;
 
             auto Offset = 0;
-            auto Limit = (Screen.TextBounds) / (2 * FontSize + 4 * text_space);
+            auto Limit = (Screen.TextBounds) / (3 * FontSize + 2 * text_space);
             auto Last = Offset + Limit;
 
             if (Last > Story->Choices.size())
@@ -6248,7 +6248,7 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    DisplayMessage(("No " + std::string(Character::ClassName[Story->Choices[Choice].Character]) + "s present in your party!").c_str(), intBK);
+                                    DisplayMessage((std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!").c_str(), intBK);
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::Attribute)
@@ -6274,7 +6274,7 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    DisplayMessage(("No " + std::string(Character::ClassName[Story->Choices[Choice].Character]) + "s present in your party!").c_str(), intBK);
+                                    DisplayMessage((std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!").c_str(), intBK);
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::Discharge)
