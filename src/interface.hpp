@@ -5892,7 +5892,7 @@ namespace Interface
         auto OffsetY = SCREEN_HEIGHT - 2 * (IconSize - text_space);
         auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * text_space);
 
-        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx, idx, idx > 0 ? idx - 1 : idx, idx, LastX, OffsetY, Highlight, Control::Type::BACK));
+        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx, idx, idx > 0 ? idx - 1 : idx, idx, LastX, OffsetY, Highlight == intBK ? intWH : Highlight, Control::Type::BACK));
 
         return Controls;
     }
