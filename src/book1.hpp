@@ -62,6 +62,73 @@ namespace Book1
         }
     };
 
+    class Story003 : public Story::Base
+    {
+    public:
+        Engine::Destination Destination = {};
+
+        Story003()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 3;
+
+            Text = "You ascend to the topmost chamber of the Blue Tower. Cold wind whistles in through the gothic windows. Suddenly a black-gloved hand appears on the window-sill and the masked face of an Assassin rises into view. The Assassins you fled from have climbed the outer wall of the Tower in their determination to slay you.\n\nNote: Any that you did not slay in the fight at the bottom of the Tower will now attempt again to murder you. By means of the arcane herbal drugs of their secret society, those that survived the earlier encounter have healed themselves.";
+
+            MapFile = "maps/book1/map003.json";
+
+            Choices.clear();
+            
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            // TODO: only the survivng assassins from previous section should be setup here
+            Enemies.clear();
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 4", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+
+            Enemies[0].CanMove = false;
+            Enemies[1].CanMove = false;
+            Enemies[2].CanMove = false;
+            Enemies[3].CanMove = false;
+            Enemies[0].CanShoot = true;
+            Enemies[1].CanShoot = true;
+            Enemies[2].CanShoot = true;
+            Enemies[3].CanShoot = true;
+        }
+
+        void SetupCombat(Map::Base &Map, Party::Base &Party)
+        {
+            Map.Put(4, 0, Map::Object::Enemy, 0);
+            Map.Put(0, 4, Map::Object::Enemy, 1);
+            Map.Put(4, 8, Map::Object::Enemy, 2);
+            Map.Put(8, 4, Map::Object::Enemy, 3);
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            Choices.clear();
+
+            if (Result == Combat::Result::ESCAPED)
+            {
+                Destination = {Book::Type::Book1, 513};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 226};
+            }
+        }
+
+        Engine::Destination Continue(Party::Base &Party)
+        {
+            return Destination;
+        }
+    };
+
     class Story018 : public Story::Base
     {
     public:
@@ -160,6 +227,7 @@ namespace Book1
 
     auto story001 = Story001();
     auto story002 = Story002();
+    auto story003 = Story003();
     auto story018 = Story018();
     auto story058 = Story058();
     auto story069 = Story069();
@@ -169,7 +237,7 @@ namespace Book1
     void InitializeStories()
     {
         Book1::Stories = {
-            &story001, &story002,
+            &story001, &story002, &story003,
             &story018,
             &story058,
             &story069,

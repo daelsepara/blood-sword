@@ -143,8 +143,6 @@ namespace Story
 
         std::string MapFile = "";
 
-        Map::Base Map = Map::Base();
-
         std::string Image = "";
 
         bool TopImage = true;
@@ -165,7 +163,8 @@ namespace Story
         virtual void Event(Party::Base &Party){};
         // Jump to next book/section
         virtual Engine::Destination Continue(Party::Base &Party) { return {Book::Type::None, 0}; };
-        // Handle special after combat events
+        // Event handlers for combat
+        virtual void SetupCombat(Map::Base &Map, Party::Base &Party){};
         virtual void AfterCombat(Party::Base &Party, Combat::Result Result){};
 
         Base()
@@ -225,7 +224,7 @@ namespace Story
 
             Id = -1;
 
-            Title = "Not implemented yet";
+            Text = "This section has not been implemented yet.";
 
             Controls = Story::Controls::None;
         }

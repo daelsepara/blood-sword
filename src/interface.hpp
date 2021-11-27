@@ -3109,6 +3109,8 @@ namespace Interface
 
     Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies)
     {
+        auto Exit = false;
+
         auto FlashMessage = false;
 
         auto FlashColor = intGR;
@@ -3448,9 +3450,9 @@ namespace Interface
 
         if (Window && Renderer && Map.Width > 0 && Map.Height > 0)
         {
-            auto done = false;
+            auto Done = false;
 
-            while (!done)
+            while (!Done)
             {
                 // check if out of bounds
                 if (Map.MapX < 0)
@@ -3582,9 +3584,11 @@ namespace Interface
 
                         if (Controls[Current].Type == Control::Type::EXIT && !Hold)
                         {
+                            Exit = true;
+
                             Current = -1;
 
-                            done = true;
+                            Done = true;
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_UP || ScrollUp)
                         {
@@ -4277,7 +4281,7 @@ namespace Interface
                         {
                             Current = -1;
 
-                            done = true;
+                            Done = true;
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_UP || ScrollUp)
                         {
@@ -4698,45 +4702,56 @@ namespace Interface
 
                 if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party) || Engine::Enthraled(Enemies))
                 {
-                    done = true;
+                    Done = true;
                 }
             }
         }
 
-        Engine::ClearDefendingStatus(Party);
-
-        Engine::ResetSpellDifficulty(Party);
-
-        // track Enemies who have survive
-        auto SurvivingEnemies = std::vector<Enemy::Base>();
-
-        for (auto i = 0; i < Enemies.size(); i++)
+        if (Exit)
         {
-            if (Engine::IsAlive(Enemies[i]))
+            return Combat::Result::NONE;
+        }
+        else
+        {
+            Engine::ClearDefendingStatus(Party);
+
+            Engine::ResetSpellDifficulty(Party);
+
+            // track Enemies who have survive
+            auto SurvivingEnemies = std::vector<Enemy::Base>();
+
+            for (auto i = 0; i < Enemies.size(); i++)
             {
-                SurvivingEnemies.push_back(Enemies[i]);
+                if (Engine::IsAlive(Enemies[i]))
+                {
+                    SurvivingEnemies.push_back(Enemies[i]);
+                }
+            }
+
+            Enemies.clear();
+
+            if (SurvivingEnemies.size() > 0)
+            {
+                Party.Enemies.push_back(Party::SurvivingEnemies(Party.Book, Party.Story, SurvivingEnemies));
+            }
+
+            if (Engine::Escaped(Party))
+            {
+                return Combat::Result::ESCAPED;
+            }
+            else if (Engine::Enthraled(Enemies))
+            {
+                return Combat::Result::ENTHRALED;
+            }
+            else if (Engine::IsAlive(Party))
+            {
+                return Combat::Result::VICTORY;
+            }
+            else
+            {
+                return Combat::Result::DEFEAT;
             }
         }
-
-        if (SurvivingEnemies.size() > 0)
-        {
-            Party.Enemies.push_back(Party::SurvivingEnemies(Party.Book, Party.Story, SurvivingEnemies));
-        }
-
-        if (Engine::Enthraled(Enemies))
-        {
-            return Combat::Result::ENTHRALED;
-        }
-        else if (Engine::Escaped(Party))
-        {
-            return Combat::Result::ESCAPED;
-        }
-        else if (Engine::IsAlive(Party))
-        {
-            return Combat::Result::VICTORY;
-        }
-
-        return Combat::Result::DEFEAT;
     }
 
     Story::Base *FindStory(Engine::Destination destination)
@@ -6321,35 +6336,71 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::CONTINUE && !Hold)
                         {
-                            if (Story->Equipment.size() > 0)
+                            if (!Story->MapFile.empty() && Story->Enemies.size() > 0)
                             {
-                                Interface::TakeScreen(Window, Renderer, Controls, Party, Story, Screen, Text, Offset);
-                            }
+                                auto Map = Map::Base();
 
-                            if (Story->Equipment.size() > 0)
-                            {
-                                continue;
-                            }
+                                auto Load = Map.Load(Story->MapFile.c_str());
 
-                            // handle encumbrance
-                            for (auto i = 0; i < Party.Members.size(); i++)
-                            {
-                                while (Party.Members[i].Equipment.size() > Party.Members[i].Encumbrance)
+                                auto Result = Combat::Result::NONE;
+
+                                if (Load)
                                 {
-                                    Interface::ItemScreen(Window, Renderer, Controls, Party, Story, Screen, Text, Offset, i, Equipment::Mode::DROP);
+                                    Story->SetupCombat(Map, Party);
+
+                                    Result = Interface::CombatScreen(Window, Renderer, Map, Party, Story->Enemies);
+
+                                    if (Result == Combat::Result::NONE)
+                                    {
+                                        Transition = true;
+
+                                        Quit = true;
+
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        Story->AfterCombat(Party, Result);
+                                    }
                                 }
                             }
 
-                            auto Next = Interface::RenderChoices(Window, Renderer, Party, Story, Screen);
-
-                            if (Next->Id != Story->Id || Story->Book != Next->Book)
+                            if (Engine::IsAlive(Party))
                             {
-                                Story = Next;
+                                if (Story->Equipment.size() > 0)
+                                {
+                                    Interface::TakeScreen(Window, Renderer, Controls, Party, Story, Screen, Text, Offset);
+                                }
 
-                                Transition = true;
+                                if (Story->Equipment.size() > 0)
+                                {
+                                    continue;
+                                }
+
+                                // handle encumbrance
+                                for (auto i = 0; i < Party.Members.size(); i++)
+                                {
+                                    while (Party.Members[i].Equipment.size() > Party.Members[i].Encumbrance)
+                                    {
+                                        Interface::ItemScreen(Window, Renderer, Controls, Party, Story, Screen, Text, Offset, i, Equipment::Mode::DROP);
+                                    }
+                                }
+
+                                auto Next = Interface::RenderChoices(Window, Renderer, Party, Story, Screen);
+
+                                if (Next->Id != Story->Id || Story->Book != Next->Book)
+                                {
+                                    Story = Next;
+
+                                    Transition = true;
+                                }
+
+                                Selected = false;
                             }
-
-                            Selected = false;
+                            else
+                            {
+                                Controls = Story::ExitControls();
+                            }
                         }
                         else if (Controls[Current].Type == Control::Type::EXIT && !Hold)
                         {
@@ -6374,7 +6425,7 @@ namespace Interface
     {
         auto Story = Interface::FindStory(Destination);
 
-        return ProcessStory(Window, Renderer, Party, Story);
+        ProcessStory(Window, Renderer, Party, Story);
     }
 }
 #endif
