@@ -16,10 +16,14 @@ namespace Choice
         Attribute,
         Character,
         Equipment,
+        Item,
+        Weapon,
         Codeword,
         Shoot,
         Discharge,
-        Pay
+        Pay,
+        DropWeapon,
+        DropItem
     };
 
     class Base
@@ -41,7 +45,9 @@ namespace Choice
 
         std::vector<Equipment::Base> Equipment = {};
 
-        std::vector<Equipment::Item> Items = {};
+        Equipment::Item Item = Equipment::Item::Any;
+
+        Equipment::Weapon Weapon = Equipment::Weapon::None;
 
         std::string Text = "";
 
@@ -117,6 +123,72 @@ namespace Choice
             Equipment = equipment;
 
             Type = Choice::Type::Equipment;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Choice::Type type)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Type = type;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Equipment::Item item)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Item = item;
+
+            Type = Choice::Type::Item;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Choice::Type type, Equipment::Item item)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Type = type;
+
+            Item = item;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Choice::Type type, Equipment::Item item, int charge)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Type = type;
+
+            Item = item;
+
+            Charge = charge;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Equipment::Weapon weapon)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Weapon = weapon;
+
+            Type = Choice::Type::Weapon;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Choice::Type type, Equipment::Weapon weapon)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Type = type;
+
+            Weapon = weapon;
         }
     };
 }

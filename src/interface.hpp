@@ -5004,6 +5004,136 @@ namespace Interface
         return Result;
     }
 
+    void RenderChoiceScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &Controls, int Current, Uint32 Bg)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+
+        std::string title_string = "";
+
+        if (!Story->Title.empty())
+        {
+            title_string = Story->Title;
+
+            SDL_SetWindowTitle(Window, Story->Title.c_str());
+        }
+        else
+        {
+            if (Story->Id != -1)
+            {
+                auto StoryId = Story->Id;
+
+                if (StoryId < 0 && Story->DisplayId >= 0)
+                {
+                    StoryId = Story->DisplayId;
+                }
+
+                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": " + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId));
+
+                SDL_SetWindowTitle(Window, title_string.c_str());
+            }
+            else
+            {
+                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": Not Implemented Yet";
+
+                SDL_SetWindowTitle(Window, title_string.c_str());
+            }
+        }
+
+        Graphics::FillWindow(Renderer, intBK);
+
+        // title string
+        Graphics::PutText(Renderer, title_string.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
+
+        // display party
+        Interface::DisplayParty(Renderer, Party, Screen);
+
+        // text box
+        Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intWH);
+
+        // render choice boxes
+        for (auto i = 0; i < Controls.size(); i++)
+        {
+            if (Controls[i].Type == Control::Type::CHOICE)
+            {
+                Graphics::FillRect(Renderer, Controls[i].W + text_space, Controls[i].H + text_space, Controls[i].X - border_pts, Controls[i].Y - border_pts, Bg);
+            }
+        }
+
+        Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+    }
+
+    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, const char *SelectMessage)
+    {
+        auto Result = -1;
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 2 * Screen.TextBoxHeight / 5;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto WindowTextWidth = WindowW - 4 * text_space;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto TextY = WindowY + 2 * text_space;
+
+        auto ButtonX = WindowX + 2 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
+
+        auto Controls = std::vector<Button>();
+
+        for (auto i = 0; i < Party.Members.size(); i++)
+        {
+            Controls.push_back(Button(i, Assets::Get(Party.Members[i].Asset), i > 0 ? i - 1 : i, i + 1, i, i, ButtonX + i * Screen.IconSize, OffsetY, intWH, Interface::PlayerControls[Party.Members[i].Class]));
+        }
+
+        auto idx = Controls.size();
+
+        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx > 0 ? idx - 1 : idx, idx, idx, idx, ButtonX + idx * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
+
+        auto done = false;
+
+        while (!done)
+        {
+            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, Bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, SelectMessage, Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrGR, intBK);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    done = true;
+                }
+                else if (Current >= 0 && Current < Party.Members.size() && !Hold)
+                {
+                    Result = Current;
+
+                    done = true;
+                }
+            }
+        }
+
+        return Result;
+    }
+
     int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage)
     {
         auto Result = -1;
@@ -5661,64 +5791,6 @@ namespace Interface
         return Controls;
     }
 
-    void RenderChoiceScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &Controls, int Current, Uint32 Bg)
-    {
-        auto FontSize = TTF_FontHeight(Fonts::Normal);
-
-        std::string title_string = "";
-
-        if (!Story->Title.empty())
-        {
-            title_string = Story->Title;
-
-            SDL_SetWindowTitle(Window, Story->Title.c_str());
-        }
-        else
-        {
-            if (Story->Id != -1)
-            {
-                auto StoryId = Story->Id;
-
-                if (StoryId < 0 && Story->DisplayId >= 0)
-                {
-                    StoryId = Story->DisplayId;
-                }
-
-                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": " + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId));
-
-                SDL_SetWindowTitle(Window, title_string.c_str());
-            }
-            else
-            {
-                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": Not Implemented Yet";
-
-                SDL_SetWindowTitle(Window, title_string.c_str());
-            }
-        }
-
-        Graphics::FillWindow(Renderer, intBK);
-
-        // title string
-        Graphics::PutText(Renderer, title_string.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
-
-        // display party
-        Interface::DisplayParty(Renderer, Party, Screen);
-
-        // text box
-        Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intWH);
-
-        // render choice boxes
-        for (auto i = 0; i < Controls.size(); i++)
-        {
-            if (Controls[i].Type == Control::Type::CHOICE)
-            {
-                Graphics::FillRect(Renderer, Controls[i].W + text_space, Controls[i].H + text_space, Controls[i].X - border_pts, Controls[i].Y - border_pts, Bg);
-            }
-        }
-
-        Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
-    }
-
     Attributes::Result Test(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, ScreenDimensions &Screen, Story::Base *Story, Party::Base &Party, int Character, Attributes::Type Attribute)
     {
         auto Result = Attributes::Result::NONE;
@@ -6097,6 +6169,91 @@ namespace Interface
                                 else
                                 {
                                     DisplayMessage(("No " + std::string(Character::ClassName[Story->Choices[Choice].Character]) + "s present in your party!").c_str(), intBK);
+                                }
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::Discharge)
+                            {
+                                auto Item = Story->Choices[Choice].Item;
+
+                                if (Engine::HasItem(Party, Item))
+                                {
+                                    auto DischargeMessage = "Select whose " + std::string(Equipment::ItemDescription[Item]) + " to discharge";
+
+                                    auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DischargeMessage.c_str()) : Engine::First(Party, Item);
+
+                                    if (Character >= 0 && Character < Party.Members.size())
+                                    {
+                                        if (Engine::HasItem(Party.Members[Character], Item))
+                                        {
+                                            if (!Engine::Discharge(Party.Members[Character], Item, Story->Choices[Choice].Charge))
+                                            {
+                                                DisplayMessage((std::string(Equipment::ItemDescription[Item]) + " does not have enough charges!").c_str(), intBK);
+                                            }
+                                            else
+                                            {
+                                                Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                                Done = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            DisplayMessage((std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (Engine::Count(Party) > 1)
+                                    {
+                                        DisplayMessage(("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                    }
+                                    else
+                                    {
+                                        auto First = Engine::First(Party, Item);
+
+                                        DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                    }
+                                }
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::DropWeapon)
+                            {
+                                auto Weapon = Story->Choices[Choice].Weapon;
+
+                                if (Engine::HasWeapon(Party, Weapon))
+                                {
+                                    auto DropMessage = "Select whose " + std::string(Equipment::WeaponDescription[Weapon]) + " to drop";
+
+                                    auto Character = Engine::Count(Party, Weapon) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Weapon);
+
+                                    if (Character >= 0 && Character < Party.Members.size())
+                                    {
+                                        if (Engine::HasWeapon(Party.Members[Character], Weapon))
+                                        {
+                                            Engine::Drop(Party.Members[Character], Weapon);
+
+                                            Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                            Done = true;
+                                        }
+                                        else
+                                        {
+                                            DisplayMessage((std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!").c_str(), intBK);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (Engine::Count(Party) > 1)
+                                    {
+                                        DisplayMessage(("No one has the " + std::string(Equipment::WeaponDescription[Weapon]) + "!").c_str(), intBK);
+                                    }
+                                    else
+                                    {
+                                        auto First = Engine::First(Party, Weapon);
+
+                                        DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!").c_str(), intBK);
+                                    }
                                 }
                             }
                         }

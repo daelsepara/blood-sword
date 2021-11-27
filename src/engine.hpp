@@ -188,6 +188,21 @@ namespace Engine
         return (Engine::Score(character, Attributes::Type::Endurance) > 0);
     }
 
+    int Count(Party::Base &party)
+    {
+        auto result = 0;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]))
+            {
+                result++;
+            }
+        }
+
+        return result;
+    }
+
     bool IsAlive(Party::Base &party)
     {
         auto result = false;
@@ -250,7 +265,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Abilities.size(); i++)
         {
-            if (character.Abilities[i] == ability)
+            if (character.Abilities[i] == ability && Engine::IsAlive(character))
             {
                 result = true;
 
@@ -267,7 +282,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Class == Equipment::Class::Weapon && character.Equipment[i].Weapon != Equipment::Weapon::Bow)
+            if (character.Equipment[i].Class == Equipment::Class::Weapon && character.Equipment[i].Weapon != Equipment::Weapon::Bow && Engine::IsAlive(character))
             {
                 result = true;
 
@@ -278,15 +293,59 @@ namespace Engine
         return result;
     }
 
-    bool HasWeapon(Character::Base &character, Equipment::Weapon weapon)
+    int Find(Character::Base &character, Equipment::Weapon weapon)
     {
-        auto result = false;
+        auto result = -1;
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
             if (character.Equipment[i].Class == Equipment::Class::Weapon && character.Equipment[i].Weapon == weapon)
             {
-                result = true;
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasWeapon(Character::Base &character, Equipment::Weapon weapon)
+    {
+        auto result = Engine::Find(character, weapon);
+
+        return (result >= 0 && result < character.Equipment.size() && Engine::IsAlive(character));
+    }
+
+    int Count(Party::Base &party, Equipment::Weapon weapon)
+    {
+        auto result = 0;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::HasWeapon(party.Members[i], weapon))
+            {
+                result++;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasWeapon(Party::Base &party, Equipment::Weapon weapon)
+    {
+        return Engine::Count(party, weapon) > 0;
+    }
+
+    int First(Party::Base &party, Equipment::Weapon weapon)
+    {
+        auto result = 0;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::HasWeapon(party.Members[i], weapon))
+            {
+                result = i;
 
                 break;
             }
@@ -306,7 +365,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Class == Equipment::Class::Weapon && character.Equipment[i].Weapon == Equipment::Weapon::Bow)
+            if (character.Equipment[i].Class == Equipment::Class::Weapon && character.Equipment[i].Weapon == Equipment::Weapon::Bow && Engine::IsAlive(character))
             {
                 result = true;
 
@@ -323,7 +382,7 @@ namespace Engine
 
         for (auto i = 0; i < character.Equipment.size(); i++)
         {
-            if (character.Equipment[i].Class == Equipment::Class::Quiver && character.Equipment[i].Arrows > 0)
+            if (character.Equipment[i].Class == Equipment::Class::Quiver && character.Equipment[i].Arrows > 0 && Engine::IsAlive(character))
             {
                 result += character.Equipment[i].Arrows;
             }
@@ -562,7 +621,7 @@ namespace Engine
     {
         auto result = Engine::GetStatus(character, status);
 
-        return (result >= 0 && result < character.SpellStatus.size());
+        return (result >= 0 && result < character.SpellStatus.size()) && Engine::IsAlive(character);
     }
 
     int GetStatus(Enemy::Base &enemy, Spell::Type status)
@@ -586,7 +645,7 @@ namespace Engine
     {
         auto result = Engine::GetStatus(enemy, status);
 
-        return (result >= 0 && result < enemy.SpellStatus.size());
+        return (result >= 0 && result < enemy.SpellStatus.size() && Engine::IsAlive(enemy));
     }
 
     int Find(Party::Base &party, Character::Class member)
@@ -645,6 +704,101 @@ namespace Engine
         if (Engine::InList(selection, value))
         {
             selection.erase(selection.begin() + Engine::Find(selection, value));
+        }
+    }
+
+    int Find(std::vector<Equipment::Base> &Equipment, Equipment::Item item)
+    {
+        auto result = -1;
+
+        for (auto i = 0; Equipment.size(); i++)
+        {
+            if (Equipment[i].Item == item)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    int Find(Character::Base &character, Equipment::Item item)
+    {
+        return Engine::Find(character.Equipment, item);
+    }
+
+    bool HasItem(Character::Base &character, Equipment::Item item)
+    {
+        auto found = Engine::Find(character.Equipment, item);
+
+        return (found >= 0 && found < character.Equipment.size() && Engine::IsAlive(character));
+    }
+
+    int Count(Party::Base &party, Equipment::Item item)
+    {
+        auto result = 0;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::HasItem(party.Members[i], item))
+            {
+                result++;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasItem(Party::Base &party, Equipment::Item item)
+    {
+        return Engine::Count(party, item) > 0;
+    }
+
+    int First(Party::Base &party, Equipment::Item item)
+    {
+        auto result = 0;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::HasItem(party.Members[i], item))
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool Discharge(Character::Base &character, Equipment::Item item, int Charge)
+    {
+        auto Discharged = false;
+
+        if (Engine::HasItem(character, item))
+        {
+            auto found = Engine::Find(character, item);
+
+            if (character.Equipment[found].ChargeLimit > 0 && character.Equipment[found].Charge >= Charge)
+            {
+                character.Equipment[found].Charge -= Charge;
+
+                Discharged = true;
+            }
+        }
+
+        return Discharged;
+    }
+
+    void Drop(Character::Base &character, Equipment::Weapon weapon)
+    {
+        if (Engine::HasWeapon(character, weapon))
+        {
+            auto found = Engine::Find(character, weapon);
+
+            character.Equipment.erase(character.Equipment.begin() + found);
         }
     }
 }

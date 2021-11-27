@@ -23,6 +23,12 @@ namespace Equipment
         Quarterstaff
     };
 
+    std::map<Equipment::Weapon, const char *> WeaponDescription = {
+        {Equipment::Weapon::None, "none"},
+        {Equipment::Weapon::Sword, "sword"},
+        {Equipment::Weapon::Bow, "bow"},
+        {Equipment::Weapon::Quarterstaff, "quarterstaff"}};
+
     // for non-weapon, non-quiver, non-money-pouches items, e.g. unique items
     enum class Item
     {
@@ -30,6 +36,11 @@ namespace Equipment
         RubyRing,
         SteelSceptre
     };
+
+    std::map<Equipment::Item, const char *> ItemDescription = {
+        {Equipment::Item::Any, "any item"},
+        {Equipment::Item::RubyRing, "ruby ring"},
+        {Equipment::Item::SteelSceptre, "steel sceptre"}};
 
     enum class Mode
     {
@@ -84,62 +95,61 @@ namespace Equipment
             Description = description;
         }
 
-        Base(Equipment::Class type, Equipment::Weapon weapon, const char *name, const char *description)
+        Base(Equipment::Class type, Equipment::Weapon weapon)
         {
             Class = type;
 
-            Name = name;
+            Name = Equipment::WeaponDescription[weapon];
 
-            Description = description;
+            Description = Equipment::WeaponDescription[weapon];
 
             Weapon = weapon;
 
             Attribute = Attributes::Type::FightingProwess;
         }
 
-        Base(Equipment::Item item, const char *name, const char *description, Attributes::Type attribute, int score)
+        Base(Equipment::Item item, Attributes::Type attribute, int score)
         {
             Item = item;
 
-            Name = name;
+            Name = Equipment::ItemDescription[item];
 
-            Description = description;
+            Description = Equipment::ItemDescription[item];
 
             Attribute = attribute;
 
             Score = score;
         }
 
-        Base(Equipment::Item item, const char *name, const char *description)
+        Base(Equipment::Item item)
         {
             Item = item;
 
-            Name = name;
+            Name = Equipment::ItemDescription[item];
 
-            Description = description;
+            Description = Equipment::ItemDescription[item];
         }
 
-        Base(Equipment::Item item, const char *name, const char *description, int charge, int limit)
+        Base(Equipment::Item item, int charge, int limit)
         {
             Item = item;
 
-            Name = name;
+            Name = Equipment::ItemDescription[item];
 
-            Description = description;
+            Description = Equipment::ItemDescription[item];
 
             Charge = charge;
 
             ChargeLimit = limit;
         }
 
-
-        Base(Equipment::Class type, Equipment::Weapon weapon, const char *name, const char *description, Attributes::Type attribute, int score, int damage)
+        Base(Equipment::Class type, Equipment::Weapon weapon, Attributes::Type attribute, int score, int damage)
         {
             Class = type;
 
-            Name = name;
+            Name = Equipment::WeaponDescription[weapon];
 
-            Description = description;
+            Description = Equipment::WeaponDescription[weapon];
 
             Weapon = weapon;
 
@@ -207,7 +217,7 @@ namespace Equipment
                 if (Attribute != Attributes::Type::None && Score != 0)
                 {
                     Modifiers = (Score >= 0 ? "+" : "") + std::to_string(Score) + " " + std::string(Attributes::Abbreviation[Attribute]);
-                    
+
                     ModCount++;
                 }
 
@@ -219,7 +229,7 @@ namespace Equipment
                     }
 
                     Modifiers += "armour " + std::to_string(Rating);
-                    
+
                     ModCount++;
                 }
 
@@ -231,7 +241,7 @@ namespace Equipment
                     }
 
                     Modifiers += (Damage >= 0 ? "+" : "") + std::to_string(Damage) + " DMG";
-                    
+
                     ModCount++;
                 }
             }
@@ -258,9 +268,9 @@ namespace Equipment
     };
 
     // weapons
-    auto Bow = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Bow, "bow", "bow");
-    auto Sword = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Sword, "sword", "sword");
-    auto Quarterstaff = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Quarterstaff, "quarterstaff", "quarterstaff");
+    auto Bow = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Bow);
+    auto Sword = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Sword);
+    auto Quarterstaff = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Quarterstaff);
 
     // containers
     auto MoneyPouch = Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", 0, 100);
@@ -273,8 +283,8 @@ namespace Equipment
     auto StuddedLeather = Equipment::Base(Equipment::Class::Armour, "studded leather", "studded leather", 2);
 
     // book 1 items
-    auto RubyRing = Equipment::Base(Equipment::Item::RubyRing, "ruby ring", "ruby ring");
-    auto SteelSceptre = Equipment::Base(Equipment::Item::SteelSceptre, "steel sceptre", "steel sceptre", 4, 4);
+    auto RubyRing = Equipment::Base(Equipment::Item::RubyRing);
+    auto SteelSceptre = Equipment::Base(Equipment::Item::SteelSceptre, 4, 4);
 }
 
 #endif

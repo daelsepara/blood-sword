@@ -78,7 +78,7 @@ namespace Book1
             MapFile = "maps/book1/map003.json";
 
             Choices.clear();
-            
+
             Controls = Story::Controls::Standard;
         }
 
@@ -126,6 +126,26 @@ namespace Book1
         Engine::Destination Continue(Party::Base &Party)
         {
             return Destination;
+        }
+    };
+
+    class Story004 : public Story::Base
+    {
+    public:
+        Story004()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 4;
+
+            Text = "You unleash the power of the sceptre at the wall. This sends chips of stone flying in all directions, but it is not enough to blast a passage through.";
+
+            // TODO: verify which sword to discard
+            Choices.clear();
+            Choices.push_back(Choice::Base("Discard the <b>sword</b>", {Book::Type::Book1, 503}, Choice::Type::DropWeapon, Equipment::Weapon::Sword));
+            Choices.push_back(Choice::Base("Discharge another 2 charges from the <b>steel sceptre</b>", {Book::Type::Book1, 503}, Choice::Type::Discharge, Equipment::Item::SteelSceptre, 2));
+
+            Controls = Story::Controls::Standard;
         }
     };
 
@@ -228,6 +248,7 @@ namespace Book1
     auto story001 = Story001();
     auto story002 = Story002();
     auto story003 = Story003();
+    auto story004 = Story004();
     auto story018 = Story018();
     auto story058 = Story058();
     auto story069 = Story069();
@@ -237,7 +258,7 @@ namespace Book1
     void InitializeStories()
     {
         Book1::Stories = {
-            &story001, &story002, &story003,
+            &story001, &story002, &story003, &story004,
             &story018,
             &story058,
             &story069,
