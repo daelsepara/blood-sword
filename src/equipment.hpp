@@ -27,7 +27,8 @@ namespace Equipment
     enum class Item
     {
         Any = 0,
-        RubyRing
+        RubyRing,
+        SteelSceptre
     };
 
     enum class Mode
@@ -58,6 +59,11 @@ namespace Equipment
         int Arrows = 0;
 
         int ArrowLimit = 6;
+
+        // items with charge
+        int Charge = -1;
+
+        int ChargeLimit = -1;
 
         std::string Name = "";
 
@@ -112,6 +118,20 @@ namespace Equipment
 
             Description = description;
         }
+
+        Base(Equipment::Item item, const char *name, const char *description, int charge, int limit)
+        {
+            Item = item;
+
+            Name = name;
+
+            Description = description;
+
+            Charge = charge;
+
+            ChargeLimit = limit;
+        }
+
 
         Base(Equipment::Class type, Equipment::Weapon weapon, const char *name, const char *description, Attributes::Type attribute, int score, int damage)
         {
@@ -254,6 +274,7 @@ namespace Equipment
 
     // book 1 items
     auto RubyRing = Equipment::Base(Equipment::Item::RubyRing, "ruby ring", "ruby ring");
+    auto SteelSceptre = Equipment::Base(Equipment::Item::SteelSceptre, "steel sceptre", "steel sceptre", 4, 4);
 }
 
 #endif
