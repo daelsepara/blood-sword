@@ -81,7 +81,7 @@ namespace Interface
 
         auto MapSizeY = Map.SizeY * Map.ObjectSize;
 
-        RenderCombatScreen(Renderer, Controls, -1, bg);
+        Interface::RenderCombatScreen(Renderer, Controls, -1, bg);
 
         auto FlashW = 4 * MapSizeX / 5;
 
@@ -261,14 +261,14 @@ namespace Interface
         }
     }
 
-    bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int srcX, int srcY, int dstX, int dstY)
+    bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 Bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int SrcX, int SrcY, int DstX, int DstY)
     {
         // do not render off screen animations
-        if (!Interface::IsVisible(Map, srcX, srcY))
+        if (!Interface::IsVisible(Map, SrcX, SrcY))
         {
             SDL_Delay(300);
 
-            return Interface::Move(Map, srcX, srcY, dstX, dstY);
+            return Interface::Move(Map, SrcX, SrcY, DstX, DstY);
         }
 
         auto Sign = [&](int Value)
@@ -276,77 +276,77 @@ namespace Interface
             return Value >= 0 ? 1 : -1;
         };
 
-        auto Draw = [&](SDL_Surface *passable, SDL_Surface *asset, int X, int Y, int Delay)
+        auto Draw = [&](SDL_Surface *Origin, SDL_Surface *Asset, int X, int Y, int Delay)
         {
-            RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, Bg);
 
-            Graphics::RenderImage(Renderer, passable, Map.DrawX + (srcX - Map.MapX) * Map.ObjectSize, Map.DrawY + (srcY - Map.MapY) * Map.ObjectSize);
+            Graphics::RenderImage(Renderer, Origin, Map.DrawX + (SrcX - Map.MapX) * Map.ObjectSize, Map.DrawY + (SrcY - Map.MapY) * Map.ObjectSize);
 
-            Graphics::RenderImage(Renderer, asset, X, Y);
+            Graphics::RenderImage(Renderer, Asset, X, Y);
 
             SDL_RenderPresent(Renderer);
 
             SDL_Delay(Delay);
         };
 
-        auto Animate = [&](SDL_Surface *passable, SDL_Surface *asset)
+        auto Animate = [&](SDL_Surface *Origin, SDL_Surface *Asset)
         {
-            auto DeltaX = (dstX - srcX);
+            auto DeltaX = (DstX - SrcX);
 
-            auto DeltaY = (dstY - srcY);
+            auto DeltaY = (DstY - SrcY);
 
             // move along x
             for (auto i = 0; i < std::abs(DeltaX) * Map.ObjectSize; i += 5)
             {
-                Draw(passable, asset, Map.DrawX + (srcX - Map.MapX) * Map.ObjectSize + Sign(DeltaX) * i, Map.DrawY + (srcY - Map.MapY) * Map.ObjectSize, 5);
+                Draw(Origin, Asset, Map.DrawX + (SrcX - Map.MapX) * Map.ObjectSize + Sign(DeltaX) * i, Map.DrawY + (SrcY - Map.MapY) * Map.ObjectSize, 5);
             }
 
             // move along y, assumes movement along x was successful
             for (auto i = 0; i < std::abs(DeltaY) * Map.ObjectSize; i += 5)
             {
-                Draw(passable, asset, Map.DrawX + (dstX - Map.MapX) * Map.ObjectSize, Map.DrawY + (srcY - Map.MapY) * Map.ObjectSize + Sign(DeltaY) * i, 5);
+                Draw(Origin, Asset, Map.DrawX + (DstX - Map.MapX) * Map.ObjectSize, Map.DrawY + (SrcY - Map.MapY) * Map.ObjectSize + Sign(DeltaY) * i, 5);
             }
         };
 
-        auto result = false;
+        auto Result = false;
 
-        if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY) && Interface::ValidX(Map, dstX) && Interface::ValidY(Map, dstY))
+        if (Interface::ValidX(Map, SrcX) && Interface::ValidY(Map, SrcY) && Interface::ValidX(Map, DstX) && Interface::ValidY(Map, DstY))
         {
-            if (Map.Tiles[srcY][srcX].IsPlayer() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit()) && !Map.Tiles[dstY][dstX].IsOccupied())
+            if (Map.Tiles[SrcY][SrcX].IsPlayer() && (Map.Tiles[DstY][DstX].IsPassable || Map.Tiles[DstY][DstX].IsExit()) && !Map.Tiles[DstY][DstX].IsOccupied())
             {
-                auto PlayerId = Map.Tiles[srcY][srcX].Id - 1;
+                auto PlayerId = Map.Tiles[SrcY][SrcX].Id - 1;
 
-                auto passable = Assets::Copy(Map.Tiles[srcY][srcX].Asset);
+                auto Origin = Assets::Copy(Map.Tiles[SrcY][SrcX].Asset);
 
-                auto asset = Assets::Copy(Party.Members[PlayerId].Asset);
+                auto Asset = Assets::Copy(Party.Members[PlayerId].Asset);
 
-                Animate(passable, asset);
+                Animate(Origin, Asset);
 
-                SDL_FreeSurface(passable);
+                SDL_FreeSurface(Origin);
 
-                SDL_FreeSurface(asset);
+                SDL_FreeSurface(Asset);
 
-                result = Interface::Move(Map, srcX, srcY, dstX, dstY);
+                Result = Interface::Move(Map, SrcX, SrcY, DstX, DstY);
             }
-            else if (Map.Tiles[srcY][srcX].IsEnemy() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy) && !Map.Tiles[dstY][dstX].IsOccupied())
+            else if (Map.Tiles[SrcY][SrcX].IsEnemy() && (Map.Tiles[DstY][DstX].IsPassable || Map.Tiles[DstY][DstX].IsPassableToEnemy) && !Map.Tiles[DstY][DstX].IsOccupied())
             {
-                auto EnemyId = Map.Tiles[srcY][srcX].Id - 1;
+                auto EnemyId = Map.Tiles[SrcY][SrcX].Id - 1;
 
-                auto passable = Map.Tiles[srcY][srcX].IsPassableToEnemy ? Assets::Copy(Map.Tiles[srcY][srcX].Asset, 0x66) : Assets::Copy(Map.Tiles[srcY][srcX].Asset);
+                auto Origin = Map.Tiles[SrcY][SrcX].IsPassableToEnemy ? Assets::Copy(Map.Tiles[SrcY][SrcX].Asset, 0x66) : Assets::Copy(Map.Tiles[SrcY][SrcX].Asset);
 
-                auto asset = Enemies[EnemyId].Enthraled ? Assets::Copy(Enemies[EnemyId].Asset, 0x66) : Assets::Copy(Enemies[EnemyId].Asset);
+                auto Asset = Enemies[EnemyId].Enthraled ? Assets::Copy(Enemies[EnemyId].Asset, 0x66) : Assets::Copy(Enemies[EnemyId].Asset);
 
-                Animate(passable, asset);
+                Animate(Origin, Asset);
 
-                SDL_FreeSurface(passable);
+                SDL_FreeSurface(Origin);
 
-                SDL_FreeSurface(asset);
+                SDL_FreeSurface(Asset);
 
-                result = Interface::Move(Map, srcX, srcY, dstX, dstY);
+                Result = Interface::Move(Map, SrcX, SrcY, DstX, DstY);
             }
         }
 
-        return result;
+        return Result;
     }
 
     bool FullMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, AStar::Path &Path, int StartMap)
@@ -381,26 +381,26 @@ namespace Interface
         return Result;
     }
 
-    int Find(std::vector<Combatants> &Sequence, Map::Object object, int id)
+    int Find(std::vector<Combatants> &Sequence, Map::Object object, int Id)
     {
-        auto found = -1;
+        auto Found = -1;
 
         for (auto i = 0; i < Sequence.size(); i++)
         {
-            if (std::get<0>(Sequence[i]) == object && std::get<1>(Sequence[i]) == id)
+            if (std::get<0>(Sequence[i]) == object && std::get<1>(Sequence[i]) == Id)
             {
-                found = i;
+                Found = i;
 
                 break;
             }
         }
 
-        return found;
+        return Found;
     }
 
-    void Find(Map::Base &Map, Map::Object object, int id, int &LocationX, int &LocationY)
+    void Find(Map::Base &Map, Map::Object Object, int Id, int &LocationX, int &LocationY)
     {
-        bool found = false;
+        bool Found = false;
 
         LocationX = -1;
 
@@ -410,28 +410,28 @@ namespace Interface
         {
             for (auto x = 0; x < Map.Width; x++)
             {
-                if (Map.Tiles[y][x].Occupant == object && Map.Tiles[y][x].Id == (id + 1))
+                if (Map.Tiles[y][x].Occupant == Object && Map.Tiles[y][x].Id == (Id + 1))
                 {
                     LocationX = x;
 
                     LocationY = y;
 
-                    found = true;
+                    Found = true;
 
                     break;
                 }
             }
 
-            if (found)
+            if (Found)
             {
                 break;
             }
         }
     }
 
-    int Distance(int srcX, int srcY, int dstX, int dstY)
+    int Distance(int SrcX, int SrcY, int DstX, int DstY)
     {
-        return std::abs(dstX - srcX) + std::abs(dstY - srcY);
+        return std::abs(DstX - SrcX) + std::abs(DstY - SrcY);
     }
 
     bool IsAdjacent(Map::Base &Map, int AttackerId, Map::Object AttackerType, int DefenderId, Map::Object DefenderType)
@@ -462,26 +462,26 @@ namespace Interface
 
     bool NearbyEnemies(Map::Base &Map, std::vector<Enemy::Base> &Enemies, int PlayerId, bool ShootMode)
     {
-        auto result = false;
+        auto Result = false;
 
         for (auto i = 0; i < Enemies.size(); i++)
         {
-            result |= (Engine::IsAlive(Enemies[i]) && Interface::IsAdjacent(Map, PlayerId, i) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode));
+            Result |= (Engine::IsAlive(Enemies[i]) && Interface::IsAdjacent(Map, PlayerId, i) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode));
         }
 
-        return result;
+        return Result;
     }
 
     bool NearbyOpponents(Map::Base &Map, std::vector<Enemy::Base> &Enemies, int EnemyId, bool ShootMode)
     {
-        auto result = false;
+        auto Result = false;
 
         for (auto i = 0; i < Enemies.size(); i++)
         {
-            result |= (i != EnemyId && Engine::IsAlive(Enemies[i]) && Interface::IsAdjacent(Map, EnemyId, Map::Object::Enemy, i, Map::Object::Enemy) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode));
+            Result |= (i != EnemyId && Engine::IsAlive(Enemies[i]) && Interface::IsAdjacent(Map, EnemyId, Map::Object::Enemy, i, Map::Object::Enemy) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode));
         }
 
-        return result;
+        return Result;
     }
 
     bool AttackedWhileMoving(Map::Base &Map, std::vector<Enemy::Base> &Enemies, Character::Base &character, int PlayerId, int &Damages)
@@ -538,7 +538,7 @@ namespace Interface
         }
     }
 
-    void SortTargets(std::vector<Targets> &Distances)
+    void SortTargets(std::vector<Interface::Targets> &Distances)
     {
         // sort players based on distance
         std::sort(Distances.begin(), Distances.end(), [](Interface::Targets &a, Interface::Targets &b) -> bool
@@ -566,9 +566,9 @@ namespace Interface
                   });
     }
 
-    std::vector<Targets> CycleTargets(Map::Base &Map, Party::Base &Party, int EnemyX, int EnemyY, bool ignore)
+    std::vector<Interface::Targets> CycleTargets(Map::Base &Map, Party::Base &Party, int EnemyX, int EnemyY, bool ignore)
     {
-        auto Distances = std::vector<Targets>();
+        auto Distances = std::vector<Interface::Targets>();
 
         // cycle through the players
         for (auto i = 0; i < Party.Members.size(); i++)
@@ -595,12 +595,12 @@ namespace Interface
         return Distances;
     }
 
-    Interface::Targets SelectTarget(Map::Base &Map, Party::Base &Party, int EnemyId, bool ignore)
+    Interface::Targets SelectTarget(Map::Base &Map, Party::Base &Party, int EnemyId, bool Ignore)
     {
         Interface::Targets NearestPlayer = {-1, -1, -1};
 
         // player id, distance, endurance
-        std::vector<Targets> Distances = {};
+        std::vector<Interface::Targets> Distances = {};
 
         auto EnemyX = 0;
 
@@ -608,7 +608,7 @@ namespace Interface
 
         Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
-        Distances = Interface::CycleTargets(Map, Party, EnemyX, EnemyY, ignore);
+        Distances = Interface::CycleTargets(Map, Party, EnemyX, EnemyY, Ignore);
 
         if (Distances.size() > 0)
         {
@@ -916,7 +916,7 @@ namespace Interface
 
         auto EnemyY = -1;
 
-        Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
+        Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
         auto TotalDamage = std::max(0, Damage - (UseArmour ? Enemies[EnemyId].Armour : 0));
 
@@ -961,14 +961,14 @@ namespace Interface
         DoneControls[0].Color = intBK;
         DoneControls[0].Type = Control::Type::BACK;
 
-        SDL_Surface *dice[6];
+        SDL_Surface *Dice[6];
 
-        dice[0] = Assets::Copy(Assets::Type::Dice1);
-        dice[1] = Assets::Copy(Assets::Type::Dice2);
-        dice[2] = Assets::Copy(Assets::Type::Dice3);
-        dice[3] = Assets::Copy(Assets::Type::Dice4);
-        dice[4] = Assets::Copy(Assets::Type::Dice5);
-        dice[5] = Assets::Copy(Assets::Type::Dice6);
+        Dice[0] = Assets::Copy(Assets::Type::Dice1);
+        Dice[1] = Assets::Copy(Assets::Type::Dice2);
+        Dice[2] = Assets::Copy(Assets::Type::Dice3);
+        Dice[3] = Assets::Copy(Assets::Type::Dice4);
+        Dice[4] = Assets::Copy(Assets::Type::Dice5);
+        Dice[5] = Assets::Copy(Assets::Type::Dice6);
 
         auto Hold = false;
         auto Selected = false;
@@ -1062,7 +1062,7 @@ namespace Interface
                 // show casting results
                 for (auto i = 0; i < TestRolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::StretchImage(Renderer, Dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
                 Graphics::PutText(Renderer, ("Test Score: " + std::to_string(TestSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -1098,11 +1098,11 @@ namespace Interface
 
         for (auto i = 0; i < 6; i++)
         {
-            if (dice[i])
+            if (Dice[i])
             {
-                SDL_FreeSurface(dice[i]);
+                SDL_FreeSurface(Dice[i]);
 
-                dice[i] = NULL;
+                Dice[i] = NULL;
             }
         }
 
@@ -1142,14 +1142,14 @@ namespace Interface
         DoneControls[0].Color = intBK;
         DoneControls[0].Type = Control::Type::BACK;
 
-        SDL_Surface *dice[6];
+        SDL_Surface *Dice[6];
 
-        dice[0] = Assets::Copy(Assets::Type::Dice1);
-        dice[1] = Assets::Copy(Assets::Type::Dice2);
-        dice[2] = Assets::Copy(Assets::Type::Dice3);
-        dice[3] = Assets::Copy(Assets::Type::Dice4);
-        dice[4] = Assets::Copy(Assets::Type::Dice5);
-        dice[5] = Assets::Copy(Assets::Type::Dice6);
+        Dice[0] = Assets::Copy(Assets::Type::Dice1);
+        Dice[1] = Assets::Copy(Assets::Type::Dice2);
+        Dice[2] = Assets::Copy(Assets::Type::Dice3);
+        Dice[3] = Assets::Copy(Assets::Type::Dice4);
+        Dice[4] = Assets::Copy(Assets::Type::Dice5);
+        Dice[5] = Assets::Copy(Assets::Type::Dice6);
 
         auto Hold = false;
         auto Selected = false;
@@ -1159,7 +1159,7 @@ namespace Interface
 
         std::vector<TextButton> &Controls = ResistControls;
 
-        auto done = false;
+        auto Done = false;
 
         auto CurrentStage = Attributes::Stage::START;
 
@@ -1169,7 +1169,7 @@ namespace Interface
 
         auto TestSum = 0;
 
-        while (!done)
+        while (!Done)
         {
             // render current combat screen
             Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
@@ -1209,7 +1209,7 @@ namespace Interface
                 // show casting results
                 for (auto i = 0; i < Rolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[TestRolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::StretchImage(Renderer, Dice[TestRolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
                 Graphics::PutText(Renderer, ("Score: " + std::to_string(TestSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -1238,18 +1238,18 @@ namespace Interface
                 }
                 else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
-                    done = true;
+                    Done = true;
                 }
             }
         }
 
         for (auto i = 0; i < 6; i++)
         {
-            if (dice[i])
+            if (Dice[i])
             {
-                SDL_FreeSurface(dice[i]);
+                SDL_FreeSurface(Dice[i]);
 
-                dice[i] = NULL;
+                Dice[i] = NULL;
             }
         }
 
@@ -1304,9 +1304,9 @@ namespace Interface
 
         Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
 
-        auto done = false;
+        auto Done = false;
 
-        while (!done)
+        while (!Done)
         {
             // render current combat screen
             Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
@@ -1339,13 +1339,13 @@ namespace Interface
                 {
                     Result = -1;
 
-                    done = true;
+                    Done = true;
                 }
                 else
                 {
                     Result = Current;
 
-                    done = true;
+                    Done = true;
                 }
             }
         }
@@ -1653,14 +1653,14 @@ namespace Interface
         DoneControls[0].Color = intBK;
         DoneControls[0].Type = Control::Type::BACK;
 
-        SDL_Surface *dice[6];
+        SDL_Surface *Dice[6];
 
-        dice[0] = Assets::Copy(Assets::Type::Dice1);
-        dice[1] = Assets::Copy(Assets::Type::Dice2);
-        dice[2] = Assets::Copy(Assets::Type::Dice3);
-        dice[3] = Assets::Copy(Assets::Type::Dice4);
-        dice[4] = Assets::Copy(Assets::Type::Dice5);
-        dice[5] = Assets::Copy(Assets::Type::Dice6);
+        Dice[0] = Assets::Copy(Assets::Type::Dice1);
+        Dice[1] = Assets::Copy(Assets::Type::Dice2);
+        Dice[2] = Assets::Copy(Assets::Type::Dice3);
+        Dice[3] = Assets::Copy(Assets::Type::Dice4);
+        Dice[4] = Assets::Copy(Assets::Type::Dice5);
+        Dice[5] = Assets::Copy(Assets::Type::Dice6);
 
         auto Hold = false;
         auto Selected = false;
@@ -1670,7 +1670,7 @@ namespace Interface
 
         std::vector<TextButton> &Controls = SpellControls;
 
-        auto done = false;
+        auto Done = false;
 
         auto CurrentStage = Spell::Stage::START;
 
@@ -1696,7 +1696,7 @@ namespace Interface
         // compute effective Psychic Ability including bonus from equipment
         auto PsychicAbility = (Engine::PsychicAbility(Character) - Character.Spells.size()) + (Equipment.size() > 0 ? Equipment[0].Score : 0);
 
-        while (!done)
+        while (!Done)
         {
             // render current combat screen
             Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
@@ -1744,7 +1744,7 @@ namespace Interface
                 // show casting results
                 for (auto i = 0; i < CastingRolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::StretchImage(Renderer, Dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + 6 * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
                 Graphics::PutText(Renderer, ("Score: " + std::to_string(CastingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, ResultsY);
@@ -1773,18 +1773,18 @@ namespace Interface
                 }
                 else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
-                    done = true;
+                    Done = true;
                 }
             }
         }
 
         for (auto i = 0; i < 6; i++)
         {
-            if (dice[i])
+            if (Dice[i])
             {
-                SDL_FreeSurface(dice[i]);
+                SDL_FreeSurface(Dice[i]);
 
-                dice[i] = NULL;
+                Dice[i] = NULL;
             }
         }
 
@@ -1874,18 +1874,18 @@ namespace Interface
         DamageControls[0].Color = intBK;
         DamageControls[0].Type = Control::Type::DAMAGE;
 
-        SDL_Surface *dice[6];
+        SDL_Surface *Dice[6];
 
-        dice[0] = Assets::Copy(Assets::Type::Dice1);
-        dice[1] = Assets::Copy(Assets::Type::Dice2);
-        dice[2] = Assets::Copy(Assets::Type::Dice3);
-        dice[3] = Assets::Copy(Assets::Type::Dice4);
-        dice[4] = Assets::Copy(Assets::Type::Dice5);
-        dice[5] = Assets::Copy(Assets::Type::Dice6);
+        Dice[0] = Assets::Copy(Assets::Type::Dice1);
+        Dice[1] = Assets::Copy(Assets::Type::Dice2);
+        Dice[2] = Assets::Copy(Assets::Type::Dice3);
+        Dice[3] = Assets::Copy(Assets::Type::Dice4);
+        Dice[4] = Assets::Copy(Assets::Type::Dice5);
+        Dice[5] = Assets::Copy(Assets::Type::Dice6);
 
-        auto swords = Assets::Copy(Assets::Type::Fight);
+        auto Swords = Assets::Copy(Assets::Type::Fight);
 
-        auto shoot = Assets::Copy(Assets::Type::Shoot);
+        auto Shoot = Assets::Copy(Assets::Type::Shoot);
 
         auto HasQuarterstaff = Engine::HasAbility(Character, Abilities::Type::Quarterstaff) && Engine::HasWeapon(Character, Equipment::Weapon::Quarterstaff);
 
@@ -1960,9 +1960,9 @@ namespace Interface
 
             Result = Combat::Result::NONE;
 
-            auto done = false;
+            auto Done = false;
 
-            while (!done)
+            while (!Done)
             {
                 // render current combat screen
                 Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
@@ -2020,11 +2020,11 @@ namespace Interface
 
                 if (FightMode == Combat::FightMode::FIGHT)
                 {
-                    Graphics::RenderImage(Renderer, swords, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
+                    Graphics::RenderImage(Renderer, Swords, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
                 }
                 else if (FightMode == Combat::FightMode::SHOOT)
                 {
-                    Graphics::RenderImage(Renderer, shoot, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
+                    Graphics::RenderImage(Renderer, Shoot, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
                 }
 
                 if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
@@ -2074,7 +2074,7 @@ namespace Interface
                     // show fight results
                     for (auto i = 0; i < FightRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        Graphics::StretchImage(Renderer, Dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
                     Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
@@ -2130,7 +2130,7 @@ namespace Interface
                         // show fight results
                         for (auto i = 0; i < FightRolls; i++)
                         {
-                            Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                            Graphics::StretchImage(Renderer, Dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                         }
 
                         Graphics::PutText(Renderer, ("Fight Score: " + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
@@ -2149,7 +2149,7 @@ namespace Interface
                         // show damage results
                         for (auto i = 0; i < DamageRolls; i++)
                         {
-                            Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                            Graphics::StretchImage(Renderer, Dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                         }
 
                         Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
@@ -2198,7 +2198,7 @@ namespace Interface
                     }
                     else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                     {
-                        done = true;
+                        Done = true;
                     }
                 }
             }
@@ -2217,21 +2217,21 @@ namespace Interface
 
         for (auto i = 0; i < 6; i++)
         {
-            if (dice[i])
+            if (Dice[i])
             {
-                SDL_FreeSurface(dice[i]);
+                SDL_FreeSurface(Dice[i]);
 
-                dice[i] = NULL;
+                Dice[i] = NULL;
             }
         }
 
-        SDL_FreeSurface(swords);
+        SDL_FreeSurface(Swords);
 
-        swords = NULL;
+        Swords = NULL;
 
-        SDL_FreeSurface(shoot);
+        SDL_FreeSurface(Shoot);
 
-        shoot = NULL;
+        Shoot = NULL;
 
         return Result;
     }
@@ -2288,14 +2288,14 @@ namespace Interface
         DamageControls[0].Color = intBK;
         DamageControls[0].Type = Control::Type::DAMAGE;
 
-        SDL_Surface *dice[6];
+        SDL_Surface *Dice[6];
 
-        dice[0] = Assets::Copy(Assets::Type::Dice1);
-        dice[1] = Assets::Copy(Assets::Type::Dice2);
-        dice[2] = Assets::Copy(Assets::Type::Dice3);
-        dice[3] = Assets::Copy(Assets::Type::Dice4);
-        dice[4] = Assets::Copy(Assets::Type::Dice5);
-        dice[5] = Assets::Copy(Assets::Type::Dice6);
+        Dice[0] = Assets::Copy(Assets::Type::Dice1);
+        Dice[1] = Assets::Copy(Assets::Type::Dice2);
+        Dice[2] = Assets::Copy(Assets::Type::Dice3);
+        Dice[3] = Assets::Copy(Assets::Type::Dice4);
+        Dice[4] = Assets::Copy(Assets::Type::Dice5);
+        Dice[5] = Assets::Copy(Assets::Type::Dice6);
 
         auto swords = Assets::Copy(Assets::Type::Fight);
 
@@ -2308,7 +2308,7 @@ namespace Interface
 
         std::vector<TextButton> &Controls = Enemy.Enthraled ? FightControls1 : FightControls2;
 
-        auto done = false;
+        auto Done = false;
 
         auto CurrentStage = Combat::Stage::START;
 
@@ -2327,7 +2327,7 @@ namespace Interface
         bool CalculatedDamage = false;
         bool AssignedDamage = false;
 
-        while (!done)
+        while (!Done)
         {
             // render current combat screen
             Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
@@ -2419,7 +2419,7 @@ namespace Interface
                 // show fight results
                 for (auto i = 0; i < FightRolls; i++)
                 {
-                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                    Graphics::StretchImage(Renderer, Dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                 }
 
                 Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
@@ -2454,7 +2454,7 @@ namespace Interface
                     // show fight results
                     for (auto i = 0; i < FightRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        Graphics::StretchImage(Renderer, Dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
                     Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
@@ -2466,7 +2466,7 @@ namespace Interface
                     // show damage results
                     for (auto i = 0; i < DamageRolls; i++)
                     {
-                        Graphics::StretchImage(Renderer, dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        Graphics::StretchImage(Renderer, Dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
                     Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
@@ -2508,18 +2508,18 @@ namespace Interface
                 }
                 else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
-                    done = true;
+                    Done = true;
                 }
             }
         }
 
         for (auto i = 0; i < 6; i++)
         {
-            if (dice[i])
+            if (Dice[i])
             {
-                SDL_FreeSurface(dice[i]);
+                SDL_FreeSurface(Dice[i]);
 
-                dice[i] = NULL;
+                Dice[i] = NULL;
             }
         }
 
@@ -2611,9 +2611,9 @@ namespace Interface
         Controls.push_back(Button(11, Assets::Get(Assets::Type::ServileEnthralment, Engine::WasCalledToMind(Character, Spell::Type::ServileEnthralment) ? 0xFF : 0x66), 10, 12, 4, 11, WindowButtonX + 4 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
         Controls.push_back(Button(12, Assets::Get(Assets::Type::Back), 11, 12, 5, 12, WindowButtonX + 5 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::BACK));
 
-        auto done = false;
+        auto Done = false;
 
-        while (!done)
+        while (!Done)
         {
             // render current combat screen
             Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
@@ -2649,7 +2649,7 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::BACK)
                 {
-                    done = true;
+                    Done = true;
                 }
                 else if (Controls[Current].Type == Control::Type::CAST)
                 {
@@ -2663,7 +2663,7 @@ namespace Interface
                         {
                             Result = Current;
 
-                            done = true;
+                            Done = true;
                         }
                     }
                     else if (Mode == Control::Type::FORGET)
@@ -2676,7 +2676,7 @@ namespace Interface
                         {
                             Result = Current;
 
-                            done = true;
+                            Done = true;
                         }
                     }
                 }
@@ -2686,7 +2686,7 @@ namespace Interface
         return Result;
     }
 
-    int SelectSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character)
+    int SelectSpell(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 Bg, Map::Base &Map, Character::Base &Character)
     {
         auto Result = -1;
 
@@ -2718,12 +2718,12 @@ namespace Interface
 
         Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : NumControls, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
 
-        auto done = false;
+        auto Done = false;
 
-        while (!done)
+        while (!Done)
         {
             // render current combat screen
-            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, Bg);
 
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
 
@@ -2736,19 +2736,19 @@ namespace Interface
             if (Current >= 0 && Current < Character.Spells.size())
             {
                 // render spell names
-                auto captionx = Controls[Current].X - text_space;
+                auto CaptionX = Controls[Current].X - text_space;
 
-                auto captiony = Controls[Current].Y + Controls[Current].H + text_space;
+                auto CaptionY = Controls[Current].Y + Controls[Current].H + text_space;
 
-                std::string caption = "Cast " + Character.Spells[Current].Name + " (" + std::string(Spell::ClassDescription[Character.Spells[Current].Class]) + ")";
+                std::string Caption = "Cast " + Character.Spells[Current].Name + " (" + std::string(Spell::ClassDescription[Character.Spells[Current].Class]) + ")";
 
-                auto captionw = 0;
+                auto CaptionW = 0;
 
-                auto captionh = 0;
+                auto CaptionH = 0;
 
-                TTF_SizeText(Fonts::Caption, caption.c_str(), &captionw, &captionh);
+                TTF_SizeText(Fonts::Caption, Caption.c_str(), &CaptionW, &CaptionH);
 
-                Graphics::PutText(Renderer, caption.c_str(), Fonts::Caption, border_pts, clrWH, bg, TTF_STYLE_NORMAL, captionw + 2 * text_space, captionh, captionx, captiony);
+                Graphics::PutText(Renderer, Caption.c_str(), Fonts::Caption, border_pts, clrWH, Bg, TTF_STYLE_NORMAL, CaptionW + 2 * text_space, CaptionH, CaptionX, CaptionY);
             }
 
             Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
@@ -2757,13 +2757,13 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::BACK)
                 {
-                    done = true;
+                    Done = true;
                 }
                 else if (Controls[Current].Type == Control::Type::CAST)
                 {
                     Result = Current;
 
-                    done = true;
+                    Done = true;
                 }
             }
         }
@@ -2913,9 +2913,9 @@ namespace Interface
 
         Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, WindowButtonX + NumControls * (Map.ObjectSize + 2 * text_space), WindowY + Map.ObjectSize, intWH, Control::Type::BACK));
 
-        auto done = false;
+        auto Done = false;
 
-        while (!done)
+        while (!Done)
         {
             // render current combat screen
             Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
@@ -2939,13 +2939,13 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::BACK)
                 {
-                    done = true;
+                    Done = true;
                 }
                 else if (Current >= 0 && Current < Abilities.size())
                 {
                     Result = Abilities[Current];
 
-                    done = true;
+                    Done = true;
                 }
             }
         }
@@ -3268,7 +3268,7 @@ namespace Interface
             Sequence.push_back({Map::Object::Enemy, i, Awareness});
         }
 
-        SortCombatants(Sequence);
+        Interface::SortCombatants(Sequence);
 
         auto CurrentMode = Combat::Mode::NORMAL;
 
@@ -3321,7 +3321,7 @@ namespace Interface
 
         auto NextQuickThinker = [&]()
         {
-            auto next = 0;
+            auto Next = 0;
 
             for (auto i = 0; i < Sequence.size(); i++)
             {
@@ -3329,19 +3329,19 @@ namespace Interface
                 {
                     if (Party.Members[GetId(i)].QuickThinking)
                     {
-                        next = i;
+                        Next = i;
 
                         break;
                     }
                 }
             }
 
-            return next;
+            return Next;
         };
 
         auto NextFirst = [&]()
         {
-            auto next = 0;
+            auto Next = 0;
 
             for (auto i = 0; i < Sequence.size(); i++)
             {
@@ -3349,7 +3349,7 @@ namespace Interface
                 {
                     if (Party.Members[GetId(i)].ActFirst)
                     {
-                        next = i;
+                        Next = i;
 
                         break;
                     }
@@ -3358,14 +3358,14 @@ namespace Interface
                 {
                     if (Enemies[GetId(i)].ActFirst)
                     {
-                        next = i;
+                        Next = i;
 
                         break;
                     }
                 }
             }
 
-            return next;
+            return Next;
         };
 
         auto Controls = std::vector<Button>();
@@ -3410,9 +3410,9 @@ namespace Interface
                 }
             }
 
-            auto active = false;
+            auto Active = false;
 
-            while (!active)
+            while (!Active)
             {
                 if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party))
                 {
@@ -3477,7 +3477,7 @@ namespace Interface
                         {
                             ActFirstRound = false;
 
-                            KnockedOffSequence(Sequence, Enemies);
+                            Interface::KnockedOffSequence(Sequence, Enemies);
 
                             CurrentCombatant = 0;
                         }
@@ -3495,7 +3495,7 @@ namespace Interface
                         }
                         else
                         {
-                            SortCombatants(Sequence);
+                            Interface::SortCombatants(Sequence);
 
                             ActFirstRound = false;
 
@@ -3512,7 +3512,7 @@ namespace Interface
                 {
                     auto character = Party.Members[GetId(CurrentCombatant)];
 
-                    active = Engine::IsAlive(character) && !character.Escaped;
+                    Active = Engine::IsAlive(character) && !character.Escaped;
 
                     if (Party.Members[GetId(CurrentCombatant)].IsDefending)
                     {
@@ -3523,7 +3523,7 @@ namespace Interface
                 {
                     Enemies[GetId(CurrentCombatant)].Attacked = -1;
 
-                    active = Engine::IsAlive(Enemies[GetId(CurrentCombatant)]);
+                    Active = Engine::IsAlive(Enemies[GetId(CurrentCombatant)]);
                 }
             }
 
@@ -4117,7 +4117,7 @@ namespace Interface
 
                                             if (Spell.Type == Spell::Type::GhastlyTouch)
                                             {
-                                                if (!NearbyEnemies(Map, Enemies, PlayerId, false))
+                                                if (!Interface::NearbyEnemies(Map, Enemies, PlayerId, false))
                                                 {
                                                     DisplayMessage("There are no enemies nearby!", intBK);
 
@@ -5101,9 +5101,9 @@ namespace Interface
 
         Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, ButtonX + NumControls * (Screen.IconSize + 2 * text_space), WindowY + Screen.IconSize, intBK, Control::Type::BACK));
 
-        auto done = false;
+        auto Done = false;
 
-        while (!done)
+        while (!Done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
@@ -5133,13 +5133,13 @@ namespace Interface
                 {
                     Result = -1;
 
-                    done = true;
+                    Done = true;
                 }
                 else
                 {
                     Result = Current;
 
-                    done = true;
+                    Done = true;
                 }
             }
         }
@@ -5151,11 +5151,11 @@ namespace Interface
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
 
-        std::string title_string = "";
+        std::string TitleString = "";
 
         if (!Story->Title.empty())
         {
-            title_string = Story->Title;
+            TitleString = Story->Title;
 
             SDL_SetWindowTitle(Window, Story->Title.c_str());
         }
@@ -5170,22 +5170,22 @@ namespace Interface
                     StoryId = Story->DisplayId;
                 }
 
-                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": " + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId));
+                TitleString = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": " + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId));
 
-                SDL_SetWindowTitle(Window, title_string.c_str());
+                SDL_SetWindowTitle(Window, TitleString.c_str());
             }
             else
             {
-                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": Not Implemented Yet";
+                TitleString = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": Not Implemented Yet";
 
-                SDL_SetWindowTitle(Window, title_string.c_str());
+                SDL_SetWindowTitle(Window, TitleString.c_str());
             }
         }
 
         Graphics::FillWindow(Renderer, intBK);
 
         // title string
-        Graphics::PutText(Renderer, title_string.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
+        Graphics::PutText(Renderer, TitleString.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
 
         // display party
         Interface::DisplayParty(Renderer, Party, Screen);
@@ -5310,9 +5310,9 @@ namespace Interface
 
         Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx > 0 ? idx - 1 : idx, idx, idx, idx, ButtonX + idx * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
 
-        auto done = false;
+        auto Done = false;
 
-        while (!done)
+        while (!Done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
 
@@ -5335,13 +5335,13 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
-                    done = true;
+                    Done = true;
                 }
                 else if (Current >= 0 && Current < Party.Members.size() && !Hold)
                 {
                     Result = Current;
 
-                    done = true;
+                    Done = true;
                 }
             }
         }
@@ -5384,11 +5384,11 @@ namespace Interface
 
         auto Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Mode);
 
-        auto done = false;
+        auto Done = false;
 
         auto Selection = std::vector<int>();
 
-        while (!done)
+        while (!Done)
         {
             if (Equipment.size() > Party.Members[Character].Encumbrance)
             {
@@ -5447,7 +5447,7 @@ namespace Interface
                     }
                     else
                     {
-                        done = true;
+                        Done = true;
                     }
                 }
                 else if (Controls[Current].Type == Control::Type::SCROLL_UP || (Controls[Current].Type == Control::Type::SCROLL_UP && Hold) || ScrollUp)
@@ -5557,7 +5557,7 @@ namespace Interface
 
                             if (Equipment.size() == 0)
                             {
-                                done = true;
+                                Done = true;
                             }
                             else
                             {
@@ -5616,7 +5616,7 @@ namespace Interface
 
         auto Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Equipment::Mode::TAKE);
 
-        auto done = false;
+        auto Done = false;
 
         auto Selection = std::vector<int>();
 
@@ -5638,7 +5638,7 @@ namespace Interface
             TakeLimit = "Select items to take";
         }
 
-        while (!done)
+        while (!Done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
@@ -5675,7 +5675,7 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
-                    done = true;
+                    Done = true;
                 }
                 else if (Controls[Current].Type == Control::Type::SCROLL_UP || (Controls[Current].Type == Control::Type::SCROLL_UP && Hold) || ScrollUp)
                 {
@@ -5785,7 +5785,7 @@ namespace Interface
 
                     Selection.clear();
 
-                    done = true;
+                    Done = true;
                 }
             }
         }
@@ -5981,7 +5981,7 @@ namespace Interface
 
         std::vector<TextButton> &Controls = ResistControls;
 
-        auto done = false;
+        auto Done = false;
 
         auto CurrentStage = Attributes::Stage::START;
 
@@ -6012,7 +6012,7 @@ namespace Interface
             AttributeValue = (Engine::Awareness(Party.Members[Character]) + (Equipment.size() > 0 ? Equipment[0].Score : 0));
         }
 
-        while (!done)
+        while (!Done)
         {
             // render current combat screen
             Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, Bg);
@@ -6087,7 +6087,7 @@ namespace Interface
                 }
                 else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
-                    done = true;
+                    Done = true;
                 }
             }
         }
