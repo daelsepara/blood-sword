@@ -1068,7 +1068,7 @@ namespace Graphics
 
                 auto x = text_x + i * (text_buttonw + textbutton_space);
 
-                auto button = TextButton(i, choices[i].c_str(), left, right, up, down, x, text_buttony, text_buttonw, text_buttonh);
+                auto button = TextButton(i, choices[i], left, right, up, down, x, text_buttony, text_buttonw, text_buttonh);
 
                 controls.push_back(button);
             }

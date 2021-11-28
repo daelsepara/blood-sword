@@ -824,7 +824,7 @@ namespace Engine
     {
         auto result = -1;
 
-        for (auto i = 0; Equipment.size(); i++)
+        for (auto i = 0; i < Equipment.size(); i++)
         {
             if (Equipment[i].Item == item)
             {
@@ -841,7 +841,7 @@ namespace Engine
     {
         auto result = -1;
 
-        for (auto i = 0; Equipment.size(); i++)
+        for (auto i = 0; i < Equipment.size(); i++)
         {
             if (Equipment[i].Item == item && Equipment[i].ChargeLimit > 0 && Equipment[i].Charge >= charge)
             {
