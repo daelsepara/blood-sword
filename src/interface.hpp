@@ -357,7 +357,7 @@ namespace Interface
         {
             auto Destination = Path.Points.back();
 
-            auto IsOccupied = (Map.Tiles[Destination.Y][Destination.X].IsEnemy() || Map.Tiles[Destination.Y][Destination.X].IsPlayer());
+            auto IsOccupied = (Map.Tiles[Destination.Y][Destination.X].IsOccupied());
 
             auto Limit = Path.Points.size() - (IsOccupied ? 1 : 0);
 
@@ -541,7 +541,7 @@ namespace Interface
     void SortTargets(std::vector<Targets> &Distances)
     {
         // sort players based on distance
-        std::sort(Distances.begin(), Distances.end(), [](Targets &a, Targets &b) -> bool
+        std::sort(Distances.begin(), Distances.end(), [](Interface::Targets &a, Interface::Targets &b) -> bool
                   {
                       if (std::get<1>(a) < std::get<1>(b))
                       {
@@ -573,7 +573,7 @@ namespace Interface
         // cycle through the players
         for (auto i = 0; i < Party.Members.size(); i++)
         {
-            if (Engine::IsAlive(Party.Members[i]) > 0 && !Party.Members[i].Escaped)
+            if (Engine::IsAlive(Party.Members[i]) && !Party.Members[i].Escaped)
             {
                 auto LocationX = 0;
 
@@ -585,11 +585,9 @@ namespace Interface
 
                 if (TempPath.Points.size() > 0)
                 {
-                    Distances.push_back({i, Interface::Distance(EnemyX, EnemyY, LocationX, LocationY), Engine::Endurance(Party.Members[i])});
-                }
-                else
-                {
-                    Distances.push_back({i, (Map.SizeX * Map.SizeY), Engine::Endurance(Party.Members[i])});
+                    auto Distance = Interface::Distance(EnemyX, EnemyY, LocationX, LocationY);
+
+                    Distances.push_back({i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Engine::Endurance(Party.Members[i])});
                 }
             }
         }
@@ -633,6 +631,61 @@ namespace Interface
         }
 
         return NearestPlayer;
+    }
+
+    void SortLocations(std::vector<Interface::Targets> &Distances)
+    {
+        // sort players based on distance
+        std::sort(Distances.begin(), Distances.end(), [](Interface::Targets &a, Interface::Targets &b) -> bool
+                  {
+                      if (std::get<2>(a) < std::get<2>(b))
+                      {
+                          return true;
+                      }
+                      else
+                      {
+                          return false;
+                      }
+                  });
+    }
+
+    bool CloseDistance(Map::Base &Map, int SrcX, int SrcY, int &DstX, int &DstY)
+    {
+        std::vector<std::pair<int, int>> Neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+
+        auto Result = false;
+
+        std::vector<Interface::Targets> Locations = {};
+
+        for (auto i = 0; i < Neighbors.size(); i++)
+        {
+            auto TargetX = DstX + Neighbors[i].first;
+
+            auto TargetY = DstY + Neighbors[i].second;
+
+            if (Interface::ValidX(Map, TargetX) && Interface::ValidY(Map, TargetY))
+            {
+                auto TempPath = AStar::FindPath(Map, SrcX, SrcY, TargetX, TargetY);
+
+                if (TempPath.Points.size() > 0)
+                {
+                    Locations.push_back({TargetX, TargetY, Interface::Distance(DstX, DstY, TargetX, TargetY)});
+                }
+            }
+        }
+
+        if (Locations.size() > 0)
+        {
+            Interface::SortLocations(Locations);
+
+            DstX = std::get<0>(Locations[0]);
+
+            DstY = std::get<1>(Locations[0]);
+
+            Result = true;
+        }
+
+        return Result;
     }
 
     void CharacterSheet(SDL_Renderer *Renderer, Character::Base &Character, TTF_Font *Font, int TextWidth, int X, int Y, Uint32 Bg, bool FlipColors)
@@ -4746,10 +4799,12 @@ namespace Interface
                             // check if enemy can shoot from range (enemy-specific)
                             if (Enemies[EnemyId].CanMove)
                             {
-                                // close distance
-                                auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
+                                auto CanMove = Interface::CloseDistance(Map, EnemyX, EnemyY, LocationX, LocationY);
 
-                                if (EnemyPath.Points.size() > 2)
+                                // move to adjacent tile or close distance
+                                auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, !CanMove);
+
+                                if (EnemyPath.Points.size() > 0)
                                 {
                                     Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyPath, StartMap);
 

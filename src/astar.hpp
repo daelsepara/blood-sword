@@ -112,7 +112,7 @@ namespace AStar
 
             auto IsTarget = isEnemy && Tile.IsPlayer();
 
-            return (IsDestination || IsPassable || IsPassableToEnemy || IsExit || IsTarget);
+            return (IsPassable || IsDestination || IsPassableToEnemy || IsExit || IsTarget);
         }
         else
         {
@@ -142,12 +142,6 @@ namespace AStar
                     auto Y = current->Y + neighbors[i].second;
 
                     auto Cost = current->Cost + 1;
-
-                    if (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && isEnemy && map.Tiles[Y][X].IsEnemy())
-                    {
-                        // Enemies avoid other enemies as much as possible
-                        Cost += 1;
-                    }
 
                     traversable.push_back(std::make_shared<AStar::Node>(X, Y, Cost, current));
 
