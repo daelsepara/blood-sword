@@ -44,6 +44,9 @@ namespace Enemy
 
         bool CanShoot = false;
 
+        // player last attacked
+        int Attacked = -1;
+
         // acts first before normal combat sequence
         bool ActFirst = false;
 

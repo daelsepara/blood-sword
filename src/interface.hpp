@@ -349,6 +349,38 @@ namespace Interface
         return result;
     }
 
+    bool FullMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, AStar::Path &Path, int StartMap)
+    {
+        auto Result = false;
+
+        if (Path.Points.size() > 2)
+        {
+            auto Destination = Path.Points.back();
+
+            auto IsOccupied = (Map.Tiles[Destination.Y][Destination.X].IsEnemy() || Map.Tiles[Destination.Y][Destination.X].IsPlayer());
+
+            auto Limit = Path.Points.size() - (IsOccupied ? 1 : 0);
+
+            for (auto i = 1; i < Limit; i++)
+            {
+                auto Point = Path.Points[i - 1];
+
+                auto Next = Path.Points[i];
+
+                Result = Interface::AnimateMove(Renderer, BattleScreen, bg, Map, Party, Enemies, Point.X, Point.Y, Next.X, Next.Y);
+
+                if (!Result)
+                {
+                    break;
+                }
+
+                Interface::GenerateMapControls(Map, BattleScreen, Party, Enemies, StartMap);
+            }
+        }
+
+        return Result;
+    }
+
     int Find(std::vector<Combatants> &Sequence, Map::Object object, int id)
     {
         auto found = -1;
@@ -462,7 +494,7 @@ namespace Interface
         {
             Enemy::Base &Enemy = Enemies[i];
 
-            if (Engine::IsAlive(Enemy) && Interface::IsAdjacent(Map, PlayerId, i) && Enemy.Awareness >= Engine::Awareness(character) && !character.ActFirst)
+            if (Engine::IsAlive(Enemy) && Interface::IsAdjacent(Map, PlayerId, i) && Enemy.Awareness >= Engine::Awareness(character) && Enemy.Attacked == PlayerId && !character.ActFirst)
             {
                 WasAttacked = true;
 
@@ -2868,7 +2900,7 @@ namespace Interface
         return Result;
     }
 
-    void RenderMapInfo(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, std::vector<AStar::Path> &CurrentPath, std::vector<int> &CurrentMove, Combat::Mode CurrentMode, int CombatRound, int Current, int CurrentCombatant, int SelectedCombatant, int SelectedSpell)
+    void RenderMapInfo(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, Combat::Mode CurrentMode, int CombatRound, int Current, int CurrentCombatant, int SelectedCombatant, int SelectedSpell)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
 
@@ -2897,15 +2929,24 @@ namespace Interface
 
             if (ControlType == Control::Type::PLAYER && NoneSelected)
             {
-                Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
+                if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
+                {
+                    Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
+                }
             }
             else if (ControlType == Control::Type::ENEMY && NoneSelected)
             {
-                Interface::EnemyData(Renderer, Map, Enemies, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
+                if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
+                {
+                    Interface::EnemyData(Renderer, Map, Enemies, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
+                }
             }
             else if ((ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT) && NoneSelected)
             {
-                Interface::ShowCoordinates(Renderer, Map.Tiles[SelectY][SelectX].Type, SelectX, SelectY, Fonts::Normal, Map.TextWidth, Map.TextRightX, Map.DrawY);
+                if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
+                {
+                    Interface::ShowCoordinates(Renderer, Map.Tiles[SelectY][SelectX].Type, SelectX, SelectY, Fonts::Normal, Map.TextWidth, Map.TextRightX, Map.DrawY);
+                }
             }
 
             if (CurrentMode == Combat::Mode::NORMAL)
@@ -2925,35 +2966,11 @@ namespace Interface
             }
             else if (CurrentMode == Combat::Mode::MOVE)
             {
-                auto TargetX = -1;
-
-                auto TargetY = -1;
+                Graphics::PutText(Renderer, "Move to location", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
 
                 auto PlayerId = std::get<1>(Sequence[CurrentCombatant]);
 
-                if (IsPlayer)
-                {
-                    if (CurrentMove[PlayerId] > 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
-                    {
-                        TargetX = CurrentPath[PlayerId].Points.back().X - Map.MapX;
-
-                        TargetY = CurrentPath[PlayerId].Points.back().Y - Map.MapY;
-
-                        Graphics::PutText(Renderer, "Move to location or continue along current path", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
-
-                        Interface::DrawPath(Renderer, Map, CurrentPath[PlayerId], CurrentMove[PlayerId], intGR, 0x66);
-                    }
-                    else
-                    {
-                        Graphics::PutText(Renderer, "Move to location", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
-                    }
-                }
-                else
-                {
-                    Graphics::PutText(Renderer, "Move to location", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
-                }
-
-                if ((TargetX != SelectX || TargetY != SelectY) && ((ControlType == Control::Type::DESTINATION) || (IsPlayer && ControlType == Control::Type::MAP_EXIT) || (!IsPlayer && ControlType == Control::Type::MAP_NONE && Map.Tiles[SelectY][SelectX].IsPassableToEnemy)))
+                if ((ControlType == Control::Type::DESTINATION) || (IsPlayer && ControlType == Control::Type::MAP_EXIT) || (!IsPlayer && ControlType == Control::Type::MAP_NONE && Map.Tiles[SelectY][SelectX].IsPassableToEnemy))
                 {
                     auto PlayerX = -1;
 
@@ -2961,7 +2978,7 @@ namespace Interface
 
                     Interface::Find(Map, std::get<0>(Sequence[CurrentCombatant]), PlayerId, PlayerX, PlayerY);
 
-                    if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY) && Interface::Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
+                    if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY) && Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY) && Interface::Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
                     {
                         auto TempPath = AStar::FindPath(Map, PlayerX, PlayerY, SelectX, SelectY, IsPlayer ? false : true);
 
@@ -3179,10 +3196,6 @@ namespace Interface
         auto ScrollUp = false;
         auto ScrollDown = false;
         auto Current = 0;
-
-        auto CurrentPath = std::vector<AStar::Path>(Party.Members.size());
-
-        auto CurrentMove = std::vector<int>(Party.Members.size());
 
         // round sequence
         std::vector<Interface::Combatants> Sequence = {};
@@ -3455,6 +3468,8 @@ namespace Interface
                 }
                 else if (IsEnemy(CurrentCombatant))
                 {
+                    Enemies[GetId(CurrentCombatant)].Attacked = -1;
+
                     active = Engine::IsAlive(Enemies[GetId(CurrentCombatant)]);
                 }
             }
@@ -3511,10 +3526,6 @@ namespace Interface
             }
         };
 
-        Engine::ClearDefendingStatus(Party);
-
-        Engine::ResetSpellDifficulty(Party);
-
         auto StartMap = 11;
         auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
         auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
@@ -3533,6 +3544,15 @@ namespace Interface
 
         // generate controls within the map window
         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+
+        // clear defending, quickthinking status, spell durations
+        Engine::ClearDefendingStatus(Party);
+
+        Engine::NormalThinking(Party);
+
+        Engine::ResetSpellDifficulty(Party);
+
+        Engine::ClearStatus(Party);
 
         // setup surprise first round attacks
         Engine::NormalCombat(Party);
@@ -3650,7 +3670,7 @@ namespace Interface
 
                 Interface::RenderSelection(Renderer, Map, Party, Enemies, Sequence, SelectedCombatant);
 
-                Interface::RenderMapInfo(Renderer, Map, Party, Enemies, Controls, Sequence, CurrentPath, CurrentMove, CurrentMode, CombatRound, Current, CurrentCombatant, SelectedCombatant, SelectedSpell);
+                Interface::RenderMapInfo(Renderer, Map, Party, Enemies, Controls, Sequence, CurrentMode, CombatRound, Current, CurrentCombatant, SelectedCombatant, SelectedSpell);
 
                 RenderFlashMessage();
 
@@ -3817,18 +3837,16 @@ namespace Interface
 
                                 if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                 {
-                                    CurrentPath[PlayerId] = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
-
-                                    CurrentMove[PlayerId] = 1;
+                                    auto CurrentPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
 
                                     auto Damages = 0;
 
                                     // get attacked by a nearby enemy that has a higher awareness
                                     auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
 
-                                    if (CurrentPath[PlayerId].Points.size() > 2)
+                                    if (CurrentPath.Points.size() > 2)
                                     {
-                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, CurrentPath[PlayerId].Points[1].X, CurrentPath[PlayerId].Points[1].Y))
+                                        if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentPath, StartMap))
                                         {
                                             DisplayMessage("Path blocked!", intBK);
                                         }
@@ -3844,13 +3862,13 @@ namespace Interface
 
                                                 if (!Engine::IsAlive(Character))
                                                 {
-                                                    Interface::Remove(Map, CurrentPath[PlayerId].Points[1].X, CurrentPath[PlayerId].Points[1].Y);
+                                                    auto Destination = CurrentPath.Points.size() - 1;
+
+                                                    Interface::Remove(Map, CurrentPath.Points[Destination].X, CurrentPath.Points[Destination].Y);
 
                                                     Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                                 }
                                             }
-
-                                            CurrentMove[PlayerId] = 2;
 
                                             CycleCombatants();
                                         }
@@ -3862,10 +3880,6 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    CurrentMove[PlayerId] = 0;
-
-                                    CurrentPath[PlayerId].Points.clear();
-
                                     auto Damages = 0;
 
                                     auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
@@ -3915,51 +3929,7 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                if (CurrentPath[PlayerId].Points.size() > 1 && CurrentMove[PlayerId] >= 0 && CurrentMove[PlayerId] < CurrentPath[PlayerId].Points.size())
-                                {
-                                    if (Engine::IsAlive(Character))
-                                    {
-                                        auto Damages = 0;
-
-                                        auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
-
-                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y))
-                                        {
-                                            DisplayMessage("Path blocked!", intBK);
-                                        }
-                                        else
-                                        {
-                                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-
-                                            // get attacked by a nearby enemy that has a higher awareness
-                                            if (WasAttacked)
-                                            {
-                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " was attacked!"), intBK);
-
-                                                Engine::Gain(Character, Attributes::Type::Endurance, Damages);
-
-                                                if (!Engine::IsAlive(Character))
-                                                {
-                                                    Interface::Remove(Map, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].X, CurrentPath[PlayerId].Points[CurrentMove[PlayerId]].Y);
-
-                                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                                                }
-                                            }
-
-                                            CurrentMove[PlayerId]++;
-
-                                            CycleCombatants();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        CycleCombatants();
-                                    }
-                                }
-                                else
-                                {
-                                    CurrentMode = Combat::Mode::NORMAL;
-                                }
+                                CurrentMode = Combat::Mode::NORMAL;
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::ATTACK && !Hold)
@@ -4476,7 +4446,7 @@ namespace Interface
 
                                     if (EnemyPath.Points.size() > 2)
                                     {
-                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, EnemyPath.Points[1].X, EnemyPath.Points[1].Y))
+                                        if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyPath, StartMap))
                                         {
                                             DisplayMessage("Path blocked!", intBK);
                                         }
@@ -4675,7 +4645,7 @@ namespace Interface
 
                                         if (EnemyPath.Points.size() > 2)
                                         {
-                                            if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, EnemyPath.Points[1].X, EnemyPath.Points[1].Y))
+                                            if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyPath, StartMap))
                                             {
                                                 DisplayMessage("Path blocked!", intBK);
                                             }
@@ -4754,6 +4724,9 @@ namespace Interface
                             // do attack
                             auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[PlayerId], Enemies[EnemyId], Combat::FightMode::FIGHT, true);
 
+                            // indicate player last attacked
+                            Enemies[EnemyId].Attacked = PlayerId;
+
                             if (!Engine::IsAlive(Party.Members[PlayerId]))
                             {
                                 Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[PlayerId].Class]) + " killed!", intBK);
@@ -4778,7 +4751,7 @@ namespace Interface
 
                                 if (EnemyPath.Points.size() > 2)
                                 {
-                                    Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyX, EnemyY, EnemyPath.Points[1].X, EnemyPath.Points[1].Y);
+                                    Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyPath, StartMap);
 
                                     Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                 }
@@ -4786,6 +4759,8 @@ namespace Interface
                             else if (Enemies[EnemyId].CanShoot)
                             {
                                 auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[PlayerId], Enemies[EnemyId], Combat::FightMode::SHOOT, true);
+
+                                Enemies[EnemyId].Attacked = PlayerId;
 
                                 if (!Engine::IsAlive(Party.Members[PlayerId]))
                                 {
@@ -4822,7 +4797,13 @@ namespace Interface
         {
             Engine::ClearDefendingStatus(Party);
 
+            Engine::NormalThinking(Party);
+
             Engine::ResetSpellDifficulty(Party);
+
+            Engine::ClearStatus(Party);
+
+            Engine::NormalCombat(Party);
 
             // track Enemies who have survive
             auto SurvivingEnemies = std::vector<Enemy::Base>();
@@ -6702,7 +6683,7 @@ namespace Interface
     {
         auto Story = Interface::FindStory(Destination);
 
-        ProcessStory(Window, Renderer, Party, Story);
+        Interface::ProcessStory(Window, Renderer, Party, Story);
     }
 
     Party::Base CreateParty(SDL_Window *Window, SDL_Renderer *Renderer)

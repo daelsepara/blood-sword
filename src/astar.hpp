@@ -94,7 +94,9 @@ namespace AStar
 
     bool IsPassable(Map::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool isEnemy, bool ignore)
     {
-        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && ((map.Tiles[Y][X].IsPassable && ((ignore && isEnemy) || !map.Tiles[Y][X].IsOccupied())) || (Y == target->Y && X == target->X) || (isEnemy && map.Tiles[Y][X].IsPassableToEnemy && (ignore || !map.Tiles[Y][X].IsOccupied())) || (!isEnemy && map.Tiles[Y][X].IsExit())));
+        auto NotOccupied = !map.Tiles[Y][X].IsOccupied();
+
+        return (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height && ((map.Tiles[Y][X].IsPassable && ((isEnemy && ignore) || NotOccupied)) || (Y == target->Y && X == target->X) || (isEnemy && map.Tiles[Y][X].IsPassableToEnemy && (ignore || NotOccupied)) || (!isEnemy && map.Tiles[Y][X].IsExit() && NotOccupied) || (isEnemy && map.Tiles[Y][X].IsPlayer())));
     }
 
     // Get all traversible nodes from current node
@@ -115,6 +117,7 @@ namespace AStar
                 if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second, isEnemy, ignore))
                 {
                     auto X = current->X + neighbors[i].first;
+                    
                     auto Y = current->Y + neighbors[i].second;
 
                     auto Cost = current->Cost + 1;

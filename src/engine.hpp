@@ -554,6 +554,15 @@ namespace Engine
         }
     }
 
+    void NormalThinking(Party::Base &party)
+    {
+        // clear defensive stance
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            party.Members[i].QuickThinking = false;
+        }
+    }
+
     void NormalCombat(Party::Base &party)
     {
         // clear act first flag
@@ -714,6 +723,19 @@ namespace Engine
         auto result = Engine::GetStatus(character, status);
 
         return (result >= 0 && result < character.SpellStatus.size()) && Engine::IsAlive(character);
+    }
+
+    void ClearStatus(Character::Base &character)
+    {
+        character.SpellStatus.clear();
+    }
+
+    void ClearStatus(Party::Base &party)
+    {
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            Engine::ClearStatus(party.Members[i]);
+        }
     }
 
     int GetStatus(Enemy::Base &enemy, Spell::Type status)
