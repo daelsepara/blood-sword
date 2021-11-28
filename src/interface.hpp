@@ -1273,6 +1273,68 @@ namespace Interface
         }
     }
 
+    int Choose(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, std::vector<std::string> Labels, const char *Message)
+    {
+        auto Result = -1;
+
+        auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
+        auto MapSizeY = (Map.SizeY < 4 ? 4 : Map.SizeY) * Map.ObjectSize;
+        auto WindowW = 10 * Map.ObjectSize;
+        auto WindowH = 3 * Map.ObjectSize;
+        auto WindowX = Map.DrawX + (MapSizeX - WindowW) / 2;
+        auto WindowY = Map.DrawY + (MapSizeY - WindowH) / 2;
+        auto WindowButtonX = WindowX + 4 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        auto TextButtonX = WindowX + 2 * text_space;
+        auto TextButtonY = (WindowY + WindowH) - (text_buttonh + 2 * text_space);
+
+        auto Controls = Graphics::CreateFixedTextButtons(Labels, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+
+        for (auto i = 0; i < Controls.size(); i++)
+        {
+            Controls[i].Fg = clrWH;
+            Controls[i].Color = intBK;
+            Controls[i].Highlight = intGR;
+            Controls[i].Type = Control::Type::CHOICE;
+        }
+
+        auto Done = false;
+
+        while (!Done)
+        {
+            // render current combat screen
+            Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, Message, Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
+
+            Graphics::RenderTextButtons(Renderer, Controls, Fonts::Normal, Current, TTF_STYLE_NORMAL);
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::CHOICE)
+                {
+                    Result = Current;
+
+                    Done = true;
+                }
+            }
+        }
+
+        return Result;
+    }
+
     int Choose(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
     {
         auto Result = -1;
@@ -1905,6 +1967,8 @@ namespace Interface
             auto ScrollDown = false;
             auto Current = 0;
             auto Quarterstaff = false;
+            auto SteelSceptre = false;
+            auto HasSteelSceptre = !Attacked && Engine::HasItem(Character, Equipment::Item::SteelSceptre, 1);
 
             auto CurrentStage = Combat::Stage::START;
             auto Weapons = Engine::Weapons(Character);
@@ -2071,21 +2135,28 @@ namespace Interface
                 }
                 else if (CurrentStage == Combat::Stage::DAMAGE)
                 {
-                    // show fight results
-                    for (auto i = 0; i < FightRolls; i++)
+                    if (!SteelSceptre)
                     {
-                        Graphics::StretchImage(Renderer, Dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
-                    }
+                        // show fight results
+                        for (auto i = 0; i < FightRolls; i++)
+                        {
+                            Graphics::StretchImage(Renderer, Dice[Rolls[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
+                        }
 
-                    Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
+                        Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
 
-                    if (Attacked)
-                    {
-                        Graphics::PutText(Renderer, (Enemy.Name + " hits the " + std::string(Character::ClassName[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 5) * RowHeight);
+                        if (Attacked)
+                        {
+                            Graphics::PutText(Renderer, (Enemy.Name + " hits the " + std::string(Character::ClassName[Character.Class]) + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 5) * RowHeight);
+                        }
+                        else
+                        {
+                            Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Character.Class]) + " hits " + Enemy.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 5) * RowHeight);
+                        }
                     }
                     else
                     {
-                        Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Character.Class]) + " hits " + Enemy.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 5) * RowHeight);
+                        Graphics::PutText(Renderer, ("Bolts from the steel sceptre blasts the " + Enemy.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 5) * RowHeight);
                     }
 
                     if (!CalculatedDamage)
@@ -2095,6 +2166,15 @@ namespace Interface
                         if (Quarterstaff && !Attacked)
                         {
                             DamageRolls += 1;
+
+                            Rolls.resize(DamageRolls, 0);
+                        }
+
+                        if (SteelSceptre)
+                        {
+                            Engine::Discharge(Character, Equipment::Item::SteelSceptre, 1);
+
+                            DamageRolls = 5;
 
                             Rolls.resize(DamageRolls, 0);
                         }
@@ -2109,7 +2189,7 @@ namespace Interface
 
                         DamageSum += FightMode == Combat::FightMode::SHOOT ? 0 : (Attacked ? Enemy.DamageModifier : DamageModifier);
 
-                        DamageSum -= Attacked ? Armour : Enemy.Armour;
+                        DamageSum -= Attacked ? Armour : (SteelSceptre ? 0 : Enemy.Armour);
 
                         DamageSum = std::max(0, DamageSum);
 
@@ -2152,7 +2232,7 @@ namespace Interface
                             Graphics::StretchImage(Renderer, Dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                         }
 
-                        Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
+                        Graphics::PutText(Renderer, ((!SteelSceptre ? "Damage Dealt (-Armour): " : "Damage Dealt: ") + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
 
                         if (!AssignedDamage)
                         {
@@ -2178,9 +2258,37 @@ namespace Interface
                 {
                     if (Controls[Current].Type == Control::Type::ATTACK && !Hold)
                     {
-                        CurrentStage = Combat::Stage::FIGHT;
+                        if (HasSteelSceptre)
+                        {
+                            auto Choice = Interface::Choose(Renderer, BattleScreen, bg, Map, {"YES", "NO"}, "Use the steel sceptre?");
 
-                        Controls = DamageControls;
+                            if (Choice == 0)
+                            {
+                                CurrentStage = Combat::Stage::DAMAGE;
+
+                                Result = Combat::Result::FIGHT;
+
+                                Controls = DamageControls;
+
+                                SteelSceptre = true;
+
+                                Damage = 5;
+
+                                DamageModifier = 0;
+                            }
+                            else
+                            {
+                                CurrentStage = Combat::Stage::FIGHT;
+
+                                Controls = DamageControls;
+                            }
+                        }
+                        else
+                        {
+                            CurrentStage = Combat::Stage::FIGHT;
+
+                            Controls = DamageControls;
+                        }
                     }
                     else if (Controls[Current].Type == Control::Type::QUARTERSTAFF && !Hold)
                     {
@@ -5213,83 +5321,9 @@ namespace Interface
         auto WindowH = 2 * Screen.TextBoxHeight / 5;
         auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
-        auto WindowTextWidth = WindowW - 4 * text_space;
         auto RowHeight = TTF_FontHeight(Fonts::Normal);
         auto TextY = WindowY + 2 * text_space;
-
-        auto ButtonX = WindowX + 2 * text_space;
-
-        auto Hold = false;
-        auto Selected = false;
-        auto ScrollUp = false;
-        auto ScrollDown = false;
-        auto Current = 0;
-
-        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
-
-        auto Controls = std::vector<Button>();
-
-        for (auto i = 0; i < Party.Members.size(); i++)
-        {
-            Controls.push_back(Button(i, Assets::Get(Party.Members[i].Asset), i > 0 ? i - 1 : i, i + 1, i, i, ButtonX + i * Screen.IconSize, OffsetY, intWH, Interface::PlayerControls[Party.Members[i].Class]));
-        }
-
-        auto idx = Controls.size();
-
-        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx > 0 ? idx - 1 : idx, idx, idx, idx, ButtonX + idx * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
-
-        auto done = false;
-
-        while (!done)
-        {
-            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, Bg);
-
-            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
-
-            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
-
-            Graphics::PutText(Renderer, SelectMessage, Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY);
-
-            Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
-
-            if (Current >= 0 && Current < Controls.size())
-            {
-                Graphics::RenderCaption(Renderer, Controls[Current], clrGR, intBK);
-            }
-
-            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
-
-            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
-            {
-                if (Controls[Current].Type == Control::Type::BACK && !Hold)
-                {
-                    done = true;
-                }
-                else if (Current >= 0 && Current < Party.Members.size() && !Hold)
-                {
-                    Result = Current;
-
-                    done = true;
-                }
-            }
-        }
-
-        return Result;
-    }
-
-    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage)
-    {
-        auto Result = -1;
-        auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
-        auto WindowH = 2 * Screen.TextBoxHeight / 5;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
-        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
-        auto WindowTextWidth = WindowW - 4 * text_space;
-        auto RowHeight = TTF_FontHeight(Fonts::Normal);
-        auto TextY = WindowY + 2 * text_space;
-
-        auto ButtonX = WindowX + 2 * text_space;
+        auto ButtonX = WindowX + (WindowW - (Party.Members.size() + 1) * Screen.IconSize) / 2;
 
         auto Hold = false;
         auto Selected = false;
@@ -5312,6 +5346,88 @@ namespace Interface
 
         auto Done = false;
 
+        auto MessageW = -1;
+
+        auto MessageH = -1;
+
+        TTF_SizeText(Fonts::Normal, SelectMessage, &MessageW, &MessageH);
+
+        while (!Done)
+        {
+            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, Bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, SelectMessage, Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, MessageW + 2 * text_space, RowHeight, WindowX + (WindowW - MessageW) / 2, TextY);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrGR, intBK);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    Done = true;
+                }
+                else if (Current >= 0 && Current < Party.Members.size() && !Hold)
+                {
+                    Result = Current;
+
+                    Done = true;
+                }
+            }
+        }
+
+        return Result;
+    }
+
+    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage)
+    {
+        auto Result = -1;
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 2 * Screen.TextBoxHeight / 5;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto TextY = WindowY + 2 * text_space;
+        auto ButtonX = WindowX + (WindowW - (Party.Members.size() + 1) * Screen.IconSize) / 2;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
+
+        auto Controls = std::vector<Button>();
+
+        for (auto i = 0; i < Party.Members.size(); i++)
+        {
+            Controls.push_back(Button(i, Assets::Get(Party.Members[i].Asset), i > 0 ? i - 1 : i, i + 1, i, i, ButtonX + i * Screen.IconSize, OffsetY, intWH, Interface::PlayerControls[Party.Members[i].Class]));
+        }
+
+        auto idx = Controls.size();
+
+        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx > 0 ? idx - 1 : idx, idx, idx, idx, ButtonX + idx * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
+
+        auto Done = false;
+
+        auto MessageW = -1;
+
+        auto MessageH = -1;
+
+        TTF_SizeText(Fonts::Normal, SelectMessage, &MessageW, &MessageH);
+
         while (!Done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
@@ -5320,7 +5436,7 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
-            Graphics::PutText(Renderer, SelectMessage, Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowTextWidth, RowHeight, ButtonX, TextY);
+            Graphics::PutText(Renderer, SelectMessage, Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, MessageW + 2 * text_space, RowHeight, WindowX + (WindowW - MessageW) / 2, TextY);
 
             Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
 

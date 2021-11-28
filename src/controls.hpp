@@ -103,7 +103,7 @@ namespace Control
 class TextButton : public Control::Base
 {
 private:
-    void construct(int id, const char *text, int left, int right, int up, int down, int x, int y, int w, int h)
+    void construct(int id, std::string text, int left, int right, int up, int down, int x, int y, int w, int h)
     {
         ID = id;
         Text = text;
@@ -118,14 +118,14 @@ private:
     }
 
 public:
-    const char *Text = NULL;
+    std::string Text = "";
 
-    TextButton(int id, const char *text, int left, int right, int up, int down, int x, int y, int w, int h)
+    TextButton(int id, std::string text, int left, int right, int up, int down, int x, int y, int w, int h)
     {
         construct(id, text, left, right, up, down, x, y, w, h);
     }
 
-    TextButton(int id, const char *text, int left, int right, int up, int down, int x, int y, int w, int h, Control::Type type)
+    TextButton(int id, std::string text, int left, int right, int up, int down, int x, int y, int w, int h, Control::Type type)
     {
         Type = type;
 

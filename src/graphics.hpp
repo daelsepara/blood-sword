@@ -14,6 +14,7 @@ namespace Graphics
     SDL_Surface *CreateText(const char *text, const char *ttf, int font_size, SDL_Color textColor, int wrap, int style);
     SDL_Surface *CreateTextAndImage(const char *text, const char *image, const char *ttf, int font_size, SDL_Color textColor, Uint32 bg, int wrap, int style, bool bottom);
 
+    std::vector<TextButton> CreateFixedTextButtons(std::vector<std::string> choices, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony);
     std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony);
     std::vector<TextButton> CreateTextButtons(const char **choices, int num, int text_buttonh, int text_x, int text_buttony, int window_width, int window_height);
 
@@ -472,6 +473,11 @@ namespace Graphics
 
             TTF_SizeText(Fonts::Caption, caption.c_str(), &captionw, &captionh);
 
+            if (control.Type == Control::Type::WARRIOR || control.Type == Control::Type::TRICKSTER || control.Type == Control::Type::SAGE || control.Type == Control::Type::ENCHANTER)
+            {
+                captionx = control.X + (control.W - captionw) / 2;
+            }
+
             Graphics::PutText(renderer, caption.c_str(), Fonts::Caption, border_pts, color, bg, TTF_STYLE_NORMAL, captionw + 2 * text_space, captionh, captionx, captiony);
         }
     }
@@ -662,7 +668,7 @@ namespace Graphics
             {
                 for (auto i = 0; i < controls.size(); i++)
                 {
-                    auto text = Graphics::CreateText(controls[i].Text, font, controls[i].Fg, controls[i].W, style);
+                    auto text = Graphics::CreateText(controls[i].Text.c_str(), font, controls[i].Fg, controls[i].W, style);
 
                     auto x = controls[i].X + (controls[i].W - text->w) / 2;
                     auto y = controls[i].Y + (controls[i].H - text->h) / 2;
@@ -1045,9 +1051,11 @@ namespace Graphics
         return surface;
     }
 
-    std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony)
+    std::vector<TextButton> CreateFixedTextButtons(std::vector<std::string> choices, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony)
     {
         auto controls = std::vector<TextButton>();
+
+        auto num = choices.size();
 
         if (num > 0)
         {
@@ -1060,13 +1068,25 @@ namespace Graphics
 
                 auto x = text_x + i * (text_buttonw + textbutton_space);
 
-                auto button = TextButton(i, choices[i], left, right, up, down, x, text_buttony, text_buttonw, text_buttonh);
+                auto button = TextButton(i, choices[i].c_str(), left, right, up, down, x, text_buttony, text_buttonw, text_buttonh);
 
                 controls.push_back(button);
             }
         }
 
         return controls;
+    }
+
+    std::vector<TextButton> CreateFixedTextButtons(const char **choices, int num, int text_buttonw, int text_buttonh, int textbutton_space, int text_x, int text_buttony)
+    {
+        auto labels = std::vector<std::string>();
+
+        for (auto i = 0; i < num; i++)
+        {
+            labels.push_back(choices[i]);
+        }
+
+        return Graphics::CreateFixedTextButtons(labels, text_buttonw, text_buttonh, textbutton_space, text_x, text_buttony);
     }
 
     std::vector<TextButton> CreateTextButtons(const char **choices, int num, int text_buttonh, int text_x, int text_buttony, int window_width, int window_height)

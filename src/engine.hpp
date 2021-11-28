@@ -581,7 +581,6 @@ namespace Engine
         }
     }
 
-
     int Find(Character::Base &character, Spell::Type spell)
     {
         auto result = -1;
@@ -838,6 +837,23 @@ namespace Engine
         return result;
     }
 
+    int Find(std::vector<Equipment::Base> &Equipment, Equipment::Item item, int charge)
+    {
+        auto result = -1;
+
+        for (auto i = 0; Equipment.size(); i++)
+        {
+            if (Equipment[i].Item == item && Equipment[i].ChargeLimit > 0 && Equipment[i].Charge >= charge)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
     int Find(Character::Base &character, Equipment::Item item)
     {
         return Engine::Find(character.Equipment, item);
@@ -846,6 +862,13 @@ namespace Engine
     bool HasItem(Character::Base &character, Equipment::Item item)
     {
         auto found = Engine::Find(character.Equipment, item);
+
+        return (found >= 0 && found < character.Equipment.size() && Engine::IsAlive(character));
+    }
+
+    bool HasItem(Character::Base &character, Equipment::Item item, int charge)
+    {
+        auto found = Engine::Find(character.Equipment, item, charge);
 
         return (found >= 0 && found < character.Equipment.size() && Engine::IsAlive(character));
     }
@@ -887,20 +910,22 @@ namespace Engine
         return result;
     }
 
-    bool Discharge(Character::Base &character, Equipment::Item item, int Charge)
+    bool HasCharge(Character::Base &character, Equipment::Item item, int charge)
+    {
+        return Engine::HasItem(character, item, charge);
+    }
+
+    bool Discharge(Character::Base &character, Equipment::Item item, int charge)
     {
         auto Discharged = false;
 
-        if (Engine::HasItem(character, item))
+        if (Engine::HasCharge(character, item, charge))
         {
-            auto found = Engine::Find(character, item);
+            auto found = Engine::Find(character.Equipment, item, charge);
 
-            if (character.Equipment[found].ChargeLimit > 0 && character.Equipment[found].Charge >= Charge)
-            {
-                character.Equipment[found].Charge -= Charge;
+            character.Equipment[found].Charge -= charge;
 
-                Discharged = true;
-            }
+            Discharged = true;
         }
 
         return Discharged;
