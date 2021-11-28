@@ -613,7 +613,7 @@ namespace Interface
         if (Distances.size() > 0)
         {
             // sort players based on distance and endurance
-            SortTargets(Distances);
+            Interface::SortTargets(Distances);
 
             NearestPlayer = Distances.front();
         }
@@ -624,7 +624,7 @@ namespace Interface
             if (Distances.size() > 0)
             {
                 // sort players based on distance and endurance
-                SortTargets(Distances);
+                Interface::SortTargets(Distances);
 
                 NearestPlayer = Distances.front();
             }
