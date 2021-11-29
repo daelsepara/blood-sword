@@ -21,6 +21,8 @@ namespace Assets
         HotCoals,
         Stairs,
         WindowMystical,
+        Steep,
+        Lava,
         Up = 100,
         Left,
         Right,
@@ -80,7 +82,8 @@ namespace Assets
         Enemies = 300,
         Barbarian,
         NinjaAssassin,
-        DirgeMan
+        DirgeMan,
+        Skiapyr
     };
 
     typedef std::pair<Assets::Type, SDL_Surface *> Surface;

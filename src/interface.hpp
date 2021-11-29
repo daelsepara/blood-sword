@@ -1858,7 +1858,7 @@ namespace Interface
         return Result;
     }
 
-    // fight/shoot encounter between player and Enemy
+    // fight/shoot encounter between player and enemy
     Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Character::Base &Character, Enemy::Base &Enemy, Combat::FightMode FightMode, bool Attacked)
     {
         auto Result = Combat::Result::NONE;
@@ -2189,7 +2189,20 @@ namespace Interface
 
                         DamageSum += FightMode == Combat::FightMode::SHOOT ? 0 : (Attacked ? Enemy.DamageModifier : DamageModifier);
 
-                        DamageSum -= Attacked ? Armour : (SteelSceptre ? 0 : Enemy.Armour);
+                        if (Attacked)
+                        {
+                            if (Enemy.Type != Enemy::Type::Skiapyr)
+                            {
+                                DamageSum -= Armour;
+                            }
+                        }
+                        else
+                        {
+                            if (!SteelSceptre)
+                            {
+                                DamageSum -= Enemy.Armour;
+                            }
+                        }
 
                         DamageSum = std::max(0, DamageSum);
 
@@ -2232,7 +2245,32 @@ namespace Interface
                             Graphics::StretchImage(Renderer, Dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (RowOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                         }
 
-                        Graphics::PutText(Renderer, ((!SteelSceptre ? "Damage Dealt (-Armour): " : "Damage Dealt: ") + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
+                        std::string DamageString = "";
+
+                        if (Attacked)
+                        {
+                            if (Enemy.Type == Enemy::Type::Skiapyr)
+                            {
+                                DamageString = "Damage Dealt: ";
+                            }
+                            else
+                            {
+                                DamageString = "Damage Dealt (-Armour): ";
+                            }
+                        }
+                        else
+                        {
+                            if (SteelSceptre)
+                            {
+                                DamageString = "Damage Dealt: ";
+                            }
+                            else
+                            {
+                                DamageString = "Damage Dealt (-Armour): ";
+                            }
+                        }
+
+                        Graphics::PutText(Renderer, (DamageString + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, Attacked ? clrGR : clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (RowOffset + 4) * RowHeight);
 
                         if (!AssignedDamage)
                         {
@@ -2344,8 +2382,8 @@ namespace Interface
         return Result;
     }
 
-    // fight encounter between Enemies
-    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Enemy::Base &Enemy, Enemy::Base &Target, Combat::FightMode FightMode)
+    // fight encounter between enemies
+    Combat::Result Fight(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 bg, Map::Base &Map, Enemy::Base &Attacker, Enemy::Base &Defender, Combat::FightMode FightMode)
     {
         auto Result = Combat::Result::NONE;
         auto MapSizeX = (Map.SizeX < 15 ? 15 : Map.SizeX) * Map.ObjectSize;
@@ -2363,7 +2401,7 @@ namespace Interface
         auto TextButtonY = (WindowY + WindowH) - (text_buttonh + 2 * text_space);
         auto TextWidth = WindowW - 3 * text_space;
 
-        const char *FightChoices1[2] = {(FightMode != Combat::FightMode::SHOOT ? "FIGHT" : "SHOOT"), "CANCEL"}; // player attacks
+        const char *FightChoices1[2] = {(FightMode != Combat::FightMode::SHOOT ? "FIGHT" : "SHOOT"), "CANCEL"}; // attacker controls
 
         auto FightControls1 = Graphics::CreateFixedTextButtons(FightChoices1, 2, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
         FightControls1[0].Fg = clrWH;
@@ -2414,7 +2452,7 @@ namespace Interface
         auto Current = 0;
         auto QuarterStaff = false;
 
-        std::vector<TextButton> &Controls = Enemy.Enthraled ? FightControls1 : FightControls2;
+        std::vector<TextButton> &Controls = Attacker.Enthraled ? FightControls1 : FightControls2;
 
         auto Done = false;
 
@@ -2423,9 +2461,9 @@ namespace Interface
         Engine::Randomize();
 
         auto FightRolls = 2;
-        FightRolls += Engine::HasStatus(Enemy, Spell::Type::Nighthowl) ? 1 : 0;
+        FightRolls += Engine::HasStatus(Attacker, Spell::Type::Nighthowl) ? 1 : 0;
 
-        auto DamageRolls = FightMode != Combat::FightMode::SHOOT ? Enemy.Damage : 1;
+        auto DamageRolls = FightMode != Combat::FightMode::SHOOT ? Attacker.Damage : 1;
 
         std::vector<int> Rolls(FightRolls, 0);
         std::vector<int> Damages(DamageRolls, 0);
@@ -2444,46 +2482,46 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
-            // character stats
-            Graphics::PutText(Renderer, Enemy.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
-            Graphics::PutText(Renderer, ("FPR: " + std::to_string(Enemy.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
-            Graphics::PutText(Renderer, ("END: " + std::to_string(Enemy.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
-            Graphics::PutText(Renderer, ("DMG: " + std::to_string(Enemy.Damage) + "D" + (Enemy.DamageModifier < 0 ? "" : "+") + std::to_string(Enemy.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
-            Graphics::PutText(Renderer, ("ARM: " + std::to_string(Enemy.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 4 * RowHeight);
+            // attacker stats
+            Graphics::PutText(Renderer, Attacker.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+            Graphics::PutText(Renderer, ("FPR: " + std::to_string(Attacker.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
+            Graphics::PutText(Renderer, ("END: " + std::to_string(Attacker.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, ("DMG: " + std::to_string(Attacker.Damage) + "D" + (Attacker.DamageModifier < 0 ? "" : "+") + std::to_string(Attacker.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
+            Graphics::PutText(Renderer, ("ARM: " + std::to_string(Attacker.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 4 * RowHeight);
 
             auto EnemyOffset = 5;
 
-            if (Enemy.Enthraled)
+            if (Attacker.Enthraled)
             {
                 Graphics::PutText(Renderer, "ENTHRALED", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + EnemyOffset * RowHeight);
 
                 EnemyOffset++;
             }
 
-            if (Engine::HasStatus(Enemy, Spell::Type::Nighthowl))
+            if (Engine::HasStatus(Attacker, Spell::Type::Nighthowl))
             {
                 Graphics::PutText(Renderer, "NIGHTHOWL", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + EnemyOffset * RowHeight);
 
                 EnemyOffset++;
             }
 
-            // Enemy stats
-            Graphics::PutText(Renderer, Target.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY);
-            Graphics::PutText(Renderer, ("FPR: " + std::to_string(Target.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + RowHeight);
-            Graphics::PutText(Renderer, ("END: " + std::to_string(Target.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 2 * RowHeight);
-            Graphics::PutText(Renderer, ("DMG: " + (FightMode != Combat::FightMode::SHOOT ? std::to_string(Target.Damage) : "1") + "D" + (FightMode != Combat::FightMode::SHOOT ? ((Target.DamageModifier < 0 ? "" : "+") + std::to_string(Target.DamageModifier)) : "")).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 3 * RowHeight);
-            Graphics::PutText(Renderer, ("ARM: " + std::to_string(Target.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 4 * RowHeight);
+            // defender stats
+            Graphics::PutText(Renderer, Defender.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY);
+            Graphics::PutText(Renderer, ("FPR: " + std::to_string(Defender.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + RowHeight);
+            Graphics::PutText(Renderer, ("END: " + std::to_string(Defender.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 2 * RowHeight);
+            Graphics::PutText(Renderer, ("DMG: " + (FightMode != Combat::FightMode::SHOOT ? std::to_string(Defender.Damage) : "1") + "D" + (FightMode != Combat::FightMode::SHOOT ? ((Defender.DamageModifier < 0 ? "" : "+") + std::to_string(Defender.DamageModifier)) : "")).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 3 * RowHeight);
+            Graphics::PutText(Renderer, ("ARM: " + std::to_string(Defender.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 4 * RowHeight);
 
             auto TargetOffset = 5;
 
-            if (Target.Enthraled)
+            if (Defender.Enthraled)
             {
                 Graphics::PutText(Renderer, "ENTHRALED", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + TargetOffset * RowHeight);
 
                 TargetOffset++;
             }
 
-            if (Engine::HasStatus(Target, Spell::Type::Nighthowl))
+            if (Engine::HasStatus(Defender, Spell::Type::Nighthowl))
             {
                 Graphics::PutText(Renderer, "NIGHTHOWL", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + TargetOffset * RowHeight);
 
@@ -2505,7 +2543,7 @@ namespace Interface
 
                 FightingSum = std::max(0, FightingSum);
 
-                auto FightResult = Enemy.FightingProwess >= FightingSum;
+                auto FightResult = Attacker.FightingProwess >= FightingSum;
 
                 if (FightResult)
                 {
@@ -2532,7 +2570,7 @@ namespace Interface
 
                 Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
 
-                Graphics::PutText(Renderer, (Enemy.Name + " hits " + Target.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 5) * RowHeight);
+                Graphics::PutText(Renderer, (Attacker.Name + " hits " + Defender.Name + "!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 5) * RowHeight);
 
                 if (!CalculatedDamage)
                 {
@@ -2546,9 +2584,12 @@ namespace Interface
                         DamageSum += Damages[i];
                     }
 
-                    DamageSum += Enemy.DamageModifier;
+                    DamageSum += Attacker.DamageModifier;
 
-                    DamageSum -= Target.Armour;
+                    if (Attacker.Type != Enemy::Type::Skiapyr)
+                    {
+                        DamageSum -= Defender.Armour;
+                    }
 
                     DamageSum = std::max(0, DamageSum);
 
@@ -2567,7 +2608,7 @@ namespace Interface
 
                     Graphics::PutText(Renderer, ((FightMode != Combat::FightMode::SHOOT ? "Fight Score: " : "Shooting Score: ") + std::to_string(FightingSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
 
-                    Graphics::PutText(Renderer, (Enemy.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 5) * RowHeight);
+                    Graphics::PutText(Renderer, (Attacker.Name + "'s attack was unsuccessful!").c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 5) * RowHeight);
                 }
                 else
                 {
@@ -2577,11 +2618,22 @@ namespace Interface
                         Graphics::StretchImage(Renderer, Dice[Damages[i] - 1], TextButtonX + i * (Map.ObjectSize + 2 * text_space), TextY + (EnemyOffset + 1) * RowHeight, Map.ObjectSize, Map.ObjectSize);
                     }
 
-                    Graphics::PutText(Renderer, ("Damage Dealt (-Armour): " + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
+                    std::string DamageString = "";
+
+                    if (Attacker.Type != Enemy::Type::Skiapyr)
+                    {
+                        DamageString = "Damage Dealt (-Armour): ";
+                    }
+                    else
+                    {
+                        DamageString = "Damage Dealt: ";
+                    }
+
+                    Graphics::PutText(Renderer, (DamageString + std::to_string(DamageSum)).c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + (EnemyOffset + 4) * RowHeight);
 
                     if (!AssignedDamage)
                     {
-                        Engine::Gain(Target, -DamageSum);
+                        Engine::Gain(Defender, -DamageSum);
 
                         AssignedDamage = true;
                     }
@@ -3329,7 +3381,7 @@ namespace Interface
 
         auto PaddingX = 2 * startx + 2 * Map.ObjectSize;
 
-        auto PaddingY = starty + Map.ObjectSize;
+        auto PaddingY = 2 * starty + 2 * Map.ObjectSize;
 
         // size of viewable grid
         Map.SizeX = (SCREEN_WIDTH - 2 * PaddingX) / Map.ObjectSize;
@@ -6860,7 +6912,7 @@ namespace Interface
     std::string Background(Character::Class &Character)
     {
         std::string Background = std::string(Character::ClassName[Character]) + "\n\n" + std::string(Character::Description[Character]);
-        
+
         std::string Abilities = "";
 
         for (auto i = 0; i < Character::Abilities[Character].size(); i++)
@@ -7029,7 +7081,7 @@ namespace Interface
     void MainScreen(SDL_Window *Window, SDL_Renderer *Renderer, Engine::Destination Destination)
     {
         Engine::Randomize();
-        
+
         // initialize books
         Book1::InitializeStories();
 

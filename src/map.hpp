@@ -11,6 +11,8 @@ namespace Map
     const char Passable = ' ';
     const char Stairs = '/';
     const char WindowMystical = '@';
+    const char Steep = '^';
+    const char Lava = 'X';
 
     std::string Players = "1234";
     std::string Enemies = "ABCDEFGHIJ";
@@ -27,7 +29,9 @@ namespace Map
         HotCoals,
         Stairs,
         Enemy,
-        WindowMystical
+        WindowMystical,
+        Vertical,
+        Lava
     };
 
     std::map<Map::Object, const char *> Description = {
@@ -39,7 +43,9 @@ namespace Map
         {Map::Object::HotCoals, "Hot Coals"},
         {Map::Object::Enemy, "Enemy"},
         {Map::Object::Stairs, "Stairs (Exit)"},
-        {Map::Object::WindowMystical, "Window"}};
+        {Map::Object::WindowMystical, "Window"},
+        {Map::Object::Vertical, "Steep Vertical"},
+        {Map::Object::Lava, "Lava"}};
 
     class Tile
     {
@@ -170,6 +176,11 @@ namespace Map
                             Tiles[y][x].Type = Map::Object::HotCoals;
                             Tiles[y][x].IsPassableToEnemy = true;
                         }
+                        else if (map[y][x] == Map::Lava)
+                        {
+                            Tiles[y][x].Asset = Assets::Type::Lava;
+                            Tiles[y][x].Type = Map::Object::Lava;
+                        }
                         else if (map[y][x] == Map::WindowMystical)
                         {
                             Tiles[y][x].Asset = Assets::Type::WindowMystical;
@@ -214,6 +225,13 @@ namespace Map
                             Tiles[y][x].IsPassable = true;
                             Tiles[y][x].IsPassableToEnemy = true;
                             Tiles[y][x].Id = enemy + 1;
+                        }
+                        else if (map[y][x] == Map::Steep)
+                        {
+                            Tiles[y][x].Asset = Assets::Type::Steep;
+                            Tiles[y][x].Type = Map::Object::Vertical;
+                            Tiles[y][x].IsPassable = false;
+                            Tiles[y][x].IsPassableToEnemy = true;
                         }
                         else
                         {

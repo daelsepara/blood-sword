@@ -41,6 +41,14 @@
             "path": "images/map/window-mystical.png"
         },
         {
+            "id": 11,
+            "path": "images/map/steep.png"
+        },
+        {
+            "id": 12,
+            "path": "images/map/lava.png"
+        },
+        {
             "id": 100,
             "path": "icons/up.png"
         },
@@ -271,6 +279,10 @@
         {
             "id": 303,
             "path": "images/monsters/dirge-man.png"
+        },
+        {
+            "id": 304,
+            "path": "images/monsters/skiapyr.png"
         }
     ]
 }

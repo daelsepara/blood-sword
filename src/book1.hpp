@@ -369,6 +369,43 @@ namespace Book1
         Engine::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
+    class Story012 : public Story::Base
+    {
+    public:
+        Story012()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 12;
+
+            Image = "images/book1/filler2.png";
+
+            TopImage = false;
+
+            Text = "You hurl the ice jewel down into the bubbling pool of magma. The Skiapyrs utter unhuman cries as they see it fall, glittering like frost with the magic it contains. As it strikes the magma, black slabs of cooled rock immediately form around it. The Skiapyrs tremble, their flames visibly dimming. They are the elemental spirits of the crater, and by draining its furnace-heat you have sapped much of their vitality. Nonetheless, they are not prepared to retreat. With cries of stormy vengeance, they bear down upon you.\n\n<b>NOTE</b>\n\nThe Skiapyrs, being ethereal creatures of flame, are able to walk across near-vertical surfaces. You are limited to the narrow ledge along the crater rim. Armour makes no difference to the damage inflicted when a Skiapyr strikes. The fiery claws of these creatures are not impeded even by strong steel plate.";
+
+            MapFile = "maps/book1/map012.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+            
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 223}; }
+    };
+
     class Story018 : public Story::Base
     {
     public:
@@ -476,6 +513,7 @@ namespace Book1
     auto story009 = Story009();
     auto story010 = Story010();
     auto story011 = Story011();
+    auto story012 = Story012();
     auto story018 = Story018();
     auto story058 = Story058();
     auto story069 = Story069();
@@ -486,7 +524,7 @@ namespace Book1
     {
         Book1::Stories = {
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
-            &story011, &story018,
+            &story011, &story012, &story018,
             &story058,
             &story069,
             &story398,
