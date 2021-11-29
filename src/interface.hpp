@@ -6167,7 +6167,7 @@ namespace Interface
                         {
                             std::string TakeMessage = "Give the " + Equipment[Selection[i]].Name + " to";
 
-                            auto Character = Interface::SelectAdventurer(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, TakeMessage.c_str());
+                            auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, TakeMessage.c_str()) : Engine::First(Party);
 
                             if (Character >= 0 && Character < Party.Members.size())
                             {
@@ -6931,6 +6931,9 @@ namespace Interface
 
             while (!Quit)
             {
+                // make a backup of current party
+                auto SaveParty = Party;
+
                 SDL_Surface *Text = NULL;
 
                 auto RunOnce = true;
