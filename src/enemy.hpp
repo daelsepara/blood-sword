@@ -14,7 +14,9 @@ namespace Enemy
         Barbarian,
         NinjaAssassin,
         DirgeMan,
-        Skiapyr
+        Skiapyr,
+        MagusVyl,
+        Enemy
     };
 
     class Base

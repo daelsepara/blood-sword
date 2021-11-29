@@ -286,19 +286,27 @@
         },
         {
             "id": 301,
-            "path": "images/monsters/barbarian.png"
+            "path": "images/enemies/barbarian.png"
         },
         {
             "id": 302,
-            "path": "images/monsters/ninja-assassin.png"
+            "path": "images/enemies/ninja-assassin.png"
         },
         {
             "id": 303,
-            "path": "images/monsters/dirge-man.png"
+            "path": "images/enemies/dirge-man.png"
         },
         {
             "id": 304,
-            "path": "images/monsters/skiapyr.png"
+            "path": "images/enemies/skiapyr.png"
+        },
+        {
+            "id": 305,
+            "path": "images/enemies/magus-vyl.png"
+        },
+        {
+            "id": 306,
+            "path": "images/enemies/corpse.png"
         }
     ]
 }

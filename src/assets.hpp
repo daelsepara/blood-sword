@@ -87,7 +87,9 @@ namespace Assets
         Barbarian,
         NinjaAssassin,
         DirgeMan,
-        Skiapyr
+        Skiapyr,
+        MagusVyl,
+        Corpse
     };
 
     typedef std::pair<Assets::Type, SDL_Surface *> Surface;

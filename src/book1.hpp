@@ -313,7 +313,7 @@ namespace Book1
 
                 if (Engine::IsAlive(Party.Members[Party.LastSelected]))
                 {
-                    Text += "\n\nYou begin to sink into the floor...";    
+                    Text += "\n\nYou begin to sink into the floor...";
                 }
             }
             else
@@ -348,7 +348,7 @@ namespace Book1
         void Event(Party::Base &Party)
         {
             Enemies.clear();
-            
+
             Enemies.push_back(Enemy::Base(Enemy::Type::DirgeMan, "DIRGE-MAN", 7, 6, 7, 13, 2, 0, 1, Assets::Type::DirgeMan));
         }
 
@@ -394,7 +394,7 @@ namespace Book1
         void Event(Party::Base &Party)
         {
             Enemies.clear();
-            
+
             Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
             Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
             Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
@@ -404,6 +404,83 @@ namespace Book1
         }
 
         Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 223}; }
+    };
+
+    class Story013 : public Story::Base
+    {
+    public:
+        Story013()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 13;
+
+            Image = "images/book1/elfin-lady.png";
+
+            TopImage = false;
+
+            Text = "The alcove is not very deep and is covered with a beautiful array of gold and blue mosaics that sparkle in the torchlight. You step into it, hoping to find a hidden door or niche. Instead you are momentarily blinded as the mosaics let out a blinding flash of light. You feel the room spinning uncontrollably. Lights dance and whirl across the walls, and there is an instant of confusion. You realise, too late, that you have walked into a Teleportation spell.\n\nIn an instant the spinning ceases and you are now in an ornate garden under a roof of coloured gems. Sitting on the edge of a gently bubbling fountain is an elfin-featured girl wrapped in a toga of green silk.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Attack her", {Book::Type::Book1, 524}));
+            Choices.push_back(Choice::Base("Try talking to her", {Book::Type::Book1, 274}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story014 : public Story::Base
+    {
+    public:
+        Engine::Destination Destination = {};
+
+        Story014()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 14;
+
+            Text = "You are nearing the top of the steps leading up the inside of the Blue Tower. A guttural cry like the stalking growl of a great cat breaks through the sombre silence. A black-clad Assassin creeps down the stairs towards you -- he must have scaled the outside of the Tower when you barred the outside door. Assassins that you did not kill now stand in front of you on the stairs. They have restored their Endurance by the use of herbal potions. Even worse, you hear a movement and see that MAGUS VYL has risen from the dead once more and is right behind you! The situation looks bad.\n\n<b>NOTE</b>\n\nBecause he is a vampire, MAGUS VYL has the special ability to paralyse with his touch. Anyone (except a SAGE) wounded by him must take a Psychic Ability test. If they fail the test, they are paralysed and fall to the floor. They take no further part in the combat. SAGEs are immune because of their mind-over-body disciplines.";
+
+            MapFile = "maps/book1/map014.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            // TODO: only the survivng assassins from previous section should be setup here
+            Enemies.clear();
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+            Enemies.push_back(Enemy::Base(Enemy::Type::MagusVyl, "MAGUS VYL", 7, 9, 9, 35, 3, 0, 2, Assets::Type::MagusVyl));
+
+            Enemies[0].CanMove = false;
+            Enemies[0].CanShoot = true;
+        }
+
+        void SetupCombat(Map::Base &Map, Party::Base &Party)
+        {
+            Map.Put(1, 0, Map::Object::Enemy, 0);
+            Map.Put(1, 6, Map::Object::Enemy, 1);
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            Choices.clear();
+
+            if (Result == Combat::Result::ESCAPED)
+            {
+                Destination = {Book::Type::Book1, 513};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 226};
+            }
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story018 : public Story::Base
@@ -514,6 +591,8 @@ namespace Book1
     auto story010 = Story010();
     auto story011 = Story011();
     auto story012 = Story012();
+    auto story013 = Story013();
+    auto story014 = Story014();
     auto story018 = Story018();
     auto story058 = Story058();
     auto story069 = Story069();
@@ -524,7 +603,7 @@ namespace Book1
     {
         Book1::Stories = {
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
-            &story011, &story012, &story018,
+            &story011, &story012, &story013, &story014, &story018,
             &story058,
             &story069,
             &story398,

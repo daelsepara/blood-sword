@@ -2388,6 +2388,16 @@ namespace Interface
                     }
                     else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                     {
+                        if (Attacked && Enemy.Type == Enemy::Type::MagusVyl && Character.Class != Character::Class::Sage && Result == Combat::Result::FIGHT)
+                        {
+                            auto TestResult = Interface::Test(Renderer, BattleScreen, bg, Map, Character, Enemy, Attributes::Type::PsychicAbility, false);
+
+                            if (TestResult == Attributes::Result::FAILURE)
+                            {
+                                Character.Paralyzed = true;
+                            }
+                        }
+
                         Done = true;
                     }
                 }
@@ -4799,9 +4809,17 @@ namespace Interface
                         {
                             SelectedSpell = -1;
 
-                            DisplayMessage("Cannot shoot!", intBK);
+                            if (Enemy.CanShoot)
+                            {
+                                CurrentMode = Combat::Mode::SHOOT;
+                            }
+                            else
+                            {
 
-                            CurrentMode = Combat::Mode::NORMAL;
+                                DisplayMessage("Cannot shoot!", intBK);
+
+                                CurrentMode = Combat::Mode::NORMAL;
+                            }
                         }
                         else if (Controls[Current].Type == Control::Type::ABILITY && !Hold)
                         {
@@ -4847,7 +4865,7 @@ namespace Interface
                                         }
                                         else
                                         {
-                                            // Enemy vs Enemy fight
+                                            // enemy vs enemy fight
                                             Result = Interface::Fight(Renderer, Controls, intBK, Map, Enemy, Target, Combat::FightMode::FIGHT);
 
                                             if (!Engine::IsAlive(Target))
@@ -4888,10 +4906,61 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::SHOOT)
                             {
-                                // only specific enemies can shoot, e.g. ninja assassins with shurikens
-                                DisplayMessage("This creature cannot attack from range!", intBK);
+                                if (Enemy.CanShoot)
+                                {
+                                    // implement enemy vs enemy shot
+                                    if (EnemyId != TargetId)
+                                    {
+                                        auto Result = Combat::Result::NONE;
 
-                                CurrentMode = Combat::Mode::NORMAL;
+                                        if (Interface::BreakControl(Renderer, Controls, intBK, Map, Enemy, 1, 6))
+                                        {
+                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " has broken the enthralment!", intGR);
+
+                                            Enemy.Enthraled = false;
+
+                                            Result = Combat::Result::UNSUCCESSFUL;
+                                        }
+                                        else
+                                        {
+                                            // enemy vs enemy fight
+                                            Result = Interface::Fight(Renderer, Controls, intBK, Map, Enemy, Target, Combat::FightMode::SHOOT);
+
+                                            if (!Engine::IsAlive(Target))
+                                            {
+                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
+
+                                                Interface::Remove(Map, SelectX, SelectY);
+
+                                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                            }
+                                        }
+
+                                        // check enemy vs enemy shot results
+                                        if (Result != Combat::Result::NONE)
+                                        {
+                                            CycleCombatants();
+                                        }
+                                        else
+                                        {
+                                            DisplayMessage("Shot canceled", intGR);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DisplayMessage("Shot aborted!", intBK);
+                                    }
+
+                                    Selected = false;
+
+                                    Current = -1;
+                                }
+                                else
+                                {
+                                    DisplayMessage("This creature cannot attack from range!", intBK);
+
+                                    CurrentMode = Combat::Mode::NORMAL;
+                                }
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
@@ -5114,7 +5183,11 @@ namespace Interface
                 Party.Enemies.push_back(Party::SurvivingEnemies(Party.Book, Party.Story, SurvivingEnemies));
             }
 
-            if (Engine::Escaped(Party))
+            if (Engine::Paralyzed(Party))
+            {
+                return Combat::Result::DEFEAT;
+            }
+            else if (Engine::Escaped(Party))
             {
                 return Combat::Result::ESCAPED;
             }
@@ -5124,6 +5197,8 @@ namespace Interface
             }
             else if (Engine::IsAlive(Party))
             {
+                Engine::ClearParalyzed(Party);
+
                 return Combat::Result::VICTORY;
             }
             else
