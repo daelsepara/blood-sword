@@ -3552,11 +3552,6 @@ namespace Interface
             return std::get<0>(target);
         };
 
-        auto TargetDistance = [&](Interface::Targets target)
-        {
-            return std::get<1>(target);
-        };
-
         auto NextQuickThinker = [&]()
         {
             auto Next = 0;
@@ -5069,7 +5064,7 @@ namespace Interface
 
                         Interface::Find(Map, Map::Object::Player, PlayerId, LocationX, LocationY);
 
-                        if (TargetDistance(NearestPlayer) <= 1)
+                        if (Interface::Distance(EnemyX, EnemyY, LocationX, LocationY) <= 1)
                         {
                             // do attack
                             auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[PlayerId], Enemies[EnemyId], Combat::FightMode::FIGHT, true);
