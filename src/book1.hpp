@@ -257,7 +257,7 @@ namespace Book1
             Text = "You glance around. Far across the cavern you can see the end of a tunnel that leads further into the Battlepits. A faint, winking light can be seen at the end of it. The shore of the lake is covered with several large mounds made of piled stones. These look suspiciously like graves to you. You can also see in your torchlight a large block of opaque, murky ice, and beyond that there is the dull glow of red ritual candles that cast a dull glow on a bronze shrine that has been set up against one of the cavern walls. Fiercely burning braziers stand to either side of the shrine.\n\nYou now have a number of options.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Explore one of the mounds by clearing away some of the rocks", {Book::Type::Book1, 42}, Choice::Type::Select, "Assign an adventurer to this task"));
+            Choices.push_back(Choice::Base("Explore one of the mounds by clearing away some of the rocks", {Book::Type::Book1, 42}, Choice::Type::SelectAdventurer, "Assign an adventurer to this task"));
             Choices.push_back(Choice::Base("Approach the shrine", {Book::Type::Book1, 71}));
             Choices.push_back(Choice::Base("Investigate the ice block", {Book::Type::Book1, 334}));
             Choices.push_back(Choice::Base("Leave the cavern by the tunnel", {Book::Type::Book1, 279}));
@@ -483,6 +483,59 @@ namespace Book1
         Engine::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
+    class Story015 : public Story::Base
+    {
+    public:
+        Story015()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 15;
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "'Excellent.' He conceals his Die behind a slender hand and smiles across the table at you as he considers his opening gambit.";
+            
+            Choices.clear();
+
+            if (Engine::Count(Party) == 1)
+            {
+                Party.LastSelected = Engine::First(Party);
+
+                Text += "\n\nGrandmaster Kief is ready.";
+
+                Choices.push_back(Choice::Base("Choose your opening number", {Book::Type::Book1, 20}, Choice::Type::SelectDice, "Choose your opening number"));
+            }
+            else
+            {
+                Choices.push_back(Choice::Base("Decide who is playing against him", {Book::Type::Book1, -15}, Choice::Type::SelectAdventurer, "Decide who is playing against Grandmaster Kief"));
+            }
+        }
+    };
+
+    class Event015 : public Story::Base
+    {
+    public:
+        Event015()
+        {
+            Book = Book::Type::Book1;
+
+            Id = -15;
+
+            DisplayId = 15;
+
+            Text = "Grandmaster Kief is ready. Choose your opening number.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your opening number", {Book::Type::Book1, 20}, Choice::Type::SelectDice, "Choose your opening number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story018 : public Story::Base
     {
     public:
@@ -593,6 +646,8 @@ namespace Book1
     auto story012 = Story012();
     auto story013 = Story013();
     auto story014 = Story014();
+    auto story015 = Story015();
+    auto event015 = Event015();
     auto story018 = Story018();
     auto story058 = Story058();
     auto story069 = Story069();
@@ -602,8 +657,9 @@ namespace Book1
     void InitializeStories()
     {
         Book1::Stories = {
+            &event015,
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
-            &story011, &story012, &story013, &story014, &story018,
+            &story011, &story012, &story013, &story014, &story015, &story018,
             &story058,
             &story069,
             &story398,

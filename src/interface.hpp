@@ -5516,6 +5516,87 @@ namespace Interface
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
+    int Choose(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
+    {
+        auto Result = -1;
+
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 4 * FontSize + Screen.IconSize;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto ButtonX = WindowX + 2 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<Button> Controls = {};
+
+        auto NumControls = 0;
+
+        for (auto i = 0; i < Assets.size(); i++)
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets[NumControls]), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * (Screen.IconSize + 2 * text_space), WindowY + Screen.IconSize, intWH, Control::Type::CHOICE));
+
+            NumControls++;
+        }
+
+        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, ButtonX + NumControls * (Screen.IconSize + 2 * text_space), WindowY + Screen.IconSize, intWH, Control::Type::BACK));
+
+        auto Done = false;
+
+        while (!Done)
+        {
+            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, Bg);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, Message, Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, WindowY + text_space);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                if (Controls[Current].Type != Control::Type::BACK)
+                {
+                    if (Captions.size() > 0)
+                    {
+                        Interface::RenderChoiceCaption(Renderer, Controls[Current], Captions[Current], clrWH, intBK);
+                    }
+                }
+                else
+                {
+                    Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
+                }
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK)
+                {
+                    Result = -1;
+
+                    Done = true;
+                }
+                else
+                {
+                    Result = Current;
+
+                    Done = true;
+                }
+            }
+        }
+
+        return Result;
+    }
+
     int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, const char *SelectMessage)
     {
         auto Result = -1;
@@ -6718,13 +6799,26 @@ namespace Interface
                                     }
                                 }
                             }
-                            else if (Story->Choices[Choice].Type == Choice::Type::Select)
+                            else if (Story->Choices[Choice].Type == Choice::Type::SelectAdventurer)
                             {
                                 auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, Story->Choices[Choice].SelectMessage.c_str()) : Engine::First(Party);
 
                                 if (Character >= 0 && Character < Party.Members.size())
                                 {
                                     Party.LastSelected = Character;
+
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                    Done = true;
+                                }
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::SelectDice)
+                            {
+                                auto Value = Interface::Choose(Window, Renderer, Controls, intGR, Party, Story, Screen, {Assets::Type::Dice1, Assets::Type::Dice2, Assets::Type::Dice3, Assets::Type::Dice4, Assets::Type::Dice5, Assets::Type::Dice6}, {}, Story->Choices[Choice].SelectMessage.c_str());
+
+                                if (Value >= 0 && Value < 6)
+                                {
+                                    Party.LastValue = Value;
 
                                     Next = Interface::FindStory(Story->Choices[Choice].Destination);
 

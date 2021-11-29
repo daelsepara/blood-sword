@@ -24,8 +24,8 @@ namespace Choice
         Pay,
         DropWeapon,
         DropItem,
-        Select,
-        SelectValue
+        SelectAdventurer,
+        SelectDice
     };
 
     class Base
