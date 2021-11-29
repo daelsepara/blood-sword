@@ -242,6 +242,32 @@ namespace Engine
         return result;
     }
 
+    bool Paralyzed(Character::Base &character)
+    {
+        return Engine::IsAlive(character) && character.Paralyzed;
+    }
+
+    bool Paralyzed(Party::Base &party)
+    {
+        auto paralyzed = 0;
+        
+        auto dead = 0;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::Paralyzed(party.Members[i]))
+            {
+                paralyzed++;
+            }
+            else if (!Engine::IsAlive(party.Members[i]))
+            {
+                dead++;
+            }
+        }
+
+        return (paralyzed + dead) == party.Members.size();
+    }
+
     bool Escaped(Party::Base &party)
     {
         auto result = true;
@@ -555,7 +581,16 @@ namespace Engine
         // clear defensive stance
         for (auto i = 0; i < party.Members.size(); i++)
         {
-            party.Members[i].IsDefending = false;
+            party.Members[i].Defending = false;
+        }
+    }
+
+    void ClearParalyzed(Party::Base &party)
+    {
+        // clear defensive stance
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            party.Members[i].Paralyzed = false;
         }
     }
 

@@ -762,7 +762,7 @@ namespace Interface
             TextOffset++;
         }
 
-        if (Party.Members[PlayerId].IsDefending)
+        if (Party.Members[PlayerId].Defending)
         {
             Graphics::PutText(Renderer, "DEFENDING", Font, 0, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextRightWidth, FontSize, Map.TextRightX, Map.DrawY + TextOffset * (FontSize + 2));
 
@@ -978,7 +978,7 @@ namespace Interface
 
         std::vector<TextButton> &Controls = ResistControls;
 
-        auto done = false;
+        auto Done = false;
 
         auto CurrentStage = Attributes::Stage::START;
 
@@ -993,6 +993,7 @@ namespace Interface
         auto AttributeValue = 0;
 
         auto Equipment = Engine::Equipment(Character, Attribute, false);
+        
         auto Weapons = Engine::Equipment(Character, Attribute, true);
 
         if (Attribute == Attributes::Type::FightingProwess)
@@ -1008,7 +1009,7 @@ namespace Interface
             AttributeValue = IsEnemy ? Enemy.Awareness : (Engine::Awareness(Character) + (Equipment.size() > 0 ? Equipment[0].Score : 0));
         }
 
-        while (!done)
+        while (!Done)
         {
             // render current combat screen
             Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
@@ -1091,7 +1092,7 @@ namespace Interface
                 }
                 else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
-                    done = true;
+                    Done = true;
                 }
             }
         }
@@ -1736,7 +1737,7 @@ namespace Interface
 
         auto CurrentStage = Spell::Stage::START;
 
-        if (Character.IsDefending)
+        if (Character.Defending)
         {
             Controls = DoneControls;
 
@@ -1999,7 +2000,7 @@ namespace Interface
                 DamageModifier -= 2;
             }
 
-            if (Character.IsDefending && !Attacked)
+            if (Character.Defending && !Attacked)
             {
                 Controls = DoneControls;
 
@@ -2008,7 +2009,7 @@ namespace Interface
 
             auto FightRolls = 2;
 
-            FightRolls += (Attacked && Character.IsDefending) ? 1 : 0;
+            FightRolls += (Attacked && Character.Defending) ? 1 : 0;
             FightRolls += (Attacked && Engine::HasAbility(Character, Abilities::Type::Dodging)) ? 1 : 0;
             FightRolls += (Attacked && Engine::HasStatus(Enemy, Spell::Type::Nighthowl)) ? 1 : 0;
 
@@ -2045,7 +2046,7 @@ namespace Interface
 
                 auto StatusOffset = 5;
 
-                if (Attacked && Character.IsDefending)
+                if (Attacked && Character.Defending)
                 {
                     Graphics::PutText(Renderer, "DEFENDING", Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + StatusOffset * RowHeight);
 
@@ -2079,7 +2080,23 @@ namespace Interface
                 Graphics::PutText(Renderer, Enemy.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY);
                 Graphics::PutText(Renderer, ("FPR: " + std::to_string(Enemy.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + RowHeight);
                 Graphics::PutText(Renderer, ("END: " + std::to_string(Enemy.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 2 * RowHeight);
-                Graphics::PutText(Renderer, ("DMG: " + std::to_string(Enemy.Damage) + "D" + (Enemy.DamageModifier < 0 ? "" : "+") + std::to_string(Enemy.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
+
+                if (Attacked && FightMode == Combat::FightMode::SHOOT)
+                {
+                    if (Enemy.Type == Enemy::Type::NinjaAssassin)
+                    {
+                        Graphics::PutText(Renderer, "DMG: 1D-1", Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
+                    }
+                    else
+                    {
+                        Graphics::PutText(Renderer, ("DMG: " + std::to_string(Enemy.Damage) + "D" + (Enemy.DamageModifier < 0 ? "" : "+") + std::to_string(Enemy.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
+                    }
+                }
+                else
+                {
+                    Graphics::PutText(Renderer, ("DMG: " + std::to_string(Enemy.Damage) + "D" + (Enemy.DamageModifier < 0 ? "" : "+") + std::to_string(Enemy.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 3 * RowHeight);
+                }
+
                 Graphics::PutText(Renderer, ("ARM: " + std::to_string(Enemy.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, Attacked ? TextButtonX : MidWindow, TextY + 4 * RowHeight);
 
                 if (FightMode == Combat::FightMode::FIGHT)
@@ -2191,6 +2208,11 @@ namespace Interface
 
                         if (Attacked)
                         {
+                            if (Enemy.Type == Enemy::Type::NinjaAssassin && FightMode == Combat::FightMode::SHOOT)
+                            {
+                                DamageSum -= 1;
+                            }
+
                             if (Enemy.Type != Enemy::Type::Skiapyr)
                             {
                                 DamageSum -= Armour;
@@ -2486,7 +2508,23 @@ namespace Interface
             Graphics::PutText(Renderer, Attacker.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
             Graphics::PutText(Renderer, ("FPR: " + std::to_string(Attacker.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + RowHeight);
             Graphics::PutText(Renderer, ("END: " + std::to_string(Attacker.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 2 * RowHeight);
-            Graphics::PutText(Renderer, ("DMG: " + std::to_string(Attacker.Damage) + "D" + (Attacker.DamageModifier < 0 ? "" : "+") + std::to_string(Attacker.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
+
+            if (FightMode == Combat::FightMode::SHOOT)
+            {
+                auto DamageModifier = Attacker.DamageModifier;
+
+                if (Attacker.Type == Enemy::Type::NinjaAssassin)
+                {
+                    DamageModifier -= 1;
+                }
+
+                Graphics::PutText(Renderer, ("DMG: 1D" + std::string(DamageModifier < 0 ? "" : "+") + std::to_string(DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
+            }
+            else
+            {
+                Graphics::PutText(Renderer, ("DMG: " + std::to_string(Attacker.Damage) + "D" + (Attacker.DamageModifier < 0 ? "" : "+") + std::to_string(Attacker.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 3 * RowHeight);
+            }
+
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Attacker.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY + 4 * RowHeight);
 
             auto EnemyOffset = 5;
@@ -2509,7 +2547,7 @@ namespace Interface
             Graphics::PutText(Renderer, Defender.Name.c_str(), Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY);
             Graphics::PutText(Renderer, ("FPR: " + std::to_string(Defender.FightingProwess)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + RowHeight);
             Graphics::PutText(Renderer, ("END: " + std::to_string(Defender.Endurance)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 2 * RowHeight);
-            Graphics::PutText(Renderer, ("DMG: " + (FightMode != Combat::FightMode::SHOOT ? std::to_string(Defender.Damage) : "1") + "D" + (FightMode != Combat::FightMode::SHOOT ? ((Defender.DamageModifier < 0 ? "" : "+") + std::to_string(Defender.DamageModifier)) : "")).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 3 * RowHeight);
+            Graphics::PutText(Renderer, ("DMG: " + std::to_string(Defender.Damage) + "D" + (Defender.DamageModifier < 0 ? "" : "+") + std::to_string(Defender.DamageModifier)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 3 * RowHeight);
             Graphics::PutText(Renderer, ("ARM: " + std::to_string(Defender.Armour)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, MidWindow, TextY + 4 * RowHeight);
 
             auto TargetOffset = 5;
@@ -2585,6 +2623,14 @@ namespace Interface
                     }
 
                     DamageSum += Attacker.DamageModifier;
+
+                    if (FightMode == Combat::FightMode::SHOOT)
+                    {
+                        if (Attacker.Type == Enemy::Type::NinjaAssassin)
+                        {
+                            DamageSum -= 1;
+                        }
+                    }
 
                     if (Attacker.Type != Enemy::Type::Skiapyr)
                     {
@@ -3574,7 +3620,7 @@ namespace Interface
 
             while (!Active)
             {
-                if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party))
+                if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party) || Engine::Paralyzed(Party))
                 {
                     break;
                 }
@@ -3672,11 +3718,11 @@ namespace Interface
                 {
                     auto character = Party.Members[GetId(CurrentCombatant)];
 
-                    Active = Engine::IsAlive(character) && !character.Escaped;
+                    Active = Engine::IsAlive(character) && !character.Escaped && !Engine::Paralyzed(character);
 
-                    if (Party.Members[GetId(CurrentCombatant)].IsDefending)
+                    if (Party.Members[GetId(CurrentCombatant)].Defending)
                     {
-                        Party.Members[GetId(CurrentCombatant)].IsDefending = false;
+                        Party.Members[GetId(CurrentCombatant)].Defending = false;
                     }
                 }
                 else if (IsEnemy(CurrentCombatant))
@@ -3895,7 +3941,7 @@ namespace Interface
                 }
 
                 // get player input
-                if ((IsPlayer(CurrentCombatant) && !Party.Members[GetId(CurrentCombatant)].IsDefending))
+                if ((IsPlayer(CurrentCombatant) && !Party.Members[GetId(CurrentCombatant)].Defending))
                 {
                     Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
 
@@ -3970,7 +4016,7 @@ namespace Interface
                         {
                             Engine::ResetSpellDifficulty(Character);
 
-                            Character.IsDefending = true;
+                            Character.Defending = true;
 
                             CycleCombatants();
 
@@ -4151,7 +4197,7 @@ namespace Interface
 
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                if (Character.IsDefending)
+                                if (Character.Defending)
                                 {
                                     DisplayMessage("You cannot attack at this time.", intBK);
 
@@ -4180,7 +4226,7 @@ namespace Interface
 
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                if (Character.IsDefending)
+                                if (Character.Defending)
                                 {
                                     DisplayMessage("You cannot shoot at this time!", intBK);
 
@@ -4948,6 +4994,14 @@ namespace Interface
 
                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                             }
+                            else if (Engine::Paralyzed(Party.Members[PlayerId]))
+                            {
+                                Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[PlayerId].Class]) + " paralyzed!", intBK);
+
+                                Interface::Remove(Map, LocationX, LocationY);
+
+                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                            }
 
                             if (Result != Combat::Result::UNSUCCESSFUL)
                             {
@@ -4997,7 +5051,7 @@ namespace Interface
                     CycleCombatants();
                 }
 
-                if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party) || Engine::Enthraled(Enemies))
+                if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party) || Engine::Enthraled(Enemies) || Engine::Paralyzed(Party))
                 {
                     Done = true;
                 }
@@ -5989,9 +6043,9 @@ namespace Interface
         Controls.push_back(Button(3, Assets::Get(Assets::Type::Items), 2, 4, 3, 3, ButtonX + 3 * Screen.IconSize, OffsetY, intBK, Control::Type::ITEMS));
         Controls.push_back(Button(4, Assets::Get(Assets::Type::Back), 3, 4, 3, 3, ButtonX + 4 * Screen.IconSize, OffsetY, intBK, Control::Type::BACK));
 
-        auto done = false;
+        auto Done = false;
 
-        while (!done)
+        while (!Done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, -1, Offset);
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
@@ -6035,7 +6089,7 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
-                    done = true;
+                    Done = true;
                 }
                 if (Controls[Current].Type == Control::Type::ITEMS && !Hold)
                 {

@@ -68,7 +68,7 @@ namespace Character
         int Encumbrance = 10;
 
         // if defending during a combat round
-        bool IsDefending = false;
+        bool Defending = false;
 
         // if has escaped (flee from combat)
         bool Escaped = false;
@@ -84,6 +84,9 @@ namespace Character
 
         // acts first before normal combat sequence
         bool ActFirst = false;
+
+        // paralyzed characters can no longer take part in combat
+        bool Paralyzed = false;
 
         Base()
         {
