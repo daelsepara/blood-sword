@@ -161,6 +161,11 @@ namespace Engine
         }
     }
 
+    void Gain(Character::Base &character, int value)
+    {
+        Engine::Gain(character, Attributes::Type::Endurance, value);
+    }
+
     void Gain(Enemy::Base &enemy, int damage)
     {
         enemy.Endurance += damage;
@@ -259,13 +264,13 @@ namespace Engine
         return (enemy.Endurance > 0);
     }
 
-    bool IsAlive(std::vector<Enemy::Base> &enemys)
+    bool IsAlive(std::vector<Enemy::Base> &enemies)
     {
         auto result = false;
 
-        for (auto i = 0; i < enemys.size(); i++)
+        for (auto i = 0; i < enemies.size(); i++)
         {
-            if (Engine::IsAlive(enemys[i]))
+            if (Engine::IsAlive(enemies[i]))
             {
                 result = true;
 
@@ -508,13 +513,13 @@ namespace Engine
         }
     }
 
-    bool KnockedOff(std::vector<Enemy::Base> &enemys)
+    bool KnockedOff(std::vector<Enemy::Base> &enemies)
     {
         auto result = false;
 
-        for (auto i = 0; i < enemys.size(); i++)
+        for (auto i = 0; i < enemies.size(); i++)
         {
-            if (enemys[i].Endurance > 0 && enemys[i].KnockedOff)
+            if (enemies[i].Endurance > 0 && enemies[i].KnockedOff)
             {
                 result = true;
 
@@ -624,16 +629,28 @@ namespace Engine
         }
     }
 
-    bool Enthraled(std::vector<Enemy::Base> &enemys)
+    bool Enthraled(std::vector<Enemy::Base> &enemies)
     {
-        auto result = true;
+        auto dead = 0;
 
-        for (auto i = 0; i < enemys.size(); i++)
+        auto enthraled = 0;
+
+        for (auto i = 0; i < enemies.size(); i++)
         {
-            result &= (enemys[i].Enthraled || !Engine::IsAlive(enemys[i]));
+            if (Engine::IsAlive(enemies[i]))
+            {
+                if (enemies[i].Enthraled)
+                {
+                    enthraled++;
+                }
+            }
+            else
+            {
+                dead++;
+            }
         }
 
-        return result;
+        return (enthraled > 0 && ((enthraled + dead) == enemies.size()));
     }
 
     void UpdateSpellStatus(Character::Base &character, int CombatRound)

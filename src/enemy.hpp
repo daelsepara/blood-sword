@@ -12,7 +12,8 @@ namespace Enemy
     {
         None = 0,
         Barbarian,
-        NinjaAssassin
+        NinjaAssassin,
+        DirgeMan
     };
 
     class Base

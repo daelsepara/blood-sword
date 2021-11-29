@@ -79,7 +79,8 @@ namespace Assets
         EyeOfTheTigerParty,
         Enemies = 300,
         Barbarian,
-        NinjaAssassin
+        NinjaAssassin,
+        DirgeMan
     };
 
     typedef std::pair<Assets::Type, SDL_Surface *> Surface;

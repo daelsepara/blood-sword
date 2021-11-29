@@ -51,7 +51,7 @@ namespace Book1
             Choices.clear();
             Choices.push_back(Choice::Base("Slide back the mirror and see what lies beyond", {Book::Type::Book1, 379}));
             Choices.push_back(Choice::Base("Continue to the end of the corridor and try the bronze double doors", {Book::Type::Book1, 456}));
-            
+
             Controls = Story::Controls::Standard;
         }
 
@@ -124,10 +124,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party)
-        {
-            return Destination;
-        }
+        Engine::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story004 : public Story::Base
@@ -222,10 +219,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party)
-        {
-            return Destination;
-        }
+        Engine::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story007 : public Story::Base
@@ -289,6 +283,90 @@ namespace Book1
         }
 
         Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 103}; };
+    };
+
+    class Story010 : public Story::Base
+    {
+    public:
+        Story010()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 10;
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "He is outraged. He half rises from his chair, a tall reed-like figure that seems to unfold rather than stand. His hard thin fingers grip the edge of the table.\n\n'I am astonished!' he says at last through clenched teeth. Fangs, really. 'You have had the benefit of tuition from no less than Grandmaster Kief. I am the acknowledged authority on the Spiral of Gold game. I beat Magus Tor - the true, original Magus Tor -- in a ten-game championship. Yet you cannot understand my explanation! Sickened though I am, I shall not slay you - merely consign you to the lower depths.' He lifts a hand from which tendrils of icy flame spread like a net, entangling you. You gasp in sudden pain, <b>losing ";
+
+            auto Loss = Engine::Roll(2, 0);
+
+            Text += std::to_string(Loss) + " ENDURANCE</b> as the net of the net of cold fire tightens.";
+
+            if (Party.LastSelected >= 0 && Party.LastSelected < Party.Members.size() && Engine::IsAlive(Party.Members[Party.LastSelected]))
+            {
+                Engine::Gain(Party.Members[Party.LastSelected], -Loss);
+
+                if (Engine::IsAlive(Party.Members[Party.LastSelected]))
+                {
+                    Text += "\n\nYou begin to sink into the floor...";    
+                }
+            }
+            else
+            {
+                Text += "\n\nYou begin to sink into the floor...";
+            }
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; };
+    };
+
+    class Story011 : public Story::Base
+    {
+    public:
+        Engine::Destination Destination = {};
+
+        Story011()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 11;
+
+            Text = "You call the spell to mind. As soon as he sees you starting to concentrate, the Dirge-Man gives a distorted frown of distrust. 'Oh now, what's this?' With a mad croak, he launches to the attack.";
+
+            MapFile = "maps/book1/map010.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+            
+            Enemies.push_back(Enemy::Base(Enemy::Type::DirgeMan, "DIRGE-MAN", 7, 6, 7, 13, 2, 0, 1, Assets::Type::DirgeMan));
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            Choices.clear();
+
+            if (Result == Combat::Result::ENTHRALED)
+            {
+                Destination = {Book::Type::Book1, 57};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 22};
+            }
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story018 : public Story::Base
@@ -396,6 +474,8 @@ namespace Book1
     auto story007 = Story007();
     auto story008 = Story008();
     auto story009 = Story009();
+    auto story010 = Story010();
+    auto story011 = Story011();
     auto story018 = Story018();
     auto story058 = Story058();
     auto story069 = Story069();
@@ -405,8 +485,8 @@ namespace Book1
     void InitializeStories()
     {
         Book1::Stories = {
-            &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009,
-            &story018,
+            &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
+            &story011, &story018,
             &story058,
             &story069,
             &story398,

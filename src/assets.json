@@ -267,6 +267,10 @@
         {
             "id": 302,
             "path": "images/monsters/ninja-assassin.png"
+        },
+        {
+            "id": 303,
+            "path": "images/monsters/dirge-man.png"
         }
     ]
 }

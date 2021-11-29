@@ -6857,6 +6857,30 @@ namespace Interface
         Interface::ProcessStory(Window, Renderer, Party, Story);
     }
 
+    std::string Background(Character::Class &Character)
+    {
+        std::string Background = std::string(Character::ClassName[Character]) + "\n\n" + std::string(Character::Description[Character]);
+        
+        std::string Abilities = "";
+
+        for (auto i = 0; i < Character::Abilities[Character].size(); i++)
+        {
+            if (i > 0)
+            {
+                Abilities += ", ";
+            }
+
+            Abilities += std::string(Abilities::Description[Character::Abilities[Character][i]]);
+        }
+
+        if (!Abilities.empty())
+        {
+            Background += "\n\nABILITIES: " + Abilities;
+        }
+
+        return Background;
+    }
+
     Party::Base CreateParty(SDL_Window *Window, SDL_Renderer *Renderer)
     {
         auto Party = Party::Base();
@@ -6878,7 +6902,8 @@ namespace Interface
             auto ButtonY = SCREEN_HEIGHT - (buttonh + FontSize + 4 * text_space);
 
             auto BackgroundWidth = 3 * SCREEN_WIDTH / 5;
-            auto BackgroundHeight = 10 * FontSize;
+
+            auto BackgroundHeight = 12 * FontSize;
 
             Controls.push_back(Button(0, Assets::Get(Assets::Type::Warrior), 0, 1, 0, 0, ButtonX, ButtonY, intWH, Control::Type::WARRIOR));
             Controls.push_back(Button(1, Assets::Get(Assets::Type::Trickster), 0, 2, 1, 1, ButtonX + GridSize, ButtonY, intWH, Control::Type::TRICKSTER));
@@ -6911,7 +6936,7 @@ namespace Interface
                 {
                     Graphics::RenderImage(Renderer, SelectText, (SCREEN_WIDTH - SelectText->w) / 2, (SCREEN_HEIGHT - BackgroundHeight) / 2 - (SelectText->h + 3 * text_space));
 
-                    Graphics::PutText(Renderer, (std::string(Character::ClassName[Classes[CurrentCharacter]]) + "\n\n" + std::string(Character::Description[Classes[CurrentCharacter]])).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, BackgroundWidth, BackgroundHeight, (SCREEN_WIDTH - BackgroundWidth) / 2, (SCREEN_HEIGHT - BackgroundHeight) / 2);
+                    Graphics::PutText(Renderer, Interface::Background(Classes[CurrentCharacter]).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, BackgroundWidth, BackgroundHeight, (SCREEN_WIDTH - BackgroundWidth) / 2, (SCREEN_HEIGHT - BackgroundHeight) / 2);
 
                     Graphics::ThickRect(Renderer, BackgroundWidth + 2 * text_space, BackgroundHeight + 2 * text_space, (SCREEN_WIDTH - (BackgroundWidth + 2 * text_space)) / 2, (SCREEN_HEIGHT - (BackgroundHeight + 2 * text_space)) / 2, intGR, border_pts);
                 }
@@ -7003,6 +7028,8 @@ namespace Interface
 
     void MainScreen(SDL_Window *Window, SDL_Renderer *Renderer, Engine::Destination Destination)
     {
+        Engine::Randomize();
+        
         // initialize books
         Book1::InitializeStories();
 

@@ -197,7 +197,7 @@ namespace Map
                             Tiles[y][x].IsPassable = true;
                             Tiles[y][x].IsPassableToEnemy = true;
                         }
-                        else if (player != std::string::npos && player >= 0 && player < party.Members.size())
+                        else if (player != std::string::npos && player >= 0 && player != std::string::npos)
                         {
                             Tiles[y][x].Asset = Assets::Type::Passable;
                             Tiles[y][x].Type = Map::Object::Passable;
@@ -206,7 +206,7 @@ namespace Map
                             Tiles[y][x].IsPassableToEnemy = true;
                             Tiles[y][x].Id = player + 1;
                         }
-                        else if (enemy != std::string::npos && enemy >= 0 && enemy < enemies.size())
+                        else if (enemy != std::string::npos && enemy >= 0 && enemy != std::string::npos)
                         {
                             Tiles[y][x].Asset = Assets::Type::Passable;
                             Tiles[y][x].Type = Map::Object::Passable;
@@ -464,8 +464,8 @@ namespace Map
                 for (auto x = 0; x < this->Width; x++)
                 {
                     Map::Object &Occupant = Tiles[y][x].Occupant;
-                    
-                    int &Id =  Tiles[y][x].Id;
+
+                    int &Id = Tiles[y][x].Id;
 
                     if (Occupant == Map::Object::Player && Id > party.Members.size())
                     {
