@@ -5074,8 +5074,11 @@ namespace Interface
                             // do attack
                             auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[PlayerId], Enemies[EnemyId], Combat::FightMode::FIGHT, true);
 
-                            // indicate player last attacked
-                            Enemies[EnemyId].Attacked = PlayerId;
+                            // indicate player last attacked, if successful
+                            if (Result == Combat::Result::FIGHT)
+                            {
+                                Enemies[EnemyId].Attacked = PlayerId;
+                            }
 
                             if (!Engine::IsAlive(Party.Members[PlayerId]))
                             {
