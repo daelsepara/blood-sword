@@ -49,6 +49,22 @@
             "path": "images/map/lava.png"
         },
         {
+            "id": 13,
+            "path": "images/map/exit-north.png"
+        },
+        {
+            "id": 14,
+            "path": "images/map/exit-south.png"
+        },
+        {
+            "id": 15,
+            "path": "images/map/exit-east.png"
+        },
+        {
+            "id": 16,
+            "path": "images/map/exit-west.png"
+        },
+        {
             "id": 100,
             "path": "icons/up.png"
         },

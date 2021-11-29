@@ -241,7 +241,29 @@ namespace Interface
                 }
                 else if (Map.Tiles[y][x].IsExit())
                 {
-                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_EXIT));
+                    auto Asset = Map.Tiles[y][x].Asset;
+
+                    if (Asset == Assets::Type::MapExit)
+                    {
+                        if (x == 0)
+                        {
+                            Asset = Assets::Type::MapExitW;
+                        }
+                        else if (x == Map.Width - 1)
+                        {
+                            Asset = Assets::Type::MapExitE;
+                        }
+                        else if (y == 0)
+                        {
+                            Asset = Assets::Type::MapExitN;
+                        }
+                        else if (y == Map.Height - 1)
+                        {
+                            Asset = Assets::Type::MapExitS;
+                        }
+                    }
+
+                    Controls.push_back(Button(NumControls, Assets::Get(Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_EXIT));
                 }
                 else if (Map.Tiles[y][x].IsPassable)
                 {
@@ -993,7 +1015,7 @@ namespace Interface
         auto AttributeValue = 0;
 
         auto Equipment = Engine::Equipment(Character, Attribute, false);
-        
+
         auto Weapons = Engine::Equipment(Character, Attribute, true);
 
         if (Attribute == Attributes::Type::FightingProwess)
