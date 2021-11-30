@@ -6286,17 +6286,40 @@ namespace Interface
                     {
                         for (auto i = 0; i < Selection.size(); i++)
                         {
-                            std::string TakeMessage = "Give the " + Equipment[Selection[i]].Name + " to";
-
-                            auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, TakeMessage.c_str()) : Engine::First(Party);
-
-                            if (Character >= 0 && Character < Party.Members.size())
+                            if (Equipment[Selection[i]].Class != Equipment::Class::Gold)
                             {
-                                Party.Members[Character].Equipment.push_back(Equipment[Selection[i]]);
+                                std::string TakeMessage = "Give the " + (Equipment[Selection[i]].Class != Equipment::Class::Gold ? Equipment[Selection[i]].Name : (std::to_string(Equipment[Selection[i]].Gold) + " " + Equipment[Selection[i]].Name)) + " to";
 
-                                while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
+                                auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, TakeMessage.c_str()) : Engine::First(Party);
+
+                                if (Character >= 0 && Character < Party.Members.size())
                                 {
-                                    Interface::ItemScreen(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Character, Equipment::Mode::DROP);
+                                    Party.Members[Character].Equipment.push_back(Equipment[Selection[i]]);
+
+                                    while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
+                                    {
+                                        Interface::ItemScreen(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Character, Equipment::Mode::DROP);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                auto Gold = Equipment[Selection[i]].Gold;
+
+                                while (Gold > 0)
+                                {
+                                    std::string TakeMessage = "Give the " + std::to_string(Gold) + (Gold != 1 ? " gold pieces" : " gold piece") + " to";
+
+                                    auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, TakeMessage.c_str()) : Engine::First(Party);
+
+                                    if (Character >= 0 && Character < Party.Members.size())
+                                    {
+                                        Gold = Engine::GainGold(Party.Members[Character], Gold);
+                                    }
+                                    else
+                                    {
+                                        Gold = 0;
+                                    }
                                 }
                             }
                         }
@@ -6417,9 +6440,9 @@ namespace Interface
 
                 auto y = (i > 0 ? Controls[i - 1].Y + Controls[i - 1].H + 3 * text_space : Screen.TextBoxY + 2 * text_space);
 
-                Controls.push_back(Button(i, Graphics::CreateHeaderButton(Window, FONT_BOOKMAN, FontSize, Choices[index].Text.c_str(), Fg, Bg, Screen.TextWidth - 2 * text_space, (FontSize * 3 + text_space), text_space), i, i, (i > 0 ? i - 1 : i), i + 1, Screen.TextBoxX + 2 * text_space, y, Highlight, Control::Type::CHOICE));
+                Controls.push_back(Button(i, Graphics::CreateHeaderButton(Window, FONT_BOOKMAN, FontSize, Choices[index].Text.c_str(), Fg, Bg, Screen.TextWidth - 4 * text_space, (FontSize * 3 + text_space), text_space), i, i, (i > 0 ? i - 1 : i), i + 1, Screen.TextBoxX + 2 * text_space, y, Highlight, Control::Type::CHOICE));
 
-                Controls[i].W = Controls[i].Surface->w;
+                Controls[i].W = Screen.TextWidth - 2 * text_space;
 
                 Controls[i].H = Controls[i].Surface->h;
             }
@@ -6874,7 +6897,7 @@ namespace Interface
                                     }
                                     else
                                     {
-                                        auto First = Engine::First(Party, Item);
+                                        auto First = Engine::First(Party);
 
                                         DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
                                     }
@@ -6944,6 +6967,34 @@ namespace Interface
                                     Next = Interface::FindStory(Story->Choices[Choice].Destination);
 
                                     Done = true;
+                                }
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::CharacterItem)
+                            {
+                                auto Item = Story->Choices[Choice].Item;
+
+                                if (Engine::IsPresent(Party, Story->Choices[Choice].Character) && Engine::HasItem(Party, Item))
+                                {
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                    Done = true;
+                                }
+                                else if (Engine::HasItem(Party, Item))
+                                {
+                                    DisplayMessage((std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!").c_str(), intBK);
+                                }
+                                else
+                                {
+                                    if (Engine::Count(Party) > 1)
+                                    {
+                                        DisplayMessage(("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                    }
+                                    else
+                                    {
+                                        auto First = Engine::First(Party);
+
+                                        DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                    }
                                 }
                             }
                         }

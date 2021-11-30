@@ -25,7 +25,8 @@ namespace Choice
         DropWeapon,
         DropItem,
         SelectAdventurer,
-        SelectDice
+        SelectDice,
+        CharacterItem
     };
 
     class Base
@@ -94,6 +95,19 @@ namespace Choice
             Attribute = attribute;
 
             Type = Choice::Type::Attribute;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Character::Class character, Equipment::Item item)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Character = character;
+
+            Item = item;
+
+            Type = Choice::Type::CharacterItem;
         }
 
         Base(const char *choice, Engine::Destination destination, Abilities::Type ability)

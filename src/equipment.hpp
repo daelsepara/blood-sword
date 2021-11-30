@@ -12,7 +12,8 @@ namespace Equipment
         Weapon,
         Armour,
         MoneyPouch,
-        Quiver
+        Quiver,
+        Gold
     };
 
     enum class Weapon
@@ -20,27 +21,33 @@ namespace Equipment
         None = 0,
         Sword,
         Bow,
-        Quarterstaff
+        Quarterstaff,
+        Axe,
+        Dagger
     };
 
     std::map<Equipment::Weapon, const char *> WeaponDescription = {
         {Equipment::Weapon::None, "none"},
         {Equipment::Weapon::Sword, "sword"},
         {Equipment::Weapon::Bow, "bow"},
-        {Equipment::Weapon::Quarterstaff, "quarterstaff"}};
+        {Equipment::Weapon::Quarterstaff, "quarterstaff"},
+        {Equipment::Weapon::Axe, "axe"},
+        {Equipment::Weapon::Dagger, "dagger"}};
 
     // for non-weapon, non-quiver, non-money-pouches items, e.g. unique items
     enum class Item
     {
         Any = 0,
         RubyRing,
-        SteelSceptre
+        SteelSceptre,
+        VialOfBlackLiquid
     };
 
     std::map<Equipment::Item, const char *> ItemDescription = {
         {Equipment::Item::Any, "any item"},
         {Equipment::Item::RubyRing, "ruby ring"},
-        {Equipment::Item::SteelSceptre, "steel sceptre"}};
+        {Equipment::Item::SteelSceptre, "steel sceptre"},
+        {Equipment::Item::VialOfBlackLiquid, "vial of black liquid"}};
 
     enum class Mode
     {
@@ -180,6 +187,12 @@ namespace Equipment
             {
                 Arrows = value;
             }
+            else if (Class == Equipment::Class::Gold)
+            {
+                Gold = value;
+
+                GoldLimit = value;
+            }
         }
 
         Base(Equipment::Class type, const char *name, const char *description, int value, int limit)
@@ -202,6 +215,12 @@ namespace Equipment
 
                 ArrowLimit = limit;
             }
+            else
+            {
+                Gold = value;
+
+                GoldLimit = value;
+            }
         }
 
         std::string String(bool strong = false)
@@ -212,7 +231,7 @@ namespace Equipment
 
             auto ModCount = 0;
 
-            if (Class != Equipment::Class::Quiver && Class != Equipment::Class::MoneyPouch)
+            if (Class != Equipment::Class::Quiver && Class != Equipment::Class::MoneyPouch && Class != Equipment::Class::Gold)
             {
                 if (Attribute != Attributes::Type::None && Score != 0)
                 {
@@ -257,6 +276,10 @@ namespace Equipment
 
                 ModCount++;
             }
+            else if (Class == Equipment::Class::Gold)
+            {
+                ItemString = (strong ? "<b>" : "") + std::to_string(Gold) + " " + Name + (strong ? "</b>" : "");
+            }
 
             if (ModCount > 0)
             {
@@ -267,10 +290,19 @@ namespace Equipment
         }
     };
 
+    Equipment::Base Gold(int value)
+    {
+        auto gold = value != 1 ? "gold pieces" : "gold piece";
+
+        return Base(Equipment::Class::Gold, gold, gold, value);
+    }
+
     // weapons
     auto Bow = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Bow);
     auto Sword = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Sword);
     auto Quarterstaff = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Quarterstaff);
+    auto Axe = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Axe);
+    auto Dagger = Equipment::Base(Equipment::Class::Weapon, Equipment::Weapon::Dagger);
 
     // containers
     auto MoneyPouch = Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", 0, 100);
@@ -281,10 +313,12 @@ namespace Equipment
     auto RingMail = Equipment::Base(Equipment::Class::Armour, "ringmail", "ringmail", 2);
     auto Silver = Equipment::Base(Equipment::Class::Armour, "silver armour", "silvers armour", 2);
     auto StuddedLeather = Equipment::Base(Equipment::Class::Armour, "studded leather", "studded leather", 2);
+    auto BreastPlate = Equipment::Base(Equipment::Class::Armour, "breastplate", "breastplate", 1);
 
     // book 1 items
     auto RubyRing = Equipment::Base(Equipment::Item::RubyRing);
     auto SteelSceptre = Equipment::Base(Equipment::Item::SteelSceptre, 4, 4);
+    auto VialOfBlackLiquid = Equipment::Base(Equipment::Item::VialOfBlackLiquid);
 }
 
 #endif

@@ -1011,5 +1011,79 @@ namespace Engine
             character.Equipment.erase(character.Equipment.begin() + found);
         }
     }
+
+    int FirstPouch(Character::Base &character, int value)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            Equipment::Base &equipment = character.Equipment[i];
+
+            if (equipment.Class == Equipment::Class::MoneyPouch && (equipment.Gold + value) < equipment.GoldLimit)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    int FirstPouch(Character::Base &character)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            Equipment::Base &equipment = character.Equipment[i];
+
+            if (equipment.Class == Equipment::Class::MoneyPouch && equipment.Gold < equipment.GoldLimit)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    int GainGold(Character::Base &character, int gold)
+    {
+        while (gold > 0)
+        {
+            auto pouch = Engine::FirstPouch(character, gold);
+
+            if (pouch >= 0 && pouch < character.Equipment.size())
+            {
+                character.Equipment[pouch].Gold += gold;
+
+                gold = 0;
+
+                break;
+            }
+            else
+            {
+                pouch = Engine::FirstPouch(character);
+
+                if (pouch >= 0 && pouch < character.Equipment.size())
+                {
+                    gold -= (character.Equipment[pouch].GoldLimit - character.Equipment[pouch].Gold);
+
+                    character.Equipment[pouch].Gold = character.Equipment[pouch].GoldLimit;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        gold = std::max(0, gold);
+
+        return gold;
+    }
 }
 #endif

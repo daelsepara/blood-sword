@@ -16,7 +16,7 @@ namespace Book1
 
             Id = 1;
 
-            Text = "For the whole day now you have been approaching the smoke columns rising up vertically hundreds of metres from the flat plains of Krarth. The sky above is blue, cloudless and cold. A bitter wind blows across the dry, sere grass of the marshes and sends sluggish ripples through the puddles of mire which occupy the low ground. The monotony of the landscape is broken only by the occasional stunted willow growing by black, muddy pools and meres.\n\nKalugen's Keep is a monolithic black citadel looming ahead of you. Hoping to reach its gates before nightfall, you curse the throng of peasants and merchants milling towards it. You jostle through them towards the citadel -- this morning just an imperceptible speck across the bleak wastes, but now a monstrous edifice that seems to fill the horizon.\n\nYou know you have only until tomorrow to find a sponsor among the magi of Krarth, for tomorrow battle will be unleashed in the pits beneath the citadel. Fame and fortune will go to the Adventurers -- and their sponsor -- who return from the labyrinthine Battlepits with the Emblem of Victory. If you find no magus who is prepared to sponsor you this time, you will have to wait another long year for the next contest. A year through which the marsh waters will rise, drowning the land and the causeways leading to the citadel, rendering Kalugen's Keep impregnable. No one enters or leaves in that time except the magi on their flying carpets, and only in mid-year can the citizens emerge to sow their fields with corn and rice before the harsh winter months begin again.\n\nAt last you manage to break through the gabbling crowds of the baggage train and ride under the grey blocks of the massive gate, its portcullis open like the maw of a hungry god. The dour streets are festooned with the flags of the magi -- the one week of the year when this grim place is ablaze with colour, you reflect wryly -- and street criers call out the glories of their lords. In the central square you see a booth where the magi's stewards are registering the combatants whom their masters have employed for tomorrow's contest. Each hero, or group of heroes, must take their sponsor's pennant with them into the Battlepits, but as you scan the racks outside the booth you see that only three pennants remain. Three stewards stand by the pennants. Three magi seek champions.\n\nThe stewards grin sourly as they see you eyeing the pennants. Over the years they must have engaged dozens of brave Adventurers on their respective masters' behalf -- and how many of those Adventurers went down into the Battlepits never to emerge? You scowl back at them grimly, but they only smile the broader. They know you must choose one of the pennants. As you debate the choice, an old merchant wrapped in greasy furs and obviously the worse for drink sees you contemplating the booth.";
+            Text = "For the whole day now you have been approaching the smoke columns rising up vertically hundreds of metres from the flat plains of Krarth. The sky above is blue, cloudless and cold. A bitter wind blows across the dry, sere grass of the marshes and sends sluggish ripples through the puddles of mire which occupy the low ground. The monotony of the landscape is broken only by the occasional stunted willow growing by black, muddy pools and meres.\n\nKalugen's Keep is a monolithic black citadel looming ahead of you. Hoping to reach its gates before nightfall, you curse the throng of peasants and merchants milling towards it. You jostle through them towards the citadel -- this morning just an imperceptible speck across the bleak wastes, but now a monstrous edifice that seems to fill the horizon.\n\nYou know you have only until tomorrow to find a sponsor among the magi of Krarth, for tomorrow battle will be unleashed in the pits beneath the citadel. Fame and fortune will go to the Adventurers -- and their sponsor -- who return from the labyrinthine Battlepits with the Emblem of Victory. If you find no magus who is prepared to sponsor you this time, you will have to wait another long year for the next contest. A year through which the marsh waters will rise, drowning the land and the causeways leading to the citadel, rendering Kalugen's Keep impregnable. No one enters or leaves in that time except the magi on their flying carpets, and only in mid-year can the citizens emerge to sow their fields with corn and rice before the harsh winter months begin again.\n\nAt last you manage to break through the gabbling crowds of the baggage train and ride under the grey blocks of the massive gate, its portcullis open like the maw of a hungry god. The dour streets are festooned with the flags of the magi -- the one week of the year when this grim place is ablaze with colour, you reflect wryly -- and street criers call out the glories of their lords. In the central square you see a booth where the magi's stewards are registering the combatants whom their masters have employed for tomorrow's contest. Each hero, or group of heroes, must take their sponsor's pennant with them into the Battlepits, but as you scan the racks outside the booth you see that only three pennants remain. Three stewards stand by the pennants. Three magi seek champions.\n\nThe stewards grin sourly as they see you eyeing the pennants. Over the years they must have engaged dozens of brave Adventurers on their respective masters\" behalf -- and how many of those Adventurers went down into the Battlepits never to emerge? You scowl back at them grimly, but they only smile the broader. They know you must choose one of the pennants. As you debate the choice, an old merchant wrapped in greasy furs and obviously the worse for drink sees you contemplating the booth.";
 
             Image = "images/book1/merchants.png";
 
@@ -233,7 +233,7 @@ namespace Book1
 
             TopImage = true;
 
-            Text = "(TRICKSTER) A commanding voice rings out over the clash of swords and the screams of the crowd. A majestic, scarlet-robed figure sweeps forwards through the mob, which parts and shrinks away. The wounded guard lowers his sword. 'My lord,' he says, 'I was about to apprehend this common thief.'\n\n'Be silent,' commands the robed man. 'You were about to lose your life, you clumsy wretch. If you were in my service, I'd feed you to the nightgaunts. Begone!'\n\nThe red-robed man turns to you as the guard blanches, bows stiffly and is gone. He smiles coldly at you. 'Your fencing technique is passable, and may be more rewarding to you than your thievery.'";
+            Text = "(TRICKSTER) A commanding voice rings out over the clash of swords and the screams of the crowd. A majestic, scarlet-robed figure sweeps forwards through the mob, which parts and shrinks away. The wounded guard lowers his sword. \"My lord,\" he says, \"I was about to apprehend this common thief.\"\n\n\"Be silent,\" commands the robed man. \"You were about to lose your life, you clumsy wretch. If you were in my service, I'd feed you to the nightgaunts. Begone!\"\n\nThe red-robed man turns to you as the guard blanches, bows stiffly and is gone. He smiles coldly at you. \"Your fencing technique is passable, and may be more rewarding to you than your thievery.\"";
 
             Choices.clear();
 
@@ -299,7 +299,7 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
-            Text = "He is outraged. He half rises from his chair, a tall reed-like figure that seems to unfold rather than stand. His hard thin fingers grip the edge of the table.\n\n'I am astonished!' he says at last through clenched teeth. Fangs, really. 'You have had the benefit of tuition from no less than Grandmaster Kief. I am the acknowledged authority on the Spiral of Gold game. I beat Magus Tor -- the true, original Magus Tor -- in a ten-game championship. Yet you cannot understand my explanation! Sickened though I am, I shall not slay you -- merely consign you to the lower depths.' He lifts a hand from which tendrils of icy flame spread like a net, entangling you. You gasp in sudden pain, <b>LOSING ";
+            Text = "He is outraged. He half rises from his chair, a tall reed-like figure that seems to unfold rather than stand. His hard thin fingers grip the edge of the table.\n\n\"I am astonished!\" he says at last through clenched teeth. Fangs, really. \"You have had the benefit of tuition from no less than Grandmaster Kief. I am the acknowledged authority on the Spiral of Gold game. I beat Magus Tor -- the true, original Magus Tor -- in a ten-game championship. Yet you cannot understand my explanation! Sickened though I am, I shall not slay you -- merely consign you to the lower depths.\" He lifts a hand from which tendrils of icy flame spread like a net, entangling you. You gasp in sudden pain, <b>LOSING ";
 
             auto Loss = Engine::Roll(2, 0);
 
@@ -334,7 +334,7 @@ namespace Book1
 
             Id = 11;
 
-            Text = "You call the spell to mind. As soon as he sees you starting to concentrate, the Dirge-Man gives a distorted frown of distrust. 'Oh now, what's this?' With a mad croak, he launches to the attack.";
+            Text = "You call the spell to mind. As soon as he sees you starting to concentrate, the Dirge-Man gives a distorted frown of distrust. \"Oh now, what's this?\" With a mad croak, he launches to the attack.";
 
             MapFile = "maps/book1/map010.json";
 
@@ -493,7 +493,7 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
-            Text = "'Excellent.' He conceals his Die behind a slender hand and smiles across the table at you as he considers his opening gambit.";
+            Text = "\"Excellent.\" He conceals his Die behind a slender hand and smiles across the table at you as he considers his opening gambit.";
 
             Choices.clear();
 
@@ -562,7 +562,7 @@ namespace Book1
 
             Id = 17;
 
-            Text = "'A sensible decision,' replies Icon. 'I see no reason to divide our forces when victory is so close at hand. Let our motto, then, be: Trust Shall Prevail!'";
+            Text = "\"A sensible decision,\" replies Icon. \"I see no reason to divide our forces when victory is so close at hand. Let our motto, then, be: Trust Shall Prevail!\"";
 
             Choices.clear();
 
@@ -690,7 +690,7 @@ namespace Book1
         }
     };
 
-    // This section describes an combat item effect that will be implemented in
+    // TODO: this section describes an combat item effect that will be implemented in
     // the CombatScreen interface. It is preserved here for completeness.
     class Story023 : public Story::Base
     {
@@ -711,7 +711,7 @@ namespace Book1
         }
     };
 
-    // This section describes an item effect that will be implemented in
+    // TODO: this section describes an item effect that will be implemented in
     // the StoryScreen interface. It is preserved here for completeness.
     class Story024 : public Story::Base
     {
@@ -745,7 +745,7 @@ namespace Book1
 
             TopImage = true;
 
-            Text = "After <i>recovering</i> at the start of the second Spiral, you have two heads and five tails. Grandmaster Kief has six coins, all heads.\n\n'Allow me to point out something that cannot have escaped your notice,' he says as you study the coins. 'You can display only a 1 now. That means that if I display anything more than 2 on my Die, you must lose. I hardly think we need play on, do you?' He sweeps the coins off the table.";
+            Text = "After <i>recovering</i> at the start of the second Spiral, you have two heads and five tails. Grandmaster Kief has six coins, all heads.\n\n\"Allow me to point out something that cannot have escaped your notice,\" he says as you study the coins. \"You can display only a 1 now. That means that if I display anything more than 2 on my Die, you must lose. I hardly think we need play on, do you?\" He sweeps the coins off the table.";
 
             Choices.clear();
 
@@ -764,7 +764,7 @@ namespace Book1
 
             Id = 26;
 
-            Text = "The being spreads his hands over the surface of the table. As he draws them back, fourteen gleaming gold coins are revealed - seven in a line in front of him, seven on your side of the table. Beside each line of coins rests a six-sided Die. All the coins are showing heads.\n\n'I am called Kief,' says the mysterious being. 'I am Grandmaster of this game, which the True Magi called the Spiral of Gold. Pay close attention as I explain it to you.\n\n'We play in Rounds, called Spirals. In the first Spiral I shall secretly select a number on my Die, placing it under my hand with the number I have chosen uppermost. You do the same. Then we reveal and compare our chosen numbers. Suppose that I have the higher number. In this case you would lose some of your coins - equal to the difference between our two chosen numbers. I do not get the coins you lose; they just vanish. All right, so in our example you've lost some of your coins. I wouldn't lose any, but the number I displayed on my Die is the number of coins I have to flip over from heads to tails. So if I displayed a 4 and you displayed a 3, you'd lose one coin and I'd have to flip over four of my coins from heads to tails.\n\n'We then start the next Spiral by <i>recovering</i> -- that is, if either player has any coins showing tails, he can flip one of them over to heads again. Then we select numbers as before, and play proceeds until one player has no heads showing at the end of a Spiral. Then he's lost. \n\n'There are three other rules you must remember. You cannot choose a number on your Die that is equal to or greater than the number of heads you have showing. That means that we can each put any number from 1 to 6 on the first Spiral, since we start with seven coins, all heads up. But if at some later point in the game I had only five heads showing, I'd have to choose a number from 1 to 4. Secondly, if we both choose the <i>same</i> number then that Spiral is a draw and neither player loses anything. Lastly, when you have to lose a number of coins you must take them from the heads, not the tails, among the coins you have left.\n\n'Okay, do you understand how to play?'";
+            Text = "The being spreads his hands over the surface of the table. As he draws them back, fourteen gleaming gold coins are revealed - seven in a line in front of him, seven on your side of the table. Beside each line of coins rests a six-sided Die. All the coins are showing heads.\n\n\"I am called Kief,\" says the mysterious being. \"I am Grandmaster of this game, which the True Magi called the Spiral of Gold. Pay close attention as I explain it to you.\n\n\"We play in Rounds, called Spirals. In the first Spiral I shall secretly select a number on my Die, placing it under my hand with the number I have chosen uppermost. You do the same. Then we reveal and compare our chosen numbers. Suppose that I have the higher number. In this case you would lose some of your coins - equal to the difference between our two chosen numbers. I do not get the coins you lose; they just vanish. All right, so in our example you've lost some of your coins. I wouldn't lose any, but the number I displayed on my Die is the number of coins I have to flip over from heads to tails. So if I displayed a 4 and you displayed a 3, you'd lose one coin and I'd have to flip over four of my coins from heads to tails.\n\n\"We then start the next Spiral by <i>recovering</i> -- that is, if either player has any coins showing tails, he can flip one of them over to heads again. Then we select numbers as before, and play proceeds until one player has no heads showing at the end of a Spiral. Then he's lost. \n\n\"There are three other rules you must remember. You cannot choose a number on your Die that is equal to or greater than the number of heads you have showing. That means that we can each put any number from 1 to 6 on the first Spiral, since we start with seven coins, all heads up. But if at some later point in the game I had only five heads showing, I'd have to choose a number from 1 to 4. Secondly, if we both choose the <i>same</i> number then that Spiral is a draw and neither player loses anything. Lastly, when you have to lose a number of coins you must take them from the heads, not the tails, among the coins you have left.\n\n\"Okay, do you understand how to play?\"";
 
             Choices.clear();
             Choices.push_back(Choice::Base("Reply that you're ready for a game", {Book::Type::Book1, 15}));
@@ -783,7 +783,7 @@ namespace Book1
 
             Id = 27;
 
-            Text = "Icon suddenly draws his sword and cuts powerfully -- a treacherous blow that inflicts eight Endurance points damage on the first player in the battle order. If still alive, you turn with a shout of rage to attack him.\n\nIcon only laughs: 'Surely you did not expect me to show honour to scum such as you?' He crouches ready to meet your attack, hastily casting a spell that covers his black armour in a tracery of red sparks.\n\n<b>NOTE</b>\n\nIcon is immune to the Enthralment spell. He has cloaked himself in a spell of Retributive Fire. Anyone who strikes him in close combat -- with, a sword, for example, but not with an arrow -- is burned by this, losing one Endurance point regardless of armour.";
+            Text = "Icon suddenly draws his sword and cuts powerfully -- a treacherous blow that inflicts eight Endurance points damage on the first player in the battle order. If still alive, you turn with a shout of rage to attack him.\n\nIcon only laughs: \"Surely you did not expect me to show honour to scum such as you?\" He crouches ready to meet your attack, hastily casting a spell that covers his black armour in a tracery of red sparks.\n\n<b>NOTE</b>\n\nIcon is immune to the Enthralment spell. He has cloaked himself in a spell of Retributive Fire. Anyone who strikes him in close combat -- with, a sword, for example, but not with an arrow -- is burned by this, losing one Endurance point regardless of armour.";
 
             MapFile = "maps/book1/map027.json";
 
@@ -811,7 +811,7 @@ namespace Book1
 
             Id = 28;
 
-            Text = "You snatch up the red pennant and hold it aloft. Two of the stewards look at each other barely concealing their frustration, and stomp off to the booth. The third rushes up to you excitedly. 'You have chosen the pennant of the esteemed and generous Magus Balhazar!' he cries.\n\nJust at this moment a tall man dressed in scarlet robes sweeps majestically across the square towards you. The steward bows abjectly to him.";
+            Text = "You snatch up the red pennant and hold it aloft. Two of the stewards look at each other barely concealing their frustration, and stomp off to the booth. The third rushes up to you excitedly. \"You have chosen the pennant of the esteemed and generous Magus Balhazar!\" he cries.\n\nJust at this moment a tall man dressed in scarlet robes sweeps majestically across the square towards you. The steward bows abjectly to him.";
 
             Choices.clear();
 
@@ -876,10 +876,161 @@ namespace Book1
 
             Id = 30;
 
-            Text = "'A draw,' says Kief flatly. 'Neither player loses. The next Spiral begins ...'";
+            Text = "\"A draw,\" says Kief flatly. \"Neither player loses. The next Spiral begins ...\"";
 
             Choices.clear();
             Choices.push_back(Choice::Base("Choose your number again", {Book::Type::Book1, 310}, Choice::Type::SelectDice, "Choose your number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    // TODO: verify 279
+    class Story031 : public Story::Base
+    {
+    public:
+        Story031()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 31;
+
+            Text = "The door opens and you enter a small cavern. A man lies dead on the stone floor nearby. Another of Kalugen's guards, by the look of it, probably sent on some mad suicide mission through the underworld by his evil master. Your evil master, too, come to that...\n\nHe has something clutched in his hand. It is an octagonal prism of coloured glass. You may take this if you wish. There are no other exits from the cavern. Nearby there is a marble dais.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Step on to the dais", {Book::Type::Book1, 386}));
+            Choices.push_back(Choice::Base("Return and take the tunnel beyond the grille", {Book::Type::Book1, 279}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story032 : public Story::Base
+    {
+    public:
+        Story032()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 32;
+
+            Text = "You loot all the bodies in the room, quickly finding:\n\nfour <b>axes</b>\n\ntwenty <b>gold pieces</b>\n\nfour <b>breastplates</b> (Armour Rating: 1)\n\nthree <b>daggers</b>\n\nthirteen <b>shuriken</b> (useless to you)\n\na <b>vial of black liquid</b>";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) Identify the <b>vial of black liquid</b>", {Book::Type::Book1, 463}, Character::Class::Sage, Equipment::Item::VialOfBlackLiquid));
+            Choices.push_back(Choice::Base("Continue", {Book::Type::Book1, 236}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment = {Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Gold(20), Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate, Equipment::Dagger, Equipment::Dagger, Equipment::Dagger, Equipment::VialOfBlackLiquid};
+        }
+    };
+
+    class Story033 : public Story::Base
+    {
+    public:
+        Story033()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 33;
+
+            Text = "You strain to manoeuvre the huge bones into place within the frame. Gradually the body of the long-dead giant is reconstructed. When all the sections of the skeleton are in place, a cold dry wind whips up around the atoll, keening hungrily. Skrymir's soul is returning from the dead.\n\nPatches of flesh-mould appear on the sere bones. A spark of life-light gleams inside the sockets of the skull. Veins and sinews spread, glistening tendrils, as the body re-forms from dust.\n\nSkrymir rises to stand before you, the iron frame now forming a suit of armour around his powerfully muscled body. He looks upon you as a man watches a fly. \"I have no heart!\" he bellows. \"You have neglected the heart of Skrymir! I must take yours instead!\"";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; }
+    };
+
+    class Story034 : public Story::Base
+    {
+    public:
+        Engine::Destination Destination = {};
+
+        Story034()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 34;
+
+            Text = "You search for a concealed spring that might open the mirror. Finding none, you wrap your forearm in your cloak and smash hard at the mirror. It shatters at once, showering broken glass on the red carpet. Immediately a hulking shape launches itself from a secret alcove behind where the mirror hung. Almost before you can react, a slavering corpse is battling with you, swinging its great iron mace madly from side to side.";
+
+            MapFile = "maps/book1/map034.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            Choices.clear();
+
+            if (Result == Combat::Result::ESCAPED)
+            {
+                Destination = {Book::Type::Book1, 456};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 2};
+            }
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return Destination; }
+    };
+
+    class Story035 : public Story::Base
+    {
+    public:
+        Story035()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 35;
+
+            Text = "You have him, and he knows it. After recovering at the start of the next Spiral, he has three heads and four tails. You have only six coins, but they are all heads. The best he can do is play a 2 now, and if you play a 5 that would still knock him out of the game.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 85}; }
+    };
+
+    class Story036 : public Story::Base
+    {
+    public:
+        Story036()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 36;
+
+            Text = "The door creaks open, admitting you to what seems to be a shrine to one of the strange demonic gods of Krarth. A gore-drenched pelt is draped over the obsidian block of the altar. Leaping red flames crackle in iron basins on either side. A pall of grey vapour hangs in the air. Just off to one side of the altar, you see a wrought-iron gate leading to another chamber.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Back out of here and continue up the stairs", {Book::Type::Book1, 3}));
+            Choices.push_back(Choice::Base("Search the altar", {Book::Type::Book1, 243}));
+            Choices.push_back(Choice::Base("Try the wrought-iron gate", {Book::Type::Book1, 526}));
 
             Controls = Story::Controls::Standard;
         }
@@ -912,7 +1063,7 @@ namespace Book1
 
             Id = 69;
 
-            Text = "He lurches from side to side, struggling to focus on you. Giving vent to an enormous belch, he says, 'Lookin' fer employ with a magus, you'll be, I don' wonder. There's three still wantin' champions fer the contest -- that's their pennants over by that booth ...\n\n'Magus Vyl is the worst o' the lot, but then 'e's a vampire an' I shouldn't speak ill o' the dead. Kalugen -- lord o' this city, as you'll know -- well, 'e ain't much better, an' he's not in the contest to win, I've 'eard. But the third -- Magus Balhazar -- is the best of a bad bunch, 'cause 'e's got most to lose in the contest, an' 'e'll be rewardin' 'is champions the best on account o' that.'\n\nAny hopes you might have of questioning the merchant further are soon dashed. Exhausted by the effort of speaking, he favours you with a broad grin and then falls like a plank on the cobblestones. A boot in the ribs does nothing to rouse him from his drunken stupor, so you decide to approach the booth.";
+            Text = "He lurches from side to side, struggling to focus on you. Giving vent to an enormous belch, he says, \"Lookin' fer employ with a magus, you'l l be, I don' wonder. There's three still wantin' champions fer the contest -- that's their pennants over by that booth ...\n\n\"Magus Vyl is the worst 'o the lot, but then 'e's a vampire an' I shouldn't speak ill 'o the dead. Kalugen -- lord 'o this city, as you'l l know -- well, 'e ain't much better, an' he's not in the contest to win, I've 'eard. But the third -- Magus Balhazar -- is the best of a bad bunch, \"cause 'e's got most to lose in the contest, an' 'e'l l be rewardin' 'is champions the best on account 'o that.\"\n\nAny hopes you might have of questioning the merchant further are soon dashed. Exhausted by the effort of speaking, he favours you with a broad grin and then falls like a plank on the cobblestones. A boot in the ribs does nothing to rouse him from his drunken stupor, so you decide to approach the booth.";
 
             Choices.clear();
 
@@ -993,6 +1144,12 @@ namespace Book1
     auto story028 = Story028();
     auto story029 = Story029();
     auto story030 = Story030();
+    auto story031 = Story031();
+    auto story032 = Story032();
+    auto story033 = Story033();
+    auto story034 = Story034();
+    auto story035 = Story035();
+    auto story036 = Story036();
     auto story058 = Story058();
     auto story069 = Story069();
     auto story398 = Story398();
@@ -1005,6 +1162,7 @@ namespace Book1
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
             &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
             &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
+            &story031, &story032, &story033, &story034, &story035, &story036,
             &story058,
             &story069,
             &story398,
