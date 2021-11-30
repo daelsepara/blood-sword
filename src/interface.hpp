@@ -6972,8 +6972,9 @@ namespace Interface
                             else if (Story->Choices[Choice].Type == Choice::Type::CharacterItem)
                             {
                                 auto Item = Story->Choices[Choice].Item;
+                                auto Character = Story->Choices[Choice].Character;
 
-                                if (Engine::IsPresent(Party, Story->Choices[Choice].Character) && Engine::HasItem(Party, Item))
+                                if (Engine::IsPresent(Party, Character) && Engine::HasItem(Party, Item))
                                 {
                                     Next = Interface::FindStory(Story->Choices[Choice].Destination);
 
@@ -6981,7 +6982,7 @@ namespace Interface
                                 }
                                 else if (Engine::HasItem(Party, Item))
                                 {
-                                    DisplayMessage((std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!").c_str(), intBK);
+                                    DisplayMessage((std::string(Character::ClassName[Character]) + " not present in your party!").c_str(), intBK);
                                 }
                                 else
                                 {

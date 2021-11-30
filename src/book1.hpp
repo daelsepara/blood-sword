@@ -972,12 +972,12 @@ namespace Book1
         {
             Enemies.clear();
 
-            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE 1", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE 2", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE 3", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE 4", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE 5", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Corpse, "CORPSE 6", 5, 4, 2, 4, 1, 1, 0, Assets::Type::Corpse));
         }
 
         void AfterCombat(Party::Base &Party, Combat::Result Result)
