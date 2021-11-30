@@ -738,20 +738,14 @@ namespace Character
         character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 5));
     }
 
-    void Initialize(Character::Base &character, int rank)
+    void Initialize(Character::Base &character, Book::Type book, int rank)
     {
-        // Set rank and check bounds
+        // set rank and enforce bounds
         character.Rank = rank;
 
-        if (character.Rank < 2)
-        {
-            character.Rank = 2;
-        }
+        character.Rank = std::min(20, character.Rank);
 
-        if (character.Rank > 20)
-        {
-            character.Rank = 20;
-        }
+        character.Rank = std::max(0, character.Rank);
 
         // set starting experience points
         character.ExperiencePoints = (character.Rank - 1) * 250;
@@ -764,7 +758,6 @@ namespace Character
             character.Equipment = {Equipment::Sword, Equipment::ChainMail};
             character.Equipment.push_back(Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Abilities = Character::Abilities[Character::Class::Warrior];
-
             character.Asset = Assets::Type::Warrior;
         }
         else if (character.Class == Character::Class::Trickster)
@@ -775,7 +768,6 @@ namespace Character
             character.Equipment.push_back(Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Equipment.push_back(Equipment::Base(Equipment::Class::Quiver, "quiver", "quiver", 6, 6));
             character.Abilities = Character::Abilities[Character::Class::Trickster];
-
             character.Asset = Assets::Type::Trickster;
         }
         else if (character.Class == Character::Class::Sage)
@@ -786,7 +778,6 @@ namespace Character
             character.Equipment.push_back(Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Equipment.push_back(Equipment::Base(Equipment::Class::Quiver, "quiver", "quiver", 6, 6));
             character.Abilities = Character::Abilities[Character::Class::Sage];
-
             character.Asset = Assets::Type::Sage;
         }
         else if (character.Class == Character::Class::Enchanter)
@@ -796,16 +787,15 @@ namespace Character
             character.Equipment = {Equipment::Sword, Equipment::Silver};
             character.Equipment.push_back(Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Abilities = Character::Abilities[Character::Class::Enchanter];
-
             character.Asset = Assets::Type::Enchanter;
         }
     }
 
-    Character::Base Create(Character::Class type, int rank)
+    Character::Base Create(Character::Class type, Book::Type book, int rank)
     {
         auto character = Character::Base(type);
 
-        Character::Initialize(character, rank);
+        Character::Initialize(character, book, rank);
 
         return character;
     }

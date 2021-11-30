@@ -72,7 +72,7 @@ int main(int argc, const char **argv)
         // combat screen
         if (combat1)
         {
-            auto party = Interface::CreateParty(window, renderer);
+            auto party = Interface::CreateParty(window, renderer, Book::Type::Book1);
 
             if (party.Members.size() > 0)
             {
@@ -94,7 +94,7 @@ int main(int argc, const char **argv)
         }
         else if (combat2)
         {
-            auto party = Interface::CreateParty(window, renderer);
+            auto party = Interface::CreateParty(window, renderer, Book::Type::Book1);
 
             if (party.Members.size() > 0)
             {
@@ -129,7 +129,7 @@ int main(int argc, const char **argv)
         }
         else if (combat3)
         {
-            auto party = Interface::CreateParty(window, renderer);
+            auto party = Interface::CreateParty(window, renderer, Book::Type::Book1);
 
             if (party.Members.size() > 0)
             {

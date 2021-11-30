@@ -7179,7 +7179,7 @@ namespace Interface
         return Background;
     }
 
-    Party::Base CreateParty(SDL_Window *Window, SDL_Renderer *Renderer)
+    Party::Base CreateParty(SDL_Window *Window, SDL_Renderer *Renderer, Book::Type Book)
     {
         auto Party = Party::Base();
 
@@ -7275,28 +7275,11 @@ namespace Interface
                         {
                             Party.Members.clear();
 
-                            auto Rank = 8;
-
-                            if (Selection.size() <= 1)
-                            {
-                                Rank = 8;
-                            }
-                            else if (Selection.size() == 2)
-                            {
-                                Rank = 4;
-                            }
-                            else if (Selection.size() == 3)
-                            {
-                                Rank = 3;
-                            }
-                            else if (Selection.size() >= 4)
-                            {
-                                Rank = 2;
-                            }
+                            auto Rank = Book::Ranks[Book][Selection.size() - 1];
 
                             for (auto i = 0; i < Selection.size(); i++)
                             {
-                                Party.Members.push_back(Character::Create(Classes[Selection[i]], Rank));
+                                Party.Members.push_back(Character::Create(Classes[Selection[i]], Book, Rank));
                             }
                         }
 
@@ -7326,6 +7309,7 @@ namespace Interface
 
     void MainScreen(SDL_Window *Window, SDL_Renderer *Renderer, Engine::Destination Destination)
     {
+        // initialize RNG
         Engine::Randomize();
 
         // initialize books
@@ -7383,7 +7367,7 @@ namespace Interface
                     if (Controls[Current].Type == Control::Type::NEW && !Hold)
                     {
                         // TODO: select number and composition of party
-                        auto Party = Interface::CreateParty(Window, Renderer);
+                        auto Party = Interface::CreateParty(Window, Renderer, Destination.first);
 
                         if (Party.Members.size() > 0)
                         {

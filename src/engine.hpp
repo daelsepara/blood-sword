@@ -250,7 +250,7 @@ namespace Engine
     bool Paralyzed(Party::Base &party)
     {
         auto paralyzed = 0;
-        
+
         auto dead = 0;
 
         for (auto i = 0; i < party.Members.size(); i++)
@@ -277,6 +277,25 @@ namespace Engine
             if (Engine::IsAlive(party.Members[i]) && !party.Members[i].Escaped)
             {
                 result = false;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool Wounded(Party::Base &party)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            Character::Base &character = party.Members[i];
+
+            if (Engine::IsAlive(character) && Engine::Endurance(character) < Engine::Maximum(character, Attributes::Type::Endurance))
+            {
+                result = true;
 
                 break;
             }

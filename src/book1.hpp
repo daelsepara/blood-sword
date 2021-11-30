@@ -25,9 +25,9 @@ namespace Book1
             Choices.clear();
             Choices.push_back(Choice::Base("Ignore the drunken merchant and go over to the booth", {Book::Type::Book1, 452}));
             Choices.push_back(Choice::Base("Talk to the merchant", {Book::Type::Book1, 69}));
-            Choices.push_back(Choice::Base("[TRICKSTER] Try something", {Book::Type::Book1, 58}, Character::Class::Trickster));
-            Choices.push_back(Choice::Base("[SAGE] Try something", {Book::Type::Book1, 18}, Character::Class::Sage));
-            Choices.push_back(Choice::Base("[ENCHANTER] Try something", {Book::Type::Book1, 398}, Character::Class::Enchanter));
+            Choices.push_back(Choice::Base("(TRICKSTER) Try something", {Book::Type::Book1, 58}, Character::Class::Trickster));
+            Choices.push_back(Choice::Base("(SAGE) Try something", {Book::Type::Book1, 18}, Character::Class::Sage));
+            Choices.push_back(Choice::Base("(ENCHANTER) Try something", {Book::Type::Book1, 398}, Character::Class::Enchanter));
 
             Controls = Story::Controls::Standard;
         }
@@ -112,8 +112,6 @@ namespace Book1
 
         void AfterCombat(Party::Base &Party, Combat::Result Result)
         {
-            Choices.clear();
-
             if (Result == Combat::Result::ESCAPED)
             {
                 Destination = {Book::Type::Book1, 513};
@@ -275,7 +273,7 @@ namespace Book1
 
             Id = 9;
 
-            Text = "(SAGE)\n\n<i>The green potion is a healing draught. The black potion is chimera spittle, a delayed-action poison. The effervescent liquid is an antidote to chimera spittle. The slimy green potion is deadly. You cannot identify the colourless liquid.</i>";
+            Text = "(SAGE) <i>The green potion is a healing draught. The black potion is chimera spittle, a delayed-action poison. The effervescent liquid is an antidote to chimera spittle. The slimy green potion is deadly. You cannot identify the colourless liquid.</i>";
 
             Choices.clear();
 
@@ -301,7 +299,7 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
-            Text = "He is outraged. He half rises from his chair, a tall reed-like figure that seems to unfold rather than stand. His hard thin fingers grip the edge of the table.\n\n'I am astonished!' he says at last through clenched teeth. Fangs, really. 'You have had the benefit of tuition from no less than Grandmaster Kief. I am the acknowledged authority on the Spiral of Gold game. I beat Magus Tor -- the true, original Magus Tor -- in a ten-game championship. Yet you cannot understand my explanation! Sickened though I am, I shall not slay you -- merely consign you to the lower depths.' He lifts a hand from which tendrils of icy flame spread like a net, entangling you. You gasp in sudden pain, <b>losing ";
+            Text = "He is outraged. He half rises from his chair, a tall reed-like figure that seems to unfold rather than stand. His hard thin fingers grip the edge of the table.\n\n'I am astonished!' he says at last through clenched teeth. Fangs, really. 'You have had the benefit of tuition from no less than Grandmaster Kief. I am the acknowledged authority on the Spiral of Gold game. I beat Magus Tor -- the true, original Magus Tor -- in a ten-game championship. Yet you cannot understand my explanation! Sickened though I am, I shall not slay you -- merely consign you to the lower depths.' He lifts a hand from which tendrils of icy flame spread like a net, entangling you. You gasp in sudden pain, <b>LOSING ";
 
             auto Loss = Engine::Roll(2, 0);
 
@@ -468,8 +466,6 @@ namespace Book1
 
         void AfterCombat(Party::Base &Party, Combat::Result Result)
         {
-            Choices.clear();
-
             if (Result == Combat::Result::ESCAPED)
             {
                 Destination = {Book::Type::Book1, 513};
@@ -498,7 +494,7 @@ namespace Book1
         void Event(Party::Base &Party)
         {
             Text = "'Excellent.' He conceals his Die behind a slender hand and smiles across the table at you as he considers his opening gambit.";
-            
+
             Choices.clear();
 
             if (Engine::Count(Party) == 1)
@@ -536,6 +532,56 @@ namespace Book1
         }
     };
 
+    class Story016 : public Story::Base
+    {
+    public:
+        Story016()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 16;
+
+            Text = "The tunnel is long and sinuous. At last it opens out into a cave where black water laps a shore of pebbles. Skirting this lake, you pass several mounds of large rocks which look distinctly like graves. Passing further across the cave, you discover a large block of murky ice, and beyond that you can see a kind of primitive shrine where ritual braziers burn fiercely. There are no other exits from the cave.\n\nWhat do you want to do now?";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Dig up a mound", {Book::Type::Book1, 42}));
+            Choices.push_back(Choice::Base("Look at the shrine", {Book::Type::Book1, 71}));
+            Choices.push_back(Choice::Base("Investigate the ice block", {Book::Type::Book1, 334}));
+            Choices.push_back(Choice::Base("Leave the way you've just came from", {Book::Type::Book1, 279}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story017 : public Story::Base
+    {
+    public:
+        Story017()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 17;
+
+            Text = "'A sensible decision,' replies Icon. 'I see no reason to divide our forces when victory is so close at hand. Let our motto, then, be: Trust Shall Prevail!'";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party)
+        {
+            if (Engine::Wounded(Party))
+            {
+                return {Book::Type::Book1, 51};
+            }
+            else
+            {
+                return {Book::Type::Book1, 27};
+            }
+        }
+    };
+
     class Story018 : public Story::Base
     {
     public:
@@ -555,6 +601,56 @@ namespace Book1
         Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 1}; };
     };
 
+    class Story019 : public Story::Base
+    {
+    public:
+        Story019()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 19;
+
+            Text = "(SAGE) You take a close look at the insignia behind the altar. The three interlocking triangles form the crest of the House of Vyl, which is hardly surprising in view of where you are. Below them there is a smaller engraving, and you almost gasp aloud when you see it.\n\n<i>It is the five-pronged symbol of the Unholy Company of the Eternally Damned, a secret organisation of vampires!</i>";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Search for a secret panel behind the altar", {Book::Type::Book1, 444}));
+            Choices.push_back(Choice::Base("Get out of here right now", {Book::Type::Book1, 3}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story020 : public Story::Base
+    {
+    public:
+        Story020()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 20;
+
+            Text = "Kief opens his hand to display a 5.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party)
+        {
+            std::vector<int> Destinations = {50, 45, 40, 35, 30, 25};
+
+            if (Party.LastValue >= 0 && Party.LastValue < 6)
+            {
+                return {Book::Type::Book1, Destinations[Party.LastValue]};
+            }
+            else
+            {
+                return {Book::Type::Book1, Destinations[Engine::Roll(1, 0) - 1]};
+            }
+        }
+    };
+
     class Story058 : public Story::Base
     {
     public:
@@ -564,7 +660,7 @@ namespace Book1
 
             Id = 58;
 
-            Text = "[TRICKSTER] Under the merchant's beer-stained fur jacket you notice a bulging money-pouch. Being a Trickster, your thoughts naturally turn to theft.";
+            Text = "(TRICKSTER) Under the merchant's beer-stained fur jacket you notice a bulging money-pouch. Being a Trickster, your thoughts naturally turn to theft.";
 
             Choices.clear();
             Choices.push_back(Choice::Base("Try to rob the merchant", {Book::Type::Book1, 121}, {Book::Type::Book1, 181}, Character::Class::Trickster, Attributes::Type::Awareness));
@@ -601,7 +697,7 @@ namespace Book1
 
             Id = 398;
 
-            Text = "[ENCHANTER] You consider your various spells. Two non-combat spells might be of use to you now. But which? Make your choice";
+            Text = "(ENCHANTER) You consider your various spells. Two non-combat spells might be of use to you now. But which? Make your choice";
 
             Choices.clear();
             Choices.push_back(Choice::Base("Cast the Prediction spell", {Book::Type::Book1, 442}));
@@ -648,7 +744,11 @@ namespace Book1
     auto story014 = Story014();
     auto story015 = Story015();
     auto event015 = Event015();
+    auto story016 = Story016();
+    auto story017 = Story017();
     auto story018 = Story018();
+    auto story019 = Story019();
+    auto story020 = Story020();
     auto story058 = Story058();
     auto story069 = Story069();
     auto story398 = Story398();
@@ -659,7 +759,7 @@ namespace Book1
         Book1::Stories = {
             &event015,
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
-            &story011, &story012, &story013, &story014, &story015, &story018,
+            &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
             &story058,
             &story069,
             &story398,

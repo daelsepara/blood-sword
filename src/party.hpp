@@ -44,7 +44,7 @@ namespace Party
         // Last selected character
         int LastSelected = -1;
         // Last selected value
-        int LastValue = 0;
+        int LastValue = -1;
     };
 }
 #endif
