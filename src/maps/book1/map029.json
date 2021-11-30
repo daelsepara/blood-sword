@@ -285,20 +285,20 @@
                 "type": 3
             },
             {
-                "asset": 6,
+                "asset": 5,
                 "id": 0,
-                "isPassable": false,
-                "isPassableToEnemy": false,
+                "isPassable": true,
+                "isPassableToEnemy": true,
                 "occupant": 0,
-                "type": 3
+                "type": 2
             },
             {
-                "asset": 6,
+                "asset": 5,
                 "id": 0,
-                "isPassable": false,
-                "isPassableToEnemy": false,
+                "isPassable": true,
+                "isPassableToEnemy": true,
                 "occupant": 0,
-                "type": 3
+                "type": 2
             }
         ],
         [
@@ -343,20 +343,20 @@
                 "type": 3
             },
             {
-                "asset": 6,
+                "asset": 5,
                 "id": 0,
-                "isPassable": false,
-                "isPassableToEnemy": false,
+                "isPassable": true,
+                "isPassableToEnemy": true,
                 "occupant": 0,
-                "type": 3
+                "type": 2
             },
             {
-                "asset": 6,
+                "asset": 5,
                 "id": 0,
-                "isPassable": false,
-                "isPassableToEnemy": false,
+                "isPassable": true,
+                "isPassableToEnemy": true,
                 "occupant": 0,
-                "type": 3
+                "type": 2
             }
         ],
         [
