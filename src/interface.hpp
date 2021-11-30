@@ -385,13 +385,9 @@ namespace Interface
     {
         auto Result = false;
 
-        if (Path.Points.size() > 2)
+        if (Path.Points.size() > 1)
         {
-            auto Destination = Path.Points.back();
-
-            auto IsOccupied = (Map.Tiles[Destination.Y][Destination.X].IsOccupied());
-
-            auto Limit = Path.Points.size() - (IsOccupied ? 1 : 0);
+            auto Limit = Path.Points.size();
 
             for (auto i = 1; i < Limit; i++)
             {
@@ -401,12 +397,12 @@ namespace Interface
 
                 Result = Interface::AnimateMove(Renderer, BattleScreen, bg, Map, Party, Enemies, Point.X, Point.Y, Next.X, Next.Y);
 
+                Interface::GenerateMapControls(Map, BattleScreen, Party, Enemies, StartMap);
+
                 if (!Result)
                 {
                     break;
                 }
-
-                Interface::GenerateMapControls(Map, BattleScreen, Party, Enemies, StartMap);
             }
         }
 
@@ -900,7 +896,7 @@ namespace Interface
                           }
                           else
                           {
-                              return true;
+                              return false;
                           }
                       }
                       else
@@ -3553,9 +3549,9 @@ namespace Interface
 
             Interface::Find(Map, Map::Object::Player, PlayerId, CenterX, CenterY);
 
-            Map.MapX = CenterX - (Map.SizeX - (CenterX % Map.SizeX)) / 2;
+            Map.MapX = CenterX - (Map.SizeX / 2);
 
-            Map.MapY = CenterY - (Map.SizeY - (CenterY % Map.SizeY)) / 2;
+            Map.MapY = CenterY - (Map.SizeY / 2);
 
             CheckMapBounds();
         };
