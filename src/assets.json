@@ -310,15 +310,15 @@
         },
         {
             "id": 306,
-            "path": "images/enemies/corpse.png"
-        },
-        {
-            "id": 307,
             "path": "images/enemies/icon-the-ungodly.png"
         },
         {
-            "id": 308,
+            "id": 307,
             "path": "images/enemies/enemies.png"
+        },
+        {
+            "id": 308,
+            "path": "images/enemies/corpse.png"
         }
     ]
 }
