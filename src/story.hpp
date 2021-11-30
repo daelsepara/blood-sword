@@ -213,13 +213,16 @@ namespace Story
     enum class Type
     {
         Normal = 0,
-        Doom
+        Doom,
+        Info
     };
 
     enum class Controls
     {
         None = 0,
-        Standard
+        Standard,
+        Exit,
+        Info
     };
 
     class Base
@@ -228,6 +231,8 @@ namespace Story
         Story::Type Type = Story::Type::Normal;
 
         Book::Type Book = Book::Type::None;
+
+        Engine::Destination DestinationReturn = {Book::Type::None, 0};
 
         int Id = -1;
 
@@ -311,6 +316,19 @@ namespace Story
         auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * text_space);
 
         controls.push_back(Button(0, Assets::Get(Assets::Type::Exit), 0, 0, 0, 0, LastX, OffsetY, intWH, Control::Type::EXIT));
+
+        return controls;
+    }
+
+    std::vector<Button> InfoControls()
+    {
+        auto controls = std::vector<Button>();
+
+        auto IconSize = (buttonw + 2 * text_space);
+        auto OffsetY = SCREEN_HEIGHT - 2 * (IconSize - text_space);
+        auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * text_space);
+
+        controls.push_back(Button(0, Assets::Get(Assets::Type::Back), 0, 0, 0, 0, LastX, OffsetY, intWH, Control::Type::BACK));
 
         return controls;
     }

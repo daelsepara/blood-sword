@@ -158,6 +158,14 @@ namespace Interface
 
         Controls.erase(Controls.begin() + StartMap, Controls.end());
 
+        if (Controls.size() > 3)
+        {
+            Controls[0].Highlight = Map.MapY > 0 ? intWH : intGR;
+            Controls[1].Highlight = Map.MapX > 0 ? intWH : intGR;
+            Controls[2].Highlight = (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR;
+            Controls[3].Highlight = (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR;
+        }
+
         for (auto y = Map.MapY; y < Map.MapY + Map.SizeY; y++)
         {
             auto AssetY = Map.DrawY + (y - Map.MapY) * Map.ObjectSize;
@@ -288,9 +296,9 @@ namespace Interface
     bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 Bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int SrcX, int SrcY, int DstX, int DstY)
     {
         // do not render off screen animations
-        if (!Interface::IsVisible(Map, SrcX, SrcY))
+        if (!Interface::IsVisible(Map, SrcX, SrcY) || !Interface::IsVisible(Map, DstX, DstY))
         {
-            SDL_Delay(300);
+            SDL_Delay(5);
 
             return Interface::Move(Map, SrcX, SrcY, DstX, DstY);
         }
@@ -424,7 +432,7 @@ namespace Interface
 
     void Find(Map::Base &Map, Map::Object Object, int Id, int &LocationX, int &LocationY)
     {
-        bool Found = false;
+        auto Found = false;
 
         LocationX = -1;
 
@@ -1688,9 +1696,16 @@ namespace Interface
         {
             if (!Enemies[EnemyId].Enthraled)
             {
-                Interface::RenderMessage(Renderer, BattleScreen, Map, bg, Enemies[EnemyId].Name + " is now under your control!", intGR);
+                if (Enemies[EnemyId].Type == Enemy::Type::IconTheUngodly)
+                {
+                    Interface::RenderMessage(Renderer, BattleScreen, Map, bg, Enemies[EnemyId].Name + " is immune to entrhalment!", intBK);
+                }
+                else
+                {
+                    Interface::RenderMessage(Renderer, BattleScreen, Map, bg, Enemies[EnemyId].Name + " is now under your control!", intGR);
 
-                Enemies[EnemyId].Enthraled = true;
+                    Enemies[EnemyId].Enthraled = true;
+                }
             }
             else
             {
@@ -2044,12 +2059,12 @@ namespace Interface
 
             auto DamageSum = 0;
             auto FightingSum = 0;
-            bool CalculatedDamage = false;
-            bool AssignedDamage = false;
+            auto CalculatedDamage = false;
+            auto AssignedDamage = false;
+            auto Retribution = false;
+            auto Done = false;
 
             Result = Combat::Result::NONE;
-
-            auto Done = false;
 
             while (!Done)
             {
@@ -2252,14 +2267,19 @@ namespace Interface
 
                         DamageSum = std::max(0, DamageSum);
 
-                        CalculatedDamage = true;
-
                         if (!Attacked && Quarterstaff && DamageSum > 0)
                         {
                             Enemy.KnockedOff = true;
 
                             Result = Combat::Result::KNOCKED_OFF;
                         }
+
+                        if (!Attacked && FightMode != Combat::FightMode::SHOOT && DamageSum > 0 && Enemy.Type == Enemy::Type::IconTheUngodly)
+                        {
+                            Retribution = true;
+                        }
+
+                        CalculatedDamage = true;
                     }
                 }
                 else if (CurrentStage == Combat::Stage::END)
@@ -2399,6 +2419,12 @@ namespace Interface
                                 Character.Paralyzed = true;
                             }
                         }
+                        else if (!Attacked && Retribution)
+                        {
+                            RenderMessage(Renderer, BattleScreen, Map, bg, "Retribution spell retaliates for 1 damage!", intBK);
+
+                            Engine::Gain(Character, -1);
+                        }
 
                         Done = true;
                     }
@@ -2510,8 +2536,6 @@ namespace Interface
 
         std::vector<TextButton> &Controls = Attacker.Enthraled ? FightControls1 : FightControls2;
 
-        auto Done = false;
-
         auto CurrentStage = Combat::Stage::START;
 
         Engine::Randomize();
@@ -2526,8 +2550,10 @@ namespace Interface
 
         auto DamageSum = 0;
         auto FightingSum = 0;
-        bool CalculatedDamage = false;
-        bool AssignedDamage = false;
+        auto CalculatedDamage = false;
+        auto AssignedDamage = false;
+        auto Retribution = false;
+        auto Done = false;
 
         while (!Done)
         {
@@ -2673,6 +2699,11 @@ namespace Interface
 
                     DamageSum = std::max(0, DamageSum);
 
+                    if (FightMode != Combat::FightMode::SHOOT && DamageSum > 0 && Defender.Type == Enemy::Type::IconTheUngodly)
+                    {
+                        Retribution = true;
+                    }
+
                     CalculatedDamage = true;
                 }
             }
@@ -2748,6 +2779,13 @@ namespace Interface
                 }
                 else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                 {
+                    if (Retribution)
+                    {
+                        RenderMessage(Renderer, BattleScreen, Map, bg, "Retribution spell retaliates for 1 damage!", intBK);
+
+                        Engine::Gain(Attacker, -1);
+                    }
+
                     Done = true;
                 }
             }
@@ -3483,6 +3521,45 @@ namespace Interface
 
         Map.DrawY = Map.ObjectSize;
 
+        auto CheckMapBounds = [&]
+        {
+            // check if out of bounds
+            if (Map.MapX < 0)
+            {
+                Map.MapX = 0;
+            }
+
+            if (Map.MapX > Map.Width - Map.SizeX)
+            {
+                Map.MapX = Map.Width - Map.SizeX;
+            }
+
+            if (Map.MapY < 0)
+            {
+                Map.MapY = 0;
+            }
+
+            if (Map.MapY > Map.Height - Map.SizeY)
+            {
+                Map.MapY = Map.Height - Map.SizeY;
+            }
+        };
+
+        auto Center = [&](int PlayerId)
+        {
+            auto CenterX = -1;
+
+            auto CenterY = -1;
+
+            Interface::Find(Map, Map::Object::Player, PlayerId, CenterX, CenterY);
+
+            Map.MapX = CenterX + Map.SizeX / 2;
+
+            Map.MapY = CenterY + Map.SizeY / 2;
+
+            CheckMapBounds();
+        };
+
         // player input
         auto Hold = false;
         auto Selected = false;
@@ -3603,7 +3680,52 @@ namespace Interface
             return Next;
         };
 
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+
+        Map.TextX = Map.DrawX;
+
+        Map.TextY = Map.DrawY - 2 * text_space - FontSize;
+
+        Map.TextWidth = (Map.Width < 13 ? 13 : Map.Width) * Map.ObjectSize;
+
+        Map.TextRightX = Map.DrawX + (Map.ObjectSize * Map.SizeX + text_space);
+
+        Map.TextRightWidth = SCREEN_WIDTH - Map.TextRightX;
+
+        auto MapButtonSize = Map.ObjectSize + 2 * text_space;
+        auto MapSizeX = Map.SizeX * Map.ObjectSize;
+        auto MapSizeY = Map.SizeY * Map.ObjectSize;
+        auto MapButtonsX = Map.DrawX - MapButtonSize;
+        auto MapButtonsY = Map.DrawY + text_space;
+        auto MapButtonsGridSize = MapSizeY / 4;
+
+        auto ActionsX = Map.DrawX;
+        auto ActionsY = Map.DrawY + MapSizeY + 2 * text_space;
+        auto ActionsGrid = MapButtonSize;
+
+        auto StartMap = 12;
+        auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
+        auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
+
         auto Controls = std::vector<Button>();
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, Map.MapY > 0 ? intWH : intGR, Control::Type::MAP_UP));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * text_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * text_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
+        Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * text_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
+        Controls.push_back(Button(4, Assets::Get(Assets::Type::Exit), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
+        Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intWH, Control::Type::MOVE));
+        Controls.push_back(Button(6, Assets::Get(Assets::Type::Fight), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
+        Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
+        Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
+        Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
+        Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
+        Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 11, 4, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
+
+        // center map on first player
+        Center(Engine::First(Party));
+
+        // generate controls within the map window
+        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
         auto CycleCombatants = [&]()
         {
@@ -3762,33 +3884,18 @@ namespace Interface
                 }
             }
 
+            if (IsPlayer(CurrentCombatant))
+            {
+                Center(Engine::First(Party));
+
+                // generate controls within the map window
+                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+            }
+
             CurrentMode = Combat::Mode::NORMAL;
 
             ResetSelection();
         };
-
-        auto FontSize = TTF_FontHeight(Fonts::Normal);
-
-        Map.TextX = Map.DrawX;
-
-        Map.TextY = Map.DrawY - 2 * text_space - FontSize;
-
-        Map.TextWidth = (Map.Width < 13 ? 13 : Map.Width) * Map.ObjectSize;
-
-        Map.TextRightX = Map.DrawX + (Map.ObjectSize * Map.SizeX + text_space);
-
-        Map.TextRightWidth = SCREEN_WIDTH - Map.TextRightX;
-
-        auto MapButtonSize = Map.ObjectSize + 2 * text_space;
-        auto MapSizeX = Map.SizeX * Map.ObjectSize;
-        auto MapSizeY = Map.SizeY * Map.ObjectSize;
-        auto MapButtonsX = Map.DrawX - MapButtonSize;
-        auto MapButtonsY = Map.DrawY + text_space;
-        auto MapButtonsGridSize = MapSizeY / 4;
-
-        auto ActionsX = Map.DrawX;
-        auto ActionsY = Map.DrawY + MapSizeY + 2 * text_space;
-        auto ActionsGrid = MapButtonSize;
 
         auto RenderFlashMessage = [&]()
         {
@@ -3813,26 +3920,6 @@ namespace Interface
                 }
             }
         };
-
-        auto StartMap = 12;
-        auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
-        auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
-
-        Controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, Map.MapY > 0 ? intWH : intGR, Control::Type::MAP_UP));
-        Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * text_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
-        Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * text_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
-        Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * text_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
-        Controls.push_back(Button(4, Assets::Get(Assets::Type::Exit), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
-        Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intWH, Control::Type::MOVE));
-        Controls.push_back(Button(6, Assets::Get(Assets::Type::Fight), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
-        Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
-        Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
-        Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
-        Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
-        Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 11, 4, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
-
-        // generate controls within the map window
-        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
         // clear defending, quickthinking status, spell durations
         Engine::ClearDefendingStatus(Party);
@@ -3870,26 +3957,7 @@ namespace Interface
 
             while (!Done)
             {
-                // check if out of bounds
-                if (Map.MapX < 0)
-                {
-                    Map.MapX = 0;
-                }
-
-                if (Map.MapX > Map.Width - Map.SizeX)
-                {
-                    Map.MapX = Map.Width - Map.SizeX;
-                }
-
-                if (Map.MapY < 0)
-                {
-                    Map.MapY = 0;
-                }
-
-                if (Map.MapY > Map.Height - Map.SizeY)
-                {
-                    Map.MapY = Map.Height - Map.SizeY;
-                }
+                CheckMapBounds();
 
                 // select which object to blink (player/Enemy)
                 auto BlinkX = -1;
@@ -4479,6 +4547,15 @@ namespace Interface
                                         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                     }
 
+                                    if (!Engine::IsAlive(Character))
+                                    {
+                                        Interface::RenderMessage(Renderer, Controls, Map, intBK, (std::string(Character::ClassName[Character.Class]) + " killed!"), intBK);
+
+                                        Interface::Remove(Map, CurrentX, CurrentY);
+
+                                        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                    }
+
                                     if (Result != Combat::Result::NONE)
                                     {
                                         Engine::ResetSpellDifficulty(Character);
@@ -4871,6 +4948,15 @@ namespace Interface
                                                 Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
 
                                                 Interface::Remove(Map, SelectX, SelectY);
+
+                                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                            }
+
+                                            if (!Engine::IsAlive(Enemy))
+                                            {
+                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, Enemy.Name + " killed!", intGR);
+
+                                                Interface::Remove(Map, CurrentX, CurrentY);
 
                                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                             }
@@ -6854,6 +6940,8 @@ namespace Interface
             Next = Interface::FindStory(Story->Continue(Party));
         }
 
+        Next->DestinationReturn = {Story->Book, Story->Id};
+
         return Next;
     }
 
@@ -6970,6 +7058,10 @@ namespace Interface
                 if (Story->Controls == Story::Controls::Standard)
                 {
                     Controls = Story::StandardControls(Compact);
+                }
+                else if (Story->Controls == Story::Controls::Info)
+                {
+                    Controls = Story::InfoControls();
                 }
                 else
                 {
@@ -7130,6 +7222,17 @@ namespace Interface
                             else
                             {
                                 Controls = Story::ExitControls();
+                            }
+                        }
+                        else if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                        {
+                            auto Next = Interface::FindStory(Story->DestinationReturn);
+
+                            if (Next->Id != Story->Id || Story->Book != Next->Book)
+                            {
+                                Story = Next;
+
+                                Transition = true;
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::EXIT && !Hold)

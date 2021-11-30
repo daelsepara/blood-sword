@@ -285,6 +285,10 @@
             "path": "images/spells/eott-party.png"
         },
         {
+            "id": 300,
+            "path": "images/enemies/enemies.png"
+        },
+        {
             "id": 301,
             "path": "images/enemies/barbarian.png"
         },
@@ -307,6 +311,14 @@
         {
             "id": 306,
             "path": "images/enemies/corpse.png"
+        },
+        {
+            "id": 307,
+            "path": "images/enemies/icon-the-ungodly.png"
+        },
+        {
+            "id": 308,
+            "path": "images/enemies/enemies.png"
         }
     ]
 }

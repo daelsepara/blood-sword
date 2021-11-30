@@ -161,7 +161,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 356}; };
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 356}; }
     };
 
     class Story006 : public Story::Base
@@ -240,7 +240,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; };
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; }
     };
 
     class Story008 : public Story::Base
@@ -280,7 +280,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 103}; };
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 103}; }
     };
 
     class Story010 : public Story::Base
@@ -320,7 +320,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; };
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; }
     };
 
     class Story011 : public Story::Base
@@ -598,7 +598,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 1}; };
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 1}; }
     };
 
     class Story019 : public Story::Base
@@ -651,6 +651,240 @@ namespace Book1
         }
     };
 
+    class Story021 : public Story::Base
+    {
+    public:
+        Story021()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 21;
+
+            Text = "The right-hand corridor goes only a short distance and then opens out into a large chamber. The double doors at the far end of the chamber glimmer with a dull blue sheen. To either side of you, steps lead up to a balcony.\n\nThe most amazing feature of this room is a giant chessboard that has been constructed in the middle of the floor. The chessboard is eight metres along each side, and the pieces are as tall as you are. A glowing sphere hanging from the ceiling casts a flood of light on this playing-area.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Go back and take the left-hand passage instead", {Book::Type::Book1, 249}));
+            Choices.push_back(Choice::Base("Go up the steps", {Book::Type::Book1, 82}));
+            Choices.push_back(Choice::Base("Go and look at the chesspieces", {Book::Type::Book1, 422}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story022 : public Story::Base
+    {
+    public:
+        Story022()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 22;
+
+            Type = Story::Type::Doom;
+
+            Text = "There is no way for you to cross the chasm. Though the Emblem of Victory stands in sight, it is unattainable. You espy a black-cloaked figure with a golden sword in hand climbing the atoll towards it. Icon the Ungodly. He will win the contest on behalf of Magus Uru, and reap the rewards of wealth and fame, while you will languish here forever in the stifling mists that fill the Battlepits of Krarth.\n\nYour quest ends in failure.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Exit;
+        }
+    };
+
+    // This section describes an combat item effect that will be implemented in
+    // the CombatScreen interface. It is preserved here for completeness.
+    class Story023 : public Story::Base
+    {
+    public:
+        Story023()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 23;
+
+            Type = Story::Type::Info;
+
+            Text = "You hurl the <b>dagger</b>. Roll to see if it hits Nebularon. If it does, he loses 1D-2 Endurance (that is, including his Armour Rating reduction). However, whether it hits him or not it doesn't return to you. While close to Nebularon, the spell that returns it to your hand is stifled by his anti-magical protection. You can retrieve it after the fight -- assuming you defeat him.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Info;
+        }
+    };
+
+    // This section describes an item effect that will be implemented in
+    // the StoryScreen interface. It is preserved here for completeness.
+    class Story024 : public Story::Base
+    {
+    public:
+        Story024()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 24;
+
+            Type = Story::Type::Info;
+
+            Text = "You unstopper the small bottle and drain its contents. Immediately you feel a wave of agony course through your body, accompanied by a buzzing sensation inside your head. Suddenly your vision seems very sharply defined - the colours of everything around you become almost painfully vivid. You can hear the slightest noise. Your senses and agility have become cat-like. You have the strength of three men. And you may be dying.\n\nRoll one Die. If you get a 1 or 2, your heart bursts under the strain of the drug you have imbibed. If you roll 3 or more, you can increase your Fighting Prowess and Awareness both by one point -- but you must reduce your Psychic Ability and Endurance by the same amount. (If you had only one Endurance left, you die.) The effect lasts several days, and thus your scores remain as altered for the rest of this adventure.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Info;
+        }
+    };
+
+    class Story025 : public Story::Base
+    {
+    public:
+        Story025()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 25;
+
+            Image = "images/book1/filler3.png";
+
+            TopImage = true;
+
+            Text = "After <i>recovering</i> at the start of the second Spiral, you have two heads and five tails. Grandmaster Kief has six coins, all heads.\n\n'Allow me to point out something that cannot have escaped your notice,' he says as you study the coins. 'You can display only a 1 now. That means that if I display anything more than 2 on my Die, you must lose. I hardly think we need play on, do you?' He sweeps the coins off the table.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
+    };
+
+    class Story026 : public Story::Base
+    {
+    public:
+        Story026()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 26;
+
+            Text = "The being spreads his hands over the surface of the table. As he draws them back, fourteen gleaming gold coins are revealed - seven in a line in front of him, seven on your side of the table. Beside each line of coins rests a six-sided Die. All the coins are showing heads.\n\n'I am called Kief,' says the mysterious being. 'I am Grandmaster of this game, which the True Magi called the Spiral of Gold. Pay close attention as I explain it to you.\n\n'We play in Rounds, called Spirals. In the first Spiral I shall secretly select a number on my Die, placing it under my hand with the number I have chosen uppermost. You do the same. Then we reveal and compare our chosen numbers. Suppose that I have the higher number. In this case you would lose some of your coins - equal to the difference between our two chosen numbers. I do not get the coins you lose; they just vanish. All right, so in our example you've lost some of your coins. I wouldn't lose any, but the number I displayed on my Die is the number of coins I have to flip over from heads to tails. So if I displayed a 4 and you displayed a 3, you'd lose one coin and I'd have to flip over four of my coins from heads to tails.\n\n'We then start the next Spiral by <i>recovering</i> -- that is, if either player has any coins showing tails, he can flip one of them over to heads again. Then we select numbers as before, and play proceeds until one player has no heads showing at the end of a Spiral. Then he's lost. \n\n'There are three other rules you must remember. You cannot choose a number on your Die that is equal to or greater than the number of heads you have showing. That means that we can each put any number from 1 to 6 on the first Spiral, since we start with seven coins, all heads up. But if at some later point in the game I had only five heads showing, I'd have to choose a number from 1 to 4. Secondly, if we both choose the <i>same</i> number then that Spiral is a draw and neither player loses anything. Lastly, when you have to lose a number of coins you must take them from the heads, not the tails, among the coins you have left.\n\n'Okay, do you understand how to play?'";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Reply that you're ready for a game", {Book::Type::Book1, 15}));
+            Choices.push_back(Choice::Base("Tell him that you've no idea what this game is about", {Book::Type::Book1, 10}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story027 : public Story::Base
+    {
+    public:
+        Story027()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 27;
+
+            Text = "Icon suddenly draws his sword and cuts powerfully -- a treacherous blow that inflicts eight Endurance points damage on the first player in the battle order. If still alive, you turn with a shout of rage to attack him.\n\nIcon only laughs: 'Surely you did not expect me to show honour to scum such as you?' He crouches ready to meet your attack, hastily casting a spell that covers his black armour in a tracery of red sparks.\n\n<b>NOTE</b>\n\nIcon is immune to the Enthralment spell. He has cloaked himself in a spell of Retributive Fire. Anyone who strikes him in close combat -- with, a sword, for example, but not with an arrow -- is burned by this, losing one Endurance point regardless of armour.";
+
+            MapFile = "maps/book1/map027.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+
+            Enemies.push_back(Enemy::Base(Enemy::Type::IconTheUngodly, "ICON THE UNGODLY", 8, 8, 7, 28, 2, 2, 2, Assets::Type::IconTheUngodly));
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 377}; }
+    };
+
+    class Story028 : public Story::Base
+    {
+    public:
+        Story028()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 28;
+
+            Text = "You snatch up the red pennant and hold it aloft. Two of the stewards look at each other barely concealing their frustration, and stomp off to the booth. The third rushes up to you excitedly. 'You have chosen the pennant of the esteemed and generous Magus Balhazar!' he cries.\n\nJust at this moment a tall man dressed in scarlet robes sweeps majestically across the square towards you. The steward bows abjectly to him.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; }
+    };
+
+    class Story029 : public Story::Base
+    {
+    public:
+        Engine::Destination Destination = {};
+
+        Story029()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 29;
+
+            Text = "You saunter over while the man is selecting a pastry from a tray. For some reason, no one else at the party comes to your aid.\n\n<b>NOTE</b>\n\nYou get one free round before he can act because he was not expecting your attack.";
+
+            MapFile = "maps/book1/map029.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            SurprisedEnemy = true;
+
+            Enemies.clear();
+
+            Enemies.push_back(Enemy::Base(Enemy::Type::ManInBlue, "MAN IN BLUE", 7, 7, 7, 15, 1, 1, 0, Assets::Type::ManInBlue));
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            Choices.clear();
+
+            if (Result == Combat::Result::ESCAPED)
+            {
+                Destination = {Book::Type::Book1, 119};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 184};
+            }
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return Destination; }
+    };
+
+    class Story030 : public Story::Base
+    {
+    public:
+        Story030()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 30;
+
+            Text = "'A draw,' says Kief flatly. 'Neither player loses. The next Spiral begins ...'";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your number again", {Book::Type::Book1, 310}, Choice::Type::SelectDice, "Choose your number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story058 : public Story::Base
     {
     public:
@@ -685,7 +919,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 452}; };
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 452}; }
     };
 
     class Story398 : public Story::Base
@@ -749,6 +983,16 @@ namespace Book1
     auto story018 = Story018();
     auto story019 = Story019();
     auto story020 = Story020();
+    auto story021 = Story021();
+    auto story022 = Story022();
+    auto story023 = Story023();
+    auto story024 = Story024();
+    auto story025 = Story025();
+    auto story026 = Story026();
+    auto story027 = Story027();
+    auto story028 = Story028();
+    auto story029 = Story029();
+    auto story030 = Story030();
     auto story058 = Story058();
     auto story069 = Story069();
     auto story398 = Story398();
@@ -760,6 +1004,7 @@ namespace Book1
             &event015,
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
             &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
+            &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
             &story058,
             &story069,
             &story398,

@@ -16,7 +16,9 @@ namespace Enemy
         DirgeMan,
         Skiapyr,
         MagusVyl,
-        Enemy
+        Corpse,
+        IconTheUngodly,
+        ManInBlue
     };
 
     class Base
