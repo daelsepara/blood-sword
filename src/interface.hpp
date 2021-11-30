@@ -154,7 +154,9 @@ namespace Interface
 
     void GenerateMapControls(Map::Base &Map, std::vector<Button> &Controls, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int NumControls)
     {
-        Controls.erase(Controls.begin() + NumControls, Controls.end());
+        auto StartMap = NumControls;
+
+        Controls.erase(Controls.begin() + StartMap, Controls.end());
 
         for (auto y = Map.MapY; y < Map.MapY + Map.SizeY; y++)
         {
@@ -182,7 +184,7 @@ namespace Interface
                 }
                 else
                 {
-                    if (CtrlX < 6)
+                    if (CtrlX < (StartMap - 5))
                     {
                         CtrlDn = CtrlX + 5;
                     }
@@ -3812,7 +3814,7 @@ namespace Interface
             }
         };
 
-        auto StartMap = 11;
+        auto StartMap = 12;
         auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
         auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
 
@@ -3826,7 +3828,8 @@ namespace Interface
         Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
         Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
         Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
-        Controls.push_back(Button(10, Assets::Get(Assets::Type::Flee), 9, 4, Map.SizeX > 5 ? BottomMapX + 5 : 10, 4, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
+        Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
+        Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 11, 4, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
 
         // generate controls within the map window
         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
