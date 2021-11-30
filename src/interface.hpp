@@ -3553,9 +3553,9 @@ namespace Interface
 
             Interface::Find(Map, Map::Object::Player, PlayerId, CenterX, CenterY);
 
-            Map.MapX = CenterX + Map.SizeX / 2;
+            Map.MapX = CenterX - (Map.SizeX - (CenterX % Map.SizeX)) / 2;
 
-            Map.MapY = CenterY + Map.SizeY / 2;
+            Map.MapY = CenterY - (Map.SizeY - (CenterY % Map.SizeY)) / 2;
 
             CheckMapBounds();
         };
@@ -3886,7 +3886,7 @@ namespace Interface
 
             if (IsPlayer(CurrentCombatant))
             {
-                Center(Engine::First(Party));
+                Center(GetId(CurrentCombatant));
 
                 // generate controls within the map window
                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
@@ -4116,11 +4116,13 @@ namespace Interface
 
                             Character.Defending = true;
 
-                            CycleCombatants();
-
                             Selected = false;
 
                             Current = -1;
+
+                            CycleCombatants();
+
+                            continue;
                         }
                         else if (Controls[Current].Type == Control::Type::FLEE && !Hold)
                         {
@@ -4137,6 +4139,8 @@ namespace Interface
                                     Character.Escaped = true;
 
                                     CycleCombatants();
+
+                                    continue;
                                 }
                                 else
                                 {
@@ -4228,6 +4232,8 @@ namespace Interface
                                             }
 
                                             CycleCombatants();
+
+                                            continue;
                                         }
                                     }
                                     else
@@ -4264,6 +4270,8 @@ namespace Interface
                                         }
 
                                         CycleCombatants();
+
+                                        continue;
                                     }
                                 }
                             }
@@ -4302,6 +4310,8 @@ namespace Interface
                                     if (QuickThinkingRound && Character.QuickThinking)
                                     {
                                         CycleCombatants();
+
+                                        continue;
                                     }
                                 }
                                 else if (Interface::NearbyEnemies(Map, Enemies, PlayerId, false))
@@ -4331,6 +4341,8 @@ namespace Interface
                                     if (QuickThinkingRound && Character.QuickThinking)
                                     {
                                         CycleCombatants();
+
+                                        continue;
                                     }
                                 }
                                 else if (Engine::CanShoot(Character))
@@ -4460,6 +4472,8 @@ namespace Interface
                                                 }
 
                                                 CycleCombatants();
+
+                                                continue;
                                             }
                                             else
                                             {
@@ -4505,6 +4519,8 @@ namespace Interface
                                         Interface::RenderMessage(Renderer, Controls, Map, intBK, Spell::All[CalledToMind].Name + " called to mind!", intGR);
 
                                         CycleCombatants();
+
+                                        continue;
                                     }
                                 }
                             }
@@ -4569,6 +4585,8 @@ namespace Interface
                                         }
 
                                         CycleCombatants();
+
+                                        continue;
                                     }
                                     else
                                     {
@@ -4608,6 +4626,8 @@ namespace Interface
                                     if (Result != Combat::Result::NONE)
                                     {
                                         CycleCombatants();
+
+                                        continue;
                                     }
                                     else
                                     {
@@ -4665,6 +4685,8 @@ namespace Interface
                                     }
 
                                     CycleCombatants();
+
+                                    continue;
                                 }
                                 else
                                 {
@@ -4764,11 +4786,13 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::DEFEND && !Hold)
                         {
-                            CycleCombatants();
-
                             Selected = false;
 
                             Current = -1;
+
+                            CycleCombatants();
+
+                            continue;
                         }
                         else if (Controls[Current].Type == Control::Type::PLAYER && !Hold)
                         {
@@ -4821,6 +4845,8 @@ namespace Interface
                                             Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
                                             CycleCombatants();
+
+                                            continue;
                                         }
                                     }
                                     else
@@ -4839,6 +4865,8 @@ namespace Interface
                                         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
                                         CycleCombatants();
+
+                                        continue;
                                     }
                                 }
                             }
@@ -4966,6 +4994,8 @@ namespace Interface
                                         if (Result != Combat::Result::NONE)
                                         {
                                             CycleCombatants();
+
+                                            continue;
                                         }
                                         else
                                         {
@@ -5024,6 +5054,8 @@ namespace Interface
                                         if (Result != Combat::Result::NONE)
                                         {
                                             CycleCombatants();
+
+                                            continue;
                                         }
                                         else
                                         {
@@ -5088,6 +5120,8 @@ namespace Interface
                                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
                                                 CycleCombatants();
+
+                                                continue;
                                             }
                                         }
                                         else
@@ -5106,6 +5140,8 @@ namespace Interface
                                             Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
                                             CycleCombatants();
+
+                                            continue;
                                         }
                                     }
                                 }
@@ -5227,6 +5263,8 @@ namespace Interface
                     }
 
                     CycleCombatants();
+
+                    continue;
                 }
 
                 if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party) || Engine::Enthraled(Enemies) || Engine::Paralyzed(Party))
