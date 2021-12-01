@@ -61,12 +61,7 @@ namespace Interface
     {
         if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY))
         {
-            if (Map.Tiles[srcY][srcX].IsPlayer())
-            {
-                Map.Tiles[srcY][srcX].Id = 0;
-                Map.Tiles[srcY][srcX].Occupant = Map::Object::None;
-            }
-            else if (Map.Tiles[srcY][srcX].IsEnemy())
+            if (Map.Tiles[srcY][srcX].IsPlayer() || Map.Tiles[srcY][srcX].IsEnemy())
             {
                 Map.Tiles[srcY][srcX].Id = 0;
                 Map.Tiles[srcY][srcX].Occupant = Map::Object::None;
@@ -82,8 +77,7 @@ namespace Interface
         {
             if (Map.Tiles[srcY][srcX].IsPlayer() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit()) && Map.Tiles[dstY][dstX].Occupant == Map::Object::None)
             {
-                Map.Tiles[dstY][dstX].Id = Map.Tiles[srcY][srcX].Id;
-                Map.Tiles[dstY][dstX].Occupant = Map.Tiles[srcY][srcX].Occupant;
+                Map.Put(dstX, dstY, Map.Tiles[srcY][srcX].Occupant, Map.Tiles[srcY][srcX].Id - 1);
 
                 Interface::Remove(Map, srcX, srcY);
 
@@ -91,8 +85,7 @@ namespace Interface
             }
             else if (Map.Tiles[srcY][srcX].IsEnemy() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy) && Map.Tiles[dstY][dstX].Occupant == Map::Object::None)
             {
-                Map.Tiles[dstY][dstX].Id = Map.Tiles[srcY][srcX].Id;
-                Map.Tiles[dstY][dstX].Occupant = Map.Tiles[srcY][srcX].Occupant;
+                Map.Put(dstX, dstY, Map.Tiles[srcY][srcX].Occupant, Map.Tiles[srcY][srcX].Id - 1);
 
                 Interface::Remove(Map, srcX, srcY);
 
@@ -197,19 +190,21 @@ namespace Interface
 
                 auto AssetX = Map.DrawX + (x - Map.MapX) * Map.ObjectSize;
 
-                auto ObjectId = Map.Tiles[y][x].Id - 1;
+                Map::Tile &Tile = Map.Tiles[y][x];
 
-                if (Map.Tiles[y][x].IsPlayer())
+                auto ObjectId = Tile.Id - 1;
+
+                if (Tile.IsPlayer())
                 {
                     Controls.push_back(Button(NumControls, Assets::Get(Party.Members[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::PLAYER));
                 }
-                else if (Map.Tiles[y][x].IsEnemy())
+                else if (Tile.IsEnemy())
                 {
                     Controls.push_back(Button(NumControls, Enemies[ObjectId].Enthraled ? Assets::Get(Enemies[ObjectId].Asset, 0x66) : Assets::Get(Enemies[ObjectId].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intWH, Control::Type::ENEMY));
                 }
-                else if (Map.Tiles[y][x].IsExit())
+                else if (Tile.IsExit())
                 {
-                    auto Asset = Map.Tiles[y][x].Asset;
+                    auto Asset = Tile.Asset;
 
                     if (Asset == Assets::Type::MapExit)
                     {
@@ -233,17 +228,17 @@ namespace Interface
 
                     Controls.push_back(Button(NumControls, Assets::Get(Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_EXIT));
                 }
-                else if (Map.Tiles[y][x].IsPassable)
+                else if (Tile.IsPassable)
                 {
-                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
+                    Controls.push_back(Button(NumControls, Assets::Get(Tile.Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::DESTINATION));
                 }
-                else if (Map.Tiles[y][x].IsPassableToEnemy)
+                else if (Tile.IsPassableToEnemy)
                 {
-                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset, 0x66), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
+                    Controls.push_back(Button(NumControls, Assets::Get(Tile.Asset, 0x66), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
                 }
                 else
                 {
-                    Controls.push_back(Button(NumControls, Assets::Get(Map.Tiles[y][x].Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
+                    Controls.push_back(Button(NumControls, Assets::Get(Tile.Asset), CtrlLt, CtrlRt, CtrlUp, CtrlDn, AssetX, AssetY, intGR, Control::Type::MAP_NONE));
                 }
 
                 NumControls++;

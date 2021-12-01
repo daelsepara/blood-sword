@@ -148,6 +148,28 @@ namespace Map
             Exits.clear();
         }
 
+        void Put(int x, int y, Map::Object object, int id)
+        {
+            if (x >= 0 && x < Width && y >= 0 && y < Height)
+            {
+                this->Tiles[y][x].Occupant = object;
+
+                this->Tiles[y][x].Id = id + 1;
+            }
+        }
+
+        void Put(int x, int y, Map::Object type, Assets::Type asset, bool isPassable, bool isPassableToEnemy)
+        {
+            if (x >= 0 && x < Width && y >= 0 && y < Height)
+            {
+                this->Tiles[y][x].Occupant = Map::Object::None;
+                this->Tiles[y][x].Type = type;
+                this->Tiles[y][x].Asset = asset;
+                this->Tiles[y][x].IsPassable = isPassable;
+                this->Tiles[y][x].IsPassableToEnemy = isPassableToEnemy;
+            }
+        }
+
         void Convert(std::vector<std::string> &map, Party::Base &party, std::vector<Enemy::Base> &enemies)
         {
             if (map.size() > 0)
@@ -167,78 +189,53 @@ namespace Map
 
                         if (map[y][x] == Map::Wall)
                         {
-                            Tiles[y][x].Asset = Assets::Type::Wall;
-                            Tiles[y][x].Type = Map::Object::Wall;
+                            Put(x, y, Map::Object::Wall, Assets::Type::Wall, false, false);
                         }
                         else if (map[y][x] == Map::HotCoals)
                         {
-                            Tiles[y][x].Asset = Assets::Type::HotCoals;
-                            Tiles[y][x].Type = Map::Object::HotCoals;
-                            Tiles[y][x].IsPassableToEnemy = true;
+                            Put(x, y, Map::Object::HotCoals, Assets::Type::HotCoals, false, true);
                         }
                         else if (map[y][x] == Map::Lava)
                         {
-                            Tiles[y][x].Asset = Assets::Type::Lava;
-                            Tiles[y][x].Type = Map::Object::Lava;
+                            Put(x, y, Map::Object::Lava, Assets::Type::Lava, false, true);
                         }
                         else if (map[y][x] == Map::WindowMystical)
                         {
-                            Tiles[y][x].Asset = Assets::Type::WindowMystical;
-                            Tiles[y][x].Type = Map::Object::WindowMystical;
-                            Tiles[y][x].IsPassableToEnemy = true;
+                            Put(x, y, Map::Object::WindowMystical, Assets::Type::WindowMystical, false, true);
                         }
                         else if (map[y][x] == Map::Flee)
                         {
-                            Tiles[y][x].Asset = Assets::Type::MapExit;
-                            Tiles[y][x].Type = Map::Object::Exit;
+                            Put(x, y, Map::Object::Exit, Assets::Type::MapExit, false, false);
 
                             Exits.push_back(std::make_pair(x, y));
                         }
                         else if (map[y][x] == Map::Stairs)
                         {
-                            Tiles[y][x].Asset = Assets::Type::Stairs;
-                            Tiles[y][x].Type = Map::Object::Stairs;
+                            Put(x, y, Map::Object::Exit, Assets::Type::Stairs, false, false);
 
                             Exits.push_back(std::make_pair(x, y));
                         }
                         else if (map[y][x] == Map::Passable)
                         {
-                            Tiles[y][x].Asset = Assets::Type::Passable;
-                            Tiles[y][x].Type = Map::Object::Passable;
-                            Tiles[y][x].IsPassable = true;
-                            Tiles[y][x].IsPassableToEnemy = true;
+                            Put(x, y, Map::Object::Passable, Assets::Type::Passable, true, true);
                         }
                         else if (player != std::string::npos && player >= 0 && player != std::string::npos)
                         {
-                            Tiles[y][x].Asset = Assets::Type::Passable;
-                            Tiles[y][x].Type = Map::Object::Passable;
-                            Tiles[y][x].Occupant = Map::Object::Player;
-                            Tiles[y][x].IsPassable = true;
-                            Tiles[y][x].IsPassableToEnemy = true;
-                            Tiles[y][x].Id = player + 1;
+                            Put(x, y, Map::Object::Passable, Assets::Type::Passable, true, true);
+                            Put(x, y, Map::Object::Player, player);
                         }
                         else if (enemy != std::string::npos && enemy >= 0 && enemy != std::string::npos)
                         {
-                            Tiles[y][x].Asset = Assets::Type::Passable;
-                            Tiles[y][x].Type = Map::Object::Passable;
-                            Tiles[y][x].Occupant = Map::Object::Enemy;
-                            Tiles[y][x].IsPassable = true;
-                            Tiles[y][x].IsPassableToEnemy = true;
-                            Tiles[y][x].Id = enemy + 1;
+                            Put(x, y, Map::Object::Passable, Assets::Type::Passable, true, true);
+                            Put(x, y, Map::Object::Enemy, enemy);
                         }
                         else if (map[y][x] == Map::Steep)
                         {
-                            Tiles[y][x].Asset = Assets::Type::Steep;
-                            Tiles[y][x].Type = Map::Object::Vertical;
-                            Tiles[y][x].IsPassable = false;
-                            Tiles[y][x].IsPassableToEnemy = true;
+                            Put(x, y, Map::Object::Vertical, Assets::Type::Steep, false, true);
                         }
                         else
                         {
-                            Tiles[y][x].Asset = Assets::Type::Passable;
-                            Tiles[y][x].Type = Map::Object::Passable;
-                            Tiles[y][x].IsPassable = true;
-                            Tiles[y][x].IsPassableToEnemy = true;
+                            Put(x, y, Map::Object::Passable, Assets::Type::Passable, true, true);
                         }
                     }
                 }
@@ -265,27 +262,6 @@ namespace Map
                 Initialize(sizex, sizey);
 
                 Convert(map, party, enemies);
-            }
-        }
-
-        void Put(int x, int y, Map::Object object, int id)
-        {
-            if (x >= 0 && x < Width && y >= 0 && y < Height)
-            {
-                this->Tiles[y][x].Occupant = object;
-                this->Tiles[y][x].Id = id + 1;
-            }
-        }
-
-        void Put(int x, int y, Map::Object type, Assets::Type asset, bool isPassable, bool isPassableToEnemy)
-        {
-            if (x >= 0 && x < Width && y >= 0 && y < Height)
-            {
-                this->Tiles[y][x].Occupant = Map::Object::None;
-                this->Tiles[y][x].Type = type;
-                this->Tiles[y][x].Asset = asset;
-                this->Tiles[y][x].IsPassable = isPassable;
-                this->Tiles[y][x].IsPassableToEnemy = isPassableToEnemy;
             }
         }
 
