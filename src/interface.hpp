@@ -3563,24 +3563,31 @@ namespace Interface
         auto ScrollDown = false;
         auto Current = 0;
 
+        auto GenerateSequence = [&](std::vector<Interface::Combatants> &Sequence)
+        {
+            Sequence.clear();
+
+            for (auto i = 0; i < Party.Members.size(); i++)
+            {
+                auto Awareness = Engine::Awareness(Party.Members[i]);
+
+                Sequence.push_back({Map::Object::Player, i, Awareness});
+            }
+
+            for (auto i = 0; i < Enemies.size(); i++)
+            {
+                auto Awareness = Enemies[i].Awareness;
+
+                Sequence.push_back({Map::Object::Enemy, i, Awareness});
+            }
+        };
+
         // round sequence
         std::vector<Interface::Combatants> Sequence = {};
 
+        GenerateSequence(Sequence);
+
         // sort combatants based on awareness
-        for (auto i = 0; i < Party.Members.size(); i++)
-        {
-            auto Awareness = Engine::Awareness(Party.Members[i]);
-
-            Sequence.push_back({Map::Object::Player, i, Awareness});
-        }
-
-        for (auto i = 0; i < Enemies.size(); i++)
-        {
-            auto Awareness = Enemies[i].Awareness;
-
-            Sequence.push_back({Map::Object::Enemy, i, Awareness});
-        }
-
         Interface::SortCombatants(Sequence);
 
         auto CurrentMode = Combat::Mode::NORMAL;
@@ -3604,6 +3611,8 @@ namespace Interface
         auto CombatRound = 0;
 
         auto QuickThinkingRound = false;
+
+        auto UsedInvisibilityScroll = false;
 
         auto ActFirstRound = (Story->SurprisedEnemy || Story->SurprisedByEnemy) ? true : false;
 
@@ -3703,7 +3712,13 @@ namespace Interface
         auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
         auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
 
+        // preserve starting map, party, and enemy stats (for use with time blink)
+        auto InitialMap = Map;
+        auto InitialParty = Party;
+        auto InitialEnemies = Enemies;
+
         auto Controls = std::vector<Button>();
+
         Controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, StartMap, 0, 1, MapButtonsX, MapButtonsY, Map.MapY > 0 ? intWH : intGR, Control::Type::MAP_UP));
         Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * text_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
         Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * text_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
@@ -3917,38 +3932,78 @@ namespace Interface
             }
         };
 
-        // clear defending, quickthinking status, spell durations
-        Engine::ClearDefendingStatus(Party);
-
-        Engine::NormalThinking(Party);
-
-        Engine::ResetSpellDifficulty(Party);
-
-        Engine::ClearStatus(Party);
-
-        // setup surprise first round attacks
-        Engine::NormalCombat(Party);
-
-        Engine::NormalCombat(Story->Enemies);
-
-        if (ActFirstRound)
+        auto StartSurpriseRound = [&]()
         {
-            if (Story->SurprisedEnemy)
+            if (ActFirstRound)
             {
-                Engine::ActFirst(Party);
-            }
-            else if (Story->SurprisedByEnemy)
-            {
-                Engine::ActFirst(Story->Enemies);
-            }
+                if (Story->SurprisedEnemy)
+                {
+                    Engine::ActFirst(Party);
+                }
+                else if (Story->SurprisedByEnemy)
+                {
+                    Engine::ActFirst(Story->Enemies);
+                }
 
-            CurrentCombatant = NextFirst();
+                CurrentCombatant = NextFirst();
 
-            Interface::RenderMessage(Renderer, Controls, Map, intBK, "Surprise attack begins!", intGR);
-        }
+                Interface::RenderMessage(Renderer, Controls, Map, intBK, "Surprise attack begins!", intGR);
+            }
+        };
+
+        auto TimeBlink = [&]()
+        {
+            Map = InitialMap;
+
+            Party = InitialParty;
+
+            Story->Enemies = InitialEnemies;
+
+            // clear defending, quickthinking status, spell durations
+            Engine::ClearDefendingStatus(Party);
+
+            Engine::NormalThinking(Party);
+
+            Engine::ResetSpellDifficulty(Party);
+
+            Engine::ClearStatus(Party);
+
+            Engine::NormalCombat(Party);
+
+            Engine::NormalCombat(Story->Enemies);
+
+            GenerateSequence(Sequence);
+
+            SortCombatants(Sequence);
+
+            ResetSelection();
+
+            Center(Engine::First(Party));
+
+            GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+
+            CurrentMode = Combat::Mode::NORMAL;
+
+            QuickThinkingRound = false;
+
+            UsedInvisibilityScroll = false;
+
+            CurrentCombatant = 0;
+
+            CombatRound = 0;
+
+            SelectedSpell = -1;
+
+            // setup surprise first round attacks
+            ActFirstRound = (Story->SurprisedEnemy || Story->SurprisedByEnemy) ? true : false;
+
+            StartSurpriseRound();
+        };
 
         if (Window && Renderer && Map.Width > 0 && Map.Height > 0)
         {
+            TimeBlink();
+
             auto Done = false;
 
             while (!Done)
@@ -6972,6 +7027,7 @@ namespace Interface
                             else if (Story->Choices[Choice].Type == Choice::Type::CharacterItem)
                             {
                                 auto Item = Story->Choices[Choice].Item;
+
                                 auto Character = Story->Choices[Choice].Character;
 
                                 if (Engine::IsPresent(Party, Character) && Engine::HasItem(Party, Item))
@@ -6997,6 +7053,34 @@ namespace Interface
                                         DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
                                     }
                                 }
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::Item)
+                            {
+                                auto Item = Story->Choices[Choice].Item;
+
+                                if (Engine::HasItem(Party, Item))
+                                {
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                    Done = true;
+                                }
+                                else
+                                {
+                                    if (Engine::Count(Party) > 1)
+                                    {
+                                        DisplayMessage(("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                    }
+                                    else
+                                    {
+                                        auto First = Engine::First(Party, Item);
+
+                                        DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                DisplayMessage("Choice type not implemented yet!", intBK);
                             }
                         }
                     }

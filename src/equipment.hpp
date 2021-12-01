@@ -40,14 +40,26 @@ namespace Equipment
         Any = 0,
         RubyRing,
         SteelSceptre,
-        VialOfBlackLiquid
+        VialOfBlackLiquid,
+        ScorchedSkull,
+        ScrollOfInvisibility,
+        ScrollOfHealing,
+        ScrollOfAdjustment,
+        ScrollOfTimeBlink,
+        ScrollOfPrecognition
     };
 
     std::map<Equipment::Item, const char *> ItemDescription = {
         {Equipment::Item::Any, "any item"},
         {Equipment::Item::RubyRing, "ruby ring"},
         {Equipment::Item::SteelSceptre, "steel sceptre"},
-        {Equipment::Item::VialOfBlackLiquid, "vial of black liquid"}};
+        {Equipment::Item::VialOfBlackLiquid, "vial of black liquid"},
+        {Equipment::Item::ScrollOfInvisibility, "vial of black liquid"},
+        {Equipment::Item::ScorchedSkull, "scorched skull"},
+        {Equipment::Item::ScrollOfHealing, "healing (scroll)"},
+        {Equipment::Item::ScrollOfAdjustment, "adjust (scroll)"},
+        {Equipment::Item::ScrollOfTimeBlink, "time blink (scroll)"},
+        {Equipment::Item::ScrollOfPrecognition, "precognition (scroll)"}};
 
     enum class Mode
     {
@@ -319,6 +331,17 @@ namespace Equipment
     auto RubyRing = Equipment::Base(Equipment::Item::RubyRing);
     auto SteelSceptre = Equipment::Base(Equipment::Item::SteelSceptre, 4, 4);
     auto VialOfBlackLiquid = Equipment::Base(Equipment::Item::VialOfBlackLiquid);
+    auto ScorchedSkull = Equipment::Base(Equipment::Item::ScorchedSkull);
+
 }
 
+namespace Scroll
+{
+    // scrolls
+    auto Invisibility = Equipment::Base(Equipment::Item::ScrollOfInvisibility);
+    auto Healing = Equipment::Base(Equipment::Item::ScrollOfHealing);
+    auto Adjustment = Equipment::Base(Equipment::Item::ScrollOfAdjustment);
+    auto TimeBlink = Equipment::Base(Equipment::Item::ScrollOfTimeBlink);
+    auto Precognition = Equipment::Base(Equipment::Item::ScrollOfPrecognition);
+}
 #endif

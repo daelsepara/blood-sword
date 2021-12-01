@@ -26,7 +26,8 @@ namespace Choice
         DropItem,
         SelectAdventurer,
         SelectDice,
-        CharacterItem
+        CharacterItem,
+        TakeScrolls
     };
 
     class Base
@@ -141,6 +142,17 @@ namespace Choice
             Equipment = equipment;
 
             Type = Choice::Type::Equipment;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Choice::Type type, std::vector<Equipment::Base> equipment)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Equipment = equipment;
+
+            Type = type;
         }
 
         Base(const char *choice, Engine::Destination destination, Choice::Type type)

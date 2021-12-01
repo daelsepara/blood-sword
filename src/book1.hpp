@@ -724,7 +724,7 @@ namespace Book1
 
             Type = Story::Type::Info;
 
-            Text = "You unstopper the small bottle and drain its contents. Immediately you feel a wave of agony course through your body, accompanied by a buzzing sensation inside your head. Suddenly your vision seems very sharply defined - the colours of everything around you become almost painfully vivid. You can hear the slightest noise. Your senses and agility have become cat-like. You have the strength of three men. And you may be dying.\n\nRoll one Die. If you get a 1 or 2, your heart bursts under the strain of the drug you have imbibed. If you roll 3 or more, you can increase your Fighting Prowess and Awareness both by one point -- but you must reduce your Psychic Ability and Endurance by the same amount. (If you had only one Endurance left, you die.) The effect lasts several days, and thus your scores remain as altered for the rest of this adventure.";
+            Text = "You unstopper the small bottle and drain its contents. Immediately you feel a wave of agony course through your body, accompanied by a buzzing sensation inside your head. Suddenly your vision seems very sharply defined -- the colours of everything around you become almost painfully vivid. You can hear the slightest noise. Your senses and agility have become cat-like. You have the strength of three men. And you may be dying.\n\nRoll one Die. If you get a 1 or 2, your heart bursts under the strain of the drug you have imbibed. If you roll 3 or more, you can increase your Fighting Prowess and Awareness both by one point -- but you must reduce your Psychic Ability and Endurance by the same amount. (If you had only one Endurance left, you die.) The effect lasts several days, and thus your scores remain as altered for the rest of this adventure.";
 
             Choices.clear();
 
@@ -764,7 +764,7 @@ namespace Book1
 
             Id = 26;
 
-            Text = "The being spreads his hands over the surface of the table. As he draws them back, fourteen gleaming gold coins are revealed - seven in a line in front of him, seven on your side of the table. Beside each line of coins rests a six-sided Die. All the coins are showing heads.\n\n\"I am called Kief,\" says the mysterious being. \"I am Grandmaster of this game, which the True Magi called the Spiral of Gold. Pay close attention as I explain it to you.\n\n\"We play in Rounds, called Spirals. In the first Spiral I shall secretly select a number on my Die, placing it under my hand with the number I have chosen uppermost. You do the same. Then we reveal and compare our chosen numbers. Suppose that I have the higher number. In this case you would lose some of your coins - equal to the difference between our two chosen numbers. I do not get the coins you lose; they just vanish. All right, so in our example you've lost some of your coins. I wouldn't lose any, but the number I displayed on my Die is the number of coins I have to flip over from heads to tails. So if I displayed a 4 and you displayed a 3, you'd lose one coin and I'd have to flip over four of my coins from heads to tails.\n\n\"We then start the next Spiral by <i>recovering</i> -- that is, if either player has any coins showing tails, he can flip one of them over to heads again. Then we select numbers as before, and play proceeds until one player has no heads showing at the end of a Spiral. Then he's lost. \n\n\"There are three other rules you must remember. You cannot choose a number on your Die that is equal to or greater than the number of heads you have showing. That means that we can each put any number from 1 to 6 on the first Spiral, since we start with seven coins, all heads up. But if at some later point in the game I had only five heads showing, I'd have to choose a number from 1 to 4. Secondly, if we both choose the <i>same</i> number then that Spiral is a draw and neither player loses anything. Lastly, when you have to lose a number of coins you must take them from the heads, not the tails, among the coins you have left.\n\n\"Okay, do you understand how to play?\"";
+            Text = "The being spreads his hands over the surface of the table. As he draws them back, fourteen gleaming gold coins are revealed -- seven in a line in front of him, seven on your side of the table. Beside each line of coins rests a six-sided Die. All the coins are showing heads.\n\n\"I am called Kief,\" says the mysterious being. \"I am Grandmaster of this game, which the True Magi called the Spiral of Gold. Pay close attention as I explain it to you.\n\n\"We play in Rounds, called Spirals. In the first Spiral I shall secretly select a number on my Die, placing it under my hand with the number I have chosen uppermost. You do the same. Then we reveal and compare our chosen numbers. Suppose that I have the higher number. In this case you would lose some of your coins -- equal to the difference between our two chosen numbers. I do not get the coins you lose; they just vanish. All right, so in our example you've lost some of your coins. I wouldn't lose any, but the number I displayed on my Die is the number of coins I have to flip over from heads to tails. So if I displayed a 4 and you displayed a 3, you'd lose one coin and I'd have to flip over four of my coins from heads to tails.\n\n\"We then start the next Spiral by <i>recovering</i> -- that is, if either player has any coins showing tails, he can flip one of them over to heads again. Then we select numbers as before, and play proceeds until one player has no heads showing at the end of a Spiral. Then he's lost. \n\n\"There are three other rules you must remember. You cannot choose a number on your Die that is equal to or greater than the number of heads you have showing. That means that we can each put any number from 1 to 6 on the first Spiral, since we start with seven coins, all heads up. But if at some later point in the game I had only five heads showing, I'd have to choose a number from 1 to 4. Secondly, if we both choose the <i>same</i> number then that Spiral is a draw and neither player loses anything. Lastly, when you have to lose a number of coins you must take them from the heads, not the tails, among the coins you have left.\n\n\"Okay, do you understand how to play?\"";
 
             Choices.clear();
             Choices.push_back(Choice::Base("Reply that you're ready for a game", {Book::Type::Book1, 15}));
@@ -1036,6 +1036,100 @@ namespace Book1
         }
     };
 
+    class Story037 : public Story::Base
+    {
+    public:
+        Story037()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 37;
+
+            Text = "The moment you pick up the sword, a wall appears, blocking the corridor. By experimenting, you find that the wall appears when you pick up the sword and disappears when you put it down. You cannot go on, and the thought of retracing your steps is not inviting.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Use the <b>steel sceptre</b>", {Book::Type::Book1, 4}, Choice::Type::Discharge, Equipment::Item::SteelSceptre, 1));
+            Choices.push_back(Choice::Base("Leave the <b>sword</b>", {Book::Type::Book1, 503}, Choice::Type::DropWeapon, Equipment::Weapon::Sword));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story038 : public Story::Base
+    {
+    public:
+        Story038()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 38;
+
+            Text = "The moment you lift the skull, its empty eye-sockets seem to glare at you, and the outlines of the room wash away like a watercolour in the rain. Suddenly you find yourself standing alone in a room filled with scrolls. The skull is no longer in your hands, but rests on an oak table beside you.\n\nThe available scrolls are:\n\nINVISIBILITY\n\nEnables the party to take the flee option on the next round without moving into an exit point.\n\nHEALING\n\nRestores 2D endurance up to the initial maximum.\n\nADJUST\n\nTake one point from an attribute (Endurance, Fighting Prowess, Awareness or Psychic Ability) and transfer it to another. The effect is permanent.\n\nTIME BLINK\n\nReturning time to the point when the combat started. The endurance of both player(s) and opponent(s) are restored to their initial values at the start of the combat.\n\nPRECOGNITION\n\nGlimpse into the past or future.\n\n<b>NOTE</b>\n\nThere are several copies of each scroll. Each scroll can be used only once. Once read, it will crumble to dust. None of the scrolls can be read in this room.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Take some of the scrolls", {Book::Type::Book1, -38}, Choice::Type::TakeScrolls, {Scroll::Invisibility, Scroll::Healing, Scroll::Adjustment, Scroll::TimeBlink, Scroll::Precognition}));
+            Choices.push_back(Choice::Base("Use the <b>scorched skull</b> to leave", {Book::Type::Book1, 97}, Equipment::Item::ScorchedSkull));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Event038 : public Story::Base
+    {
+    public:
+        Event038()
+        {
+            Book = Book::Type::Book1;
+
+            Id = -38;
+
+            DisplayId = 38;
+
+            Choices.clear();
+
+            Controls = Story::Controls::Info;
+        }
+
+        Engine::Destination Background(Party::Base &Party) { return {Book::Type::Book1, 38}; }
+    };
+
+    class Story039 : public Story::Base
+    {
+    public:
+        Story039()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 39;
+
+            Text = "You take a sip from the bottle before handing it to him. \"What an excellent vintage!\" you say, making a great show of smacking your lips. Reassured, the Dirge-Man takes a long drink himself. As he does, you surreptitiously drink a dose of the antidote. Taking back the chimera spittle, you suggest that the Dirge-Man carries you across the chasm and in return you will give him the rest of this fine 'liquor'. Suspecting nothing, he agrees and allows you to clamber up on to his broad leathery back before launching out into space ...";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 118}; }
+    };
+
+    class Story040 : public Story::Base
+    {
+    public:
+        Story040()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 40;
+
+            Text = "After recovering for the next <i>Spiral</i>, he has three heads and four tails. You have five coins, all heads.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your number for the next Spiral", {Book::Type::Book1, 60}, Choice::Type::SelectDice, "Choose your number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story058 : public Story::Base
     {
     public:
@@ -1150,6 +1244,11 @@ namespace Book1
     auto story034 = Story034();
     auto story035 = Story035();
     auto story036 = Story036();
+    auto story037 = Story037();
+    auto story038 = Story038();
+    auto event038 = Event038();
+    auto story039 = Story039();
+    auto story040 = Story040();
     auto story058 = Story058();
     auto story069 = Story069();
     auto story398 = Story398();
@@ -1158,11 +1257,11 @@ namespace Book1
     void InitializeStories()
     {
         Book1::Stories = {
-            &event015,
+            &event015, &event038,
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
             &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
             &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
-            &story031, &story032, &story033, &story034, &story035, &story036,
+            &story031, &story032, &story033, &story034, &story035, &story036, &story037, &story038, &story039, &story040,
             &story058,
             &story069,
             &story398,
