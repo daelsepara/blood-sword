@@ -50,6 +50,8 @@ namespace Enemy
 
         bool CanShoot = false;
 
+        bool TargetAll = false;
+
         // player last attacked
         int Attacked = -1;
 
@@ -85,6 +87,62 @@ namespace Enemy
             Armour = armour;
 
             Asset = asset;
+        }
+
+        Base(Enemy::Type type, const char *name, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier, int armour, Assets::Type asset, bool move, bool shoot)
+        {
+            Type = type;
+
+            Name = name;
+
+            FightingProwess = fightingProwess;
+
+            PsychicAbility = psychicAbility;
+
+            Awareness = awareness;
+
+            Endurance = endurance;
+
+            Damage = damage;
+
+            DamageModifier = damageModifier;
+
+            Armour = armour;
+
+            Asset = asset;
+
+            CanMove = move;
+
+            CanShoot = shoot;
+        }
+
+        Base(Enemy::Type type, const char *name, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier, int armour, Assets::Type asset, bool move, bool shoot, bool target)
+        {
+            Type = type;
+
+            Name = name;
+
+            FightingProwess = fightingProwess;
+
+            PsychicAbility = psychicAbility;
+
+            Awareness = awareness;
+
+            Endurance = endurance;
+
+            Damage = damage;
+
+            DamageModifier = damageModifier;
+
+            Armour = armour;
+
+            Asset = asset;
+
+            CanMove = move;
+
+            CanShoot = shoot;
+
+            TargetAll = target;
         }
     };
 }

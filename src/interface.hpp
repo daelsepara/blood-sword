@@ -3499,7 +3499,7 @@ namespace Interface
                 if (!Enemies[SelectedId].Enthraled)
                 {
                     // show potential target
-                    auto NearestTarget = Enemies[SelectedId].Type != Enemy::Type::NinjaAssassin ? Interface::SelectTarget(Map, Party, SelectedId, Enemies[SelectedId].CanShoot) : Interface::SelectAllTargets(Map, Party, Enemies, SelectedId, Enemies[SelectedId].CanShoot);
+                    auto NearestTarget = !Enemies[SelectedId].TargetAll ? Interface::SelectTarget(Map, Party, SelectedId, Enemies[SelectedId].CanShoot) : Interface::SelectAllTargets(Map, Party, Enemies, SelectedId, Enemies[SelectedId].CanShoot);
 
                     auto TargetId = std::get<1>(NearestTarget);
 
@@ -5332,7 +5332,7 @@ namespace Interface
 
                     Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
-                    auto NearestTarget = Enemies[EnemyId].Type != Enemy::Type::NinjaAssassin ? Interface::SelectTarget(Map, Party, GetId(CurrentCombatant), Enemies[EnemyId].CanShoot) : Interface::SelectAllTargets(Map, Party, Enemies, EnemyId, Enemies[EnemyId].CanShoot);
+                    auto NearestTarget = !Enemies[EnemyId].TargetAll ? Interface::SelectTarget(Map, Party, GetId(CurrentCombatant), Enemies[EnemyId].CanShoot) : Interface::SelectAllTargets(Map, Party, Enemies, EnemyId, Enemies[EnemyId].CanShoot);
 
                     auto TargetId = Target(NearestTarget);
 

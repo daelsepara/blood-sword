@@ -87,19 +87,10 @@ namespace Book1
         {
             // TODO: only the survivng assassins from previous section should be setup here
             Enemies.clear();
-            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 4", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
-
-            Enemies[0].CanMove = false;
-            Enemies[1].CanMove = false;
-            Enemies[2].CanMove = false;
-            Enemies[3].CanMove = false;
-            Enemies[0].CanShoot = true;
-            Enemies[1].CanShoot = true;
-            Enemies[2].CanShoot = true;
-            Enemies[3].CanShoot = true;
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 4", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
         }
 
         void SetupCombat(Map::Base &Map, Party::Base &Party)
@@ -451,11 +442,8 @@ namespace Book1
         {
             // TODO: only the survivng assassins from previous section should be setup here
             Enemies.clear();
-            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin));
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, false));
             Enemies.push_back(Enemy::Base(Enemy::Type::MagusVyl, "MAGUS VYL", 7, 9, 9, 35, 3, 0, 2, Assets::Type::MagusVyl));
-
-            Enemies[0].CanMove = false;
-            Enemies[0].CanShoot = true;
         }
 
         void SetupCombat(Map::Base &Map, Party::Base &Party)
