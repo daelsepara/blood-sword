@@ -165,6 +165,10 @@
             "path": "icons/levitation.png"
         },
         {
+            "id": 125,
+            "path": "icons/shuriken.png"
+        },
+        {
             "id": 150,
             "path": "icons/yes.png"
         },

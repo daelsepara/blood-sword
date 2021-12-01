@@ -1970,9 +1970,9 @@ namespace Interface
         Dice[4] = Assets::Copy(Assets::Type::Dice5);
         Dice[5] = Assets::Copy(Assets::Type::Dice6);
 
-        auto Swords = Assets::Copy(Assets::Type::Fight);
+        auto Fight = Assets::Copy(Assets::Type::Fight);
 
-        auto Shoot = Assets::Copy(Assets::Type::Shoot);
+        auto Shoot = Attacked && Enemy.Type == Enemy::Type::NinjaAssassin ? Assets::Copy(Assets::Type::Shuriken) : Assets::Copy(Assets::Type::Shoot);
 
         auto HasQuarterstaff = Engine::HasAbility(Character, Abilities::Type::Quarterstaff) && Engine::HasWeapon(Character, Equipment::Weapon::Quarterstaff);
 
@@ -2125,7 +2125,7 @@ namespace Interface
 
                 if (FightMode == Combat::FightMode::FIGHT)
                 {
-                    Graphics::RenderImage(Renderer, Swords, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
+                    Graphics::RenderImage(Renderer, Fight, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
                 }
                 else if (FightMode == Combat::FightMode::SHOOT)
                 {
@@ -2438,9 +2438,9 @@ namespace Interface
             }
         }
 
-        SDL_FreeSurface(Swords);
+        SDL_FreeSurface(Fight);
 
-        Swords = NULL;
+        Fight = NULL;
 
         SDL_FreeSurface(Shoot);
 
@@ -2510,7 +2510,9 @@ namespace Interface
         Dice[4] = Assets::Copy(Assets::Type::Dice5);
         Dice[5] = Assets::Copy(Assets::Type::Dice6);
 
-        auto swords = Assets::Copy(Assets::Type::Fight);
+        auto Fight = Assets::Copy(Assets::Type::Fight);
+
+        auto Shoot = FightMode == Combat::FightMode::SHOOT && Attacker.Type == Enemy::Type::NinjaAssassin ? Assets::Copy(Assets::Type::Shuriken) : Assets::Copy(Assets::Type::Shoot);
 
         auto Hold = false;
         auto Selected = false;
@@ -2611,7 +2613,14 @@ namespace Interface
                 TargetOffset++;
             }
 
-            Graphics::RenderImage(Renderer, swords, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
+            if (FightMode == Combat::FightMode::FIGHT)
+            {
+                Graphics::RenderImage(Renderer, Fight, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
+            }
+            else if (FightMode == Combat::FightMode::SHOOT)
+            {
+                Graphics::RenderImage(Renderer, Shoot, MidWindow - (3 * Map.ObjectSize / 2 + border_pts), WindowY + Map.ObjectSize);
+            }
 
             if (CurrentStage == Combat::Stage::FIGHT && Result == Combat::Result::NONE)
             {
@@ -2786,9 +2795,19 @@ namespace Interface
             }
         }
 
-        SDL_FreeSurface(swords);
+        if (Fight)
+        {
+            SDL_FreeSurface(Fight);
 
-        swords = NULL;
+            Fight = NULL;
+        }
+
+        if (Shoot)
+        {
+            SDL_FreeSurface(Shoot);
+
+            Shoot = NULL;
+        }
 
         return Result;
     }

@@ -52,6 +52,7 @@ namespace Assets
         ESP,
         ParanormalSight,
         Levitation,
+        Shuriken,
         Ok = 150,
         Cancel,
         Dice1,
