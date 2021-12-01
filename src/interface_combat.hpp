@@ -3387,11 +3387,13 @@ namespace Interface
 
             auto SelectedId = std::get<1>(Sequence[SelectedCombatant]);
 
-            Interface::Find(Map, std::get<0>(Sequence[SelectedCombatant]), SelectedId, SelectedX, SelectedY);
+            auto Selected = std::get<0>(Sequence[SelectedCombatant]);
 
-            auto IsPlayer = std::get<0>(Sequence[SelectedCombatant]) == Map::Object::Player;
+            Interface::Find(Map, Selected, SelectedId, SelectedX, SelectedY);
 
-            auto IsEnemy = std::get<0>(Sequence[SelectedCombatant]) == Map::Object::Enemy;
+            auto IsPlayer = Selected == Map::Object::Player;
+
+            auto IsEnemy = Selected == Map::Object::Enemy;
 
             if ((SelectedX - Map.MapX) >= 0 && (SelectedX - Map.MapX) < Map.SizeX && (SelectedY - Map.MapY) >= 0 && (SelectedY - Map.MapY) < Map.SizeY)
             {
@@ -3422,9 +3424,11 @@ namespace Interface
 
                     auto EnemyY = -1;
 
+                    auto TargetType = std::get<0>(NearestTarget);
+
                     Interface::Find(Map, Map::Object::Enemy, SelectedId, EnemyX, EnemyY);
 
-                    if (std::get<0>(NearestTarget) == Map::Object::Player)
+                    if (TargetType == Map::Object::Player)
                     {
                         if (TargetId >= 0 && TargetId < Party.Members.size())
                         {
@@ -3432,7 +3436,7 @@ namespace Interface
                             Interface::Find(Map, Map::Object::Player, TargetId, LocationX, LocationY);
                         }
                     }
-                    else if (std::get<0>(NearestTarget) == Map::Object::Enemy)
+                    else if (TargetType == Map::Object::Enemy)
                     {
                         if (TargetId >= 0 && TargetId < Enemies.size())
                         {
@@ -5198,9 +5202,9 @@ namespace Interface
                 }
                 else if (IsEnemy(CurrentCombatant) && !Enthraled)
                 {
+                    // Enemy attacks / moves
                     auto EnemyId = GetId(CurrentCombatant);
 
-                    // Enemy attacks / moves
                     auto EnemyX = -1;
 
                     auto EnemyY = -1;
@@ -5211,13 +5215,15 @@ namespace Interface
 
                     auto TargetId = Target(NearestTarget);
 
+                    auto TargetType = std::get<0>(NearestTarget);
+
                     auto LocationX = -1;
 
                     auto LocationY = -1;
 
-                    auto TargetIsPlayer = std::get<0>(NearestTarget) == Map::Object::Player;
+                    auto TargetIsPlayer = TargetType == Map::Object::Player;
 
-                    auto TargetIsEnemy = std::get<0>(NearestTarget) == Map::Object::Enemy;
+                    auto TargetIsEnemy = TargetType == Map::Object::Enemy;
 
                     if (TargetIsPlayer)
                     {
@@ -5240,7 +5246,7 @@ namespace Interface
                         auto Result = TargetIsPlayer ? Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[TargetId], Enemies[EnemyId], Combat::FightMode::FIGHT, true) : Interface::Fight(Renderer, Controls, intBK, Map, Enemies[EnemyId], Enemies[TargetId], Combat::FightMode::FIGHT);
 
                         // indicate player last attacked, if successful
-                        if (Result == Combat::Result::FIGHT && TargetIsPlayer)
+                        if (TargetIsPlayer && Result == Combat::Result::FIGHT)
                         {
                             Enemies[EnemyId].Attacked = TargetId;
                         }
