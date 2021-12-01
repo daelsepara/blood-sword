@@ -458,7 +458,7 @@ namespace Book1
             {
                 Destination = {Book::Type::Book1, 513};
             }
-            else
+            else if (Result == Combat::Result::VICTORY)
             {
                 Destination = {Book::Type::Book1, 226};
             }

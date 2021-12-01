@@ -270,7 +270,7 @@ namespace Engine
             }
         }
 
-        return (paralyzed + dead) == party.Members.size();
+        return (paralyzed > 0 && (paralyzed + dead) == party.Members.size());
     }
 
     bool Escaped(Party::Base &party)

@@ -4194,7 +4194,7 @@ namespace Interface
                 }
 
                 // get player input
-                if ((IsPlayer(CurrentCombatant) && !Party.Members[GetId(CurrentCombatant)].Defending))
+                if ((IsPlayer(CurrentCombatant) && !Party.Members[GetId(CurrentCombatant)].Defending && !Engine::Paralyzed(Party.Members[GetId(CurrentCombatant)])))
                 {
                     Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
 
@@ -4276,8 +4276,6 @@ namespace Interface
                             Current = -1;
 
                             CycleCombatants();
-
-                            continue;
                         }
                         else if (Controls[Current].Type == Control::Type::FLEE && !Hold)
                         {
@@ -4294,8 +4292,6 @@ namespace Interface
                                     Character.Escaped = true;
 
                                     CycleCombatants();
-
-                                    continue;
                                 }
                                 else
                                 {
@@ -4387,8 +4383,6 @@ namespace Interface
                                             }
 
                                             CycleCombatants();
-
-                                            continue;
                                         }
                                     }
                                     else
@@ -4425,8 +4419,6 @@ namespace Interface
                                         }
 
                                         CycleCombatants();
-
-                                        continue;
                                     }
                                 }
                             }
@@ -4465,8 +4457,6 @@ namespace Interface
                                     if (QuickThinkingRound && Character.QuickThinking)
                                     {
                                         CycleCombatants();
-
-                                        continue;
                                     }
                                 }
                                 else if (Interface::NearbyEnemies(Map, Enemies, PlayerId, false))
@@ -4496,8 +4486,6 @@ namespace Interface
                                     if (QuickThinkingRound && Character.QuickThinking)
                                     {
                                         CycleCombatants();
-
-                                        continue;
                                     }
                                 }
                                 else if (Engine::CanShoot(Character))
@@ -4627,8 +4615,6 @@ namespace Interface
                                                 }
 
                                                 CycleCombatants();
-
-                                                continue;
                                             }
                                             else
                                             {
@@ -4674,8 +4660,6 @@ namespace Interface
                                         Interface::RenderMessage(Renderer, Controls, Map, intBK, Spell::All[CalledToMind].Name + " called to mind!", intGR);
 
                                         CycleCombatants();
-
-                                        continue;
                                     }
                                 }
                             }
@@ -4740,8 +4724,6 @@ namespace Interface
                                         }
 
                                         CycleCombatants();
-
-                                        continue;
                                     }
                                     else
                                     {
@@ -4781,8 +4763,6 @@ namespace Interface
                                     if (Result != Combat::Result::NONE)
                                     {
                                         CycleCombatants();
-
-                                        continue;
                                     }
                                     else
                                     {
@@ -4840,8 +4820,6 @@ namespace Interface
                                     }
 
                                     CycleCombatants();
-
-                                    continue;
                                 }
                                 else
                                 {
@@ -4946,8 +4924,6 @@ namespace Interface
                             Current = -1;
 
                             CycleCombatants();
-
-                            continue;
                         }
                         else if (Controls[Current].Type == Control::Type::PLAYER && !Hold)
                         {
@@ -5000,8 +4976,6 @@ namespace Interface
                                             Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
                                             CycleCombatants();
-
-                                            continue;
                                         }
                                     }
                                     else
@@ -5020,8 +4994,6 @@ namespace Interface
                                         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
                                         CycleCombatants();
-
-                                        continue;
                                     }
                                 }
                             }
@@ -5149,8 +5121,6 @@ namespace Interface
                                         if (Result != Combat::Result::NONE)
                                         {
                                             CycleCombatants();
-
-                                            continue;
                                         }
                                         else
                                         {
@@ -5209,8 +5179,6 @@ namespace Interface
                                         if (Result != Combat::Result::NONE)
                                         {
                                             CycleCombatants();
-
-                                            continue;
                                         }
                                         else
                                         {
@@ -5275,8 +5243,6 @@ namespace Interface
                                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
                                                 CycleCombatants();
-
-                                                continue;
                                             }
                                         }
                                         else
@@ -5295,8 +5261,6 @@ namespace Interface
                                             Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
                                             CycleCombatants();
-
-                                            continue;
                                         }
                                     }
                                 }
@@ -5451,8 +5415,10 @@ namespace Interface
                     }
 
                     CycleCombatants();
-
-                    continue;
+                }
+                else
+                {
+                    CycleCombatants();
                 }
 
                 if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party) || Engine::Enthraled(Enemies) || Engine::Paralyzed(Party))
@@ -7298,26 +7264,57 @@ namespace Interface
                 StartTicks = SDL_GetTicks();
             };
 
+            auto ShowMessage = [&](std::string DisplayMessage, int Color)
+            {
+                auto FlashW = 3 * SCREEN_WIDTH / 5;
+
+                auto FlashH = SCREEN_HEIGHT / 5;
+
+                Graphics::PutTextBox(Renderer, DisplayMessage.c_str(), Fonts::Normal, -1, clrWH, Color, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2);
+
+                if (Color == intBK)
+                {
+                    Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2, intWH);
+                }
+            };
+
             auto RenderFlashMessage = [&]()
             {
                 if (FlashMessage)
                 {
                     if ((SDL_GetTicks() - StartTicks) < Duration)
                     {
-                        auto FlashW = 3 * SCREEN_WIDTH / 5;
-
-                        auto FlashH = SCREEN_HEIGHT / 5;
-
-                        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2);
-
-                        if (FlashColor == intBK)
-                        {
-                            Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2, intWH);
-                        }
+                        ShowMessage(Message, FlashColor);
                     }
                     else
                     {
                         FlashMessage = false;
+                    }
+                }
+            };
+
+            auto CheckPartyStatus = [&]()
+            {
+                if (Engine::Paralyzed(Party))
+                {
+                    if (Party.Members.size() > 1)
+                    {
+                        DisplayMessage("The entire party has been paralyzed. The adventure end here.", intBK);
+                    }
+                    else
+                    {
+                        DisplayMessage("You were paralyzed. The adventure end here.", intBK);
+                    }
+                }
+                else if (!Engine::IsAlive(Party))
+                {
+                    if (Party.Members.size() > 1)
+                    {
+                        DisplayMessage("The entire party is dead. The adventure end here.", intBK);
+                    }
+                    else
+                    {
+                        DisplayMessage("You have died. The adventure end here.", intBK);
                     }
                 }
             };
@@ -7410,6 +7407,8 @@ namespace Interface
                 auto Transition = false;
                 auto ScrollUp = false;
                 auto ScrollDown = false;
+
+                CheckPartyStatus();
 
                 while (!Transition)
                 {
@@ -7521,7 +7520,7 @@ namespace Interface
                                 }
                             }
 
-                            if (Engine::IsAlive(Party))
+                            if (Engine::IsAlive(Party) && !Engine::Paralyzed(Party))
                             {
                                 if (Story->Equipment.size() > 0)
                                 {
@@ -7555,6 +7554,8 @@ namespace Interface
                             }
                             else
                             {
+                                CheckPartyStatus();
+
                                 Controls = Story::ExitControls();
                             }
                         }
