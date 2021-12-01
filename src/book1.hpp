@@ -1124,7 +1124,7 @@ namespace Book1
             Text = "After recovering for the next <i>Spiral</i>, he has three heads and four tails. You have five coins, all heads.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Choose your number for the next Spiral", {Book::Type::Book1, 60}, Choice::Type::SelectDice, "Choose your number"));
+            Choices.push_back(Choice::Base("Choose a number for the next Spiral", {Book::Type::Book1, 60}, Choice::Type::SelectDice, "Choose your number"));
 
             Controls = Story::Controls::Standard;
         }
