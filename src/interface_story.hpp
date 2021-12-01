@@ -8,46 +8,7 @@ namespace Interface
 {
     void RenderStoryScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &Controls, SDL_Surface *Text, int Current, int Offset)
     {
-        auto FontSize = TTF_FontHeight(Fonts::Normal);
-
-        std::string title_string = "";
-
-        if (!Story->Title.empty())
-        {
-            title_string = Story->Title;
-
-            SDL_SetWindowTitle(Window, Story->Title.c_str());
-        }
-        else
-        {
-            if (Story->Id != -1)
-            {
-                auto StoryId = Story->Id;
-
-                if (StoryId < 0 && Story->DisplayId >= 0)
-                {
-                    StoryId = Story->DisplayId;
-                }
-
-                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": " + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId));
-
-                SDL_SetWindowTitle(Window, title_string.c_str());
-            }
-            else
-            {
-                title_string = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": Not Implemented Yet";
-
-                SDL_SetWindowTitle(Window, title_string.c_str());
-            }
-        }
-
-        Graphics::FillWindow(Renderer, intBK);
-
-        // title string
-        Graphics::PutText(Renderer, title_string.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
-
-        // text box
-        Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intWH);
+        Interface::RenderLeftPanel(Window, Renderer, Party, Story, Screen, Controls);
 
         if (!Story->Text.empty() && !Story->Image.empty() && Text)
         {
@@ -57,9 +18,6 @@ namespace Interface
         {
             Graphics::RenderText(Renderer, Text, 0, Screen.TextBoxX + text_space, Screen.TextBoxY + text_space, Screen.TextBounds, Offset);
         }
-
-        // party display
-        Interface::DisplayParty(Renderer, Party, Screen);
 
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }

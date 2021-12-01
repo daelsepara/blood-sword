@@ -7,49 +7,7 @@ namespace Interface
 {
     void RenderChoiceScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &Controls, int Current, Uint32 Bg)
     {
-        auto FontSize = TTF_FontHeight(Fonts::Normal);
-
-        std::string TitleString = "";
-
-        if (!Story->Title.empty())
-        {
-            TitleString = Story->Title;
-
-            SDL_SetWindowTitle(Window, Story->Title.c_str());
-        }
-        else
-        {
-            if (Story->Id != -1)
-            {
-                auto StoryId = Story->Id;
-
-                if (StoryId < 0 && Story->DisplayId >= 0)
-                {
-                    StoryId = Story->DisplayId;
-                }
-
-                TitleString = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": " + std::string(3 - std::to_string(std::abs(StoryId)).length(), '0') + std::to_string(std::abs(StoryId));
-
-                SDL_SetWindowTitle(Window, TitleString.c_str());
-            }
-            else
-            {
-                TitleString = "Blood Sword - " + std::string(Book::Title[Story->Book]) + ": Not Implemented Yet";
-
-                SDL_SetWindowTitle(Window, TitleString.c_str());
-            }
-        }
-
-        Graphics::FillWindow(Renderer, intBK);
-
-        // title string
-        Graphics::PutText(Renderer, TitleString.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, Screen.InfoWidth, FontSize, Screen.InfoBoxX, Screen.InfoBoxY - (FontSize + text_space));
-
-        // display party
-        Interface::DisplayParty(Renderer, Party, Screen);
-
-        // text box
-        Graphics::FillRect(Renderer, Screen.TextBoxWidth, Screen.TextBoxHeight, Screen.TextBoxX, Screen.TextBoxY, intWH);
+        Interface::RenderLeftPanel(Window, Renderer, Party, Story, Screen, Controls);
 
         // render choice boxes
         for (auto i = 0; i < Controls.size(); i++)
