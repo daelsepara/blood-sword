@@ -8,8 +8,11 @@ namespace Interface
     // (player/enemy, id, awareness)
     typedef std::tuple<Map::Object, int, int> Combatants;
 
-    // player id, distance, endurance
-    typedef std::tuple<int, int, int> Targets;
+    // (player / enemy), id, distance, endurance
+    typedef std::tuple<Map::Object, int, int, int> Targets;
+
+    // player id, location x, location y
+    typedef std::tuple<int, int, int> TargetDestination;
 
     // character class to control type mapping
     std::map<Character::Class, Control::Type> PlayerControls = {
@@ -571,14 +574,14 @@ namespace Interface
         // sort players based on distance
         std::sort(Distances.begin(), Distances.end(), [](Interface::Targets &a, Interface::Targets &b) -> bool
                   {
-                      if (std::get<1>(a) < std::get<1>(b))
+                      if (std::get<2>(a) < std::get<2>(b))
                       {
                           return true;
                       }
-                      else if (std::get<1>(a) == std::get<1>(b))
+                      else if (std::get<2>(a) == std::get<2>(b))
                       {
                           // on equidistant targets, give priority to the one with less endurance
-                          if (std::get<2>(a) < std::get<2>(b))
+                          if (std::get<3>(a) < std::get<3>(b))
                           {
                               return true;
                           }
@@ -615,7 +618,58 @@ namespace Interface
                 {
                     auto Distance = Interface::Distance(EnemyX, EnemyY, LocationX, LocationY);
 
-                    Distances.push_back({i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Engine::Endurance(Party.Members[i])});
+                    Distances.push_back({Map::Object::Player, i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Engine::Endurance(Party.Members[i])});
+                }
+            }
+        }
+
+        return Distances;
+    }
+
+    std::vector<Interface::Targets> CycleAllTargets(Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int EnemyId, int EnemyX, int EnemyY, bool ignore)
+    {
+        auto Distances = std::vector<Interface::Targets>();
+
+        // cycle through the players
+        for (auto i = 0; i < Party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(Party.Members[i]) && !Party.Members[i].Escaped)
+            {
+                auto LocationX = 0;
+
+                auto LocationY = 0;
+
+                Interface::Find(Map, Map::Object::Player, i, LocationX, LocationY);
+
+                auto TempPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, ignore);
+
+                if (TempPath.Points.size() > 0)
+                {
+                    auto Distance = Interface::Distance(EnemyX, EnemyY, LocationX, LocationY);
+
+                    Distances.push_back({Map::Object::Player, i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Engine::Endurance(Party.Members[i])});
+                }
+            }
+        }
+
+        // cycle through the enemies
+        for (auto i = 0; i < Enemies.size(); i++)
+        {
+            if (Engine::IsAlive(Enemies[i]) && Enemies[i].Type != Enemies[EnemyId].Type && EnemyId != i)
+            {
+                auto LocationX = 0;
+
+                auto LocationY = 0;
+
+                Interface::Find(Map, Map::Object::Enemy, i, LocationX, LocationY);
+
+                auto TempPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, ignore);
+
+                if (TempPath.Points.size() > 0)
+                {
+                    auto Distance = Interface::Distance(EnemyX, EnemyY, LocationX, LocationY);
+
+                    Distances.push_back({Map::Object::Enemy, i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Enemies[i].Endurance});
                 }
             }
         }
@@ -625,7 +679,7 @@ namespace Interface
 
     Interface::Targets SelectTarget(Map::Base &Map, Party::Base &Party, int EnemyId, bool Ignore)
     {
-        Interface::Targets NearestPlayer = {-1, -1, -1};
+        Interface::Targets NearestPlayer = {Map::Object::Player, -1, -1, -1};
 
         // player id, distance, endurance
         std::vector<Interface::Targets> Distances = {};
@@ -661,10 +715,48 @@ namespace Interface
         return NearestPlayer;
     }
 
-    void SortLocations(std::vector<Interface::Targets> &Distances)
+    Interface::Targets SelectAllTargets(Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int EnemyId, bool Ignore)
+    {
+        Interface::Targets NearestTarget = {Map::Object::None, -1, -1, -1};
+
+        // player id, distance, endurance
+        std::vector<Interface::Targets> Distances = {};
+
+        auto EnemyX = 0;
+
+        auto EnemyY = 0;
+
+        Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
+
+        Distances = Interface::CycleAllTargets(Map, Party, Enemies, EnemyId, EnemyX, EnemyY, Ignore);
+
+        if (Distances.size() > 0)
+        {
+            // sort players based on distance and endurance
+            Interface::SortTargets(Distances);
+
+            NearestTarget = Distances.front();
+        }
+        else
+        {
+            Distances = Interface::CycleAllTargets(Map, Party, Enemies, EnemyId, EnemyX, EnemyY, true);
+
+            if (Distances.size() > 0)
+            {
+                // sort players based on distance and endurance
+                Interface::SortTargets(Distances);
+
+                NearestTarget = Distances.front();
+            }
+        }
+
+        return NearestTarget;
+    }
+
+    void SortLocations(std::vector<Interface::TargetDestination> &Distances)
     {
         // sort players based on distance
-        std::sort(Distances.begin(), Distances.end(), [](Interface::Targets &a, Interface::Targets &b) -> bool
+        std::sort(Distances.begin(), Distances.end(), [](Interface::TargetDestination &a, Interface::TargetDestination &b) -> bool
                   {
                       if (std::get<2>(a) < std::get<2>(b))
                       {
@@ -683,7 +775,7 @@ namespace Interface
 
         auto Result = false;
 
-        std::vector<Interface::Targets> Locations = {};
+        std::vector<Interface::TargetDestination> Locations = {};
 
         for (auto i = 0; i < Neighbors.size(); i++)
         {
@@ -3407,47 +3499,59 @@ namespace Interface
                 if (!Enemies[SelectedId].Enthraled)
                 {
                     // show potential target
-                    auto NearestPlayer = Interface::SelectTarget(Map, Party, SelectedId, Enemies[SelectedId].CanShoot);
+                    auto NearestTarget = Enemies[SelectedId].Type != Enemy::Type::NinjaAssassin ? Interface::SelectTarget(Map, Party, SelectedId, Enemies[SelectedId].CanShoot) : Interface::SelectAllTargets(Map, Party, Enemies, SelectedId, Enemies[SelectedId].CanShoot);
 
-                    auto PlayerId = std::get<0>(NearestPlayer);
+                    auto TargetId = std::get<1>(NearestTarget);
 
-                    if (PlayerId >= 0 && PlayerId < Party.Members.size())
+                    auto LocationX = -1;
+
+                    auto LocationY = -1;
+
+                    auto EnemyX = -1;
+
+                    auto EnemyY = -1;
+
+                    Interface::Find(Map, Map::Object::Enemy, SelectedId, EnemyX, EnemyY);
+
+                    if (std::get<0>(NearestTarget) == Map::Object::Player)
                     {
-                        auto EnemyX = -1;
-
-                        auto EnemyY = -1;
-
-                        auto LocationX = -1;
-
-                        auto LocationY = -1;
-
-                        Interface::Find(Map, Map::Object::Enemy, SelectedId, EnemyX, EnemyY);
-
-                        Interface::Find(Map, Map::Object::Player, PlayerId, LocationX, LocationY);
-
-                        if (Interface::ValidX(Map, EnemyX) && Interface::ValidY(Map, EnemyY) && Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
+                        if (TargetId >= 0 && TargetId < Party.Members.size())
                         {
-                            if (Enemies[SelectedId].CanMove)
-                            {
-                                auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
 
-                                if (EnemyPath.Points.size() > 2)
-                                {
-                                    Interface::DrawPath(Renderer, Map, EnemyPath, 1, intGR, 0x66);
-                                }
+                            Interface::Find(Map, Map::Object::Player, TargetId, LocationX, LocationY);
+                        }
+                    }
+                    else if (std::get<0>(NearestTarget) == Map::Object::Enemy)
+                    {
+                        if (TargetId >= 0 && TargetId < Enemies.size())
+                        {
+
+                            Interface::Find(Map, Map::Object::Enemy, TargetId, LocationX, LocationY);
+                        }
+                    }
+
+                    if (Interface::ValidX(Map, EnemyX) && Interface::ValidY(Map, EnemyY) && Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
+                    {
+                        if (Enemies[SelectedId].CanMove)
+                        {
+                            auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
+
+                            if (EnemyPath.Points.size() > 2)
+                            {
+                                Interface::DrawPath(Renderer, Map, EnemyPath, 1, intGR, 0x66);
                             }
-                            else
+                        }
+                        else
+                        {
+                            if (Interface::IsVisible(Map, LocationX, LocationY))
                             {
-                                if (Interface::IsVisible(Map, LocationX, LocationY))
-                                {
-                                    SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
+                                SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
 
-                                    Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + (LocationX - Map.MapX) * Map.ObjectSize, Map.DrawY + (LocationY - Map.MapY) * Map.ObjectSize, O(intGR, 0x66));
+                                Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + (LocationX - Map.MapX) * Map.ObjectSize, Map.DrawY + (LocationY - Map.MapY) * Map.ObjectSize, O(intGR, 0x66));
 
-                                    SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
+                                SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
 
-                                    Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (LocationX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (LocationY - Map.MapY) * Map.ObjectSize + 2 * border_pts, intWH, border_pts);
-                                }
+                                Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (LocationX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (LocationY - Map.MapY) * Map.ObjectSize + 2 * border_pts, intWH, border_pts);
                             }
                         }
                     }
@@ -3633,7 +3737,7 @@ namespace Interface
 
         auto Target = [&](Interface::Targets target)
         {
-            return std::get<0>(target);
+            return std::get<1>(target);
         };
 
         auto NextQuickThinker = [&]()
@@ -5228,87 +5332,120 @@ namespace Interface
 
                     Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
-                    auto NearestPlayer = Interface::SelectTarget(Map, Party, GetId(CurrentCombatant), Enemies[EnemyId].CanShoot);
+                    auto NearestTarget = Enemies[EnemyId].Type != Enemy::Type::NinjaAssassin ? Interface::SelectTarget(Map, Party, GetId(CurrentCombatant), Enemies[EnemyId].CanShoot) : Interface::SelectAllTargets(Map, Party, Enemies, EnemyId, Enemies[EnemyId].CanShoot);
 
-                    auto PlayerId = Target(NearestPlayer);
+                    auto TargetId = Target(NearestTarget);
 
-                    if (PlayerId >= 0 && PlayerId < Party.Members.size())
+                    auto LocationX = -1;
+
+                    auto LocationY = -1;
+
+                    auto TargetIsPlayer = std::get<0>(NearestTarget) == Map::Object::Player;
+
+                    auto TargetIsEnemy = std::get<0>(NearestTarget) == Map::Object::Enemy;
+
+                    if (TargetIsPlayer)
                     {
-                        auto LocationX = -1;
-
-                        auto LocationY = -1;
-
-                        Interface::Find(Map, Map::Object::Player, PlayerId, LocationX, LocationY);
-
-                        if (Interface::Distance(EnemyX, EnemyY, LocationX, LocationY) <= 1)
+                        if (TargetId >= 0 && TargetId < Party.Members.size())
                         {
-                            // do attack
-                            auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[PlayerId], Enemies[EnemyId], Combat::FightMode::FIGHT, true);
+                            Interface::Find(Map, Map::Object::Player, TargetId, LocationX, LocationY);
+                        }
+                    }
+                    else if (TargetIsEnemy)
+                    {
+                        if (TargetId >= 0 && TargetId < Enemies.size())
+                        {
+                            Interface::Find(Map, Map::Object::Enemy, TargetId, LocationX, LocationY);
+                        }
+                    }
 
-                            // indicate player last attacked, if successful
-                            if (Result == Combat::Result::FIGHT)
+                    if (Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY) && Interface::Distance(EnemyX, EnemyY, LocationX, LocationY) <= 1)
+                    {
+                        // do attack
+                        auto Result = TargetIsPlayer ? Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[TargetId], Enemies[EnemyId], Combat::FightMode::FIGHT, true) : Interface::Fight(Renderer, Controls, intBK, Map, Enemies[EnemyId], Enemies[TargetId], Combat::FightMode::FIGHT);
+
+                        // indicate player last attacked, if successful
+                        if (Result == Combat::Result::FIGHT && TargetIsPlayer)
+                        {
+                            Enemies[EnemyId].Attacked = TargetId;
+                        }
+
+                        if (TargetIsPlayer && !Engine::IsAlive(Party.Members[TargetId]))
+                        {
+                            Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[TargetId].Class]) + " killed!", intBK);
+
+                            Interface::Remove(Map, LocationX, LocationY);
+
+                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                        }
+                        else if (TargetIsPlayer && Engine::Paralyzed(Party.Members[TargetId]))
+                        {
+                            Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[TargetId].Class]) + " paralyzed!", intBK);
+
+                            Interface::Remove(Map, LocationX, LocationY);
+
+                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                        }
+                        else if (TargetIsEnemy && !Engine::IsAlive(Enemies[TargetId]))
+                        {
+                            Interface::RenderMessage(Renderer, Controls, Map, intBK, Enemies[TargetId].Name + " killed!", intGR);
+
+                            Interface::Remove(Map, LocationX, LocationY);
+
+                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                        }
+
+                        if (TargetIsPlayer && Result != Combat::Result::UNSUCCESSFUL)
+                        {
+                            Engine::ResetSpellDifficulty(Party.Members[TargetId]);
+                        }
+                    }
+                    else
+                    {
+                        // check if enemy can shoot from range (enemy-specific)
+                        if (Enemies[EnemyId].CanMove)
+                        {
+                            auto CanMove = Interface::CloseDistance(Map, EnemyX, EnemyY, LocationX, LocationY);
+
+                            // move to adjacent tile or close distance
+                            auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, !CanMove);
+
+                            if (EnemyPath.Points.size() > 0)
                             {
-                                Enemies[EnemyId].Attacked = PlayerId;
-                            }
-
-                            if (!Engine::IsAlive(Party.Members[PlayerId]))
-                            {
-                                Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[PlayerId].Class]) + " killed!", intBK);
-
-                                Interface::Remove(Map, LocationX, LocationY);
+                                Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyPath, StartMap);
 
                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                            }
-                            else if (Engine::Paralyzed(Party.Members[PlayerId]))
-                            {
-                                Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[PlayerId].Class]) + " paralyzed!", intBK);
-
-                                Interface::Remove(Map, LocationX, LocationY);
-
-                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                            }
-
-                            if (Result != Combat::Result::UNSUCCESSFUL)
-                            {
-                                Engine::ResetSpellDifficulty(Party.Members[PlayerId]);
                             }
                         }
-                        else
+                        else if (Enemies[EnemyId].CanShoot)
                         {
-                            // check if enemy can shoot from range (enemy-specific)
-                            if (Enemies[EnemyId].CanMove)
+                            auto Result = TargetIsPlayer ? Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[TargetId], Enemies[EnemyId], Combat::FightMode::SHOOT, true) : Interface::Fight(Renderer, Controls, intBK, Map, Enemies[EnemyId], Enemies[TargetId], Combat::FightMode::SHOOT);
+
+                            if (TargetIsPlayer)
                             {
-                                auto CanMove = Interface::CloseDistance(Map, EnemyX, EnemyY, LocationX, LocationY);
-
-                                // move to adjacent tile or close distance
-                                auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, !CanMove);
-
-                                if (EnemyPath.Points.size() > 0)
-                                {
-                                    Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyPath, StartMap);
-
-                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                                }
+                                Enemies[EnemyId].Attacked = TargetId;
                             }
-                            else if (Enemies[EnemyId].CanShoot)
+
+                            if (TargetIsPlayer && !Engine::IsAlive(Party.Members[TargetId]))
                             {
-                                auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[PlayerId], Enemies[EnemyId], Combat::FightMode::SHOOT, true);
+                                Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[TargetId].Class]) + " killed!", intBK);
 
-                                Enemies[EnemyId].Attacked = PlayerId;
+                                Interface::Remove(Map, LocationX, LocationY);
 
-                                if (!Engine::IsAlive(Party.Members[PlayerId]))
-                                {
-                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[PlayerId].Class]) + " killed!", intBK);
+                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                            }
+                            else if (TargetIsEnemy && !Engine::IsAlive(Enemies[TargetId]))
+                            {
+                                Interface::RenderMessage(Renderer, Controls, Map, intBK, Enemies[TargetId].Name + " killed!", intGR);
 
-                                    Interface::Remove(Map, LocationX, LocationY);
+                                Interface::Remove(Map, LocationX, LocationY);
 
-                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                                }
+                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                            }
 
-                                if (Result != Combat::Result::UNSUCCESSFUL)
-                                {
-                                    Engine::ResetSpellDifficulty(Party.Members[PlayerId]);
-                                }
+                            if (TargetIsPlayer && Result != Combat::Result::UNSUCCESSFUL)
+                            {
+                                Engine::ResetSpellDifficulty(Party.Members[TargetId]);
                             }
                         }
                     }
