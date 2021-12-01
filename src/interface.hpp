@@ -6913,6 +6913,25 @@ namespace Interface
                                     DisplayMessage((std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!").c_str(), intBK);
                                 }
                             }
+                            else if (Story->Choices[Choice].Type == Choice::Type::AttributeSelectedCharacter)
+                            {
+                                auto Character = Party.LastSelected >= 0 && Party.LastSelected < Party.Members.size() && Engine::IsAlive(Party.Members[Party.LastSelected]) ? Party.LastSelected : Engine::First(Party);
+
+                                auto Result = Interface::Test(Window, Renderer, Controls, intGR, Screen, Story, Party, Character, Story->Choices[Choice].Attribute);
+
+                                if (Result == Attributes::Result::SUCCESS)
+                                {
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                    Done = true;
+                                }
+                                else
+                                {
+                                    Next = Interface::FindStory(Story->Choices[Choice].DestinationFail);
+
+                                    Done = true;
+                                }
+                            }
                             else if (Story->Choices[Choice].Type == Choice::Type::Discharge)
                             {
                                 auto Item = Story->Choices[Choice].Item;
@@ -7225,7 +7244,15 @@ namespace Interface
 
                 auto Compact = (Text && Text->h <= Screen.TextBounds - 2 * text_space) || !Text;
 
-                if (Story->Controls == Story::Controls::Standard)
+                if (!Engine::IsAlive(Party))
+                {
+                    Controls = Story::ExitControls();
+                }
+                else if (Story->Type == Story::Type::Doom)
+                {
+                    Controls = Story::ExitControls();
+                }
+                else if (Story->Controls == Story::Controls::Standard)
                 {
                     Controls = Story::StandardControls(Compact);
                 }

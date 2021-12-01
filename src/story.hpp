@@ -14,6 +14,7 @@ namespace Choice
         Normal = 0,
         Ability,
         Attribute,
+        AttributeSelectedCharacter,
         Character,
         Equipment,
         Item,
@@ -96,6 +97,19 @@ namespace Choice
             Attribute = attribute;
 
             Type = Choice::Type::Attribute;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Engine::Destination destinationFail, Choice::Type type, Attributes::Type attribute)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            DestinationFail = destinationFail;
+
+            Type = type;
+
+            Attribute = attribute;
         }
 
         Base(const char *choice, Engine::Destination destination, Character::Class character, Equipment::Item item)

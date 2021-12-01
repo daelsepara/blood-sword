@@ -1130,6 +1130,227 @@ namespace Book1
         }
     };
 
+    class Story041 : public Story::Base
+    {
+    public:
+        Story041()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 41;
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "(TRICKSTER) You are now out of breath and your sword arm aches from parrying the crude blows of the guard. You begin to feel you were over-confident in taking him on. He has delayed you long enough for his companions to arrive. A spear prods into your back and a voice rings out: 'Drop your sword or I'll stick you like a pig.' You don't wait to be told twice, but drop your sword on to the cobblestones at your feet. You are frogmarched to the bleak dungeon of Magus Kalugen.";
+
+            if (Engine::Count(Party) > 2)
+            {
+                Text += " Your companions are rounded up and taken there as well.";
+            }
+            else if (Engine::Count(Party) > 1)
+            {
+                Text += " Your companion is rounded up and taken there as well.";
+            }
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 469}; }
+    };
+
+    class Story042 : public Story::Base
+    {
+    public:
+        Story042()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 42;
+
+            Text = "You roll the heavy stones off the mound. The stones make an eerie clattering echo in the stillness of the cave as they roll away. Suddenly a dead white hand smashes through the rubble and grabs you by the wrist in a vice-like grip.\n\nYou are under a psychic attack.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Resist the psychic attack", {Book::Type::Book1, 447}, {Book::Type::Book1, 138}, Choice::Type::AttributeSelectedCharacter, Attributes::Type::PsychicAbility));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story043 : public Story::Base
+    {
+    public:
+        Story043()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 43;
+
+            Text = "The Barbarians jeer as you run for dear life. You reach a junction and skid to a halt on the marble floor. You must make a snap decision which way to go.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Go left, along a corridor of black marble", {Book::Type::Book1, 354}));
+            Choices.push_back(Choice::Base("Go right, along a white marble corridor", {Book::Type::Book1, 54}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story044 : public Story::Base
+    {
+    public:
+        Story044()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 44;
+
+            Text = "You pour the liquid down your throat. It burns as it flows into your stomach, doubling you up in agony. You writhe for a few seconds on the marble terrace, then die with the crazed laughter of the Hags ringing in your ears.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Sample another potion", {Book::Type::Book1, 103}));
+            Choices.push_back(Choice::Base("Continue on your way", {Book::Type::Book1, 481}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            if (Party.LastSelected >= 0 && Party.LastSelected < Party.Members.size() && Engine::IsAlive(Party.Members[Party.LastSelected]))
+            {
+                Engine::Endurance(Party.Members[Party.LastSelected], 0);
+            }
+            else
+            {
+                auto Character = Engine::First(Party);
+
+                if (Character >= 0 && Character < Party.Members.size() && Engine::IsAlive(Party.Members[Character]))
+                {
+                    Engine::Endurance(Party.Members[Character], 0);
+                }
+            }
+        }
+    };
+
+    class Story045 : public Story::Base
+    {
+    public:
+        Story045()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 45;
+
+            Text = "After <i>recovering</i> for the next Spiral, he has three heads and four tails. You have only four coins -- all heads.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose a number for the next Spiral", {Book::Type::Book1, 90}, Choice::Type::SelectDice, "Choose your number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story046 : public Story::Base
+    {
+    public:
+        Story046()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 46;
+
+            Text = "You take out the sparkling emerald gem that Larisha gave you. According to her, it is the last deadly breath of Astarandel the Dragonlord -- contained, she said, within a crystalline spell of confinement. You hurl the gem at Nebularon, diving back to take cover behind a pillar. The gem lands at his dusky feet and begins to shimmer, fading as his protective anti-magical power cancels out the Confinement spell.\n\n\"You fool,\" roars Nebularon, glancing down at it. \"How is this pebble meant to harm ... ?\"\n\nThere is a blinding flash of white light. Even sheltered by the pillar, you nearly black out in the wave of intense heat. Astarandel's last breath sounds like the eruption of a volcano. It is very much louder than Nebularon's dying screams ...";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 457}; }
+    };
+
+    class Story047 : public Story::Base
+    {
+    public:
+        Story047()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 47;
+
+            Text = "(SAGE) You are very careful not to splash any of the liquid on to your lips, knowing that Assassins usually carry the most virulent poisons with them. In fact, you recognise it as a preparation of the drug <i>vatravish</i>, a powerful stimulant that increases the user's speed and strength. Assassins sometimes use it because of their single-minded dedication to their cause, but you know that it can have unpleasant side-effects. You throw the bottle away.\n\nYou decide it is time to return to the main square and see about getting one of the other magi as a patron.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 443}; }
+    };
+
+    class Story048 : public Story::Base
+    {
+    public:
+        Story048()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 48;
+
+            Image = "images/book1/filler1.png";
+
+            TopImage = false;
+
+            Text = "You return to the gothic-arched vestibule. Looking again at the shining countenance on the wall, you wonder if it is indicating that you should take the left-hand passage. If so, you intend to do as it suggests. You advance down the passage.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 249}; }
+    };
+
+    class Story049 : public Story::Base
+    {
+    public:
+        Story049()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 49;
+
+            Text = "(ENCHANTER) \"There was the Warlock known as Icon the Ungodly,\" she replies. \"And two scurvy knaves who resisted all our blandishments. Lastly, there was a single Sage who survived the bridge crossing where all his comrades died. He helped us with our cooking...\" She glances at one of the cauldrons.\n\nYour Enthralment is slipping. On a whim you snatch the ladle out of a nearby cauldron and pour its noxious contents over her. There is a hissing as it dissolves the wretched Hag into a pool of greyish slime. The others scream and spit, but do nothing out of fear of your powers.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 67}; }
+    };
+
+    class Story050 : public Story::Base
+    {
+    public:
+        Story050()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 50;
+
+            Text = "\"Probably you see that you now cannot win by any strategy,\" he says smugly. Your three coins are all heads. He, after recovering for the next Spiral, has three heads and four tails. Before you can say anything, he reaches out and sweeps the remaining coins off the table.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
+    };
+
     class Story058 : public Story::Base
     {
     public:
@@ -1249,6 +1470,16 @@ namespace Book1
     auto event038 = Event038();
     auto story039 = Story039();
     auto story040 = Story040();
+    auto story041 = Story041();
+    auto story042 = Story042();
+    auto story043 = Story043();
+    auto story044 = Story044();
+    auto story045 = Story045();
+    auto story046 = Story046();
+    auto story047 = Story047();
+    auto story048 = Story048();
+    auto story049 = Story049();
+    auto story050 = Story050();
     auto story058 = Story058();
     auto story069 = Story069();
     auto story398 = Story398();
@@ -1262,6 +1493,7 @@ namespace Book1
             &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
             &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
             &story031, &story032, &story033, &story034, &story035, &story036, &story037, &story038, &story039, &story040,
+            &story041, &story042, &story043, &story044, &story045, &story046, &story047, &story048, &story049, &story050,
             &story058,
             &story069,
             &story398,

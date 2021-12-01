@@ -120,6 +120,11 @@ namespace Engine
         return Engine::Score(character, Attributes::Type::Endurance);
     }
 
+    void Endurance(Character::Base &character, int endurance)
+    {
+        Engine::Score(character, Attributes::Type::Endurance, endurance);
+    }
+
     int Awareness(Character::Base &character)
     {
         return Engine::Score(character, Attributes::Type::Awareness);
