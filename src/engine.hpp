@@ -258,7 +258,7 @@ namespace Engine
 
         for (auto i = 0; i < party.Members.size(); i++)
         {
-            if (Engine::Paralyzed(party.Members[i]))
+            if (Engine::IsAlive(party.Members[i]) && Engine::Paralyzed(party.Members[i]))
             {
                 paralyzed++;
             }
@@ -273,19 +273,23 @@ namespace Engine
 
     bool Escaped(Party::Base &party)
     {
-        auto result = true;
+        auto escaped = 0;
+
+        auto dead = 0;
 
         for (auto i = 0; i < party.Members.size(); i++)
         {
-            if (Engine::IsAlive(party.Members[i]) && !party.Members[i].Escaped)
+            if (Engine::IsAlive(party.Members[i]) && party.Members[i].Escaped)
             {
-                result = false;
-
-                break;
+                escaped++;
+            }
+            else if (!Engine::IsAlive(party.Members[i]))
+            {
+                dead++;
             }
         }
 
-        return result;
+        return (escaped > 0 && (escaped + dead) == party.Members.size());
     }
 
     bool Wounded(Party::Base &party)
