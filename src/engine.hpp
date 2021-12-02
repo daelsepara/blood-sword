@@ -625,10 +625,19 @@ namespace Engine
 
     void ClearParalyzed(Party::Base &party)
     {
-        // clear defensive stance
+        // clear paralyzed status
         for (auto i = 0; i < party.Members.size(); i++)
         {
             party.Members[i].Paralyzed = false;
+        }
+    }
+
+    void ClearEscaped(Party::Base &party)
+    {
+        // clear escaped status
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            party.Members[i].Escaped = false;
         }
     }
 
@@ -723,7 +732,7 @@ namespace Engine
             }
         }
 
-        return (enthraled > 0 && ((enthraled + dead) == enemies.size()));
+        return (enthraled > 0 && (enthraled + dead) == enemies.size());
     }
 
     void UpdateSpellStatus(Character::Base &character, int CombatRound)

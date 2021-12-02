@@ -3985,6 +3985,10 @@ namespace Interface
             // clear defending, quickthinking status, spell durations
             Engine::ClearDefendingStatus(Party);
 
+            Engine::ClearParalyzed(Party);
+
+            Engine::ClearEscaped(Party);
+
             Engine::NormalThinking(Party);
 
             Engine::ResetSpellDifficulty(Party);
@@ -5356,9 +5360,11 @@ namespace Interface
             }
         }
 
+        auto CombatResult = Combat::Result::NONE;
+
         if (Exit)
         {
-            return Combat::Result::NONE;
+            CombatResult = Combat::Result::NONE;
         }
         else
         {
@@ -5383,8 +5389,6 @@ namespace Interface
                 }
             }
 
-            Enemies.clear();
-
             if (SurvivingEnemies.size() > 0)
             {
                 Party.Enemies.push_back(Party::SurvivingEnemies(Party.Book, Party.Story, SurvivingEnemies));
@@ -5392,27 +5396,31 @@ namespace Interface
 
             if (Engine::Paralyzed(Party))
             {
-                return Combat::Result::DEFEAT;
+                CombatResult = Combat::Result::DEFEAT;
             }
             else if (Engine::Escaped(Party))
             {
-                return Combat::Result::ESCAPED;
+                CombatResult = Combat::Result::ESCAPED;
             }
             else if (Engine::Enthraled(Enemies))
             {
-                return Combat::Result::ENTHRALED;
+                CombatResult = Combat::Result::ENTHRALED;
             }
             else if (Engine::IsAlive(Party))
             {
                 Engine::ClearParalyzed(Party);
 
-                return Combat::Result::VICTORY;
+                CombatResult = Combat::Result::VICTORY;
             }
             else
             {
-                return Combat::Result::DEFEAT;
+                CombatResult = Combat::Result::DEFEAT;
             }
         }
+
+        Enemies.clear();
+
+        return CombatResult;
     }
 }
 #endif
