@@ -1620,7 +1620,7 @@ namespace Book1
                 }
                 else
                 {
-                    Text = "You are about to take a second draught, but the Hag squatting by the cauldron snatches the ladle from your hand. \"Only one draught per person,\" she cackles. \"Otherwise it's poisonous, you see...\" You cannot drink the same potion again.\n\n<b>NOTE<b>\n\nYour Endurance score increased one point above its current maximum.";
+                    Text = "You are about to take a second draught, but the Hag squatting by the cauldron snatches the ladle from your hand. \"Only one draught per person,\" she cackles. \"Otherwise it's poisonous, you see...\" You cannot drink the same potion again.\n\n<b>NOTE</b>\n\nYour Endurance score increased one point above its current maximum.";
                 }
             }
 
