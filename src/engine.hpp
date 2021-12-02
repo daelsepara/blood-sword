@@ -1111,6 +1111,80 @@ namespace Engine
         return gold;
     }
 
+    int FirstQuiver(Character::Base &character, int value)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            Equipment::Base &equipment = character.Equipment[i];
+
+            if (equipment.Class == Equipment::Class::Quiver && (equipment.Arrows + value) < equipment.ArrowLimit)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    int FirstQuiver(Character::Base &character)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            Equipment::Base &equipment = character.Equipment[i];
+
+            if (equipment.Class == Equipment::Class::Quiver && equipment.Arrows < equipment.ArrowLimit)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    int GainArrows(Character::Base &character, int arrows)
+    {
+        while (arrows > 0)
+        {
+            auto quiver = Engine::FirstQuiver(character, arrows);
+
+            if (quiver >= 0 && quiver < character.Equipment.size())
+            {
+                character.Equipment[quiver].Arrows += arrows;
+
+                arrows = 0;
+
+                break;
+            }
+            else
+            {
+                quiver = Engine::FirstQuiver(character);
+
+                if (quiver >= 0 && quiver < character.Equipment.size())
+                {
+                    arrows -= (character.Equipment[quiver].ArrowLimit - character.Equipment[quiver].Arrows);
+
+                    character.Equipment[quiver].Arrows = character.Equipment[quiver].ArrowLimit;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        arrows = std::max(0, arrows);
+
+        return arrows;
+    }
+
     bool Visited(Party::Base &party, Character::Base &character, Book::Destination destination)
     {
         auto result = false;

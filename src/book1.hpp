@@ -55,12 +55,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party)
-        {
-            Equipment = {Equipment::RubyRing};
-
-            Limit = 1;
-        }
+        void Event(Party::Base &Party) { Equipment = {Equipment::RubyRing}; }
     };
 
     class Story003 : public Story::Base
@@ -867,7 +862,7 @@ namespace Book1
             Text = "\"A draw,\" says Kief flatly. \"Neither player loses. The next Spiral begins ...\"";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Choose your number again", {Book::Type::Book1, 310}, Choice::Type::SelectDice, "Choose your number"));
+            Choices.push_back(Choice::Base("Choose a number again", {Book::Type::Book1, 310}, Choice::Type::SelectDice, "Choose a number"));
 
             Controls = Story::Controls::Standard;
         }
@@ -1112,7 +1107,7 @@ namespace Book1
             Text = "After recovering for the next <i>Spiral</i>, he has three heads and four tails. You have five coins, all heads.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Choose a number for the next Spiral", {Book::Type::Book1, 60}, Choice::Type::SelectDice, "Choose your number"));
+            Choices.push_back(Choice::Base("Choose a number for the next Spiral", {Book::Type::Book1, 60}, Choice::Type::SelectDice, "Choose a number"));
 
             Controls = Story::Controls::Standard;
         }
@@ -1234,7 +1229,7 @@ namespace Book1
             Text = "After <i>recovering</i> for the next Spiral, he has three heads and four tails. You have only four coins -- all heads.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Choose a number for the next Spiral", {Book::Type::Book1, 90}, Choice::Type::SelectDice, "Choose your number"));
+            Choices.push_back(Choice::Base("Choose a number for the next Spiral", {Book::Type::Book1, 90}, Choice::Type::SelectDice, "Choose a number"));
 
             Controls = Story::Controls::Standard;
         }
@@ -1719,6 +1714,69 @@ namespace Book1
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 85}; }
     };
 
+    class Story066 : public Story::Base
+    {
+    public:
+        Story066()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 66;
+
+            Text = "(SAGE) The Elf called upon the spirit-gods of his ancestors as he died. These are the eerie beings that now surround you in the fog, and they have come to wreak vengeance on you for slaying their blood-kin. You lose no time focusing your energy on Exorcising them, and fortunately it works. The spirits draw back and the fog disappears.\n\nYou can now loot the Elves' bodies if you wish. They had the following equipment:\n\nsix <b>swords</b>\n\n<b>bow</b>\n\neight <b>arrows</b>\n\nsix <b>leather jerkins</b> (Armour Rating: 1)";
+
+            Bye = "After taking anything you want, you start to walk along the corridor.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment = {Equipment::Sword, Equipment::Sword, Equipment::Sword, Equipment::Sword, Equipment::Sword, Equipment::Sword, Equipment::Bow, Equipment::Arrows(8), Equipment::LeatherJerkin, Equipment::LeatherJerkin, Equipment::LeatherJerkin, Equipment::LeatherJerkin, Equipment::LeatherJerkin, Equipment::LeatherJerkin, Equipment::LeatherJerkin};
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 503}; }
+    };
+
+    class Story067 : public Story::Base
+    {
+    public:
+        Story067()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 67;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Investigate the temple", {Book::Type::Book1, 298}));
+            Choices.push_back(Choice::Base("Take the left-hand path around it", {Book::Type::Book1, 357}));
+            Choices.push_back(Choice::Base("Try a potion", {Book::Type::Book1, 103}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story068 : public Story::Base
+    {
+    public:
+        Story068()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 68;
+
+            Text = "You approach a remarkable sight. A large basalt platform hangs suspended in the air, apparently unsupported, fifty metres above the cavern floor. On the ground directly underneath it stands a bronze gong.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Use the <b>bronze mallet</b>", {Book::Type::Book1, 508}, Equipment::Item::BronzeMallet));
+            Choices.push_back(Choice::Base("Head straight for the Emblem of Victory", {Book::Type::Book1, 238}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story069 : public Story::Base
     {
     public:
@@ -1736,6 +1794,24 @@ namespace Book1
         }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 452}; }
+    };
+
+    class Story070 : public Story::Base
+    {
+    public:
+        Story070()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 70;
+
+            Text = "\"A draw,\" says Kief flatly. You proceed to the next Spiral, and after <i>recovering</i> he has four heads and three tails. He thus gains a little ground against your five heads, and you must choose your next number carefully.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your next number", {Book::Type::Book1, 185}, Choice::Type::SelectDice, "Choose a number"));
+
+            Controls = Story::Controls::Standard;
+        }
     };
 
     class Story398 : public Story::Base
@@ -1846,7 +1922,11 @@ namespace Book1
     auto story063 = Story063();
     auto story064 = Story064();
     auto story065 = Story065();
+    auto story066 = Story066();
+    auto story067 = Story067();
+    auto story068 = Story068();
     auto story069 = Story069();
+    auto story070 = Story070();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -1860,7 +1940,7 @@ namespace Book1
             &story031, &story032, &story033, &story034, &story035, &story036, &story037, &story038, &story039, &story040,
             &story041, &story042, &story043, &story044, &story045, &story046, &story047, &story048, &story049, &story050,
             &story051, &story052, &story053, &story054, &story055, &story056, &story057, &story058, &story059, &story060,
-            &story061, &story062, &story063, &story064, &story065, &story069,
+            &story061, &story062, &story063, &story064, &story065, &story066, &story067, &story068, &story069, &story070,
             &story398,
             &story452};
     }

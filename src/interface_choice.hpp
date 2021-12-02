@@ -5,7 +5,7 @@
 
 namespace Interface
 {
-    void RenderChoiceScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &Controls, int Current, Uint32 Bg)
+    void RenderChoiceScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, int Current, Uint32 Bg)
     {
         Interface::RenderLeftPanel(Window, Renderer, Party, Story, Screen, Controls);
 
@@ -21,7 +21,7 @@ namespace Interface
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
-    void RenderMessage(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &ChoiceScreen, int Current, Uint32 Bg, std::string Message, Uint32 FlashColor)
+    void RenderMessage(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &ChoiceScreen, int Current, Uint32 Bg, std::string Message, Uint32 FlashColor)
     {
         Uint32 Duration = 1500;
 
@@ -43,7 +43,7 @@ namespace Interface
         SDL_Delay(Duration);
     }
 
-    int Choose(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
+    int Choose(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
     {
         auto Result = -1;
 
@@ -124,7 +124,7 @@ namespace Interface
         return Result;
     }
 
-    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, const char *SelectMessage)
+    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, const char *SelectMessage)
     {
         auto Result = -1;
         auto FontSize = TTF_FontHeight(Fonts::Normal);
@@ -200,7 +200,7 @@ namespace Interface
         return Result;
     }
 
-    std::vector<Button> CreateChoices(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Choice::Base> &Choices, ScreenDimensions &Screen, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight)
+    std::vector<Button> CreateChoices(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Choice::Base> &Choices, Interface::ScreenDimensions &Screen, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
 
@@ -252,7 +252,7 @@ namespace Interface
         return Controls;
     }
 
-    Attributes::Result Test(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, ScreenDimensions &Screen, Story::Base *Story, Party::Base &Party, int Character, Attributes::Type Attribute)
+    Attributes::Result Test(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Interface::ScreenDimensions &Screen, Story::Base *Story, Party::Base &Party, int Character, Attributes::Type Attribute)
     {
         auto Result = Attributes::Result::NONE;
         auto WindowW = 3 * SCREEN_WIDTH / 5;
@@ -423,7 +423,7 @@ namespace Interface
         return Result;
     }
 
-    void ProcessSpell(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, std::vector<Button> &ChoiceScreen, ScreenDimensions &Screen, int Current, Uint32 Bg, Spell::Type Spell)
+    void ProcessSpell(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, std::vector<Button> &ChoiceScreen, Interface::ScreenDimensions &Screen, int Current, Uint32 Bg, Spell::Type Spell)
     {
         std::string SpellString = std::string(Spell::Name[Spell]) + " was cast against " + (Engine::Count(Party) > 1 ? "the party!" : "you!");
 
@@ -465,7 +465,7 @@ namespace Interface
         }
     }
 
-    Story::Base *ProcessChoices(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen)
+    Story::Base *ProcessChoices(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen)
     {
         Story::Base *Next = &Story::notImplemented;
 
@@ -914,7 +914,7 @@ namespace Interface
         return Next;
     }
 
-    Story::Base *RenderChoices(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen)
+    Story::Base *RenderChoices(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen)
     {
         Story::Base *Next = &Story::notImplemented;
 

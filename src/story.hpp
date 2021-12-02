@@ -294,6 +294,8 @@ namespace Story
 
         std::string Text = "";
 
+        std::string Bye = "";
+
         std::string Title = "";
 
         std::string MapFile = "";

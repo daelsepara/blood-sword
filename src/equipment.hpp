@@ -13,7 +13,8 @@ namespace Equipment
         Armour,
         MoneyPouch,
         Quiver,
-        Gold
+        Gold,
+        Arrow
     };
 
     enum class Weapon
@@ -46,7 +47,8 @@ namespace Equipment
         ScrollOfHealing,
         ScrollOfAdjustment,
         ScrollOfTimeBlink,
-        ScrollOfPrecognition
+        ScrollOfPrecognition,
+        BronzeMallet
     };
 
     std::map<Equipment::Item, const char *> ItemDescription = {
@@ -59,7 +61,8 @@ namespace Equipment
         {Equipment::Item::ScrollOfHealing, "healing (scroll)"},
         {Equipment::Item::ScrollOfAdjustment, "adjust (scroll)"},
         {Equipment::Item::ScrollOfTimeBlink, "time blink (scroll)"},
-        {Equipment::Item::ScrollOfPrecognition, "precognition (scroll)"}};
+        {Equipment::Item::ScrollOfPrecognition, "precognition (scroll)"},
+        {Equipment::Item::BronzeMallet, "bronze mallet"}};
 
     enum class Mode
     {
@@ -205,6 +208,12 @@ namespace Equipment
 
                 GoldLimit = value;
             }
+            else if (Class == Equipment::Class::Arrow)
+            {
+                Arrows = value;
+
+                ArrowLimit = value;
+            }
         }
 
         Base(Equipment::Class type, const char *name, const char *description, int value, int limit)
@@ -215,23 +224,17 @@ namespace Equipment
 
             Description = description;
 
-            if (Class == Equipment::Class::MoneyPouch)
+            if (Class == Equipment::Class::MoneyPouch || Class == Equipment::Class::Gold)
             {
                 Gold = value;
 
                 GoldLimit = limit;
             }
-            else if (Class == Equipment::Class::Quiver)
+            else if (Class == Equipment::Class::Quiver || Class == Equipment::Class::Arrow)
             {
                 Arrows = value;
 
                 ArrowLimit = limit;
-            }
-            else
-            {
-                Gold = value;
-
-                GoldLimit = value;
             }
         }
 
@@ -243,7 +246,7 @@ namespace Equipment
 
             auto ModCount = 0;
 
-            if (Class != Equipment::Class::Quiver && Class != Equipment::Class::MoneyPouch && Class != Equipment::Class::Gold)
+            if (Class != Equipment::Class::Quiver && Class != Equipment::Class::MoneyPouch && Class != Equipment::Class::Gold && Class != Equipment::Class::Arrow)
             {
                 if (Attribute != Attributes::Type::None && Score != 0)
                 {
@@ -292,6 +295,10 @@ namespace Equipment
             {
                 ItemString = (strong ? "<b>" : "") + std::to_string(Gold) + " " + Name + (strong ? "</b>" : "");
             }
+            else if (Class == Equipment::Class::Arrow)
+            {
+                ItemString = (strong ? "<b>" : "") + std::to_string(Arrows) + " " + Name + (strong ? "</b>" : "");
+            }
 
             if (ModCount > 0)
             {
@@ -307,6 +314,13 @@ namespace Equipment
         auto gold = value != 1 ? "gold pieces" : "gold piece";
 
         return Base(Equipment::Class::Gold, gold, gold, value);
+    }
+
+    Equipment::Base Arrows(int value)
+    {
+        auto arrow = value != 1 ? "arrows" : "arrow";
+
+        return Base(Equipment::Class::Arrow, arrow, arrow, value);
     }
 
     // weapons
@@ -326,12 +340,14 @@ namespace Equipment
     auto Silver = Equipment::Base(Equipment::Class::Armour, "silver armour", "silvers armour", 2);
     auto StuddedLeather = Equipment::Base(Equipment::Class::Armour, "studded leather", "studded leather", 2);
     auto BreastPlate = Equipment::Base(Equipment::Class::Armour, "breastplate", "breastplate", 1);
+    auto LeatherJerkin = Equipment::Base(Equipment::Class::Armour, "leather jerkin", "leather jerkin", 1);
 
     // book 1 items
     auto RubyRing = Equipment::Base(Equipment::Item::RubyRing);
     auto SteelSceptre = Equipment::Base(Equipment::Item::SteelSceptre, 4, 4);
     auto VialOfBlackLiquid = Equipment::Base(Equipment::Item::VialOfBlackLiquid);
     auto ScorchedSkull = Equipment::Base(Equipment::Item::ScorchedSkull);
+    auto BronzeMallet = Equipment::Base(Equipment::Item::BronzeMallet);
 
 }
 

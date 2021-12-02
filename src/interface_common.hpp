@@ -33,7 +33,7 @@ namespace Interface
         int InfoWidth = 0;
     };
 
-    void DisplayParty(SDL_Renderer *Renderer, Party::Base &Party, ScreenDimensions &Screen)
+    void DisplayParty(SDL_Renderer *Renderer, Party::Base &Party, Interface::ScreenDimensions &Screen)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
 
@@ -67,7 +67,7 @@ namespace Interface
         Graphics::DrawRect(Renderer, Screen.InfoBoxWidth, Screen.InfoBoxHeight, Screen.InfoBoxX, Screen.InfoBoxY, intWH);
     }
 
-    void RenderLeftPanel(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &Controls)
+    void RenderLeftPanel(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
 
