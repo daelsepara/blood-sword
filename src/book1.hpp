@@ -124,7 +124,7 @@ namespace Book1
 
             // TODO: verify which sword to discard
             Choices.clear();
-            Choices.push_back(Choice::Base("Discard the <b>sword</b>", {Book::Type::Book1, 503}, Choice::Type::DropWeapon, Equipment::Weapon::Sword));
+            Choices.push_back(Choice::Base("Discard the sword", {Book::Type::Book1, 503}));
             Choices.push_back(Choice::Base("Discharge another 2 charges from the <b>steel sceptre</b>", {Book::Type::Book1, 503}, Choice::Type::Discharge, Equipment::Item::SteelSceptre, 2));
 
             Controls = Story::Controls::Standard;
@@ -179,14 +179,6 @@ namespace Book1
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
-        }
-
-        void SetupCombat(Map::Base &Map, Party::Base &Party)
-        {
-            Map.Put(2, 2, Map::Object::Enemy, 0);
-            Map.Put(3, 3, Map::Object::Enemy, 1);
-            Map.Put(2, 5, Map::Object::Enemy, 2);
-            Map.Put(3, 5, Map::Object::Enemy, 3);
         }
 
         void AfterCombat(Party::Base &Party, Combat::Result Result)
@@ -1032,7 +1024,7 @@ namespace Book1
 
             Choices.clear();
             Choices.push_back(Choice::Base("Use the <b>steel sceptre</b>", {Book::Type::Book1, 4}, Choice::Type::Discharge, Equipment::Item::SteelSceptre, 1));
-            Choices.push_back(Choice::Base("Leave the <b>sword</b>", {Book::Type::Book1, 503}, Choice::Type::DropWeapon, Equipment::Weapon::Sword));
+            Choices.push_back(Choice::Base("Leave the sword", {Book::Type::Book1, 503}));
 
             Controls = Story::Controls::Standard;
         }
@@ -1400,6 +1392,10 @@ namespace Book1
             Book = Book::Type::Book1;
 
             Id = 54;
+
+            Image = "images/book1/assassins.png";
+
+            TopImage = true;
 
             Text = "You come to a door and shoulder it open. Three wiry men dressed all in black look up from the body they've just slain with their daggers. A group of Assassins! To make matter worse, you can hear the Barbarians charging in pursuit of you. A moment later they burst into the room just behind you.\n\n<b>NOTE</b>\n\nIn any Round in which an Assassin is not adjacent to an opponent, he will throw a Shuriken.\n\nThe Assassins and the Barbarians are mutually hostile. That is, they will treat one another as an enemy when it comes to selecting opponents.";
 
@@ -1814,6 +1810,273 @@ namespace Book1
         }
     };
 
+    class Story071 : public Story::Base
+    {
+    public:
+        Story071()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 71;
+
+            Text = "It is a simple shrine to Freya, the Mercanian fertility goddess.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) Say the appropriate words of reverence", {Book::Type::Book1, 153}, Character::Class::Sage));
+            Choices.push_back(Choice::Base("Investigate the block of ice", {Book::Type::Book1, 334}));
+            Choices.push_back(Choice::Base("Investigate one of the grave mounds", {Book::Type::Book1, 42}));
+            Choices.push_back(Choice::Base("Leave via the tunnel", {Book::Type::Book1, 279}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story072 : public Story::Base
+    {
+    public:
+        Story072()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 72;
+
+            Text = "You reason that the Fetishists' lair cannot be far away. Sure enough, you soon spy a narrow cave entrance in the pebble-strewn slope. It is only about five metres off the path, so you feel no risk in edging down to investigate. Volcanic fumes seep out of the cave and drift down the slope, slowly adding to the swirling fog of mist far below. Holding your breath, you reach in a little way. Your hand encounters a corroded copper scroll-case containing an aged yellow parchment.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) Read the scroll", {Book::Type::Book1, 254}, Character::Class::Sage));
+            Choices.push_back(Choice::Base("Continue along the path to the shrine", {Book::Type::Book1, 339}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story073 : public Story::Base
+    {
+    public:
+        Book::Destination Destination = {};
+
+        Story073()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 73;
+
+            Text = "After some time they come back. They are slightly wounded, but seem to be in good spirits. \"That's better,\" says the red-bearded one. \"Now I've worked up a sweat.\"\n\n\"A sweat?\" guffaws one. \"Why, Torsvald, you must be getting old, by golly, if fighting little Assassins gets you winded!\"\n\n\"Ho,\" laughs Torsvald, \"maybe I am, but maybe it's not sweat at all but the grease off those slippery little runts, eh?\"\n\nThis looks like a good moment to ambush them. You dislodge the grille and it falls on Torsvald's head. Too bad it didn't hit a vital spot. You drop in their midst and get one free strike before they can collect their wits to fight.\n\n<b>NOTE</b>\n\nYou get one free action before the normal sequence of combat begins.";
+
+            MapFile = "maps/book1/map073.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            SurprisedEnemy = true;
+
+            Enemies.clear();
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 11, 1, 2, 1, Assets::Type::Barbarian));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 11, 1, 2, 1, Assets::Type::Barbarian));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 10, 1, 2, 1, Assets::Type::Barbarian));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 8, 1, 2, 1, Assets::Type::Barbarian));
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            Choices.clear();
+
+            if (Result == Combat::Result::ESCAPED)
+            {
+                Destination = {Book::Type::Book1, 506};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 251};
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
+    };
+
+    class Story074 : public Story::Base
+    {
+    public:
+        Story074()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 74;
+
+            Text = "You search their bodies and find twenty <b>gold pieces</b>. You can also take their four <b>axes</b> and four <b>bronze breastplates</b> if you wish.\n\nReasoning that they will have already cleared out any treasure hoards to the left, you decide to head right. The corridor takes several sharp turns. You come to an object that sparkles in the light of the wall-lanterns. It is a sword, encrusted with gems of fabulous value. But as you are about to pick it up, your natural suspicion gets the better of you. Why should anyone leave a magnificent weapon like this just lying in the middle of a corridor?";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Leave it and continue on your way", {Book::Type::Book1, 503}));
+            Choices.push_back(Choice::Base("(ENCHANTER) Investigate it with Detect spells", {Book::Type::Book1, 387}, Character::Class::Enchanter));
+            Choices.push_back(Choice::Base("Pick it up regardless of the consequences", {Book::Type::Book1, 37}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment = {Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Gold(20), Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate};
+        }
+    };
+
+    class Story075 : public Story::Base
+    {
+    public:
+        Story075()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 75;
+
+            Text = "After <i>recovering</i> for the next Spiral, he has three heads and three tails. Your five coins now show three heads and two tails. \"Our positions are rather close, are they not?\" says Kief with a broad smile.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your number for the next Spiral", {Book::Type::Book1, 225}, Choice::Type::SelectDice, "Choose a number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story076 : public Story::Base
+    {
+    public:
+        Story076()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 76;
+
+            Text = "You look at the four nearest mirrors. There might be a secret passage behind at least one of them, and you decide which one to try first.";
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Choices.clear();
+
+            if (Engine::Count(Party) > 1)
+            {
+                Choices.push_back(Choice::Base("Look at the mirrors", {Book::Type::Book1, -76}, Choice::Type::SelectAdventurer, "Assign an adventurer to the task"));
+            }
+            else
+            {
+                Party.LastSelected = Engine::First(Party);
+
+                Choices.push_back(Choice::Base("Look behind the first mirror", {Book::Type::Book1, 231}));
+                Choices.push_back(Choice::Base("Look behind the second mirror", {Book::Type::Book1, 304}));
+                Choices.push_back(Choice::Base("Look behind the third mirror", {Book::Type::Book1, 202}));
+                Choices.push_back(Choice::Base("Look behind the fourth mirror", {Book::Type::Book1, 34}));
+            }
+        }
+    };
+
+    class Event076 : public Story::Base
+    {
+    public:
+        Event076()
+        {
+            Book = Book::Type::Book1;
+
+            Id = -76;
+
+            DisplayId = 76;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Look behind the first mirror", {Book::Type::Book1, 231}));
+            Choices.push_back(Choice::Base("Look behind the second mirror", {Book::Type::Book1, 304}));
+            Choices.push_back(Choice::Base("Look behind the third mirror", {Book::Type::Book1, 202}));
+            Choices.push_back(Choice::Base("Look behind the fourth mirror", {Book::Type::Book1, 34}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story077 : public Story::Base
+    {
+    public:
+        Story077()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 77;
+
+            Text = "The corridor brings you to a T-junction. From here you can go straight on along the corridor or you can turn right down the narrow tunnel that joins it.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Continue heading straight on", {Book::Type::Book1, 338}));
+            Choices.push_back(Choice::Base("Take the tunnel to your right", {Book::Type::Book1, 16}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story078 : public Story::Base
+    {
+    public:
+        Story078()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 78;
+
+            Text = "You materialise within the broken walls of an old shrine. You can see the temple where the Hags live, about two hundred metres away atop another pinnacle.\n\nExamining your surroundings, you notice a golden dish that glimmers in the sporadic light of the volcanic geysers outside. Grey stone gargoyles cling to the walls, the dancing shadows making them seem to grin. Beyond an exit at the rear of the shrine, a narrow path leads along the top of a knife-edge precipice.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Leave the shrine", {Book::Type::Book1, 92}));
+            Choices.push_back(Choice::Base("Examine the gold dish first", {Book::Type::Book1, 507}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story079 : public Story::Base
+    {
+    public:
+        Story079()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 79;
+
+            Image = "images/book1/filler2.png";
+
+            TopImage = false;
+
+            Text = "The Dirge-Man settles on the steps above you, flexing his enormous leathery wings as if glad of the rest. You notice that he does not have the spiked talons of a normal Dirge-Man, but human hands. \"I could fly you across,\" he declares in his cracked voice. \"But a question has arisen. Essentially, what's in it for me?\"";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Use a <b>gilded bridle<b>", {Book::Type::Book1, 301}, Equipment::Item::GildedBridle));
+            Choices.push_back(Choice::Base("Use a <b>chimera spittle<b>", {Book::Type::Book1, 321}, Equipment::Item::ChimeraSpittle));
+            Choices.push_back(Choice::Base("(ENCHANTER) Enthral the Dirge-Man", {Book::Type::Book1, 11}, Character::Class::Enchanter));
+            Choices.push_back(Choice::Base("You cannot do any of these", {Book::Type::Book1, 22}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story080 : public Story::Base
+    {
+    public:
+        Story080()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 80;
+
+            Text = "After <i>recovering</i> for the next Spiral, he has two heads and three tails. You have the same. This position only allows you both to play a 1 on the next Spiral, so you then each have three heads and two tails.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your number for the next Spiral", {Book::Type::Book1, 320}, Choice::Type::SelectDice, "Choose a number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -1927,13 +2190,24 @@ namespace Book1
     auto story068 = Story068();
     auto story069 = Story069();
     auto story070 = Story070();
+    auto story071 = Story071();
+    auto story072 = Story072();
+    auto story073 = Story073();
+    auto story074 = Story074();
+    auto story075 = Story075();
+    auto story076 = Story076();
+    auto event076 = Event076();
+    auto story077 = Story077();
+    auto story078 = Story078();
+    auto story079 = Story079();
+    auto story080 = Story080();
     auto story398 = Story398();
     auto story452 = Story452();
 
     void InitializeStories()
     {
         Book1::Stories = {
-            &event015, &event038, &event062,
+            &event015, &event038, &event062, &event076,
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
             &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
             &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
@@ -1941,6 +2215,7 @@ namespace Book1
             &story041, &story042, &story043, &story044, &story045, &story046, &story047, &story048, &story049, &story050,
             &story051, &story052, &story053, &story054, &story055, &story056, &story057, &story058, &story059, &story060,
             &story061, &story062, &story063, &story064, &story065, &story066, &story067, &story068, &story069, &story070,
+            &story071, &story072, &story073, &story074, &story075, &story076, &story077, &story078, &story079, &story080,
             &story398,
             &story452};
     }

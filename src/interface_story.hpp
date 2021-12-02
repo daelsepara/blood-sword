@@ -6,7 +6,7 @@
 
 namespace Interface
 {
-    void RenderStoryScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, SDL_Surface *Text, int Offset)
+    void RenderStoryScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, int Current, SDL_Surface *Text, int Offset)
     {
         Interface::RenderLeftPanel(Window, Renderer, Party, Story, Screen, Controls);
 
@@ -19,14 +19,14 @@ namespace Interface
             Graphics::RenderText(Renderer, Text, 0, Screen.TextBoxX + text_space, Screen.TextBoxY + text_space, Screen.TextBounds, Offset);
         }
 
-        Graphics::RenderButtons(Renderer, Controls, -1, text_space, border_pts);
+        Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
     void RenderMessage(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &StoryScreen, SDL_Surface *Text, int Offset, std::string Message, Uint32 FlashColor)
     {
         Uint32 Duration = 1500;
 
-        Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset);
+        Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
 
         auto FlashW = 3 * SCREEN_WIDTH / 5;
 
@@ -78,8 +78,10 @@ namespace Interface
 
         while (!Done)
         {
-            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset);
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
 
             Graphics::PutText(Renderer, Message, Fonts::Normal, text_space, clrGR, intWH, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, WindowY + text_space);
@@ -161,7 +163,7 @@ namespace Interface
 
         while (!Done)
         {
-            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset);
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
 
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
 
@@ -248,8 +250,10 @@ namespace Interface
                 Mode = Equipment::Mode::USE;
             }
 
-            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset);
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
 
             if (Mode == Equipment::Mode::DROP)
@@ -489,8 +493,10 @@ namespace Interface
 
         while (!Done)
         {
-            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset);
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
 
             Graphics::PutText(Renderer, TakeLimit.c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
@@ -764,8 +770,10 @@ namespace Interface
 
         while (!Done)
         {
-            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset);
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
 
             Graphics::PutText(Renderer, Character::ClassName[Party.Members[Character].Class], Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
@@ -996,7 +1004,7 @@ namespace Interface
 
                 while (!Transition)
                 {
-                    Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, Controls, Text, Offset);
+                    Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, Controls, Current, Text, Offset);
 
                     RenderFlashMessage();
 

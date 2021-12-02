@@ -48,7 +48,10 @@ namespace Equipment
         ScrollOfAdjustment,
         ScrollOfTimeBlink,
         ScrollOfPrecognition,
-        BronzeMallet
+        BronzeMallet,
+        MagnificentSword,
+        GildedBridle,
+        ChimeraSpittle
     };
 
     std::map<Equipment::Item, const char *> ItemDescription = {
@@ -62,7 +65,10 @@ namespace Equipment
         {Equipment::Item::ScrollOfAdjustment, "adjust (scroll)"},
         {Equipment::Item::ScrollOfTimeBlink, "time blink (scroll)"},
         {Equipment::Item::ScrollOfPrecognition, "precognition (scroll)"},
-        {Equipment::Item::BronzeMallet, "bronze mallet"}};
+        {Equipment::Item::BronzeMallet, "bronze mallet"},
+        {Equipment::Item::MagnificentSword, "magnificent sword"},
+        {Equipment::Item::GildedBridle, "gilded bridle"},
+        {Equipment::Item::ChimeraSpittle, "chimera spittle"}};
 
     enum class Mode
     {
@@ -348,6 +354,9 @@ namespace Equipment
     auto VialOfBlackLiquid = Equipment::Base(Equipment::Item::VialOfBlackLiquid);
     auto ScorchedSkull = Equipment::Base(Equipment::Item::ScorchedSkull);
     auto BronzeMallet = Equipment::Base(Equipment::Item::BronzeMallet);
+    auto MagnificentSword = Equipment::Base(Equipment::Item::MagnificentSword);
+    auto GildedBridle = Equipment::Base(Equipment::Item::GildedBridle);
+    auto ChimeraSpittle = Equipment::Base(Equipment::Item::ChimeraSpittle);
 
 }
 

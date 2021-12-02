@@ -5262,7 +5262,7 @@ namespace Interface
                         auto Result = TargetIsPlayer ? Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[TargetId], Enemies[EnemyId], Combat::FightMode::FIGHT, true) : Interface::Fight(Renderer, Controls, intBK, Map, Enemies[EnemyId], Enemies[TargetId], Combat::FightMode::FIGHT);
 
                         // indicate player last attacked, if successful
-                        if (TargetIsPlayer && Result == Combat::Result::FIGHT)
+                        if (TargetIsPlayer && Result != Combat::Result::UNSUCCESSFUL)
                         {
                             Enemies[EnemyId].Attacked = TargetId;
                         }
@@ -5317,11 +5317,6 @@ namespace Interface
                         else if (Enemies[EnemyId].CanShoot)
                         {
                             auto Result = TargetIsPlayer ? Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[TargetId], Enemies[EnemyId], Combat::FightMode::SHOOT, true) : Interface::Fight(Renderer, Controls, intBK, Map, Enemies[EnemyId], Enemies[TargetId], Combat::FightMode::SHOOT);
-
-                            if (TargetIsPlayer)
-                            {
-                                Enemies[EnemyId].Attacked = TargetId;
-                            }
 
                             if (TargetIsPlayer && !Engine::IsAlive(Party.Members[TargetId]))
                             {

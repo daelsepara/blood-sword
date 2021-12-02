@@ -29,7 +29,8 @@ namespace Choice
         SelectDice,
         CharacterItem,
         TakeScrolls,
-        EnemyCastSpell
+        EnemyCastSpell,
+        TakeEquipment
     };
 
     class Base
