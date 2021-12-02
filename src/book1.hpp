@@ -66,7 +66,7 @@ namespace Book1
     class Story003 : public Story::Base
     {
     public:
-        Engine::Destination Destination = {};
+        Book::Destination Destination = {};
 
         Story003()
         {
@@ -113,7 +113,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return Destination; }
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story004 : public Story::Base
@@ -152,13 +152,13 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 356}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 356}; }
     };
 
     class Story006 : public Story::Base
     {
     public:
-        Engine::Destination Destination = {};
+        Book::Destination Destination = {};
 
         Story006()
         {
@@ -208,7 +208,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return Destination; }
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story007 : public Story::Base
@@ -231,7 +231,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; }
     };
 
     class Story008 : public Story::Base
@@ -271,7 +271,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 103}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 103}; }
     };
 
     class Story010 : public Story::Base
@@ -311,13 +311,13 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; }
     };
 
     class Story011 : public Story::Base
     {
     public:
-        Engine::Destination Destination = {};
+        Book::Destination Destination = {};
 
         Story011()
         {
@@ -355,7 +355,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return Destination; }
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story012 : public Story::Base
@@ -392,7 +392,7 @@ namespace Book1
             Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 223}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 223}; }
     };
 
     class Story013 : public Story::Base
@@ -421,7 +421,7 @@ namespace Book1
     class Story014 : public Story::Base
     {
     public:
-        Engine::Destination Destination = {};
+        Book::Destination Destination = {};
 
         Story014()
         {
@@ -464,7 +464,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return Destination; }
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story015 : public Story::Base
@@ -557,7 +557,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party)
+        Book::Destination Continue(Party::Base &Party)
         {
             if (Engine::Wounded(Party))
             {
@@ -586,7 +586,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 1}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 1}; }
     };
 
     class Story019 : public Story::Base
@@ -624,7 +624,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party)
+        Book::Destination Continue(Party::Base &Party)
         {
             std::vector<int> Destinations = {50, 45, 40, 35, 30, 25};
 
@@ -740,7 +740,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
     };
 
     class Story026 : public Story::Base
@@ -787,7 +787,7 @@ namespace Book1
             Enemies.push_back(Enemy::Base(Enemy::Type::IconTheUngodly, "ICON THE UNGODLY", 8, 8, 7, 28, 2, 2, 2, Assets::Type::IconTheUngodly));
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 377}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 377}; }
     };
 
     class Story028 : public Story::Base
@@ -806,13 +806,13 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; }
     };
 
     class Story029 : public Story::Base
     {
     public:
-        Engine::Destination Destination = {};
+        Book::Destination Destination = {};
 
         Story029()
         {
@@ -852,7 +852,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return Destination; }
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story030 : public Story::Base
@@ -933,13 +933,13 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 397}; }
     };
 
     class Story034 : public Story::Base
     {
     public:
-        Engine::Destination Destination = {};
+        Book::Destination Destination = {};
 
         Story034()
         {
@@ -982,7 +982,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return Destination; }
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
     };
 
     class Story035 : public Story::Base
@@ -1001,7 +1001,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 85}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 85}; }
     };
 
     class Story036 : public Story::Base
@@ -1078,7 +1078,7 @@ namespace Book1
             Controls = Story::Controls::Info;
         }
 
-        Engine::Destination Background(Party::Base &Party) { return {Book::Type::Book1, 38}; }
+        Book::Destination Background(Party::Base &Party) { return {Book::Type::Book1, 38}; }
     };
 
     class Story039 : public Story::Base
@@ -1097,7 +1097,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 118}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 118}; }
     };
 
     class Story040 : public Story::Base
@@ -1146,7 +1146,7 @@ namespace Book1
             }
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 469}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 469}; }
     };
 
     class Story042 : public Story::Base
@@ -1256,7 +1256,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 457}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 457}; }
     };
 
     class Story047 : public Story::Base
@@ -1275,7 +1275,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 443}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 443}; }
     };
 
     class Story048 : public Story::Base
@@ -1298,7 +1298,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 249}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 249}; }
     };
 
     class Story049 : public Story::Base
@@ -1317,7 +1317,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 67}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 67}; }
     };
 
     class Story050 : public Story::Base
@@ -1336,7 +1336,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
     };
 
     class Story051 : public Story::Base
@@ -1357,6 +1357,148 @@ namespace Book1
         }
     };
 
+    class Story052 : public Story::Base
+    {
+    public:
+        Story052()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 52;
+
+            Text = "You lift the olive-green pennant. \"You have chosen the standard of Magus Kalugen, overlord of this city,\" declares Kalugen's steward grandly. \"I am to escort you to his palace, the House of the. Fivefold Torments. There you will be received with the honour due to you.\" As he speaks, a number of soldiers draw up around you and you find that they are leading you off through the winding dark alleyways of the city. The jostling crowds miraculously melt away when they see the olive-green livery of the soldiers, and you soon find yourself walking through the main gate of Kalugen's palace, a massive, fire-blackened mansion-house with heavily barred windows and a high ordure-stained tower rising in one of its corners. The great gate of the mansion is swung shut behind you and you find yourself in a courtyard crowded with a group of raggedly dressed people waiting in line, clutching the petitions they hope to present to Kalugen. You are ushered through this mob into a dark hall whose ceiling is lost in the sooty gloom. You are led to the far end of it, where you can dimly make out a seated figure on a throne. You instinctively recognise him as Kalugen.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 471}; }
+    };
+
+    class Story053 : public Story::Base
+    {
+    public:
+        Story053()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 53;
+
+            Text = "(TRICKSTER) The usher looks shocked. \"I assure you,\" he says, spluttering with indignation, \"my loyalty to my master is beyond price!\"\n\nWell -- perhaps beyond the price you can afford, you think wryly.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 458}; }
+    };
+
+    class Story054 : public Story::Base
+    {
+    public:
+        Book::Destination Destination = {};
+
+        Story054()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 54;
+
+            Text = "You come to a door and shoulder it open. Three wiry men dressed all in black look up from the body they've just slain with their daggers. A group of Assassins! To make matter worse, you can hear the Barbarians charging in pursuit of you. A moment later they burst into the room just behind you.\n\n<b>NOTE</b>\n\nIn any Round in which an Assassin is not adjacent to an opponent, he will throw a Shuriken.\n\nThe Assassins and the Barbarians are mutually hostile. That is, they will treat one another as an enemy when it comes to selecting opponents.";
+
+            MapFile = "maps/book1/map054.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 6, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 6, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
+            Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 6, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
+
+            // TODO: only add the survivng barbarians from previous section should be setup here
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian, true, false, true));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian, true, false, true));
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            if (Result == Combat::Result::ESCAPED)
+            {
+                Destination = {Book::Type::Book1, 354};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 32};
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
+    };
+
+    class Story055 : public Story::Base
+    {
+    public:
+        Story055()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 55;
+
+            Text = "Grandmaster Kief stands, unfolding himself from his chair like a great robed stick-insect. \"Our game is at an end,\" he declares. \"It is time for your transition to the lower levels...\"\n\nHis hands come up, showering a web of sparks around you. You feel an acrid taste in your mouth, but no pain. For a moment you wonder what he has done to you, then you see. You are sinking into the floor of the amphitheatre!";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; }
+    };
+
+    class Story056 : public Story::Base
+    {
+    public:
+        Story056()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 56;
+
+            Text = "You look out from the side terrace of the temple. A flight of unsupported marble stairs descends from here to a low table of rock. You can just make out two shimmering ovals of energy that hang in the air there.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Go down the stairway", {Book::Type::Book1, 427}));
+            Choices.push_back(Choice::Base("Go around to the other side of the temple", {Book::Type::Book1, 357}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story057 : public Story::Base
+    {
+    public:
+        Story057()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 57;
+
+            Text = "The Dirge-Man waits passively to be given his instructions. You climb up on to his wide leathery back and, clinging on for dear life, spur him into flight. He swoops out across the chasm, and you catch a dizzying glimpse of vertical precipices stretching right down into the bowels of the under-earth. Wind currents buffet you to and fro, but the Dirge-Man rides them expertly. In a few moments he sets you gently down on the far side. You hastily order him to fly off before the spell can fade.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 359}; }
+    };
+
     class Story058 : public Story::Base
     {
     public:
@@ -1375,6 +1517,208 @@ namespace Book1
         }
     };
 
+    class Story059 : public Story::Base
+    {
+    public:
+        Story059()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 59;
+
+            Text = "You heave the cage into view. The emerald scarab still hangs around the skeleton's neck: a thick green slime seems to be congealing on it from some deposit in the water. You quickly wrench the scarab off the neck and wipe away the hideous muck before the eidolon reconstitutes itself. Then you let the cage and its bones splash back into the lake, where they sink out of sight.";
+
+            // TODO: verify if the scarab is taken as an item
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) Identify the scarab", {Book::Type::Book1, 352}, Character::Class::Sage));
+            Choices.push_back(Choice::Base("Risk putting it on", {Book::Type::Book1, 187}, Choice::Type::SelectAdventurer, "Who shall wear the scarab?"));
+            Choices.push_back(Choice::Base("Leave the scarab and go on your way", {Book::Type::Book1, 247}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story060 : public Story::Base
+    {
+    public:
+        Story060()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 60;
+
+            Text = "This time he opens his hand to reveal a 2.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party)
+        {
+            std::vector<int> Destinations = {65, 70, 75, 80, 286, 286};
+
+            if (Party.LastValue >= 0 && Party.LastValue < 6)
+            {
+                return {Book::Type::Book1, Destinations[Party.LastValue]};
+            }
+            else
+            {
+                return {Book::Type::Book1, Destinations[Engine::Roll(1, 0) - 1]};
+            }
+        }
+    };
+
+    class Story061 : public Story::Base
+    {
+    public:
+        Story061()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 61;
+
+            Text = "You enter a room at the end of the corridor. Three Assassins in blood-drenched black robes and face masks lie in a heap at the centre of the room. Presumably they were another magus's champions, but fell foul of the Barbarian party. Searching the bodies, you find many of the Assassin's favoured missile weapon, the deadly throwing spike. Unfortunately you cannot use this type of weapon as you have not been trained to do so. There is also a smashed black vial that one of the Barbarians would seem to have ground underfoot.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 236}; }
+    };
+
+    class Story062 : public Story::Base
+    {
+    public:
+        bool Visited = false;
+
+        Story062()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 62;
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "You feel a wave of energy coursing through your body. You are about to take a second draught, but the Hag squatting by the cauldron snatches the ladle from your hand. \"Only one draught per person,\" she cackles. \"Otherwise it's poisonous, you see...\" You cannot drink the same potion again.\n\n<b>NOTE</b>\n\nYour Endurance score increased one point above its current maximum.";
+
+            if (Party.LastSelected >= 0 && Party.LastSelected < Party.Members.size())
+            {
+                if (!Engine::Visited(Party, Party.LastSelected, {Book::Type::Book1, 62}))
+                {
+                    Engine::Visit(Party, Party.LastSelected, {Book::Type::Book1, 62});
+
+                    auto Endurance = Engine::Maximum(Party.Members[Party.LastSelected], Attributes::Type::Endurance) + 1;
+
+                    Engine::Maximum(Party.Members[Party.LastSelected], Attributes::Type::Endurance, Endurance);
+
+                    Engine::Endurance(Party.Members[Party.LastSelected], Endurance);
+                }
+                else
+                {
+                    Text = "You are about to take a second draught, but the Hag squatting by the cauldron snatches the ladle from your hand. \"Only one draught per person,\" she cackles. \"Otherwise it's poisonous, you see...\" You cannot drink the same potion again.\n\n<b>NOTE<b>\n\nYour Endurance score increased one point above its current maximum.";
+                }
+            }
+
+            Choices.clear();
+
+            if (Engine::Count(Party) > 1)
+            {
+                Choices.push_back(Choice::Base("Let others drink the same potion", {Book::Type::Book1, -62}, Choice::Type::SelectAdventurer, "Who shall drink the bubbling green soup"));
+            }
+            else
+            {
+                Choices.push_back(Choice::Base("Try another potion you have not yet sampled", {Book::Type::Book1, 103}));
+            }
+
+            Choices.push_back(Choice::Base("Don't sample another potion", {Book::Type::Book1, 481}));
+        }
+    };
+
+    class Event062 : public Story::Base
+    {
+    public:
+        Event062()
+        {
+            Book = Book::Type::Book1;
+
+            Id = -62;
+
+            DisplayId = 62;
+
+            Choices.clear();
+
+            Controls = Story::Controls::Info;
+        }
+
+        Book::Destination Background(Party::Base &Party) { return {Book::Type::Book1, 62}; }
+    };
+
+    // TODO: this section describes an combat item effect that will be implemented in
+    // the CombatScreen interface. It is preserved here for completeness.
+    class Story063 : public Story::Base
+    {
+    public:
+        Story063()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 63;
+
+            Type = Story::Type::Info;
+
+            Text = "As you point the ring at Nebularon, it bursts into flame. You <b>LOSE 1 endurance</b> as a searing pain shoots up your arm. If you are still alive, you watch the ring burn away to ashes. Nebularon laughs -- a harsh, hollow roar -- and mocks you: \"Come, mortal! Such tawdry baubles are of no use to you now.\"";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Info;
+        }
+    };
+
+    class Story064 : public Story::Base
+    {
+    public:
+        Story064()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 64;
+
+            Text = "You arrive at Balhazar's mansion as the temple gongs of the citadel sound out the hour of midnight. A long avenue flanked by cedar trees and decorated with gaily covered lanterns and embroidered banners on poles stretches to the white marble portico of the main entrance. Guards patrol up and down the avenue, but they seem to ignore most of the guests. However, they stare long and hard at you and are just about to step up and challenge you when Balhazar's usher rushes from the doorway of the house to greet you. He gestures you towards the doorway, behind which you can see a party in full swing. All the revellers wear masks concealing their identities. They are entertained by jugglers and musicians.\n\nThe usher offers you a tray with drinks and sweetmeats laid out on it. \"My master will speak to you of employment,\" he says. \"That is\" .. he gestures at the dozens of revellers -- \"if you have the ability to find him...\"\n\nYou stare in bewilderment at the masked party-goers. How are you to locate your prospective employer among them?";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(TRICKSTER) Bribe the usher", {Book::Type::Book1, 53}, Character::Class::Trickster));
+            Choices.push_back(Choice::Base("(SAGE) Use ESP", {Book::Type::Book1, 309}, Abilities::Type::ESP));
+            Choices.push_back(Choice::Base("(ENCHANTER) Summon Faltyn", {Book::Type::Book1, 232}, Character::Class::Enchanter));
+            Choices.push_back(Choice::Base("Use your powers of deduction to work out which of the revellers is Balhazar", {Book::Type::Book1, 458}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story065 : public Story::Base
+    {
+    public:
+        Story065()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 65;
+
+            Text = "After <i>recovering</i> for the next Spiral, he has two heads and five tails. You have only four coins left, but all are heads. He can play only a 1 now, so you automatically win.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 85}; }
+    };
+
     class Story069 : public Story::Base
     {
     public:
@@ -1391,7 +1735,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 452}; }
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 452}; }
     };
 
     class Story398 : public Story::Base
@@ -1487,7 +1831,21 @@ namespace Book1
     auto story049 = Story049();
     auto story050 = Story050();
     auto story051 = Story051();
+    auto story052 = Story052();
+    auto story053 = Story053();
+    auto story054 = Story054();
+    auto story055 = Story055();
+    auto story056 = Story056();
+    auto story057 = Story057();
     auto story058 = Story058();
+    auto story059 = Story059();
+    auto story060 = Story060();
+    auto story061 = Story061();
+    auto story062 = Story062();
+    auto event062 = Event062();
+    auto story063 = Story063();
+    auto story064 = Story064();
+    auto story065 = Story065();
     auto story069 = Story069();
     auto story398 = Story398();
     auto story452 = Story452();
@@ -1495,14 +1853,14 @@ namespace Book1
     void InitializeStories()
     {
         Book1::Stories = {
-            &event015, &event038,
+            &event015, &event038, &event062,
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
             &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
             &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
             &story031, &story032, &story033, &story034, &story035, &story036, &story037, &story038, &story039, &story040,
             &story041, &story042, &story043, &story044, &story045, &story046, &story047, &story048, &story049, &story050,
-            &story051, &story058,
-            &story069,
+            &story051, &story052, &story053, &story054, &story055, &story056, &story057, &story058, &story059, &story060,
+            &story061, &story062, &story063, &story064, &story065, &story069,
             &story398,
             &story452};
     }

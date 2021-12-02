@@ -157,7 +157,7 @@ namespace Interface
         return Party;
     }
 
-    void MainScreen(SDL_Window *Window, SDL_Renderer *Renderer, Engine::Destination Destination)
+    void MainScreen(SDL_Window *Window, SDL_Renderer *Renderer, Book::Destination Destination)
     {
         // initialize RNG
         Engine::Randomize();

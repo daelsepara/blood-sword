@@ -45,6 +45,9 @@ namespace Party
         int LastSelected = -1;
         // Last selected value
         int LastValue = -1;
+
+        // for keeping track of locations/actions that can only be visited/done once per character class
+        std::map<Character::Class, std::vector<Book::Destination>> Visited = {};
     };
 }
 #endif

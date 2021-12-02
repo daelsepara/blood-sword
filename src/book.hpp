@@ -15,6 +15,8 @@ namespace Book
         Book5
     };
 
+    typedef std::pair<Book::Type, int> Destination;
+
     std::map<Book::Type, const char *> Title = {
         {Book::Type::None, "Blood Sword"},
         {Book::Type::Book1, "The Battlepits of Krarth"},

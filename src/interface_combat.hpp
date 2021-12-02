@@ -1502,15 +1502,17 @@ namespace Interface
         if (Spell == Spell::Type::VolcanoSpray || Spell == Spell::Type::SheetLightning)
         {
             auto DamageRolls = Spell == Spell::Type::VolcanoSpray ? 1 : 2;
-            auto DamageModifier = Spell == Spell::Type::VolcanoSpray ? 1 : 2;
-            auto Damage = Engine::Roll(DamageRolls, DamageModifier);
 
-            Interface::RenderMessage(Renderer, BattleScreen, Map, bg, ("All enemies dealt " + std::to_string(Damage) + " damage!").c_str(), intGR);
+            auto DamageModifier = Spell == Spell::Type::VolcanoSpray ? 1 : 2;
 
             for (auto i = 0; i < Enemies.size(); i++)
             {
                 if (Engine::IsAlive(Enemies[i]))
                 {
+                    auto Damage = Engine::Roll(DamageRolls, DamageModifier);
+
+                    Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[i].Name + " dealt " + std::to_string(Damage) + " damage!"), intGR);
+
                     Interface::DealDamage(Map, Enemies, i, Damage, true);
 
                     if (!Engine::IsAlive(Enemies[i]))
@@ -1526,7 +1528,7 @@ namespace Interface
             auto DamageModifier = (Spell == Spell::Type::WhiteFire ? 2 : (Spell == Spell::Type::Swordthrust ? 3 : 7));
             auto Damage = Engine::Roll(DamageRolls, DamageModifier);
 
-            Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " dealt " + std::to_string(Damage) + " damage!").c_str(), intGR);
+            Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " dealt " + std::to_string(Damage) + " damage!"), intGR);
 
             Interface::DealDamage(Map, Enemies, EnemyId, Damage, true);
 
@@ -1537,8 +1539,6 @@ namespace Interface
         }
         else if (Spell == Spell::Type::MistsOfDeath)
         {
-            auto Damage = Engine::Roll(2, 0);
-
             for (auto i = 0; i < Enemies.size(); i++)
             {
                 if (Engine::IsAlive(Enemies[i]))
@@ -1547,6 +1547,8 @@ namespace Interface
 
                     if (Result == Attributes::Result::FAILURE)
                     {
+                        auto Damage = Engine::Roll(2, 0);
+
                         Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[i].Name + " dealt " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
                         Interface::DealDamage(Map, Enemies, i, Damage, true);
@@ -1611,7 +1613,7 @@ namespace Interface
                     Damage = Engine::Roll(2, 0);
                 }
 
-                Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " dealtW " + std::to_string(Damage) + " damage!").c_str(), intGR);
+                Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " dealt " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
                 Interface::DealDamage(Map, Enemies, EnemyId, Damage, false);
 
@@ -2934,7 +2936,7 @@ namespace Interface
                     {
                         if (Engine::WasCalledToMind(Character, Spell::All[Current].Type))
                         {
-                            DisplayMessage((Spell::All[Current].Name + " already called to mind!").c_str(), intBK);
+                            DisplayMessage((Spell::All[Current].Name + " already called to mind!"), intBK);
                         }
                         else
                         {
@@ -2947,7 +2949,7 @@ namespace Interface
                     {
                         if (!Engine::WasCalledToMind(Character, Spell::All[Current].Type))
                         {
-                            DisplayMessage((Spell::All[Current].Name + " not called to mind!").c_str(), intBK);
+                            DisplayMessage((Spell::All[Current].Name + " not called to mind!"), intBK);
                         }
                         else
                         {
@@ -3631,7 +3633,9 @@ namespace Interface
 
         auto QuickThinkingRound = false;
 
-        auto UsedInvisibilityScroll = false;
+        auto UsedScrollOfInvisibility = false;
+
+        auto ScrollOfInvisibilityRound = 0;
 
         auto ActFirstRound = (Story->SurprisedEnemy || Story->SurprisedByEnemy) ? true : false;
 
@@ -4005,7 +4009,7 @@ namespace Interface
 
             QuickThinkingRound = false;
 
-            UsedInvisibilityScroll = false;
+            UsedScrollOfInvisibility = false;
 
             CurrentCombatant = 0;
 
@@ -4021,6 +4025,9 @@ namespace Interface
             if (Reader >= 0 && Reader < Party.Members.size())
             {
                 // remove scroll from adventurer who read it
+                Engine::Drop(Party.Members[Reader], Equipment::Item::ScrollOfTimeBlink);
+
+                InitialParty = Party;
             }
         };
 
@@ -4201,7 +4208,7 @@ namespace Interface
                         {
                             if (Map.Exits.size() > 0)
                             {
-                                if (Map.Tiles[CurrentY][CurrentX].IsExit())
+                                if (Map.Tiles[CurrentY][CurrentX].IsExit() || (UsedScrollOfInvisibility && CombatRound <= ScrollOfInvisibilityRound))
                                 {
                                     Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " escapes!"), intGR);
 
@@ -4212,6 +4219,10 @@ namespace Interface
                                     Character.Escaped = true;
 
                                     CycleCombatants();
+                                }
+                                else if (UsedScrollOfInvisibility)
+                                {
+                                    DisplayMessage(std::string(Character::ClassName[Character.Class]) + "'s invisibility has worn off!", intBK);
                                 }
                                 else
                                 {

@@ -8,8 +8,6 @@
 
 namespace Engine
 {
-    typedef std::pair<Book::Type, int> Destination;
-
     auto Random = Random::Base();
 
     void Randomize()
@@ -343,6 +341,18 @@ namespace Engine
 
                 break;
             }
+        }
+
+        return result;
+    }
+
+    bool HasAbility(Party::Base &party, Abilities::Type ability)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            result |= Engine::IsAlive(party.Members[i]) && Engine::HasAbility(party.Members[i], ability);
         }
 
         return result;
@@ -1017,6 +1027,16 @@ namespace Engine
         }
     }
 
+    void Drop(Character::Base &character, Equipment::Item item)
+    {
+        if (Engine::HasItem(character, item))
+        {
+            auto found = Engine::Find(character, item);
+
+            character.Equipment.erase(character.Equipment.begin() + found);
+        }
+    }
+
     int FirstPouch(Character::Base &character, int value)
     {
         auto result = -1;
@@ -1089,6 +1109,60 @@ namespace Engine
         gold = std::max(0, gold);
 
         return gold;
+    }
+
+    bool Visited(Party::Base &party, Character::Base &character, Book::Destination destination)
+    {
+        auto result = false;
+
+        if (party.Visited.count(character.Class) > 0)
+        {
+            std::vector<Book::Destination> &Visited = party.Visited[character.Class];
+
+            for (auto i = 0; i < Visited.size(); i++)
+            {
+                if (destination.first == Visited[i].first && destination.second == Visited[i].second)
+                {
+                    result = true;
+
+                    break;
+                }
+            }
+        }
+        else
+        {
+            party.Visited[character.Class] = std::vector<Book::Destination>();
+        }
+
+        return result;
+    }
+
+    void Visit(Party::Base &party, Character::Base &character, Book::Destination destination)
+    {
+        if (Engine::IsAlive(character) && !Engine::Visited(party, character, destination))
+        {
+            party.Visited[character.Class].push_back(destination);
+        }
+    }
+
+    void Visit(Party::Base &party, int character, Book::Destination destination)
+    {
+        if (character >= 0 && character < party.Members.size())
+        {
+            Engine::Visit(party, party.Members[character], destination);
+        }
+    }
+
+    bool Visited(Party::Base &party, int character, Book::Destination destination)
+    {
+        auto result = false;
+
+        if (character >= 0 && character < party.Members.size())
+        {
+            result = Engine::Visited(party, party.Members[character], destination);
+        }
+
+        return result;
     }
 }
 #endif

@@ -35,9 +35,9 @@ namespace Choice
     class Base
     {
     public:
-        Engine::Destination Destination = {Book::Type::None, 0};
+        Book::Destination Destination = {Book::Type::None, 0};
 
-        Engine::Destination DestinationFail = {Book::Type::None, 0};
+        Book::Destination DestinationFail = {Book::Type::None, 0};
 
         Character::Class Character = Character::Class::None;
 
@@ -67,7 +67,7 @@ namespace Choice
 
         int Gold = 0;
 
-        Base(const char *choice, Engine::Destination destination)
+        Base(const char *choice, Book::Destination destination)
         {
             Text = choice;
 
@@ -76,7 +76,7 @@ namespace Choice
             Type = Choice::Type::Normal;
         }
 
-        Base(const char *choice, Engine::Destination destination, Character::Class character)
+        Base(const char *choice, Book::Destination destination, Character::Class character)
         {
             Text = choice;
 
@@ -87,7 +87,7 @@ namespace Choice
             Type = Choice::Type::Character;
         }
 
-        Base(const char *choice, Engine::Destination destination, Engine::Destination destinationFail, Character::Class character, Attributes::Type attribute)
+        Base(const char *choice, Book::Destination destination, Book::Destination destinationFail, Character::Class character, Attributes::Type attribute)
         {
             Text = choice;
 
@@ -102,7 +102,7 @@ namespace Choice
             Type = Choice::Type::Attribute;
         }
 
-        Base(const char *choice, Engine::Destination destination, Engine::Destination destinationFail, Choice::Type type, Attributes::Type attribute)
+        Base(const char *choice, Book::Destination destination, Book::Destination destinationFail, Choice::Type type, Attributes::Type attribute)
         {
             Text = choice;
 
@@ -115,7 +115,7 @@ namespace Choice
             Attribute = attribute;
         }
 
-        Base(const char *choice, Engine::Destination destination, Character::Class character, Equipment::Item item)
+        Base(const char *choice, Book::Destination destination, Character::Class character, Equipment::Item item)
         {
             Text = choice;
 
@@ -128,7 +128,7 @@ namespace Choice
             Type = Choice::Type::CharacterItem;
         }
 
-        Base(const char *choice, Engine::Destination destination, Abilities::Type ability)
+        Base(const char *choice, Book::Destination destination, Abilities::Type ability)
         {
             Text = choice;
 
@@ -139,7 +139,7 @@ namespace Choice
             Type = Choice::Type::Ability;
         }
 
-        Base(const char *choice, Engine::Destination destination, Code::Word codeword)
+        Base(const char *choice, Book::Destination destination, Code::Word codeword)
         {
             Text = choice;
 
@@ -150,7 +150,7 @@ namespace Choice
             Type = Choice::Type::Codeword;
         }
 
-        Base(const char *choice, Engine::Destination destination, std::vector<Equipment::Base> equipment)
+        Base(const char *choice, Book::Destination destination, std::vector<Equipment::Base> equipment)
         {
             Text = choice;
 
@@ -161,7 +161,7 @@ namespace Choice
             Type = Choice::Type::Equipment;
         }
 
-        Base(const char *choice, Engine::Destination destination, Choice::Type type, std::vector<Equipment::Base> equipment)
+        Base(const char *choice, Book::Destination destination, Choice::Type type, std::vector<Equipment::Base> equipment)
         {
             Text = choice;
 
@@ -172,7 +172,7 @@ namespace Choice
             Type = type;
         }
 
-        Base(const char *choice, Engine::Destination destination, Choice::Type type)
+        Base(const char *choice, Book::Destination destination, Choice::Type type)
         {
             Text = choice;
 
@@ -181,7 +181,7 @@ namespace Choice
             Type = type;
         }
 
-        Base(const char *choice, Engine::Destination destination, Equipment::Item item)
+        Base(const char *choice, Book::Destination destination, Equipment::Item item)
         {
             Text = choice;
 
@@ -192,7 +192,7 @@ namespace Choice
             Type = Choice::Type::Item;
         }
 
-        Base(const char *choice, Engine::Destination destination, Choice::Type type, Equipment::Item item)
+        Base(const char *choice, Book::Destination destination, Choice::Type type, Equipment::Item item)
         {
             Text = choice;
 
@@ -203,7 +203,7 @@ namespace Choice
             Item = item;
         }
 
-        Base(const char *choice, Engine::Destination destination, Choice::Type type, Equipment::Item item, int charge)
+        Base(const char *choice, Book::Destination destination, Choice::Type type, Equipment::Item item, int charge)
         {
             Text = choice;
 
@@ -216,7 +216,7 @@ namespace Choice
             Charge = charge;
         }
 
-        Base(const char *choice, Engine::Destination destination, Equipment::Weapon weapon)
+        Base(const char *choice, Book::Destination destination, Equipment::Weapon weapon)
         {
             Text = choice;
 
@@ -227,7 +227,7 @@ namespace Choice
             Type = Choice::Type::Weapon;
         }
 
-        Base(const char *choice, Engine::Destination destination, Choice::Type type, Equipment::Weapon weapon)
+        Base(const char *choice, Book::Destination destination, Choice::Type type, Equipment::Weapon weapon)
         {
             Text = choice;
 
@@ -238,7 +238,7 @@ namespace Choice
             Weapon = weapon;
         }
 
-        Base(const char *choice, Engine::Destination destination, Choice::Type type, std::string select)
+        Base(const char *choice, Book::Destination destination, Choice::Type type, std::string select)
         {
             Text = choice;
 
@@ -249,7 +249,7 @@ namespace Choice
             SelectMessage = select;
         }
 
-        Base(const char *choice, Engine::Destination destination, Choice::Type type, Spell::Type spell)
+        Base(const char *choice, Book::Destination destination, Choice::Type type, Spell::Type spell)
         {
             Text = choice;
 
@@ -286,7 +286,7 @@ namespace Story
 
         Book::Type Book = Book::Type::None;
 
-        Engine::Destination DestinationReturn = {Book::Type::None, 0};
+        Book::Destination DestinationReturn = {Book::Type::None, 0};
 
         int Id = -1;
 
@@ -317,11 +317,11 @@ namespace Story
         Story::Controls Controls = Story::Controls::None;
 
         // Handle background events
-        virtual Engine::Destination Background(Party::Base &Party) { return {Book::Type::None, 0}; };
+        virtual Book::Destination Background(Party::Base &Party) { return {Book::Type::None, 0}; };
         // Handle events before story branches
         virtual void Event(Party::Base &Party){};
         // Jump to next book/section
-        virtual Engine::Destination Continue(Party::Base &Party) { return {Book::Type::None, 0}; };
+        virtual Book::Destination Continue(Party::Base &Party) { return {Book::Type::None, 0}; };
         // Event handlers for combat
         virtual void SetupCombat(Map::Base &Map, Party::Base &Party){};
         virtual void AfterCombat(Party::Base &Party, Combat::Result Result){};

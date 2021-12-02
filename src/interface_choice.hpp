@@ -431,14 +431,14 @@ namespace Interface
 
         if (Spell == Spell::Type::MistsOfDeath)
         {
-            auto Damage = Engine::Roll(2, 0);
-
             for (auto i = 0; i < Party.Members.size(); i++)
             {
                 Character::Base &Character = Party.Members[i];
 
                 if (Engine::IsAlive(Character))
                 {
+                    auto Damage = Engine::Roll(2, 0);
+
                     auto Result = Interface::Test(Window, Renderer, ChoiceScreen, Bg, Screen, Story, Party, i, Attributes::Type::PsychicAbility);
 
                     if (Result == Attributes::Result::FAILURE)
@@ -645,7 +645,7 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    DisplayMessage((std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!").c_str(), intBK);
+                                    DisplayMessage(std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!", intBK);
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::Attribute)
@@ -671,7 +671,7 @@ namespace Interface
                                 }
                                 else
                                 {
-                                    DisplayMessage((std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!").c_str(), intBK);
+                                    DisplayMessage(std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!", intBK);
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::AttributeSelectedCharacter)
@@ -693,6 +693,28 @@ namespace Interface
                                     Done = true;
                                 }
                             }
+                            else if (Story->Choices[Choice].Type == Choice::Type::Ability)
+                            {
+                                auto Ability = Story->Choices[Choice].Ability;
+
+                                if (Engine::HasAbility(Party, Ability))
+                                {
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                    Done = true;
+                                }
+                                else
+                                {
+                                    if (Engine::Count(Party) > 1)
+                                    {
+                                        DisplayMessage("No one has the " + std::string(Abilities::Description[Ability]) + " ability!", intBK);
+                                    }
+                                    else
+                                    {
+                                        DisplayMessage("You do not have the " + std::string(Abilities::Description[Ability]) + " ability!", intBK);
+                                    }
+                                }
+                            }
                             else if (Story->Choices[Choice].Type == Choice::Type::Discharge)
                             {
                                 auto Item = Story->Choices[Choice].Item;
@@ -709,7 +731,7 @@ namespace Interface
                                         {
                                             if (!Engine::Discharge(Party.Members[Character], Item, Story->Choices[Choice].Charge))
                                             {
-                                                DisplayMessage((std::string(Equipment::ItemDescription[Item]) + " does not have enough charges!").c_str(), intBK);
+                                                DisplayMessage(std::string(Equipment::ItemDescription[Item]) + " does not have enough charges!", intBK);
                                             }
                                             else
                                             {
@@ -720,7 +742,7 @@ namespace Interface
                                         }
                                         else
                                         {
-                                            DisplayMessage((std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                            DisplayMessage(std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
                                         }
                                     }
                                 }
@@ -728,13 +750,13 @@ namespace Interface
                                 {
                                     if (Engine::Count(Party) > 1)
                                     {
-                                        DisplayMessage(("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                        DisplayMessage("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
                                     }
                                     else
                                     {
                                         auto First = Engine::First(Party);
 
-                                        DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
                                     }
                                 }
                             }
@@ -760,7 +782,7 @@ namespace Interface
                                         }
                                         else
                                         {
-                                            DisplayMessage((std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!").c_str(), intBK);
+                                            DisplayMessage(std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!", intBK);
                                         }
                                     }
                                 }
@@ -768,13 +790,13 @@ namespace Interface
                                 {
                                     if (Engine::Count(Party) > 1)
                                     {
-                                        DisplayMessage(("No one has the " + std::string(Equipment::WeaponDescription[Weapon]) + "!").c_str(), intBK);
+                                        DisplayMessage("No one has the " + std::string(Equipment::WeaponDescription[Weapon]) + "!", intBK);
                                     }
                                     else
                                     {
                                         auto First = Engine::First(Party, Weapon);
 
-                                        DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!").c_str(), intBK);
+                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!", intBK);
                                     }
                                 }
                             }
@@ -818,19 +840,19 @@ namespace Interface
                                 }
                                 else if (Engine::HasItem(Party, Item))
                                 {
-                                    DisplayMessage((std::string(Character::ClassName[Character]) + " not present in your party!").c_str(), intBK);
+                                    DisplayMessage(std::string(Character::ClassName[Character]) + " not present in your party!", intBK);
                                 }
                                 else
                                 {
                                     if (Engine::Count(Party) > 1)
                                     {
-                                        DisplayMessage(("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                        DisplayMessage("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
                                     }
                                     else
                                     {
                                         auto First = Engine::First(Party);
 
-                                        DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
                                     }
                                 }
                             }
@@ -848,13 +870,13 @@ namespace Interface
                                 {
                                     if (Engine::Count(Party) > 1)
                                     {
-                                        DisplayMessage(("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                        DisplayMessage("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
                                     }
                                     else
                                     {
                                         auto First = Engine::First(Party, Item);
 
-                                        DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
+                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
                                     }
                                 }
                             }

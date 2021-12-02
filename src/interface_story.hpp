@@ -1091,7 +1091,7 @@ namespace Interface
         }
     }
 
-    void StoryScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Engine::Destination Destination)
+    void StoryScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Book::Destination Destination)
     {
         auto Story = Interface::FindStory(Destination);
 

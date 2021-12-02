@@ -337,7 +337,6 @@ namespace Equipment
 
 namespace Scroll
 {
-    // scrolls
     auto Invisibility = Equipment::Base(Equipment::Item::ScrollOfInvisibility);
     auto Healing = Equipment::Base(Equipment::Item::ScrollOfHealing);
     auto Adjustment = Equipment::Base(Equipment::Item::ScrollOfAdjustment);

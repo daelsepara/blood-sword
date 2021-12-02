@@ -252,7 +252,7 @@ namespace Interface
         return found;
     }
 
-    Story::Base *FindStory(Engine::Destination destination)
+    Story::Base *FindStory(Book::Destination destination)
     {
         Story::Base *Next = &Story::notImplemented;
 
