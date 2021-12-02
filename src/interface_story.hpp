@@ -1044,6 +1044,13 @@ namespace Interface
 
                                     Transition = true;
                                 }
+                                else
+                                {
+                                    if (!Engine::IsAlive(Party))
+                                    {
+                                        Controls = Story::ExitControls();        
+                                    }
+                                }
 
                                 Selected = false;
                             }

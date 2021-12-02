@@ -1505,7 +1505,7 @@ namespace Interface
             auto DamageModifier = Spell == Spell::Type::VolcanoSpray ? 1 : 2;
             auto Damage = Engine::Roll(DamageRolls, DamageModifier);
 
-            Interface::RenderMessage(Renderer, BattleScreen, Map, bg, ("All enemies suffer " + std::to_string(Damage) + " damage!").c_str(), intGR);
+            Interface::RenderMessage(Renderer, BattleScreen, Map, bg, ("All enemies dealt " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
             for (auto i = 0; i < Enemies.size(); i++)
             {
@@ -1526,7 +1526,7 @@ namespace Interface
             auto DamageModifier = (Spell == Spell::Type::WhiteFire ? 2 : (Spell == Spell::Type::Swordthrust ? 3 : 7));
             auto Damage = Engine::Roll(DamageRolls, DamageModifier);
 
-            Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
+            Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " dealt " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
             Interface::DealDamage(Map, Enemies, EnemyId, Damage, true);
 
@@ -1547,7 +1547,7 @@ namespace Interface
 
                     if (Result == Attributes::Result::FAILURE)
                     {
-                        Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[i].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
+                        Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[i].Name + " dealt " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
                         Interface::DealDamage(Map, Enemies, i, Damage, true);
 
@@ -1573,7 +1573,7 @@ namespace Interface
                 {
                     auto Damage = Engine::Roll(4, 0);
 
-                    Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
+                    Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " dealt " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
                     Interface::DealDamage(Map, Enemies, EnemyId, Damage, false);
 
@@ -1611,7 +1611,7 @@ namespace Interface
                     Damage = Engine::Roll(2, 0);
                 }
 
-                Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " suffers " + std::to_string(Damage) + " damage!").c_str(), intGR);
+                Interface::RenderMessage(Renderer, BattleScreen, Map, bg, (Enemies[EnemyId].Name + " dealtW " + std::to_string(Damage) + " damage!").c_str(), intGR);
 
                 Interface::DealDamage(Map, Enemies, EnemyId, Damage, false);
 
@@ -3970,7 +3970,7 @@ namespace Interface
             }
         };
 
-        auto TimeBlink = [&]()
+        auto TimeBlink = [&](int Reader)
         {
             Map = InitialMap;
 
@@ -4017,11 +4017,16 @@ namespace Interface
             ActFirstRound = (Story->SurprisedEnemy || Story->SurprisedByEnemy) ? true : false;
 
             StartSurpriseRound();
+
+            if (Reader >= 0 && Reader < Party.Members.size())
+            {
+                // remove scroll from adventurer who read it
+            }
         };
 
         if (Window && Renderer && Map.Width > 0 && Map.Height > 0)
         {
-            TimeBlink();
+            TimeBlink(-1);
 
             auto Done = false;
 

@@ -21,6 +21,28 @@ namespace Interface
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
+    void RenderMessage(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Button> &ChoiceScreen, int Current, Uint32 Bg, std::string Message, Uint32 FlashColor)
+    {
+        Uint32 Duration = 1500;
+
+        Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg);
+
+        auto FlashW = 3 * SCREEN_WIDTH / 5;
+
+        auto FlashH = SCREEN_HEIGHT / 5;
+
+        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2);
+
+        if (FlashColor == intBK)
+        {
+            Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2, intWH);
+        }
+
+        SDL_RenderPresent(Renderer);
+
+        SDL_Delay(Duration);
+    }
+
     int Choose(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
     {
         auto Result = -1;
@@ -399,6 +421,48 @@ namespace Interface
         }
 
         return Result;
+    }
+
+    void ProcessSpell(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, std::vector<Button> &ChoiceScreen, ScreenDimensions &Screen, int Current, Uint32 Bg, Spell::Type Spell)
+    {
+        std::string SpellString = std::string(Spell::Name[Spell]) + " was cast against " + (Engine::Count(Party) > 1 ? "the party!" : "you!");
+
+        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg, SpellString, intBK);
+
+        if (Spell == Spell::Type::MistsOfDeath)
+        {
+            auto Damage = Engine::Roll(2, 0);
+
+            for (auto i = 0; i < Party.Members.size(); i++)
+            {
+                Character::Base &Character = Party.Members[i];
+
+                if (Engine::IsAlive(Character))
+                {
+                    auto Result = Interface::Test(Window, Renderer, ChoiceScreen, Bg, Screen, Story, Party, i, Attributes::Type::PsychicAbility);
+
+                    if (Result == Attributes::Result::FAILURE)
+                    {
+                        std::string DamageString = std::string(Character::ClassName[Character.Class]) + " dealt " + std::to_string(Damage) + " damage!";
+
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg, DamageString, intBK);
+
+                        Engine::Gain(Character, -Damage);
+                    }
+                    else
+                    {
+                        std::string ResistString = std::string(Character::ClassName[Character.Class]) + " resisted the " + std::string(Spell::Name[Spell]) + "!";
+
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg, ResistString, intGR);
+                    }
+
+                    if (!Engine::IsAlive(Character))
+                    {
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg, std::string(Character::ClassName[Character.Class]) + " killed!", intBK);
+                    }
+                }
+            }
+        }
     }
 
     Story::Base *ProcessChoices(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, ScreenDimensions &Screen)
@@ -793,6 +857,21 @@ namespace Interface
                                         DisplayMessage((std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!").c_str(), intBK);
                                     }
                                 }
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::EnemyCastSpell)
+                            {
+                                Interface::ProcessSpell(Window, Renderer, Party, Story, Controls, Screen, Current, Bg, Story->Choices[Choice].Spell);
+
+                                if (Engine::IsAlive(Party))
+                                {
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
+                                }
+                                else
+                                {
+                                    Next = Story;
+                                }
+
+                                Done = true;
                             }
                             else
                             {

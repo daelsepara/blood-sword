@@ -28,7 +28,8 @@ namespace Choice
         SelectAdventurer,
         SelectDice,
         CharacterItem,
-        TakeScrolls
+        TakeScrolls,
+        EnemyCastSpell
     };
 
     class Base
@@ -43,6 +44,8 @@ namespace Choice
         Attributes::Type Attribute = Attributes::Type::None;
 
         Abilities::Type Ability = Abilities::Type::None;
+
+        Spell::Type Spell = Spell::Type::None;
 
         Code::Word Codeword = Code::Word::NONE;
 
@@ -244,6 +247,17 @@ namespace Choice
             Type = type;
 
             SelectMessage = select;
+        }
+
+        Base(const char *choice, Engine::Destination destination, Choice::Type type, Spell::Type spell)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Type = type;
+
+            Spell = spell;
         }
     };
 }

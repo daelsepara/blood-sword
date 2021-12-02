@@ -1339,6 +1339,24 @@ namespace Book1
         Engine::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
     };
 
+    class Story051 : public Story::Base
+    {
+    public:
+        Story051()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 51;
+
+            Text = "Icon steps forwards and shakes hands. \"First, let me attend to those wounds,\" he suggests. \"We shall need to be at full strength for the dangers we must yet face, and a small application of healing sorcery is what is needed here ...\"\n\nHe raises his hands and begins to chant in Harada, the language of his native land of Yamato. Seconds later, he gives a grin of feral mirth as noxious vapours trail across the ground towards you. He has cast the Mists of Death.\n\n<b>NOTE</b>\n\nEveryone in the party must take a PSYCHIC ABILITY test. Players who fail the test lose 2D endurance.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Resist the Mists of Death spell", {Book::Type::Book1, 27}, Choice::Type::EnemyCastSpell, Spell::Type::MistsOfDeath));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story058 : public Story::Base
     {
     public:
@@ -1468,6 +1486,7 @@ namespace Book1
     auto story048 = Story048();
     auto story049 = Story049();
     auto story050 = Story050();
+    auto story051 = Story051();
     auto story058 = Story058();
     auto story069 = Story069();
     auto story398 = Story398();
@@ -1482,7 +1501,7 @@ namespace Book1
             &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
             &story031, &story032, &story033, &story034, &story035, &story036, &story037, &story038, &story039, &story040,
             &story041, &story042, &story043, &story044, &story045, &story046, &story047, &story048, &story049, &story050,
-            &story058,
+            &story051, &story058,
             &story069,
             &story398,
             &story452};
