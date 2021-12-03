@@ -316,21 +316,41 @@ namespace Engine
         return (enemy.Endurance > 0);
     }
 
-    bool IsAlive(std::vector<Enemy::Base> &enemies)
+    int Count(std::vector<Enemy::Base> &enemies)
     {
-        auto result = false;
+        auto result = 0;
 
         for (auto i = 0; i < enemies.size(); i++)
         {
             if (Engine::IsAlive(enemies[i]))
             {
-                result = true;
+                result++;
+            }
+        }
+
+        return result;
+    }
+
+    int First(std::vector<Enemy::Base> &enemies)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < enemies.size(); i++)
+        {
+            if (Engine::IsAlive(enemies[i]))
+            {
+                result = i;
 
                 break;
             }
         }
 
         return result;
+    }
+
+    bool IsAlive(std::vector<Enemy::Base> &enemies)
+    {
+        return Engine::Count(enemies) > 0;
     }
 
     bool HasAbility(Character::Base &character, Abilities::Type ability)

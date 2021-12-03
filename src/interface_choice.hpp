@@ -124,6 +124,242 @@ namespace Interface
         return Result;
     }
 
+    void ItemScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, int Character, Equipment::Mode Mode)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 12 * FontSize + Screen.IconSize;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto WindowTextWidth = WindowW - 4 * text_space;
+        auto TextY = WindowY + 2 * text_space;
+        auto ButtonX = WindowX + 2 * text_space;
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+        auto ScrollSpeed = 1;
+
+        auto ItemOffset = 0;
+        auto Limit = (8 * FontSize) / (2 * FontSize + 2 * text_space);
+        auto Last = ItemOffset + Limit;
+
+        std::vector<Equipment::Base> &Equipment = Party.Members[Character].Equipment;
+
+        if (Last > Equipment.size())
+        {
+            Last = Equipment.size();
+        }
+
+        auto Fg = clrGR;
+
+        auto Bg = intWH;
+
+        auto Highlight = intBK;
+
+        auto Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Mode);
+
+        auto Done = false;
+
+        auto Selection = std::vector<int>();
+
+        while (!Done)
+        {
+            if (Equipment.size() > Party.Members[Character].Encumbrance)
+            {
+                Mode = Equipment::Mode::DROP;
+            }
+            else
+            {
+                Mode = Equipment::Mode::USE;
+            }
+
+            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, intGR);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
+
+            if (Mode == Equipment::Mode::DROP)
+            {
+                Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Party.Members[Character].Class]) + " is carrying too many items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
+            }
+            else
+            {
+                Graphics::PutText(Renderer, (std::string(Character::ClassName[Party.Members[Character].Class]) + "'s items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
+            }
+
+            // render choice boxes
+            for (auto i = 0; i < Controls.size(); i++)
+            {
+                if (Controls[i].Type == Control::Type::CHOICE)
+                {
+                    if (Engine::InList(Selection, ItemOffset + i))
+                    {
+                        Graphics::ThickRect(Renderer, Controls[i].W, Controls[i].H, Controls[i].X, Controls[i].Y, intGR, border_pts);
+                    }
+                    else
+                    {
+                        Graphics::DrawRect(Renderer, Controls[i].W + 2 * border_pts, Controls[i].H + 2 * border_pts, Controls[i].X - border_pts, Controls[i].Y - border_pts, intGR);
+                    }
+                }
+            }
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrBK, intWH);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    if (Equipment.size() > Party.Members[Character].Encumbrance)
+                    {
+                        Mode = Equipment::Mode::DROP;
+                    }
+                    else
+                    {
+                        Done = true;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::SCROLL_UP || (Controls[Current].Type == Control::Type::SCROLL_UP && Hold) || ScrollUp)
+                {
+                    if (ItemOffset > 0)
+                    {
+                        ItemOffset -= ScrollSpeed;
+
+                        if (ItemOffset < 0)
+                        {
+                            ItemOffset = 0;
+                        }
+
+                        Last = ItemOffset + Limit;
+
+                        if (Last > Equipment.size())
+                        {
+                            Last = Equipment.size();
+                        }
+
+                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Mode);
+
+                        SDL_Delay(50);
+                    }
+
+                    if (ItemOffset <= 0)
+                    {
+                        Current = -1;
+
+                        Selected = false;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::SCROLL_DOWN || (Controls[Current].Type == Control::Type::SCROLL_DOWN && Hold) || ScrollDown)
+                {
+                    if (Equipment.size() - Last > 0)
+                    {
+                        if (ItemOffset < Equipment.size() - Limit)
+                        {
+                            ItemOffset += ScrollSpeed;
+                        }
+
+                        if (ItemOffset > Equipment.size() - Limit)
+                        {
+                            ItemOffset = Equipment.size() - Limit;
+                        }
+
+                        Last = ItemOffset + Limit;
+
+                        if (Last > Equipment.size())
+                        {
+                            Last = Equipment.size();
+                        }
+
+                        Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Mode);
+
+                        SDL_Delay(50);
+
+                        if (ItemOffset > 0)
+                        {
+                            Current = Interface::FindControl(Controls, Control::Type::SCROLL_DOWN);
+                        }
+                    }
+
+                    if (Equipment.size() - Last <= 0)
+                    {
+                        Selected = false;
+
+                        Current = -1;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::CHOICE && !Hold)
+                {
+                    if (!Engine::InList(Selection, Current + ItemOffset))
+                    {
+                        Selection.push_back(Current + ItemOffset);
+                    }
+                    else
+                    {
+                        Engine::Erase(Selection, Current + ItemOffset);
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::DROP && !Hold)
+                {
+                    if (Equipment.size() > 0 && Selection.size() > 0)
+                    {
+                        std::string Message = "You are about to drop " + (Selection.size() > 1 ? std::string("several items") : "the " + Equipment[Selection[0]].String());
+
+                        std::string Options = Selection.size() > 1 ? "Drop items" : ("Drop the " + Equipment[Selection[0]].String());
+
+                        auto Result = Interface::Choose(Window, Renderer, ChoiceScreen, intGR, Party, Story, Screen, {Assets::Type::Ok}, {Options.c_str()}, Message.c_str());
+
+                        if (Result == 0)
+                        {
+                            auto New = std::vector<Equipment::Base>();
+
+                            for (auto i = 0; i < Equipment.size(); i++)
+                            {
+                                if (!Engine::InList(Selection, i))
+                                {
+                                    New.push_back(Equipment[i]);
+                                }
+                            }
+
+                            Equipment = New;
+
+                            Selection.clear();
+
+                            if (Equipment.size() == 0)
+                            {
+                                Done = true;
+                            }
+                            else
+                            {
+                                ItemOffset = 0;
+
+                                Last = ItemOffset + Limit;
+
+                                if (Last > Equipment.size())
+                                {
+                                    Last = Equipment.size();
+                                }
+
+                                Controls = Interface::EquipmentList(Window, Renderer, Equipment, WindowW, WindowH, ButtonX, TextY + FontSize, ItemOffset, Last, Limit, Fg, Bg, Highlight, Mode);
+
+                                Current = -1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, const char *SelectMessage)
     {
         auto Result = -1;
@@ -800,6 +1036,46 @@ namespace Interface
                                     }
                                 }
                             }
+                            else if (Story->Choices[Choice].Type == Choice::Type::DropItem)
+                            {
+                                auto Item = Story->Choices[Choice].Item;
+
+                                if (Engine::HasItem(Party, Item))
+                                {
+                                    auto DropMessage = "Select whose " + std::string(Equipment::ItemDescription[Item]) + " to drop";
+
+                                    auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Item);
+
+                                    if (Character >= 0 && Character < Party.Members.size())
+                                    {
+                                        if (Engine::HasItem(Party.Members[Character], Item))
+                                        {
+                                            Engine::Drop(Party.Members[Character], Item);
+
+                                            Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                            Done = true;
+                                        }
+                                        else
+                                        {
+                                            DisplayMessage(std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (Engine::Count(Party) > 1)
+                                    {
+                                        DisplayMessage("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
+                                    }
+                                    else
+                                    {
+                                        auto First = Engine::First(Party, Item);
+
+                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
+                                    }
+                                }
+                            }
                             else if (Story->Choices[Choice].Type == Choice::Type::SelectAdventurer)
                             {
                                 auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, Story->Choices[Choice].SelectMessage.c_str()) : Engine::First(Party);
@@ -892,6 +1168,121 @@ namespace Interface
                                 {
                                     Next = Story;
                                 }
+
+                                Done = true;
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::TakeEquipment)
+                            {
+                                auto Equipment = Story->Choices[Choice].Equipment;
+
+                                for (auto i = 0; i < Equipment.size(); i++)
+                                {
+                                    if (Equipment[i].Class != Equipment::Class::Gold && Equipment[i].Class != Equipment::Class::Arrow)
+                                    {
+                                        auto Character = Engine::First(Party);
+
+                                        while (Character >= 0 && Character < Party.Members.size())
+                                        {
+                                            std::string TakeMessage = "Give the " + Equipment[i].Name + " to";
+
+                                            Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
+
+                                            if (Character >= 0 && Character < Party.Members.size())
+                                            {
+                                                if ((Equipment[i].Weapon == Equipment::Weapon::Bow || Equipment[i].Class == Equipment::Class::Quiver) && Party.Members[Character].Class != Character::Class::Trickster && Party.Members[Character].Class != Character::Class::Sage)
+                                                {
+                                                    Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, (std::string(Character::ClassName[Party.Members[Character].Class]) + " cannot use the " + Equipment[i].Name), intBK);
+
+                                                    if (Engine::Count(Party) == 1)
+                                                    {
+                                                        break;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Party.Members[Character].Equipment.push_back(Equipment[i]);
+
+                                                    while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
+                                                    {
+                                                        Interface::ItemScreen(Window, Renderer, Controls, Party, Story, Screen, Character, Equipment::Mode::DROP);
+                                                    }
+
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (Equipment[i].Class == Equipment::Class::Gold)
+                                    {
+                                        auto Gold = Equipment[i].Gold;
+
+                                        while (Gold > 0)
+                                        {
+                                            std::string TakeMessage = "Give the " + std::to_string(Gold) + (Gold != 1 ? " gold pieces" : " gold piece") + " to";
+
+                                            auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
+
+                                            if (Character >= 0 && Character < Party.Members.size())
+                                            {
+                                                auto Pouch = Engine::FirstPouch(Party.Members[Character]);
+
+                                                if (Pouch >= 0 && Pouch < Party.Members[Character].Equipment.size())
+                                                {
+                                                    Gold = Engine::GainGold(Party.Members[Character], Gold);
+                                                }
+                                                else
+                                                {
+                                                    Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, "No space oeft for the gold!", intBK);
+
+                                                    if (Engine::Count(Party) == 1)
+                                                    {
+                                                        Gold = 0;
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Gold = 0;
+                                            }
+                                        }
+                                    }
+                                    else if (Equipment[i].Class == Equipment::Class::Arrow)
+                                    {
+                                        auto Arrows = Equipment[i].Arrows;
+
+                                        while (Arrows > 0)
+                                        {
+                                            std::string TakeMessage = "Give the " + std::to_string(Arrows) + (Arrows != 1 ? " arrows" : " arrow") + " to";
+
+                                            auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
+
+                                            if (Character >= 0 && Character < Party.Members.size())
+                                            {
+                                                auto Quiver = Engine::FirstQuiver(Party.Members[Character]);
+
+                                                if (Quiver >= 0 && Quiver < Party.Members[Character].Equipment.size())
+                                                {
+                                                    Arrows = Engine::GainArrows(Party.Members[Character], Arrows);
+                                                }
+                                                else
+                                                {
+                                                    Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, "No space left for the arrows!", intBK);
+
+                                                    if (Engine::Count(Party) == 1)
+                                                    {
+                                                        Arrows = 0;
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Arrows = 0;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Next = Interface::FindStory(Story->Choices[Choice].Destination);
 
                                 Done = true;
                             }

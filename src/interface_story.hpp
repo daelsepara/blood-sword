@@ -622,7 +622,7 @@ namespace Interface
                         {
                             if (Equipment[Selection[i]].Class != Equipment::Class::Gold && Equipment[Selection[i]].Class != Equipment::Class::Arrow)
                             {
-                                auto Character = 0;
+                                auto Character = Engine::First(Party);
 
                                 while (Character >= 0 && Character < Party.Members.size())
                                 {

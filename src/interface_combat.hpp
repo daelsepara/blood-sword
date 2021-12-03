@@ -4518,6 +4518,33 @@ namespace Interface
                                                     CurrentMode = Combat::Mode::NORMAL;
                                                 }
                                             }
+                                            else if (Engine::Count(Enemies) == 1)
+                                            {
+                                                // automatically select lone enemy
+                                                auto TargetId = Engine::First(Enemies);
+
+                                                auto Result = Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell);
+
+                                                if (Result != Spell::Result::NONE)
+                                                {
+                                                    if (Result == Spell::Result::SUCCESS)
+                                                    {
+                                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, Party, Enemies, PlayerId, TargetId, Character.Spells[SelectedSpell].Type, CombatRound, StartMap);
+
+                                                        Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
+
+                                                        SelectedSpell = -1;
+
+                                                        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                                    }
+
+                                                    CycleCombatants();
+                                                }
+
+                                                CurrentMode = Combat::Mode::NORMAL;
+
+                                                SelectedSpell = -1;
+                                            }
                                         }
                                         else
                                         {

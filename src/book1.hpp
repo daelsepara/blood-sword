@@ -2077,6 +2077,43 @@ namespace Book1
         }
     };
 
+    class Story081 : public Story::Base
+    {
+    public:
+        Story081()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 81;
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "You lean breathless against the wall and count the cost of this desperate battle. The body of the vampire Magus lies on the cold flagstones at your feet.";
+
+            if (!Engine::IsPresent(Party, Character::Class::Sage))
+            {
+                Text += " You leave and make your way up the stairs to the top of the Tower.";
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party)
+        {
+            if (Engine::IsPresent(Party, Character::Class::Sage))
+            {
+                return {Book::Type::Book1, 416};
+            }
+            else
+            {
+                return {Book::Type::Book1, 14};
+            }
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -2201,6 +2238,7 @@ namespace Book1
     auto story078 = Story078();
     auto story079 = Story079();
     auto story080 = Story080();
+    auto story081 = Story081();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -2216,6 +2254,7 @@ namespace Book1
             &story051, &story052, &story053, &story054, &story055, &story056, &story057, &story058, &story059, &story060,
             &story061, &story062, &story063, &story064, &story065, &story066, &story067, &story068, &story069, &story070,
             &story071, &story072, &story073, &story074, &story075, &story076, &story077, &story078, &story079, &story080,
+            &story081,
             &story398,
             &story452};
     }
