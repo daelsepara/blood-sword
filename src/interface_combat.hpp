@@ -11,6 +11,10 @@ namespace Interface
     // (player / enemy), id, distance, endurance
     typedef std::tuple<Map::Object, int, int, int> Targets;
 
+    const int SortId = 1;
+    const int SortDistance = 2;
+    const int SortEndurance = 3;
+
     // player id, location x, location y
     typedef std::tuple<int, int, int> TargetDestination;
 
@@ -519,61 +523,89 @@ namespace Interface
         }
     }
 
-    void SortTargets(std::vector<Interface::Targets> &Distances)
+    void SortTargets(std::vector<Interface::Targets> &Distances, int SortMode)
     {
-        // sort players based on distance
-        std::sort(Distances.begin(), Distances.end(), [](Interface::Targets &a, Interface::Targets &b) -> bool
-                  {
-                      if (std::get<2>(a) < std::get<2>(b))
+        if (SortMode == Interface::SortDistance)
+        {
+            // sort players based on distance, endurance
+            std::sort(Distances.begin(), Distances.end(), [](Interface::Targets &a, Interface::Targets &b) -> bool
                       {
-                          return true;
-                      }
-                      else if (std::get<2>(a) == std::get<2>(b))
-                      {
-                          // on equidistant targets, give priority to the one with less endurance
-                          if (std::get<3>(a) < std::get<3>(b))
+                          if (std::get<2>(a) < std::get<2>(b))
                           {
                               return true;
+                          }
+                          else if (std::get<2>(a) == std::get<2>(b))
+                          {
+                              // on equidistant targets, give priority to the one with less endurance
+                              if (std::get<3>(a) < std::get<3>(b))
+                              {
+                                  return true;
+                              }
+                              else
+                              {
+                                  return false;
+                              }
                           }
                           else
                           {
                               return false;
                           }
-                      }
-                      else
-                      {
-                          return false;
-                      }
-                  });
-    }
-
-    std::vector<Interface::Targets> CycleTargets(Map::Base &Map, Party::Base &Party, int EnemyX, int EnemyY, bool ignore)
-    {
-        auto Distances = std::vector<Interface::Targets>();
-
-        // cycle through the players
-        for (auto i = 0; i < Party.Members.size(); i++)
-        {
-            if (Engine::IsAlive(Party.Members[i]) && !Party.Members[i].Escaped)
-            {
-                auto LocationX = 0;
-
-                auto LocationY = 0;
-
-                Interface::Find(Map, Map::Object::Player, i, LocationX, LocationY);
-
-                auto TempPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, ignore);
-
-                if (TempPath.Points.size() > 0)
-                {
-                    auto Distance = Interface::Distance(EnemyX, EnemyY, LocationX, LocationY);
-
-                    Distances.push_back({Map::Object::Player, i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Engine::Endurance(Party.Members[i])});
-                }
-            }
+                      });
         }
-
-        return Distances;
+        else if (SortMode == Interface::SortEndurance)
+        {
+            // sort players based on endurance, distance
+            std::sort(Distances.begin(), Distances.end(), [](Interface::Targets &a, Interface::Targets &b) -> bool
+                      {
+                          if (std::get<3>(a) < std::get<3>(b))
+                          {
+                              return true;
+                          }
+                          else if (std::get<3>(a) == std::get<3>(b))
+                          {
+                              // on equal endurance, give priority to the nearest target
+                              if (std::get<2>(a) < std::get<2>(b))
+                              {
+                                  return true;
+                              }
+                              else
+                              {
+                                  return false;
+                              }
+                          }
+                          else
+                          {
+                              return false;
+                          }
+                      });
+        }
+        else
+        {
+            // sort players based on Id, distance
+            std::sort(Distances.begin(), Distances.end(), [](Interface::Targets &a, Interface::Targets &b) -> bool
+                      {
+                          if (std::get<1>(a) < std::get<1>(b))
+                          {
+                              return true;
+                          }
+                          else if (std::get<1>(a) == std::get<1>(b))
+                          {
+                              // on equal Id targets, give priority to the nearest target
+                              if (std::get<2>(a) < std::get<2>(b))
+                              {
+                                  return true;
+                              }
+                              else
+                              {
+                                  return false;
+                              }
+                          }
+                          else
+                          {
+                              return false;
+                          }
+                      });
+        }
     }
 
     std::vector<Interface::Targets> CycleAllTargets(Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int EnemyId, int EnemyX, int EnemyY, bool ignore)
@@ -602,29 +634,39 @@ namespace Interface
             }
         }
 
-        // cycle through the enemies
-        for (auto i = 0; i < Enemies.size(); i++)
+        if (EnemyId >= 0 && EnemyId < Enemies.size())
         {
-            if (Engine::IsAlive(Enemies[i]) && Enemies[i].Type != Enemies[EnemyId].Type && EnemyId != i)
+            // cycle through the enemies
+            for (auto i = 0; i < Enemies.size(); i++)
             {
-                auto LocationX = 0;
-
-                auto LocationY = 0;
-
-                Interface::Find(Map, Map::Object::Enemy, i, LocationX, LocationY);
-
-                auto TempPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, ignore);
-
-                if (TempPath.Points.size() > 0)
+                if (Engine::IsAlive(Enemies[i]) && Enemies[i].Type != Enemies[EnemyId].Type && EnemyId != i)
                 {
-                    auto Distance = Interface::Distance(EnemyX, EnemyY, LocationX, LocationY);
+                    auto LocationX = 0;
 
-                    Distances.push_back({Map::Object::Enemy, i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Enemies[i].Endurance});
+                    auto LocationY = 0;
+
+                    Interface::Find(Map, Map::Object::Enemy, i, LocationX, LocationY);
+
+                    auto TempPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, ignore);
+
+                    if (TempPath.Points.size() > 0)
+                    {
+                        auto Distance = Interface::Distance(EnemyX, EnemyY, LocationX, LocationY);
+
+                        Distances.push_back({Map::Object::Enemy, i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Enemies[i].Endurance});
+                    }
                 }
             }
         }
 
         return Distances;
+    }
+
+    std::vector<Interface::Targets> CycleTargets(Map::Base &Map, Party::Base &Party, int EnemyX, int EnemyY, bool ignore)
+    {
+        auto EmptyEnemies = std::vector<Enemy::Base>();
+
+        return Interface::CycleAllTargets(Map, Party, EmptyEnemies, -1, EnemyX, EnemyY, ignore);
     }
 
     Interface::Targets SelectTarget(Map::Base &Map, Party::Base &Party, int EnemyId, bool Ignore)
@@ -645,7 +687,7 @@ namespace Interface
         if (Distances.size() > 0)
         {
             // sort players based on distance and endurance
-            Interface::SortTargets(Distances);
+            Interface::SortTargets(Distances, Interface::SortDistance);
 
             NearestPlayer = Distances.front();
         }
@@ -656,7 +698,7 @@ namespace Interface
             if (Distances.size() > 0)
             {
                 // sort players based on distance and endurance
-                Interface::SortTargets(Distances);
+                Interface::SortTargets(Distances, Interface::SortDistance);
 
                 NearestPlayer = Distances.front();
             }
@@ -683,7 +725,7 @@ namespace Interface
         if (Distances.size() > 0)
         {
             // sort players based on distance and endurance
-            Interface::SortTargets(Distances);
+            Interface::SortTargets(Distances, Interface::SortDistance);
 
             NearestTarget = Distances.front();
         }
@@ -694,7 +736,7 @@ namespace Interface
             if (Distances.size() > 0)
             {
                 // sort players based on distance and endurance
-                Interface::SortTargets(Distances);
+                Interface::SortTargets(Distances, Interface::SortDistance);
 
                 NearestTarget = Distances.front();
             }

@@ -92,7 +92,8 @@ namespace Assets
         MagusVyl,
         IconTheUngodly,
         ManInBlue,
-        Corpse
+        Corpse,
+        Bowmen
     };
 
     typedef std::pair<Assets::Type, SDL_Surface *> Surface;
