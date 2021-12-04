@@ -65,6 +65,13 @@ namespace AStar
         {
         }
 
+        Node(int x, int y)
+        {
+            X = x;
+
+            Y = y;
+        }
+
         Node(int x, int y, int cost, std::shared_ptr<AStar::Node> &parent)
         {
             X = x;
@@ -130,10 +137,10 @@ namespace AStar
 
         if (map.Width > 0 && map.Height > 0)
         {
+            auto index = 0;
+
             for (auto i = 0; i < neighbors.size(); i++)
             {
-                auto index = 0;
-
                 // Check if within map boundaries and if passable and/or leads to destination
                 if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second, isEnemy, ignore))
                 {
@@ -199,15 +206,9 @@ namespace AStar
 
         if (map.Width > 0 && map.Height > 0)
         {
-            auto start = std::make_shared<AStar::Node>();
+            auto start = std::make_shared<AStar::Node>(srcX, srcY);
 
-            start->X = srcX;
-            start->Y = srcY;
-
-            auto end = std::make_shared<AStar::Node>();
-
-            end->X = dstX;
-            end->Y = dstY;
+            auto end = std::make_shared<AStar::Node>(dstX, dstY);
 
             start->SetDistance(end);
 

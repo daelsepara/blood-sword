@@ -344,7 +344,7 @@ namespace Interface
     {
         auto Result = false;
 
-        if (Path.Points.size() > 1)
+        if (Path.Points.size() > 0)
         {
             auto Limit = Path.Points.size();
 
@@ -680,9 +680,9 @@ namespace Interface
         // (player/enemy), id, distance, endurance
         std::vector<Interface::Targets> Distances = {};
 
-        auto EnemyX = 0;
+        auto EnemyX = -1;
 
-        auto EnemyY = 0;
+        auto EnemyY = -1;
 
         Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
@@ -715,7 +715,7 @@ namespace Interface
     {
         auto EmptyEnemies = std::vector<Enemy::Base>();
 
-        return SelectAllTargets(Map, Party, EmptyEnemies, -1, SortMode, Ignore);
+        return SelectAllTargets(Map, Party, EmptyEnemies, EnemyId, SortMode, Ignore);
     }
 
     Interface::Targets BowmanTarget(Map::Base &Map, Party::Base &Party, int EnemyId)
@@ -2490,7 +2490,7 @@ namespace Interface
                     }
                     else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                     {
-                        if (Attacked && Enemy.Type == Enemy::Type::MagusVyl && Character.Class != Character::Class::Sage && Result == Combat::Result::FIGHT)
+                        if (Attacked && Enemy.Type == Enemy::Type::MagusVyl && Character.Class != Character::Class::Sage && Engine::IsAlive(Character) && Result == Combat::Result::FIGHT)
                         {
                             auto TestResult = Interface::Test(Renderer, BattleScreen, bg, Map, Character, Enemy, Attributes::Type::PsychicAbility, false);
 
@@ -3417,7 +3417,7 @@ namespace Interface
                     {
                         auto TempPath = AStar::FindPath(Map, PlayerX, PlayerY, SelectX, SelectY, IsPlayer ? false : true);
 
-                        if (TempPath.Points.size() > 2)
+                        if (TempPath.Points.size() > 0)
                         {
                             Interface::DrawPath(Renderer, Map, TempPath, 1, intGR, 0x66);
                         }
@@ -3570,7 +3570,7 @@ namespace Interface
                         {
                             auto EnemyPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, true);
 
-                            if (EnemyPath.Points.size() > 2)
+                            if (EnemyPath.Points.size() > 0)
                             {
                                 Interface::DrawPath(Renderer, Map, EnemyPath, 1, intGR, 0x66);
                             }
@@ -3598,6 +3598,11 @@ namespace Interface
     {
         // remove non-existent players and enemies
         Map.Clean(Party, Story->Enemies);
+
+        if (Story->SoloCombat >= 0 && Story->SoloCombat < Party.Members.size())
+        {
+            Map.Solo(Story->SoloCombat);
+        }
 
         std::vector<Enemy::Base> &Enemies = Story->Enemies;
 
@@ -4428,7 +4433,7 @@ namespace Interface
                                     // get attacked by a nearby enemy that has a higher awareness
                                     auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
 
-                                    if (CurrentPath.Points.size() > 2)
+                                    if (CurrentPath.Points.size() > 0)
                                     {
                                         if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentPath, StartMap))
                                         {
@@ -5064,7 +5069,7 @@ namespace Interface
                                 {
                                     auto EnemyPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
 
-                                    if (EnemyPath.Points.size() > 2)
+                                    if (EnemyPath.Points.size() > 0)
                                     {
                                         if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyPath, StartMap))
                                         {
@@ -5331,7 +5336,7 @@ namespace Interface
                                     {
                                         auto EnemyPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
 
-                                        if (EnemyPath.Points.size() > 2)
+                                        if (EnemyPath.Points.size() > 0)
                                         {
                                             if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, EnemyPath, StartMap))
                                             {
@@ -5405,7 +5410,7 @@ namespace Interface
                         }
                         else
                         {
-                            NearestTarget = Interface::SelectTarget(Map, Party, GetId(CurrentCombatant), Interface::SortDistance, Enemies[EnemyId].CanShoot);
+                            NearestTarget = Interface::SelectTarget(Map, Party, EnemyId, Interface::SortDistance, Enemies[EnemyId].CanShoot);
                         }
                     }
                     else

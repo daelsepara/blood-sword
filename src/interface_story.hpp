@@ -912,11 +912,11 @@ namespace Interface
 
                 auto FlashH = SCREEN_HEIGHT / 5;
 
-                Graphics::PutTextBox(Renderer, DisplayMessage.c_str(), Fonts::Normal, -1, clrWH, Color, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2);
+                Graphics::PutTextBox(Renderer, DisplayMessage.c_str(), Fonts::Normal, -1, clrWH, Color, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2);
 
                 if (Color == intBK)
                 {
-                    Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2, intWH);
+                    Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH), intWH);
                 }
             };
 

@@ -2265,7 +2265,7 @@ namespace Book1
             Text = "The last of them falls to the floor. As he dies, he reaches out towards the fire-burnt skull. His fingers twitch in front of its sightless sockets and he grunts something in the guttural Mercanian tongue. Then he dies. Examining their bodies, you find four <b>battleaxes</b> and four <b>breastplates</b> (Armour Rating 1) and <b>twenty gold pieces</b>.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Take the skull", {Book::Type::Book1, 38}));
+            Choices.push_back(Choice::Base("Take the skull", {Book::Type::Book1, 38}, Choice::Type::TakeEquipment, {Equipment::ScorchedSkull}));
             Choices.push_back(Choice::Base("Leave this room and continue on your way", {Book::Type::Book1, 249}));
 
             Controls = Story::Controls::Standard;

@@ -451,6 +451,26 @@ namespace Map
             }
         }
 
+        void Solo(int PlayerId)
+        {
+            for (auto y = 0; y < this->Height; y++)
+            {
+                for (auto x = 0; x < this->Width; x++)
+                {
+                    Map::Object &Occupant = Tiles[y][x].Occupant;
+
+                    int &Id = Tiles[y][x].Id;
+
+                    if (Occupant == Map::Object::Player && (Id != PlayerId + 1))
+                    {
+                        Occupant = Map::Object::None;
+
+                        Id = 0;
+                    }
+                }
+            }
+        }
+
         void Clean(Party::Base &party, std::vector<Enemy::Base> &enemies)
         {
             for (auto y = 0; y < this->Height; y++)
