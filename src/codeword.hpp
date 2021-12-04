@@ -36,5 +36,12 @@ namespace Code
         UPHEAVAL,
         WONDERLAND
     };
+
+    // for character specific codewords
+    enum class Status
+    {
+        NONE = 0,
+        CROSSED_BRIDGE
+    };
 }
 #endif

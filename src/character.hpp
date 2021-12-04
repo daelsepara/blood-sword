@@ -6,6 +6,7 @@
 
 #include "abilities.hpp"
 #include "attributes.hpp"
+#include "codeword.hpp"
 #include "equipment.hpp"
 #include "spell.hpp"
 
@@ -53,6 +54,8 @@ namespace Character
         // Spells called to mind (only used by Enchanter character class)
         std::vector<Spell::Base> Spells = {};
 
+        std::vector<Code::Status> Codes = {};
+
         Character::Class Class = Character::Class::None;
 
         int Rank = 1;
@@ -87,6 +90,9 @@ namespace Character
 
         // paralyzed characters can no longer take part in combat
         bool Paralyzed = false;
+
+        // engaged in combat
+        bool Engaged = false;
 
         Base()
         {

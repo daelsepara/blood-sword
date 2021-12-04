@@ -2114,6 +2114,154 @@ namespace Book1
         }
     };
 
+    class Story082 : public Story::Base
+    {
+    public:
+        Book::Destination Destination = {};
+
+        Story082()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 82;
+
+            Text = "You ascend the steps to the balcony and run straight into four bowmen crouching there in ambush. They wear red livery -- the champions of Magus Horg you think. The two nearest jump up with swords in their hands, while the other two notch arrows on to their bowstrings.";
+
+            MapFile = "maps/book1/map082.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+            Enemies.push_back(Enemy::Base(Enemy::Type::Bowmen, "BOWMAN 1", 7, 6, 7, 6, 1, 0, 0, Assets::Type::Bowmen, false, true, false));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Bowmen, "BOWMAN 2", 7, 6, 7, 6, 1, 0, 0, Assets::Type::Bowmen, false, true, false));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Bowmen, "BOWMAN 3", 7, 6, 7, 6, 1, 0, 0, Assets::Type::Bowmen, false, true, false));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Bowmen, "BOWMAN 4", 7, 6, 7, 6, 1, 0, 0, Assets::Type::Bowmen, false, true, false));
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            if (Result == Combat::Result::ESCAPED)
+            {
+                Destination = {Book::Type::Book1, 48};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 281};
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
+    };
+
+    class Story083 : public Story::Base
+    {
+    public:
+        Story083()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 83;
+
+            Text = "(TRICKSTER) You are too long in the tooth to be caught out here. Obviously the 'statues' are previous adventurers. But they must have thought there was something of interest in the alcoves to take the risk... Peering into an alcove, you notice a secret door at the back. Possibly you could open it and step through without touching the floor of the dais -- perhaps evading the petrifying spell. Then again, you may be wrong. And who wants to spend eternity as a lump of stone...?";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("You are prepared to run the risk", {Book::Type::Book1, 533}));
+            Choices.push_back(Choice::Base("Return and take the other corridor", {Book::Type::Book1, 354}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story084 : public Story::Base
+    {
+    public:
+        Story084()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 84;
+
+            Text = "\"So you did.\" He grins, but does not seem grateful. \"Death would doubtless appreciate a sacrifice in return for the loss of my great soul, so prepare to die in my place. This is the gratitude of Skrymir!\"";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 342}; }
+    };
+
+    class Story085 : public Story::Base
+    {
+    public:
+        Story085()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 85;
+
+            Text = "Kief looks at you with a wry smile. \"<i>Very</i> few people have ever beaten me at the game,\" he says. \"No reward I can offer truly expresses my admiration. Nonetheless, I have a couple of items that might interest you.\"\n\nHe places two objects on the table. One is an octagonal prism of coloured glass. The other is a sparkling blue ice jewel. \"Take both,\" says Kief. \"I feel magnanimous. And now, prepare to enter the nether caverns...\"\n\nFlickering beams of light shoot from his fingertips, swiftly weaving a web of energy around you. You flinch momentarily before realising that the beams are not hurting you. What, then, are they for? You have your answer when you look down: you are sinking into the floor!";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; }
+    };
+
+    class Story086 : public Story::Base
+    {
+    public:
+        Story086()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 86;
+
+            Image = "images/book1/filler1.png";
+
+            TopImage = false;
+
+            Text = "(ENCHANTER) You call the spell to mind and then cast it. There is no need to roll for this because you are not in a combat situation and do not need to hurry the enchantment. You are able to see any spells fluorescing with a bright aura under this spell\n\n<i>You see no sign of magic from the sarcophagi, though this does not necessarily mean they don't contain something magical. The dais of grey stone, however, flickers with powerful sorcery. As to whether that sorcery is benign or hostile -- you cannot tell.</i>";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 246}; }
+    };
+
+    class Story087 : public Story::Base
+    {
+    public:
+        Story087()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 87;
+
+            Text = "The last of them falls to the floor. As he dies, he reaches out towards the fire-burnt skull. His fingers twitch in front of its sightless sockets and he grunts something in the guttural Mercanian tongue. Then he dies. Examining their bodies, you find four <b>battleaxes</b> and four <b>breastplates</b> (Armour Rating 1) and <b>twenty gold pieces</b>.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Take the skull", {Book::Type::Book1, 38}));
+            Choices.push_back(Choice::Base("Leave this room and continue on your way", {Book::Type::Book1, 249}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment = {Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Gold(20), Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate};
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -2239,6 +2387,12 @@ namespace Book1
     auto story079 = Story079();
     auto story080 = Story080();
     auto story081 = Story081();
+    auto story082 = Story082();
+    auto story083 = Story083();
+    auto story084 = Story084();
+    auto story085 = Story085();
+    auto story086 = Story086();
+    auto story087 = Story087();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -2254,6 +2408,7 @@ namespace Book1
             &story051, &story052, &story053, &story054, &story055, &story056, &story057, &story058, &story059, &story060,
             &story061, &story062, &story063, &story064, &story065, &story066, &story067, &story068, &story069, &story070,
             &story071, &story072, &story073, &story074, &story075, &story076, &story077, &story078, &story079, &story080,
+            &story081, &story082, &story083, &story084, &story085, &story086, &story087, 
             &story081,
             &story398,
             &story452};

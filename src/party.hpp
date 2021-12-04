@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "book.hpp"
-#include "codeword.hpp"
 #include "enemy.hpp"
 
 namespace Party

@@ -211,6 +211,21 @@ namespace Engine
         return result;
     }
 
+    int Remaining(Party::Base &party)
+    {
+        auto result = 0;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]) && !party.Members[i].Escaped)
+            {
+                result++;
+            }
+        }
+
+        return result;
+    }
+
     int First(Party::Base &party)
     {
         auto result = -1;
@@ -661,6 +676,15 @@ namespace Engine
         }
     }
 
+    void ClearEngaged(Party::Base &party)
+    {
+        // clear escaped status
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            party.Members[i].Escaped = false;
+        }
+    }
+
     void NormalThinking(Party::Base &party)
     {
         // clear defensive stance
@@ -902,6 +926,23 @@ namespace Engine
         auto result = Engine::Find(party, member);
 
         return result >= 0 && result < party.Members.size();
+    }
+
+    bool IsPresent(std::vector<Enemy::Base> enemies, Enemy::Type enemy)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < enemies.size(); i++)
+        {
+            if (Engine::IsAlive(enemies[i]) && enemies[i].Type == enemy)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return true;
     }
 
     template <typename T>
