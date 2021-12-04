@@ -122,7 +122,6 @@ namespace Book1
 
             Text = "You unleash the power of the sceptre at the wall. This sends chips of stone flying in all directions, but it is not enough to blast a passage through.";
 
-            // TODO: verify which sword to discard
             Choices.clear();
             Choices.push_back(Choice::Base("Discard the sword", {Book::Type::Book1, 503}));
             Choices.push_back(Choice::Base("Discharge another 2 charges from the <b>steel sceptre</b>", {Book::Type::Book1, 503}, Choice::Type::Discharge, Equipment::Item::SteelSceptre, 2));
@@ -2408,7 +2407,7 @@ namespace Book1
             &story051, &story052, &story053, &story054, &story055, &story056, &story057, &story058, &story059, &story060,
             &story061, &story062, &story063, &story064, &story065, &story066, &story067, &story068, &story069, &story070,
             &story071, &story072, &story073, &story074, &story075, &story076, &story077, &story078, &story079, &story080,
-            &story081, &story082, &story083, &story084, &story085, &story086, &story087, 
+            &story081, &story082, &story083, &story084, &story085, &story086, &story087,
             &story081,
             &story398,
             &story452};

@@ -18,7 +18,8 @@ namespace Character
         Warrior,
         Trickster,
         Sage,
-        Enchanter
+        Enchanter,
+        Imragarn
     };
 
     std::map<Character::Class, const char *> ClassName = {
@@ -26,21 +27,24 @@ namespace Character
         {Character::Class::Warrior, "WARRIOR"},
         {Character::Class::Trickster, "TRICKSTER"},
         {Character::Class::Sage, "SAGE"},
-        {Character::Class::Enchanter, "ENCHANTER"}};
+        {Character::Class::Enchanter, "ENCHANTER"},
+        {Character::Class::Imragarn, "IMRAGARN"}};
 
     std::map<Character::Class, const char *> Description = {
         {Character::Class::None, "Records Expunged"},
         {Character::Class::Warrior, "You are the master of the fighting arts. You have better Fighting Prowess than any other adventuring type at the same rank, and when you strike a blow you inflict more damage. These advantages give you a real edge in any fight, but you do not get things all your own way. Also, because you are of noble birth and follow the honourable traditions of your ancestors, you must be careful to stay true to the code of chivalry."},
         {Character::Class::Trickster, "Some Adventurers are honest, chivalrous and honourable. Not you. You are basically a rogue -- a likeable rogue, perhaps, but a rogue nonetheless. You live by your wits. If you can win a fight by trickery or by shooting someone in the back, you will. Cunning is your main weapon. But when you have to face someone in a straight fight, you are no pushover."},
         {Character::Class::Sage, "Your upbringing has been in the spartan Monastery of Illumination on the barren island of Kaxos. There you studied the Mystic Way -- a series of demanding psionic disciplines and rigorous physical training."},
-        {Character::Class::Enchanter, "Forget the mundane arts of swordplay. You can use a sword if you have to, but your true forte is in the manipulation of occult powers of Sorcery."}};
+        {Character::Class::Enchanter, "Forget the mundane arts of swordplay. You can use a sword if you have to, but your true forte is in the manipulation of occult powers of Sorcery."},
+        {Character::Class::Imragarn, "He's been frozen in ice for almost a decade, since he entered the Battlepits with several companions as the champions of Magus Laglor."}};
 
     std::map<Character::Class, std::vector<Abilities::Type>> Abilities = {
         {Character::Class::None, {}},
         {Character::Class::Warrior, {Abilities::Type::Ambidextrousness, Abilities::Type::UnarmedMartialArts}},
         {Character::Class::Trickster, {Abilities::Type::Archery, Abilities::Type::Dodging, Abilities::Type::QuickThinking}},
         {Character::Class::Sage, {Abilities::Type::Archery, Abilities::Type::Quarterstaff, Abilities::Type::Healing, Abilities::Type::Exorcism, Abilities::Type::ESP, Abilities::Type::ParanormalSight, Abilities::Type::Levitation}},
-        {Character::Class::Enchanter, {Abilities::Type::CallToMind, Abilities::Type::CastSpell}}};
+        {Character::Class::Enchanter, {Abilities::Type::CallToMind, Abilities::Type::CastSpell}},
+        {Character::Class::Imragarn, {}}};
 
     class Base
     {
@@ -794,6 +798,14 @@ namespace Character
             character.Equipment.push_back(Equipment::Base(Equipment::Class::MoneyPouch, "money-pouch", "money-pouch", character.Rank * 5, 100));
             character.Abilities = Character::Abilities[Character::Class::Enchanter];
             character.Asset = Assets::Type::Enchanter;
+        }
+        else if (character.Class == Character::Class::Imragarn)
+        {
+            Character::Warrior(character);
+
+            character.Equipment = {Equipment::Sword, Equipment::LeatherArmour};
+            character.Abilities = Character::Abilities[Character::Class::Warrior];
+            character.Asset = Assets::Type::Adventurer;
         }
     }
 

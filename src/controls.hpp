@@ -68,7 +68,8 @@ namespace Control
         USE,
         DROP,
         TRANSFER,
-        TAKE
+        TAKE,
+        IMRAGARN
     };
 
     class Base

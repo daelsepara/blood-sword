@@ -1,6 +1,10 @@
 {
     "assets": [
         {
+            "id": 0,
+            "path": "images/players/adventurer.png"
+        },
+        {
             "id": 1,
             "path": "images/players/warrior.png"
         },

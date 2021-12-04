@@ -556,6 +556,11 @@ namespace Interface
         if (Attribute == Attributes::Type::FightingProwess)
         {
             AttributeValue = (Engine::FightingProwess(Party.Members[Character]) + (Equipment.size() > 0 ? Equipment[0].Score : 0) + (Weapons.size() > 0 ? Weapons[0].Score : 0));
+
+            if (Weapons.empty() && !Engine::HasAbility(Party.Members[Character], Abilities::Type::UnarmedMartialArts))
+            {
+                AttributeValue -= 2;
+            }
         }
         else if (Attribute == Attributes::Type::PsychicAbility)
         {
@@ -565,6 +570,8 @@ namespace Interface
         {
             AttributeValue = (Engine::Awareness(Party.Members[Character]) + (Equipment.size() > 0 ? Equipment[0].Score : 0));
         }
+
+        AttributeValue = std::min(0, AttributeValue);
 
         while (!Done)
         {

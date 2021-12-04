@@ -328,6 +328,10 @@ namespace Graphics
         {
             caption = "ENCHANTER";
         }
+        else if (control.Type == Control::Type::IMRAGARN)
+        {
+            caption = "IMRAGARN";
+        }
         else if (control.Type == Control::Type::ITEMS)
         {
             caption = "Items";

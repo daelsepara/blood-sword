@@ -347,6 +347,7 @@ namespace Equipment
     auto StuddedLeather = Equipment::Base(Equipment::Class::Armour, "studded leather", "studded leather", 2);
     auto BreastPlate = Equipment::Base(Equipment::Class::Armour, "breastplate", "breastplate", 1);
     auto LeatherJerkin = Equipment::Base(Equipment::Class::Armour, "leather jerkin", "leather jerkin", 1);
+    auto LeatherArmour = Equipment::Base(Equipment::Class::Armour, "leather armour", "leather armour", 1);
 
     // book 1 items
     auto RubyRing = Equipment::Base(Equipment::Item::RubyRing);

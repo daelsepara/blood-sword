@@ -10,7 +10,8 @@ namespace Assets
 {
     enum class Type
     {
-        None = 0,
+        None = -1,
+        Adventurer = 0,
         Warrior,
         Trickster,
         Sage,

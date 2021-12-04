@@ -45,6 +45,8 @@ namespace Engine
             if (character.Attributes[i].Type == type)
             {
                 found = i;
+
+                break;
             }
         }
 
@@ -221,6 +223,42 @@ namespace Engine
             {
                 result++;
             }
+        }
+
+        return result;
+    }
+
+    int Find(Character::Base &character, Code::Status code)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < character.Codes.size(); i++)
+        {
+            if (character.Codes[i] == code)
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasCode(Character::Base &character, Code::Status code)
+    {
+        auto result = Engine::Find(character, code);
+
+        return result >= 0 && result < character.Codes.size();
+    }
+
+    int Count(Party::Base &party, Code::Status code)
+    {
+        auto result = 0;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            result += Engine::IsAlive(party.Members[i]) && Engine::HasCode(party.Members[i], code) ? 1 : 0;
         }
 
         return result;

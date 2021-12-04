@@ -10,7 +10,8 @@ namespace Interface
         {Character::Class::Warrior, Control::Type::WARRIOR},
         {Character::Class::Trickster, Control::Type::TRICKSTER},
         {Character::Class::Sage, Control::Type::SAGE},
-        {Character::Class::Enchanter, Control::Type::ENCHANTER}};
+        {Character::Class::Enchanter, Control::Type::ENCHANTER},
+        {Character::Class::Imragarn, Control::Type::IMRAGARN}};
 
     struct ScreenDimensions
     {
@@ -51,6 +52,13 @@ namespace Interface
             auto Armour = Engine::Armour(Party.Members[i]);
             auto Damage = Party.Members[i].Damage;
             auto DamageModifier = Party.Members[i].DamageModifier + (Weapons.size() > 0 ? Weapons[0].Damage : 0);
+
+            if (Weapons.empty() == 0 && !Engine::HasAbility(Party.Members[i], Abilities::Type::UnarmedMartialArts))
+            {
+                FightingProwess = std::max(0, FightingProwess - 2);
+
+                DamageModifier -= 2;
+            }
 
             Graphics::RenderImage(Renderer, Assets::Get(Party.Members[i].Asset), Screen.InfoBoxX + text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize) + FontSize);
             Graphics::PutText(Renderer, Character::ClassName[Party.Members[i].Class], Fonts::Normal, 0, clrGR, intBK, TTF_STYLE_NORMAL, Screen.InfoBoxX + text_space, Screen.InfoBoxY + i * (Screen.IconSize + FontSize));
@@ -149,6 +157,13 @@ namespace Interface
         auto Armour = Engine::Armour(Character);
         auto Damage = Character.Damage;
         auto DamageModifier = Character.DamageModifier + (Weapons.size() > 0 ? Weapons[0].Damage : 0);
+
+        if (Weapons.empty() && !Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts))
+        {
+            FightingProwess = std::max(0, FightingProwess - 2);
+
+            DamageModifier -= 2;
+        }
 
         if (Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
         {
