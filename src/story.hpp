@@ -57,16 +57,23 @@ namespace Story
 
         std::vector<Enemy::Base> Enemies = {};
 
+        int SoloCombat = -1;
+
         Story::Controls Controls = Story::Controls::None;
 
-        // Handle background events
+        // background events
         virtual Book::Destination Background(Party::Base &Party) { return {Book::Type::None, 0}; };
-        // Handle events before story branches
+        
+        // events before story branches
         virtual void Event(Party::Base &Party){};
-        // Jump to next book/section
+        
+        // jump to next book/section
         virtual Book::Destination Continue(Party::Base &Party) { return {Book::Type::None, 0}; };
-        // Event handlers for combat
+        
+        // event handlers before combat
         virtual void SetupCombat(Map::Base &Map, Party::Base &Party){};
+        
+        // event handlers after combat
         virtual void AfterCombat(Party::Base &Party, Combat::Result Result){};
 
         Base()

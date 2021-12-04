@@ -995,6 +995,7 @@ namespace Interface
     void KnockedOffSequence(std::vector<Combatants> &Sequence, std::vector<Enemy::Base> &Enemies)
     {
         auto NewSequence = std::vector<Combatants>();
+
         auto KnockedOff = std::vector<Combatants>();
 
         for (auto i = 0; i < Sequence.size(); i++)
@@ -3704,11 +3705,16 @@ namespace Interface
         {
             Sequence.clear();
 
+            auto SoloCombat = Story->SoloCombat >= 0 && Story->SoloCombat < Party.Members.size();
+
             for (auto i = 0; i < Party.Members.size(); i++)
             {
-                auto Awareness = Engine::Awareness(Party.Members[i]);
+                if ((SoloCombat && i == Story->SoloCombat) || !SoloCombat)
+                {
+                    auto Awareness = Engine::Awareness(Party.Members[i]);
 
-                Sequence.push_back({Map::Object::Player, i, Awareness});
+                    Sequence.push_back({Map::Object::Player, i, Awareness});
+                }
             }
 
             for (auto i = 0; i < Enemies.size(); i++)

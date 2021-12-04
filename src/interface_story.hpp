@@ -816,7 +816,7 @@ namespace Interface
                 {
                     Done = true;
                 }
-                if (Controls[Current].Type == Control::Type::ITEMS && !Hold)
+                else if (Controls[Current].Type == Control::Type::ITEMS && !Hold)
                 {
                     if (!Equipment.empty())
                     {
@@ -824,6 +824,56 @@ namespace Interface
                     }
 
                     Current = -1;
+                }
+            }
+        }
+    }
+
+    void Bye(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, std::string Bye)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowH = 8 * FontSize + Screen.IconSize;
+        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto WindowTextWidth = WindowW - 4 * text_space;
+        auto TextY = WindowY + 2 * text_space;
+        auto ButtonX = WindowX + 2 * text_space;
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + FontSize + border_pts);
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Done = false;
+        auto Current = 0;
+
+        std::vector<Button> Controls = {Button(0, Assets::Get(Assets::Type::Right), 0, 0, 0, 0, ButtonX, OffsetY, intWH, Control::Type::CONTINUE)};
+
+        while (!Done)
+        {
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::PutText(Renderer, Bye.c_str(), Fonts::Normal, 0, clrWH, intGR, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, 4);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intGR);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::CONTINUE && !Hold)
+                {
+                    Done = true;
                 }
             }
         }
@@ -1146,6 +1196,11 @@ namespace Interface
 
                                 if (Next->Id != Story->Id || Story->Book != Next->Book)
                                 {
+                                    if (!Story->Bye.empty())
+                                    {
+                                        Interface::Bye(Window, Renderer, Controls, Party, Story, Screen, Text, Offset, Story->Bye);
+                                    }
+
                                     Story = Next;
 
                                     Transition = true;

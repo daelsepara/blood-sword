@@ -252,6 +252,24 @@ namespace Engine
         return result >= 0 && result < character.Codes.size();
     }
 
+    void GetCode(Character::Base &character, Code::Status code)
+    {
+        if (!Engine::HasCode(character, code))
+        {
+            character.Codes.push_back(code);
+        }
+    }
+
+    void RemoveCode(Character::Base &character, Code::Status code)
+    {
+        if (Engine::HasCode(character, code))
+        {
+            auto found = Engine::Find(character, code);
+
+            character.Codes.erase(character.Codes.begin() + found);
+        }
+    }
+
     int Count(Party::Base &party, Code::Status code)
     {
         auto result = 0;

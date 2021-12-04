@@ -40,6 +40,8 @@ namespace Equipment
     {
         Any = 0,
         RubyRing,
+        OctagonalPrism,
+        BlueIceJewel,
         SteelSceptre,
         VialOfBlackLiquid,
         ScorchedSkull,
@@ -51,12 +53,15 @@ namespace Equipment
         BronzeMallet,
         MagnificentSword,
         GildedBridle,
-        ChimeraSpittle
+        ChimeraSpittle,
+        VellumScroll
     };
 
     std::map<Equipment::Item, const char *> ItemDescription = {
         {Equipment::Item::Any, "any item"},
         {Equipment::Item::RubyRing, "ruby ring"},
+        {Equipment::Item::OctagonalPrism, "octagonal prism"},
+        {Equipment::Item::BlueIceJewel, "blue ice jewel"},
         {Equipment::Item::SteelSceptre, "steel sceptre"},
         {Equipment::Item::VialOfBlackLiquid, "vial of black liquid"},
         {Equipment::Item::ScrollOfInvisibility, "vial of black liquid"},
@@ -68,7 +73,8 @@ namespace Equipment
         {Equipment::Item::BronzeMallet, "bronze mallet"},
         {Equipment::Item::MagnificentSword, "magnificent sword"},
         {Equipment::Item::GildedBridle, "gilded bridle"},
-        {Equipment::Item::ChimeraSpittle, "chimera spittle"}};
+        {Equipment::Item::ChimeraSpittle, "chimera spittle"},
+        {Equipment::Item::VellumScroll, "vellum scroll"}};
 
     enum class Mode
     {
@@ -351,6 +357,8 @@ namespace Equipment
 
     // book 1 items
     auto RubyRing = Equipment::Base(Equipment::Item::RubyRing);
+    auto OctagonalPrism = Equipment::Base(Equipment::Item::OctagonalPrism);
+    auto BlueIceJewel = Equipment::Base(Equipment::Item::BlueIceJewel);
     auto SteelSceptre = Equipment::Base(Equipment::Item::SteelSceptre, 4, 4);
     auto VialOfBlackLiquid = Equipment::Base(Equipment::Item::VialOfBlackLiquid);
     auto ScorchedSkull = Equipment::Base(Equipment::Item::ScorchedSkull);
@@ -358,7 +366,6 @@ namespace Equipment
     auto MagnificentSword = Equipment::Base(Equipment::Item::MagnificentSword);
     auto GildedBridle = Equipment::Base(Equipment::Item::GildedBridle);
     auto ChimeraSpittle = Equipment::Base(Equipment::Item::ChimeraSpittle);
-
 }
 
 namespace Scroll

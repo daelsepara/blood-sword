@@ -869,13 +869,20 @@ namespace Book1
 
             Id = 31;
 
-            Text = "The door opens and you enter a small cavern. A man lies dead on the stone floor nearby. Another of Kalugen's guards, by the look of it, probably sent on some mad suicide mission through the underworld by his evil master. Your evil master, too, come to that...\n\nHe has something clutched in his hand. It is an octagonal prism of coloured glass. You may take this if you wish. There are no other exits from the cavern. Nearby there is a marble dais.";
+            Text = "The door opens and you enter a small cavern. A man lies dead on the stone floor nearby. Another of Kalugen's guards, by the look of it, probably sent on some mad suicide mission through the underworld by his evil master. Your evil master, too, come to that...\n\nHe has something clutched in his hand. It is an <b>octagonal prism</b> of coloured glass. There are no other exits from the cavern. Nearby there is a marble dais.";
 
             Choices.clear();
             Choices.push_back(Choice::Base("Step on to the dais", {Book::Type::Book1, 386}));
             Choices.push_back(Choice::Base("Return and take the tunnel beyond the grille", {Book::Type::Book1, 279}));
 
             Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment = {Equipment::OctagonalPrism};
+
+            Limit = 1;
         }
     };
 
@@ -2204,11 +2211,20 @@ namespace Book1
 
             Id = 85;
 
-            Text = "Kief looks at you with a wry smile. \"<i>Very</i> few people have ever beaten me at the game,\" he says. \"No reward I can offer truly expresses my admiration. Nonetheless, I have a couple of items that might interest you.\"\n\nHe places two objects on the table. One is an octagonal prism of coloured glass. The other is a sparkling blue ice jewel. \"Take both,\" says Kief. \"I feel magnanimous. And now, prepare to enter the nether caverns...\"\n\nFlickering beams of light shoot from his fingertips, swiftly weaving a web of energy around you. You flinch momentarily before realising that the beams are not hurting you. What, then, are they for? You have your answer when you look down: you are sinking into the floor!";
+            Text = "Kief looks at you with a wry smile. \"<i>Very</i> few people have ever beaten me at the game,\" he says. \"No reward I can offer truly expresses my admiration. Nonetheless, I have a couple of items that might interest you.\"\n\nHe places two objects on the table. One is an <b>octagonal prism</b> of coloured glass. The other is a sparkling <b>blue ice jewel</b>. \"Take both,\" says Kief. \"I feel magnanimous. And now, prepare to enter the nether caverns...\"";
+
+            Bye = "Flickering beams of light shoot from his fingertips, swiftly weaving a web of energy around you. You flinch momentarily before realising that the beams are not hurting you. What, then, are they for? You have your answer when you look down: you are sinking into the floor!";
 
             Choices.clear();
 
             Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment = {Equipment::OctagonalPrism, Equipment::BlueIceJewel};
+
+            Limit = 2;
         }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; }
@@ -2258,6 +2274,105 @@ namespace Book1
         void Event(Party::Base &Party)
         {
             Equipment = {Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Gold(20), Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate};
+        }
+    };
+
+    class Story088 : public Story::Base
+    {
+    public:
+        Book::Destination Destination = {};
+
+        Story088()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 88;
+
+            Text = "You reach the other side of the bridge and step on to the terrace. The Hags glare at you but keep their distance.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            if (Engine::IsPresent(Party, Character::Class::Imragarn))
+            {
+                if (Engine::Count(Party, Code::Status::CROSSED_BRIDGE) >= (Engine::Count(Party) - 1))
+                {
+                    Destination = {Book::Type::Book1, 519};
+                }
+                else
+                {
+                    Destination = {Book::Type::Book1, 142};
+                }
+            }
+            else
+            {
+                if (Engine::Count(Party, Code::Status::CROSSED_BRIDGE) >= Engine::Count(Party))
+                {
+                    Destination = {Book::Type::Book1, 98};
+                }
+                else
+                {
+                    Destination = {Book::Type::Book1, 142};
+                }
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
+    };
+
+    class Story089 : public Story::Base
+    {
+    public:
+        Story089()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 89;
+
+            Text = "Which item will you use?";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Use an <b>ice jewel<b>", {Book::Type::Book1, 99}, Equipment::Item::BlueIceJewel));
+            Choices.push_back(Choice::Base("... a <b>vellum scroll<b>", {Book::Type::Book1, 312}, Equipment::Item::VellumScroll));
+            Choices.push_back(Choice::Base("... or a <b>ruby ring<b>", {Book::Type::Book1, 391}, Equipment::Item::RubyRing));
+            Choices.push_back(Choice::Base("You do not have any of these, or choose not to use them", {Book::Type::Book1, 112}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story090 : public Story::Base
+    {
+    public:
+        Story090()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 90;
+
+            Text = "He chose a 2.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party)
+        {
+            std::vector<int> Destinations = {95, 100, 105, 286, 286, 286};
+
+            if (Party.LastValue >= 0 && Party.LastValue < 6)
+            {
+                return {Book::Type::Book1, Destinations[Party.LastValue]};
+            }
+            else
+            {
+                return {Book::Type::Book1, Destinations[Engine::Roll(1, 0) - 1]};
+            }
         }
     };
 
@@ -2392,6 +2507,9 @@ namespace Book1
     auto story085 = Story085();
     auto story086 = Story086();
     auto story087 = Story087();
+    auto story088 = Story088();
+    auto story089 = Story089();
+    auto story090 = Story090();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -2407,7 +2525,7 @@ namespace Book1
             &story051, &story052, &story053, &story054, &story055, &story056, &story057, &story058, &story059, &story060,
             &story061, &story062, &story063, &story064, &story065, &story066, &story067, &story068, &story069, &story070,
             &story071, &story072, &story073, &story074, &story075, &story076, &story077, &story078, &story079, &story080,
-            &story081, &story082, &story083, &story084, &story085, &story086, &story087,
+            &story081, &story082, &story083, &story084, &story085, &story086, &story087, &story088, &story089, &story090,
             &story081,
             &story398,
             &story452};
