@@ -204,7 +204,11 @@ namespace AStar
     {
         auto path = AStar::Path();
 
-        if (map.Width > 0 && map.Height > 0)
+        auto ValidX = srcX >= 0 && srcX < map.Width && dstX >= 0 && dstX < map.Width;
+        
+        auto ValidY = srcY >= 0 && srcY < map.Height && dstY >= 0 && dstY < map.Height;
+
+        if (map.Width > 0 && map.Height > 0 && ValidX && ValidY)
         {
             auto start = std::make_shared<AStar::Node>(srcX, srcY);
 
