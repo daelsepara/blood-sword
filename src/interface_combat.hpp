@@ -1128,7 +1128,7 @@ namespace Interface
             AttributeValue = IsEnemy ? Enemy.Awareness : (Engine::Awareness(Character) + (Equipment.size() > 0 ? Equipment[0].Score : 0));
         }
 
-        AttributeValue = std::min(0, AttributeValue);
+        AttributeValue = std::max(0, AttributeValue);
 
         while (!Done)
         {
