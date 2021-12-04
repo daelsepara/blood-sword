@@ -1049,7 +1049,7 @@ namespace Book1
 
             Choices.clear();
             Choices.push_back(Choice::Base("Take some of the scrolls", {Book::Type::Book1, -38}, Choice::Type::TakeScrolls, {Scroll::Invisibility, Scroll::Healing, Scroll::Adjustment, Scroll::TimeBlink, Scroll::Precognition}));
-            Choices.push_back(Choice::Base("Use the <b>scorched skull</b> to leave", {Book::Type::Book1, 97}, Equipment::Item::ScorchedSkull));
+            Choices.push_back(Choice::Base("Use the <b>scorched skull</b> to leave", {Book::Type::Book1, 97}, Choice::Type::DropItem, Equipment::Item::ScorchedSkull));
 
             Controls = Story::Controls::Standard;
         }
@@ -2376,6 +2376,214 @@ namespace Book1
         }
     };
 
+    class Story091 : public Story::Base
+    {
+    public:
+        Story091()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 91;
+
+            Image = "images/book1/filler2.png";
+
+            TopImage = false;
+
+            Text = "You throw yourself back down the corridor and snatch up the sword. In the same instant that you pick up the sword, a wall of solid stone appears behind you, blocking the corridor. The sword was a magical trap and you are now penned in at the end of a cul-de-sac. The Barbarians are now almost on top of you.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Drop the sword", {Book::Type::Book1, 264}));
+            Choices.push_back(Choice::Base("Keep the sword and fight it out", {Book::Type::Book1, 314}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story092 : public Story::Base
+    {
+    public:
+        Story092()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 92;
+
+            Image = "images/book1/shabby-adventurers.png";
+
+            TopImage = false;
+
+            Text = "You wend your way along a narrow ridge rising like a sharp backbone out of the cavern floor. A murky sea of mist sits in the hollows below, illuminated now and then by the red lightning gouts of fire. The path brings you to a high-walled crater with a tall stone pylon built in the centre. The pylon has an entrance that is clearly visible, and there may be many treasure-laden chambers within. But you have to put aside such thoughts, because the pylon is entirely cut off by a moat of boiling lava and there is no way you could hope to reach it.\n\nThe path divides and snakes along the crater rim. You skirt the bubbling lava pit, slowly making your way towards an incline that leads off to the far end of the cavern.\n\nSuddenly two shabby Adventurers appear from behind a boulder near the lip of the crater. They look eerie in the glowering light thrown up from the lava below, clutching their swords like fiends out of the Pit. One of them grins crookedly, displaying rotten teeth. \"Your money,\" he says, \"<i>and</i> your life.\"";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 198}; }
+    };
+
+    class Story093 : public Story::Base
+    {
+    public:
+        Story093()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 93;
+
+            Text = "Larisha stands up, trailing her silk toga like a shadow. \"Return now to the magi's labyrinth,\" she says, lifting her hands to display dozens of jewelled rings. \"If I possessed a soul, perhaps I would wish you well...\"\n\nColours and sounds jangle and swirl about you. For a moment you are jerked off your feet, then you settle down on to a carpeted floor. The confusion of lights fades to reveal that you are now in a corridor lined with mirrors.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 326}; }
+    };
+
+    class Story094 : public Story::Base
+    {
+    public:
+        Story094()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 94;
+
+            Text = "There is a profusion of different costumes all around you. A man in a sequined mask capers about the room in jester's motley. A blond-wigged man dressed like a Mercanian reaver enters from the garden with a slim young lady on his arm. You notice two men standing beside a fountain in earnest conversation: one is dressed like a torturer, the other like a perfumed dandy. On a chaise-longue, you notice a fellow in a domino cape romancing a girl in black velvet.\n\nWhom will you approach?";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Approach the jester", {Book::Type::Book1, 527}));
+            Choices.push_back(Choice::Base("... the reaver", {Book::Type::Book1, 417}));
+            Choices.push_back(Choice::Base("... the torturer", {Book::Type::Book1, 123}));
+            Choices.push_back(Choice::Base("... the dandy", {Book::Type::Book1, 277}));
+            Choices.push_back(Choice::Base("... or the domino", {Book::Type::Book1, 487}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story095 : public Story::Base
+    {
+    public:
+        Story095()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 95;
+
+            Text = "After <i>recovering</i> for the next Spiral, he has two heads and five tails. You lost a coin, leaving you with three heads.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your number for the next Spiral", {Book::Type::Book1, 110}, Choice::Type::SelectDice, "Choose a number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story096 : public Story::Base
+    {
+    public:
+        Story096()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 96;
+
+            Text = "The sarcophagi are indeed built on a grand scale. You were not able to fully appreciate the size until you approached one close up. It is more than four metres long, big enough to hold the body of an Ogre or a Frost Giant. The carvings on the lids depict four old men in regal attire. Ancestors of the loathsome Magus Kalugen? There is little to suggest a family resemblance in the wise faces of these long-dead monarchs.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Pass on towards the beach", {Book::Type::Book1, 293}));
+            Choices.push_back(Choice::Base("Open the first sarcophagus", {Book::Type::Book1, 351}));
+            Choices.push_back(Choice::Base("... the second", {Book::Type::Book1, 186}));
+            Choices.push_back(Choice::Base("... the third", {Book::Type::Book1, 403}));
+            Choices.push_back(Choice::Base("... or the fourth", {Book::Type::Book1, 137}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story097 : public Story::Base
+    {
+    public:
+        Story097()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 97;
+
+            Image = "images/book1/filler1.png";
+
+            TopImage = false;
+
+            Text = "You reappear in the first room. You no longer have the skull, so you cannot make a second visit to the scriptorium. You step out of the room and continue along the tunnel.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 249}; }
+    };
+
+    class Story098 : public Story::Base
+    {
+    public:
+        Story098()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 98;
+
+            Text = "Now that the show is over, the disgusting Hags lope back to their cauldrons. You move across the terrace, feeling their rheumy eyes on you. Their repulsive familiars rush about under your feet -- rotting crows with eyes dangling from sockets, yellow-fanged rats, warty malformed toads with human faces, scuttling objects that suggest entrails on legs... They clutch at your heels as you walk past, and you feel you would prefer to be back on the bridge fighting than endure this horror. The Hags themselves crouch on the temple steps, gabbling to one another and shrieking with insane laughter.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Talk to the Hags", {Book::Type::Book1, 212}));
+            Choices.push_back(Choice::Base("Go up the steps into the temple", {Book::Type::Book1, 298}));
+            Choices.push_back(Choice::Base("Take the path around to the right of the temple", {Book::Type::Book1, 56}));
+            Choices.push_back(Choice::Base("Walk around it to the left", {Book::Type::Book1, 357}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story099 : public Story::Base
+    {
+    public:
+        Story099()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 99;
+
+            Text = "You fling the ice jewel out from the ledge, calling upon its power. It chills the warm air currents that enable the Dirges to stay aloft, and they spiral down out of control into the mist-shrouded river that courses along the gorge far below. Breathing a sigh of relief, you make your way down to the platform at the bottom of the ledge.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 142}; }
+    };
+
+    class Story100 : public Story::Base
+    {
+    public:
+        Story100()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 100;
+
+            Text = "A draw. The next Spiral sees him <i>recovering</i> to four heads and three tails. You have lost any advantage you may have had, because you have four heads -- out of a total of four coins. You grit your teeth, determined to win back his gain in the next Spiral.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your number for the next Spiral", {Book::Type::Book1, 125}, Choice::Type::SelectDice, "Choose a number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -2510,6 +2718,16 @@ namespace Book1
     auto story088 = Story088();
     auto story089 = Story089();
     auto story090 = Story090();
+    auto story091 = Story091();
+    auto story092 = Story092();
+    auto story093 = Story093();
+    auto story094 = Story094();
+    auto story095 = Story095();
+    auto story096 = Story096();
+    auto story097 = Story097();
+    auto story098 = Story098();
+    auto story099 = Story099();
+    auto story100 = Story100();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -2526,7 +2744,7 @@ namespace Book1
             &story061, &story062, &story063, &story064, &story065, &story066, &story067, &story068, &story069, &story070,
             &story071, &story072, &story073, &story074, &story075, &story076, &story077, &story078, &story079, &story080,
             &story081, &story082, &story083, &story084, &story085, &story086, &story087, &story088, &story089, &story090,
-            &story081,
+            &story091, &story092, &story093, &story094, &story095, &story096, &story097, &story098, &story099, &story100,
             &story398,
             &story452};
     }
