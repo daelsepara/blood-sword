@@ -1028,7 +1028,7 @@ namespace Engine
             }
         }
 
-        return true;
+        return result;
     }
 
     template <typename T>
