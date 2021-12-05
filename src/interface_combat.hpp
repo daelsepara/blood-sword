@@ -2098,6 +2098,11 @@ namespace Interface
             auto DamageModifier = Character.DamageModifier + (Weapons.size() > Round ? Weapons[Round].Damage : 0) + (Equipment.size() > 0 ? Equipment[0].Damage : 0);
             auto Armour = Engine::Armour(Character);
 
+            if (Engine::HasCharge(Character, Equipment::Item::RingOfWarding, 1))
+            {
+                Armour += 1;
+            }
+
             DamageModifier = FightMode == Combat::FightMode::SHOOT ? 0 : DamageModifier;
 
             if (!Attacked && Engine::HasStatus(Character, Spell::Type::EyeOfTheTiger))
@@ -2335,6 +2340,14 @@ namespace Interface
                             if (Enemy.Type != Enemy::Type::Skiapyr)
                             {
                                 DamageSum -= Armour;
+
+                                if (DamageSum > 0)
+                                {
+                                    if (Engine::HasCharge(Character, Equipment::Item::RingOfWarding, 1))
+                                    {
+                                        Engine::Discharge(Character, Equipment::Item::RingOfWarding, 1);
+                                    }
+                                }
                             }
                         }
                         else
