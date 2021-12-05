@@ -1625,7 +1625,7 @@ namespace Book1
 
             if (Engine::Count(Party) > 1)
             {
-                Choices.push_back(Choice::Base("Let others drink the same potion", {Book::Type::Book1, -62}, Choice::Type::SelectAdventurer, "Who shall drink the bubbling green soup"));
+                Choices.push_back(Choice::Base("Let others drink the same potion", {Book::Type::Book1, -62}, Choice::Type::AdventurerPays, "Who shall drink the bubbling green soup", 2));
             }
             else
             {
@@ -2584,6 +2584,273 @@ namespace Book1
         }
     };
 
+    class Story101 : public Story::Base
+    {
+    public:
+        Story101()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 101;
+
+            Type = Story::Type::Doom;
+
+            Image = "images/book1/filler3.png";
+
+            TopImage = false;
+
+            Text = "There is no way across the simmering pool of magma. You slump to the floor in despair. You have failed in your quest, but that is now the least of your worries. Trapped in the isolated pylon, you face a slow agonising death by starvation.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Exit;
+        }
+    };
+
+    class Story102 : public Story::Base
+    {
+    public:
+        Story102()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 102;
+
+            Text = "(TRICKSTER) You flip the catch of the secret door and step over the dais carefully without setting foot on the floor of the alcove. The door leads to a narrow compartment where you find a gold ring.\n\n<i>Slipping this on, you sense that it is a Ring of Warding. It has four charges, and each charge will increase your Armour Rating by one for the duration of one combat.</i>\n\nYou step back into the room and return to try the passage of black marble.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            auto Character = Engine::Find(Party, Character::Class::Trickster);
+
+            if (Character >= 0 && Character < Party.Members.size())
+            {
+                Party.Members[Character].Equipment.push_back(Equipment::RingOfWarding);
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 354}; }
+    };
+
+    class Story103 : public Story::Base
+    {
+    public:
+        Story103()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 103;
+
+            Text = "Which potion will you try?\n\n<b>NOTE</b>\n\nFor each potion you try you must part with two gold pieces.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) Examine the potions", {Book::Type::Book1, 9}, Character::Class::Sage));
+            Choices.push_back(Choice::Base("Try the bubbling green soup", {Book::Type::Book1, 62}, Choice::Type::AdventurerPays, "Who drinks the soup?", 2));
+            Choices.push_back(Choice::Base("... the tarry black substance", {Book::Type::Book1, 299}, Choice::Type::AdventurerPays, "Who shall try the tarry black substance?", 2));
+            Choices.push_back(Choice::Base("... the effervescent liquid", {Book::Type::Book1, 358}, Choice::Type::AdventurerPays, "Who shall try the effervescent liquid?", 2));
+            Choices.push_back(Choice::Base("... the slimy green concoction", {Book::Type::Book1, 44}, Choice::Type::AdventurerPays, "Who shall try the slimy green concoction?", 2));
+            Choices.push_back(Choice::Base("... the colourless brew", {Book::Type::Book1, 409}, Choice::Type::AdventurerPays, "Who shall try the colourless brew?", 2));
+            Choices.push_back(Choice::Base("You cannot pay", {Book::Type::Book1, 481}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story104 : public Story::Base
+    {
+    public:
+        Story104()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 104;
+
+            Text = "(TRICKSTER) Unseen fingers grope at your backpack and belt as you pass through the waterfall. They are stealing from you -- a fact you realise too late when you emerge on the other side stripped of your possessions.\n\nYou turn and glare angrily into the waterfall. It is just a theatrical gesture -- you can do nothing to recover your possessions, as they have been taken by thieving Fossergrims. These water spirits are invulnerable to any sort of physical or magical coercion.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            auto OtherEquipment = 0;
+
+            auto Character = Engine::Find(Party, Character::Class::Trickster);
+
+            if (Character >= 0 && Character < Party.Members.size())
+            {
+                auto Equipment = std::vector<Equipment::Base>();
+
+                for (auto i = 0; i < Party.Members[Character].Equipment.size(); i++)
+                {
+                    Equipment::Base &Item = Party.Members[Character].Equipment[i];
+
+                    if (Item.Weapon == Equipment::Weapon::Sword || Item.Class == Equipment::Class::Armour)
+                    {
+                        Equipment.push_back(Item);
+                    }
+                    else
+                    {
+                        OtherEquipment++;
+                    }
+                }
+
+                if (OtherEquipment > 0)
+                {
+                    Party.Members[Character].Equipment = Equipment;
+                }
+                else
+                {
+                    Party.Members[Character].Equipment.clear();
+                }
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 267}; }
+    };
+
+    class Story105 : public Story::Base
+    {
+    public:
+        Story105()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 105;
+
+            Text = "After recovering for the next Spiral, he has three heads and three tails. You have only two heads and two tails -- a situation that forces you to play a 1 this time. Smiling, Kief opens his hand to show a 2.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 120}; }
+    };
+
+    class Story106 : public Story::Base
+    {
+    public:
+        Story106()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 106;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Use the <b>steel sceptre</b>", {Book::Type::Book1, 219}, Equipment::Item::SteelSceptre));
+            Choices.push_back(Choice::Base("Use the <b>emerald scarab</b>", {Book::Type::Book1, 517}, Equipment::Item::EmeraldScarab));
+            Choices.push_back(Choice::Base("You have none of these or choose not to use them", {Book::Type::Book1, 369}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story107 : public Story::Base
+    {
+    public:
+        Story107()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 107;
+
+            Image = "images/book1/filler1.png";
+
+            TopImage = true;
+
+            Text = "At last you manage to pull the cage up again. As it breaks the surface, the eidolon gives a forlorn howl and begins to wring its hands. It seems to be imploring you to leave its skeleton untouched, but you know that a monstrous being such as this can be shown no mercy. You tear the scarab amulet from the skeleton's neck. It gives a brief pulse of light. There is a scream from the eidolon, then it dissipates into empty air.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) Identify the <b>emerald scarab</b>", {Book::Type::Book1, 352}, Character::Class::Sage, Equipment::Item::EmeraldScarab));
+            Choices.push_back(Choice::Base("Risk putting it on", {Book::Type::Book1, 187}, Choice::Type::SelectAdventurer, "Who shall wear the emerald scarab?"));
+            Choices.push_back(Choice::Base("Leave the scarab and go on your way", {Book::Type::Book1, 247}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment = {Equipment::EmeraldScarab};
+
+            Limit = 1;
+        }
+    };
+
+    class Story108 : public Story::Base
+    {
+    public:
+        Story108()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 108;
+
+            Text = "(SAGE) You must attempt to awaken the latent powers of your 'inner eye'. Calling on the teachings of your Adept Masters, you begin to clear your mind of all distractions, trying to see beyond the natural spectrum.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Clear your mind", {Book::Type::Book1, 313}));
+            Choices.push_back(Choice::Base("<i>Clear your mind</i>", {Book::Type::Book1, 263}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story109 : public Story::Base
+    {
+    public:
+        Story109()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 109;
+
+            Text = "(ENCHANTER) You are used to the wiles and evasive cunning of feckless Faltyns. \"No,\" you correct it sharply. \"Not any magus -- locate Magus Balhazar.\"\n\nThe Faltyn flickers across the edge of your vision -- a shimmering blue figure. A moment later it is back at your side. <i>Balhazar has instructed me not to point him out, it murmurs. He prefers that you use your initiative for this test. Still, I will levy no charge under the circumstances...</i>\n\n\"Get you gone, vile creature!\" you snap at it, alarming it into dematerialising at once.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) Try ESP", {Book::Type::Book1, 309}, Abilities::Type::ESP));
+            Choices.push_back(Choice::Base("Try something else", {Book::Type::Book1, 458}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story110 : public Story::Base
+    {
+    public:
+        Story110()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 110;
+
+            Text = "His number this time is a 1, of course.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party)
+        {
+            std::vector<int> Destinations = {50, 120, 286, 286, 286, 286};
+
+            if (Party.LastValue >= 0 && Party.LastValue < 6)
+            {
+                return {Book::Type::Book1, Destinations[Party.LastValue]};
+            }
+            else
+            {
+                return {Book::Type::Book1, Destinations[Engine::Roll(1, 0) - 1]};
+            }
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -2728,6 +2995,16 @@ namespace Book1
     auto story098 = Story098();
     auto story099 = Story099();
     auto story100 = Story100();
+    auto story101 = Story101();
+    auto story102 = Story102();
+    auto story103 = Story103();
+    auto story104 = Story104();
+    auto story105 = Story105();
+    auto story106 = Story106();
+    auto story107 = Story107();
+    auto story108 = Story108();
+    auto story109 = Story109();
+    auto story110 = Story110();   
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -2745,6 +3022,7 @@ namespace Book1
             &story071, &story072, &story073, &story074, &story075, &story076, &story077, &story078, &story079, &story080,
             &story081, &story082, &story083, &story084, &story085, &story086, &story087, &story088, &story089, &story090,
             &story091, &story092, &story093, &story094, &story095, &story096, &story097, &story098, &story099, &story100,
+            &story101, &story102, &story103, &story104, &story105, &story106, &story107, &story108, &story109, &story110,
             &story398,
             &story452};
     }

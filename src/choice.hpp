@@ -30,7 +30,8 @@ namespace Choice
         CharacterItem,
         TakeScrolls,
         EnemyCastSpell,
-        TakeEquipment
+        TakeEquipment,
+        AdventurerPays,
     };
 
     class Base
@@ -259,6 +260,19 @@ namespace Choice
             Type = type;
 
             Spell = spell;
+        }
+
+        Base(const char *choice, Book::Destination destination, Choice::Type type, std::string select, int gold)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            Type = type;
+
+            SelectMessage = select;
+
+            Gold = gold;
         }
     };
 }

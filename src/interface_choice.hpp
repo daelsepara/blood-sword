@@ -1096,6 +1096,28 @@ namespace Interface
                                     Done = true;
                                 }
                             }
+                            else if (Story->Choices[Choice].Type == Choice::Type::AdventurerPays)
+                            {
+                                auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, Story->Choices[Choice].SelectMessage.c_str()) : Engine::First(Party);
+
+                                if (Character >= 0 && Character < Party.Members.size())
+                                {
+                                    if (Engine::CountMoney(Party.Members[Character]) >= Story->Choices[Choice].Gold)
+                                    {
+                                        Party.LastSelected = Character;
+
+                                        Engine::LoseMoney(Party.Members[Character], Story->Choices[Choice].Gold);
+
+                                        Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                        Done = true;
+                                    }
+                                    else
+                                    {
+                                        DisplayMessage(std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have enough money!", intBK);
+                                    }
+                                }
+                            }
                             else if (Story->Choices[Choice].Type == Choice::Type::SelectDice)
                             {
                                 auto Value = Interface::Choose(Window, Renderer, Controls, intGR, Party, Story, Screen, {Assets::Type::Dice1, Assets::Type::Dice2, Assets::Type::Dice3, Assets::Type::Dice4, Assets::Type::Dice5, Assets::Type::Dice6}, {}, Story->Choices[Choice].SelectMessage.c_str());

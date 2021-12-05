@@ -54,7 +54,9 @@ namespace Equipment
         MagnificentSword,
         GildedBridle,
         ChimeraSpittle,
-        VellumScroll
+        VellumScroll,
+        RingOfWarding,
+        EmeraldScarab
     };
 
     std::map<Equipment::Item, const char *> ItemDescription = {
@@ -74,7 +76,9 @@ namespace Equipment
         {Equipment::Item::MagnificentSword, "magnificent sword"},
         {Equipment::Item::GildedBridle, "gilded bridle"},
         {Equipment::Item::ChimeraSpittle, "chimera spittle"},
-        {Equipment::Item::VellumScroll, "vellum scroll"}};
+        {Equipment::Item::VellumScroll, "vellum scroll"},
+        {Equipment::Item::RingOfWarding, "ring of warding"},
+        {Equipment::Item::EmeraldScarab, "emerald scarab"}};
 
     enum class Mode
     {
@@ -366,6 +370,8 @@ namespace Equipment
     auto MagnificentSword = Equipment::Base(Equipment::Item::MagnificentSword);
     auto GildedBridle = Equipment::Base(Equipment::Item::GildedBridle);
     auto ChimeraSpittle = Equipment::Base(Equipment::Item::ChimeraSpittle);
+    auto RingOfWarding = Equipment::Base(Equipment::Item::RingOfWarding, 4, 4);
+    auto EmeraldScarab = Equipment::Base(Equipment::Item::EmeraldScarab);
 }
 
 namespace Scroll

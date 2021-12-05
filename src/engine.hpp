@@ -700,6 +700,27 @@ namespace Engine
         return result;
     }
 
+    void LoseMoney(Character::Base &character, int Gold)
+    {
+        for (auto i = 0; i < character.Equipment.size(); i++)
+        {
+            if (character.Equipment[i].Class == Equipment::Class::MoneyPouch && character.Equipment[i].Gold > 0 && Gold > 0)
+            {
+                character.Equipment[i].Gold -= Gold;
+
+                if (character.Equipment[i].Gold < 0)
+                {
+                    Gold = std::abs(character.Equipment[i].Gold);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+
     bool HaveMoney(Character::Base &character)
     {
         return Engine::CountMoney(character) > 0;
