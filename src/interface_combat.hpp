@@ -3612,9 +3612,11 @@ namespace Interface
         // remove non-existent players and enemies
         Map.Clean(Party, Story->Enemies);
 
-        if (Story->SoloCombat >= 0 && Story->SoloCombat < Party.Members.size())
+        Battle::Base &Battle = Story->Battle;
+
+        if (Battle.SoloCombat >= 0 && Battle.SoloCombat < Party.Members.size())
         {
-            Map.Solo(Story->SoloCombat);
+            Map.Solo(Battle.SoloCombat);
         }
 
         std::vector<Enemy::Base> &Enemies = Story->Enemies;
@@ -3723,11 +3725,11 @@ namespace Interface
         {
             Sequence.clear();
 
-            auto SoloCombat = Story->SoloCombat >= 0 && Story->SoloCombat < Party.Members.size();
+            auto SoloCombat = Battle.SoloCombat >= 0 && Battle.SoloCombat < Party.Members.size();
 
             for (auto i = 0; i < Party.Members.size(); i++)
             {
-                if ((SoloCombat && i == Story->SoloCombat) || !SoloCombat)
+                if ((SoloCombat && i == Battle.SoloCombat) || !SoloCombat)
                 {
                     auto Awareness = Engine::Awareness(Party.Members[i]);
 
@@ -3777,7 +3779,9 @@ namespace Interface
 
         auto ScrollOfInvisibilityRound = 0;
 
-        auto ActFirstRound = (Story->SurprisedEnemy || Story->SurprisedByEnemy) ? true : false;
+        auto ActFirstRound = (Battle.SurprisedEnemy || Battle.SurprisedByEnemy) ? true : false;
+
+        auto ShootingRounds = Battle.ShootingRounds;
 
         auto IsPlayer = [&](int id)
         {
@@ -3825,7 +3829,7 @@ namespace Interface
 
             for (auto i = 0; i < Sequence.size(); i++)
             {
-                if (IsPlayer(i) && Story->SurprisedEnemy)
+                if (IsPlayer(i) && Battle.SurprisedEnemy)
                 {
                     if (Party.Members[GetId(i)].ActFirst)
                     {
@@ -3834,9 +3838,29 @@ namespace Interface
                         break;
                     }
                 }
-                else if (IsEnemy(i) && Story->SurprisedByEnemy)
+                else if (IsEnemy(i) && Battle.SurprisedByEnemy)
                 {
                     if (Enemies[GetId(i)].ActFirst)
+                    {
+                        Next = i;
+
+                        break;
+                    }
+                }
+            }
+
+            return Next;
+        };
+
+        auto NextShooter = [&]()
+        {
+            auto Next = -1;
+
+            for (auto i = 0; i < Sequence.size(); i++)
+            {
+                if (IsPlayer(i))
+                {
+                    if (Party.Members[GetId(i)].ShootFirst)
                     {
                         Next = i;
 
@@ -3917,6 +3941,11 @@ namespace Interface
                     Party.Members[GetId(CurrentCombatant)].ActFirst = false;
                 }
 
+                if (Party.Members[GetId(CurrentCombatant)].ShootFirst)
+                {
+                    Party.Members[GetId(CurrentCombatant)].ShootFirst = false;
+                }
+
                 if (!QuickThinkingRound)
                 {
                     Engine::UpdateSpellStatus(Party.Members[GetId(CurrentCombatant)], CombatRound);
@@ -3952,11 +3981,11 @@ namespace Interface
 
                 if (ActFirstRound)
                 {
-                    if (Story->SurprisedEnemy && Engine::ActingFirst(Party))
+                    if (Battle.SurprisedEnemy && Engine::ActingFirst(Party))
                     {
                         CurrentCombatant = NextFirst();
                     }
-                    else if (Story->SurprisedByEnemy && Engine::ActingFirst(Story->Enemies))
+                    else if (Battle.SurprisedByEnemy && Engine::ActingFirst(Story->Enemies))
                     {
                         CurrentCombatant = NextFirst();
                     }
@@ -3969,6 +3998,26 @@ namespace Interface
                         CurrentCombatant = 0;
 
                         Current = 0;
+                    }
+                }
+                else if (ShootingRounds > 0)
+                {
+                    CurrentCombatant = NextShooter();
+
+                    if (CurrentCombatant < 0 || CurrentCombatant >= Sequence.size())
+                    {
+                        ShootingRounds--;
+
+                        if (ShootingRounds > 0)
+                        {
+                            Engine::ShootFirst(Party);
+
+                            CurrentCombatant = NextShooter();
+                        }
+                    }
+                    else
+                    {
+                        CurrentCombatant = 0;
                     }
                 }
                 else if (QuickThinkingRound)
@@ -3996,11 +4045,11 @@ namespace Interface
 
                     if (CurrentCombatant >= Sequence.size())
                     {
-                        if (ActFirstRound && Story->SurprisedEnemy && Engine::ActingFirst(Party))
+                        if (ActFirstRound && Battle.SurprisedEnemy && Engine::ActingFirst(Party))
                         {
                             CurrentCombatant = NextFirst();
                         }
-                        else if (ActFirstRound && Story->SurprisedByEnemy && Engine::ActingFirst(Story->Enemies))
+                        else if (ActFirstRound && Battle.SurprisedByEnemy && Engine::ActingFirst(Story->Enemies))
                         {
                             CurrentCombatant = NextFirst();
                         }
@@ -4104,11 +4153,11 @@ namespace Interface
         {
             if (ActFirstRound)
             {
-                if (Story->SurprisedEnemy)
+                if (Battle.SurprisedEnemy)
                 {
                     Engine::ActFirst(Party);
                 }
-                else if (Story->SurprisedByEnemy)
+                else if (Battle.SurprisedByEnemy)
                 {
                     Engine::ActFirst(Story->Enemies);
                 }
@@ -4169,7 +4218,9 @@ namespace Interface
             SelectedSpell = -1;
 
             // setup surprise first round attacks
-            ActFirstRound = (Story->SurprisedEnemy || Story->SurprisedByEnemy) ? true : false;
+            ActFirstRound = (Battle.SurprisedEnemy || Battle.SurprisedByEnemy) ? true : false;
+
+            ShootingRounds = Battle.ShootingRounds;
 
             StartSurpriseRound();
 
@@ -4357,40 +4408,47 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::FLEE && !Hold)
                         {
-                            if (Map.Exits.size() > 0)
+                            if (!Character.ShootFirst)
                             {
-                                if (Map.Tiles[CurrentY][CurrentX].IsExit() || (UsedScrollOfInvisibility && CombatRound <= ScrollOfInvisibilityRound))
+                                if (Map.Exits.size() > 0)
                                 {
-                                    if (Engine::IsPresent(Enemies, Enemy::Type::Bowmen))
+                                    if (Map.Tiles[CurrentY][CurrentX].IsExit() || (UsedScrollOfInvisibility && CombatRound <= ScrollOfInvisibilityRound))
                                     {
-                                        Interface::AttackedWhileFleeing(Renderer, Controls, Map, intBK, Character, 2);
-                                    }
+                                        if (Engine::IsPresent(Enemies, Enemy::Type::Bowmen))
+                                        {
+                                            Interface::AttackedWhileFleeing(Renderer, Controls, Map, intBK, Character, 2);
+                                        }
 
-                                    if (Engine::IsAlive(Character))
+                                        if (Engine::IsAlive(Character))
+                                        {
+                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " escapes!"), intGR);
+
+                                            Character.Escaped = true;
+                                        }
+
+                                        Interface::Remove(Map, CurrentX, CurrentY);
+
+                                        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+
+                                        CycleCombatants();
+                                    }
+                                    else if (UsedScrollOfInvisibility)
                                     {
-                                        Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " escapes!"), intGR);
-
-                                        Character.Escaped = true;
+                                        DisplayMessage(std::string(Character::ClassName[Character.Class]) + "'s invisibility has worn off!", intBK);
                                     }
-
-                                    Interface::Remove(Map, CurrentX, CurrentY);
-
-                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-
-                                    CycleCombatants();
-                                }
-                                else if (UsedScrollOfInvisibility)
-                                {
-                                    DisplayMessage(std::string(Character::ClassName[Character.Class]) + "'s invisibility has worn off!", intBK);
+                                    else
+                                    {
+                                        DisplayMessage("You must be standing on an exit point to flee!", intBK);
+                                    }
                                 }
                                 else
                                 {
-                                    DisplayMessage("You must be standing on an exit point to flee!", intBK);
+                                    DisplayMessage("Defeat all opponents to escape the area!", intBK);
                                 }
                             }
                             else
                             {
-                                DisplayMessage("Defeat all opponents to escape the area!", intBK);
+                                DisplayMessage("You cannot flee at this time!", intBK);
                             }
 
                             Selected = false;
@@ -4435,22 +4493,62 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                SelectedSpell = -1;
-
-                                if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
+                                if (!Character.ShootFirst)
                                 {
-                                    auto CurrentPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
+                                    SelectedSpell = -1;
 
-                                    auto Damages = 0;
-
-                                    // get attacked by a nearby enemy that has a higher awareness
-                                    auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
-
-                                    if (CurrentPath.Points.size() > 0)
+                                    if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                     {
-                                        if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentPath, StartMap))
+                                        auto CurrentPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
+
+                                        auto Damages = 0;
+
+                                        // get attacked by a nearby enemy that has a higher awareness
+                                        auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
+
+                                        if (CurrentPath.Points.size() > 0)
+                                        {
+                                            if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentPath, StartMap))
+                                            {
+                                                DisplayMessage("Path blocked!", intBK);
+                                            }
+                                            else
+                                            {
+                                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+
+                                                if (WasAttacked)
+                                                {
+                                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " was attacked!"), intBK);
+
+                                                    Engine::Gain(Character, Attributes::Type::Endurance, Damages);
+
+                                                    if (!Engine::IsAlive(Character))
+                                                    {
+                                                        auto Destination = CurrentPath.Points.size() - 1;
+
+                                                        Interface::Remove(Map, CurrentPath.Points[Destination].X, CurrentPath.Points[Destination].Y);
+
+                                                        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                                    }
+                                                }
+
+                                                CycleCombatants();
+                                            }
+                                        }
+                                        else
                                         {
                                             DisplayMessage("Path blocked!", intBK);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        auto Damages = 0;
+
+                                        auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
+
+                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, SelectX, SelectY))
+                                        {
+                                            DisplayMessage("Path Blocked!", intBK);
                                         }
                                         else
                                         {
@@ -4464,9 +4562,7 @@ namespace Interface
 
                                                 if (!Engine::IsAlive(Character))
                                                 {
-                                                    auto Destination = CurrentPath.Points.size() - 1;
-
-                                                    Interface::Remove(Map, CurrentPath.Points[Destination].X, CurrentPath.Points[Destination].Y);
+                                                    Interface::Remove(Map, SelectX, SelectY);
 
                                                     Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                                 }
@@ -4475,41 +4571,10 @@ namespace Interface
                                             CycleCombatants();
                                         }
                                     }
-                                    else
-                                    {
-                                        DisplayMessage("Path blocked!", intBK);
-                                    }
                                 }
                                 else
                                 {
-                                    auto Damages = 0;
-
-                                    auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
-
-                                    if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, SelectX, SelectY))
-                                    {
-                                        DisplayMessage("Path Blocked!", intBK);
-                                    }
-                                    else
-                                    {
-                                        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-
-                                        if (WasAttacked)
-                                        {
-                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " was attacked!"), intBK);
-
-                                            Engine::Gain(Character, Attributes::Type::Endurance, Damages);
-
-                                            if (!Engine::IsAlive(Character))
-                                            {
-                                                Interface::Remove(Map, SelectX, SelectY);
-
-                                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                                            }
-                                        }
-
-                                        CycleCombatants();
-                                    }
+                                    DisplayMessage("You can only shoot at this time!", intBK);
                                 }
                             }
                             else
@@ -4523,7 +4588,14 @@ namespace Interface
                         {
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                CurrentMode = Combat::Mode::MOVE;
+                                if (Character.ShootFirst)
+                                {
+                                    DisplayMessage("You cannot move at this time!", intBK);
+                                }
+                                else
+                                {
+                                    CurrentMode = Combat::Mode::MOVE;
+                                }
                             }
                             else if (CurrentMode == Combat::Mode::ATTACK)
                             {
@@ -4540,7 +4612,7 @@ namespace Interface
 
                             if (CurrentMode == Combat::Mode::NORMAL)
                             {
-                                if (Character.Defending)
+                                if (Character.Defending || Character.ShootFirst)
                                 {
                                     DisplayMessage("You cannot attack at this time.", intBK);
 
@@ -4612,79 +4684,119 @@ namespace Interface
                         }
                         else if (Controls[Current].Type == Control::Type::ABILITY && !Hold)
                         {
-                            SelectedSpell = -1;
+                            if (!Character.ShootFirst)
+                            {
+                                SelectedSpell = -1;
 
-                            auto Result = Interface::Abilities(Renderer, Controls, intBK, Map, Character);
+                                auto Result = Interface::Abilities(Renderer, Controls, intBK, Map, Character);
 
-                            if (Result == Abilities::Type::Ambidextrousness || Result == Abilities::Type::UnarmedMartialArts || Result == Abilities::Type::Dodging || Result == Abilities::Type::Quarterstaff)
-                            {
-                                DisplayMessage("This ability is always in effect!", intGR);
-                            }
-                            else if (Result == Abilities::Type::Archery)
-                            {
-                                DisplayMessage("Use the shoot action to attack from range", intGR);
-                            }
-                            else if (Result == Abilities::Type::Healing || Result == Abilities::Type::Exorcism || Result == Abilities::Type::ESP || Result == Abilities::Type::ParanormalSight || Result == Abilities::Type::Levitation)
-                            {
-                                DisplayMessage("You cannot use this ability while in combat", intBK);
-                            }
-                            else if (Result == Abilities::Type::QuickThinking)
-                            {
-                                if (Character.QuickThinking)
+                                if (Result == Abilities::Type::Ambidextrousness || Result == Abilities::Type::UnarmedMartialArts || Result == Abilities::Type::Dodging || Result == Abilities::Type::Quarterstaff)
                                 {
-                                    DisplayMessage("Quick thinking already activated!", intBK);
+                                    DisplayMessage("This ability is always in effect!", intGR);
                                 }
-                                else if (!Character.UsedQuickThinking)
+                                else if (Result == Abilities::Type::Archery)
                                 {
-                                    DisplayMessage("Quick thinking activated!", intGR);
-
-                                    Character.QuickThinking = true;
+                                    DisplayMessage("Use the shoot action to attack from range", intGR);
                                 }
-                                else
+                                else if (Result == Abilities::Type::Healing || Result == Abilities::Type::Exorcism || Result == Abilities::Type::ESP || Result == Abilities::Type::ParanormalSight || Result == Abilities::Type::Levitation)
                                 {
-                                    DisplayMessage("Quick thinking can only be used once per combat!", intBK);
+                                    DisplayMessage("You cannot use this ability while in combat", intBK);
                                 }
-                            }
-                            else if (Result == Abilities::Type::CastSpell)
-                            {
-                                if (Character.Spells.size() == 0)
+                                else if (Result == Abilities::Type::QuickThinking)
                                 {
-                                    DisplayMessage("You have not called to mind any spells!", intBK);
-                                }
-                                else
-                                {
-                                    SelectedSpell = Interface::SelectSpell(Renderer, Controls, intBK, Map, Character);
-
-                                    // cast spell
-                                    if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
+                                    if (Character.QuickThinking)
                                     {
-                                        Spell::Base &Spell = Character.Spells[SelectedSpell];
+                                        DisplayMessage("Quick thinking already activated!", intBK);
+                                    }
+                                    else if (!Character.UsedQuickThinking)
+                                    {
+                                        DisplayMessage("Quick thinking activated!", intGR);
 
-                                        if (Spell.RequiresTarget)
+                                        Character.QuickThinking = true;
+                                    }
+                                    else
+                                    {
+                                        DisplayMessage("Quick thinking can only be used once per combat!", intBK);
+                                    }
+                                }
+                                else if (Result == Abilities::Type::CastSpell)
+                                {
+                                    if (Character.Spells.size() == 0)
+                                    {
+                                        DisplayMessage("You have not called to mind any spells!", intBK);
+                                    }
+                                    else
+                                    {
+                                        SelectedSpell = Interface::SelectSpell(Renderer, Controls, intBK, Map, Character);
+
+                                        // cast spell
+                                        if (SelectedSpell >= 0 && SelectedSpell < Character.Spells.size())
                                         {
-                                            CurrentMode = Combat::Mode::CAST;
+                                            Spell::Base &Spell = Character.Spells[SelectedSpell];
 
-                                            if (Spell.Type == Spell::Type::GhastlyTouch)
+                                            if (Spell.RequiresTarget)
                                             {
-                                                if (!Interface::NearbyEnemies(Map, Enemies, PlayerId, false))
+                                                CurrentMode = Combat::Mode::CAST;
+
+                                                if (Spell.Type == Spell::Type::GhastlyTouch)
                                                 {
-                                                    DisplayMessage("There are no enemies nearby!", intBK);
+                                                    if (!Interface::NearbyEnemies(Map, Enemies, PlayerId, false))
+                                                    {
+                                                        DisplayMessage("There are no enemies nearby!", intBK);
+
+                                                        CurrentMode = Combat::Mode::NORMAL;
+                                                    }
+                                                }
+                                                else if (Engine::Count(Enemies) == 1)
+                                                {
+                                                    // automatically select lone enemy
+                                                    auto TargetId = Engine::First(Enemies);
+
+                                                    auto Result = Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell);
+
+                                                    if (Result != Spell::Result::NONE)
+                                                    {
+                                                        if (Result == Spell::Result::SUCCESS)
+                                                        {
+                                                            Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, Party, Enemies, PlayerId, TargetId, Character.Spells[SelectedSpell].Type, CombatRound, StartMap);
+
+                                                            Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
+
+                                                            SelectedSpell = -1;
+
+                                                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                                        }
+
+                                                        CycleCombatants();
+                                                    }
 
                                                     CurrentMode = Combat::Mode::NORMAL;
+
+                                                    SelectedSpell = -1;
                                                 }
                                             }
-                                            else if (Engine::Count(Enemies) == 1)
+                                            else
                                             {
-                                                // automatically select lone enemy
-                                                auto TargetId = Engine::First(Enemies);
+                                                auto Proceed = true;
 
-                                                auto Result = Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell);
+                                                if (Spell.Type == Spell::Type::ImmediateDeliverance)
+                                                {
+                                                    if (Map.Exits.size() == 0)
+                                                    {
+                                                        DisplayMessage("You cannot flee from this combat!", intBK);
+
+                                                        Proceed = false;
+                                                    }
+                                                }
+
+                                                // attempt to cast spell
+                                                auto Result = Proceed ? Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell) : Spell::Result::NONE;
 
                                                 if (Result != Spell::Result::NONE)
                                                 {
                                                     if (Result == Spell::Result::SUCCESS)
                                                     {
-                                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, Party, Enemies, PlayerId, TargetId, Character.Spells[SelectedSpell].Type, CombatRound, StartMap);
+                                                        Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, Party, Enemies, PlayerId, -1, Character.Spells[SelectedSpell].Type, CombatRound, StartMap);
 
                                                         Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
 
@@ -4695,90 +4807,57 @@ namespace Interface
 
                                                     CycleCombatants();
                                                 }
-
-                                                CurrentMode = Combat::Mode::NORMAL;
+                                                else
+                                                {
+                                                    CurrentMode = Combat::Mode::NORMAL;
+                                                }
 
                                                 SelectedSpell = -1;
                                             }
                                         }
                                         else
                                         {
-                                            auto Proceed = true;
-
-                                            if (Spell.Type == Spell::Type::ImmediateDeliverance)
-                                            {
-                                                if (Map.Exits.size() == 0)
-                                                {
-                                                    DisplayMessage("You cannot flee from this combat!", intBK);
-
-                                                    Proceed = false;
-                                                }
-                                            }
-
-                                            // attempt to cast spell
-                                            auto Result = Proceed ? Interface::CastSpell(Renderer, Controls, intBK, Map, Character, SelectedSpell) : Spell::Result::NONE;
-
-                                            if (Result != Spell::Result::NONE)
-                                            {
-                                                if (Result == Spell::Result::SUCCESS)
-                                                {
-                                                    Interface::ApplySpellEffects(Renderer, Controls, intBK, Map, Party, Enemies, PlayerId, -1, Character.Spells[SelectedSpell].Type, CombatRound, StartMap);
-
-                                                    Character.Spells.erase(Character.Spells.begin() + SelectedSpell);
-
-                                                    SelectedSpell = -1;
-
-                                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                                                }
-
-                                                CycleCombatants();
-                                            }
-                                            else
-                                            {
-                                                CurrentMode = Combat::Mode::NORMAL;
-                                            }
-
-                                            SelectedSpell = -1;
+                                            DisplayMessage("Spellcasting canceled!", intGR);
                                         }
                                     }
-                                    else
+                                }
+                                else if (Result == Abilities::Type::CallToMind)
+                                {
+                                    auto CalledToMind = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::CALL);
+
+                                    if (CalledToMind >= 0 && CalledToMind < Spell::All.size())
                                     {
-                                        DisplayMessage("Spellcasting canceled!", intGR);
+                                        Character.Spells.push_back(Spell::All[CalledToMind]);
+
+                                        auto Forget = -1;
+
+                                        while (Character.Spells.size() > 4)
+                                        {
+                                            Forget = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::FORGET);
+
+                                            if (Forget >= 0 && Forget < Spell::All.size())
+                                            {
+                                                auto Result = Engine::Find(Character, Spell::All[Forget].Type);
+
+                                                if (Result >= 0 && Result < Character.Spells.size())
+                                                {
+                                                    Character.Spells.erase(Character.Spells.begin() + Result);
+                                                }
+                                            }
+                                        }
+
+                                        if (Forget != CalledToMind)
+                                        {
+                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, Spell::All[CalledToMind].Name + " called to mind!", intGR);
+
+                                            CycleCombatants();
+                                        }
                                     }
                                 }
                             }
-                            else if (Result == Abilities::Type::CallToMind)
+                            else
                             {
-                                auto CalledToMind = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::CALL);
-
-                                if (CalledToMind >= 0 && CalledToMind < Spell::All.size())
-                                {
-                                    Character.Spells.push_back(Spell::All[CalledToMind]);
-
-                                    auto Forget = -1;
-
-                                    while (Character.Spells.size() > 4)
-                                    {
-                                        Forget = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::FORGET);
-
-                                        if (Forget >= 0 && Forget < Spell::All.size())
-                                        {
-                                            auto Result = Engine::Find(Character, Spell::All[Forget].Type);
-
-                                            if (Result >= 0 && Result < Character.Spells.size())
-                                            {
-                                                Character.Spells.erase(Character.Spells.begin() + Result);
-                                            }
-                                        }
-                                    }
-
-                                    if (Forget != CalledToMind)
-                                    {
-                                        Interface::RenderMessage(Renderer, Controls, Map, intBK, Spell::All[CalledToMind].Name + " called to mind!", intGR);
-
-                                        CycleCombatants();
-                                    }
-                                }
+                                DisplayMessage("You cannot use abilities at this time!", intBK);
                             }
                         }
                         else if (Controls[Current].Type == Control::Type::ENEMY && !Hold)
@@ -4804,60 +4883,67 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::ATTACK)
                             {
-                                SelectedSpell = -1;
-
-                                if (Interface::IsAdjacent(Map, PlayerId, TargetId) && Engine::IsAlive(Target))
+                                if (!Character.ShootFirst)
                                 {
-                                    auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Target, Combat::FightMode::FIGHT, false);
+                                    SelectedSpell = -1;
 
-                                    if (!Engine::IsAlive(Target))
+                                    if (Interface::IsAdjacent(Map, PlayerId, TargetId) && Engine::IsAlive(Target))
                                     {
-                                        Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
+                                        auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Target, Combat::FightMode::FIGHT, false);
 
-                                        Interface::Remove(Map, SelectX, SelectY);
-
-                                        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                                    }
-
-                                    if (!Engine::IsAlive(Character))
-                                    {
-                                        Interface::RenderMessage(Renderer, Controls, Map, intBK, (std::string(Character::ClassName[Character.Class]) + " killed!"), intBK);
-
-                                        Interface::Remove(Map, CurrentX, CurrentY);
-
-                                        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                                    }
-
-                                    if (Result != Combat::Result::NONE)
-                                    {
-                                        Engine::ResetSpellDifficulty(Character);
-
-                                        if (Result == Combat::Result::KNOCKED_OFF)
+                                        if (!Engine::IsAlive(Target))
                                         {
-                                            if (Engine::IsAlive(Target))
-                                            {
-                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " knocked off!", intGR);
-                                            }
+                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
+
+                                            Interface::Remove(Map, SelectX, SelectY);
+
+                                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                         }
 
-                                        CycleCombatants();
+                                        if (!Engine::IsAlive(Character))
+                                        {
+                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, (std::string(Character::ClassName[Character.Class]) + " killed!"), intBK);
+
+                                            Interface::Remove(Map, CurrentX, CurrentY);
+
+                                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                        }
+
+                                        if (Result != Combat::Result::NONE)
+                                        {
+                                            Engine::ResetSpellDifficulty(Character);
+
+                                            if (Result == Combat::Result::KNOCKED_OFF)
+                                            {
+                                                if (Engine::IsAlive(Target))
+                                                {
+                                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " knocked off!", intGR);
+                                                }
+                                            }
+
+                                            CycleCombatants();
+                                        }
+                                        else
+                                        {
+                                            DisplayMessage("Fight canceled", intGR);
+
+                                            CurrentMode = Combat::Mode::NORMAL;
+                                        }
+
+                                        Selected = false;
+
+                                        Current = -1;
                                     }
-                                    else
+                                    else if (Engine::IsAlive(Target))
                                     {
-                                        DisplayMessage("Fight canceled", intGR);
+                                        DisplayMessage("You can only attack adjacent targets!", intBK);
 
                                         CurrentMode = Combat::Mode::NORMAL;
                                     }
-
-                                    Selected = false;
-
-                                    Current = -1;
                                 }
-                                else if (Engine::IsAlive(Target))
+                                else
                                 {
-                                    DisplayMessage("You can only attack adjacent targets!", intBK);
-
-                                    CurrentMode = Combat::Mode::NORMAL;
+                                    DisplayMessage("You cannot fight at this time!", intBK);
                                 }
                             }
                             else if (CurrentMode == Combat::Mode::SHOOT)

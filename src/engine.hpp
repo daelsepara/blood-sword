@@ -657,6 +657,16 @@ namespace Engine
         }
     }
 
+    void ShootFirst(Party::Base &party)
+    {
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            Character::Base &character = party.Members[i];
+
+            character.ShootFirst = Engine::IsAlive(character) && Engine::HasBow(character) && Engine::CanShoot(character) && Engine::HasArrows(character);
+        }
+    }
+
     void ActFirst(std::vector<Enemy::Base> &enemies)
     {
         for (auto i = 0; i < enemies.size(); i++)
@@ -719,7 +729,6 @@ namespace Engine
             }
         }
     }
-
 
     bool HaveMoney(Character::Base &character)
     {

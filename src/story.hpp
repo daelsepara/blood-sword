@@ -1,6 +1,7 @@
 #ifndef __STORY_HPP__
 #define __STORY_HPP__
 
+#include "battle.hpp"
 #include "choice.hpp"
 
 namespace Story
@@ -51,13 +52,9 @@ namespace Story
 
         int Limit = 0;
 
-        bool SurprisedEnemy = false;
-
-        bool SurprisedByEnemy = false;
+        Battle::Base Battle = Battle::Base();
 
         std::vector<Enemy::Base> Enemies = {};
-
-        int SoloCombat = -1;
 
         Story::Controls Controls = Story::Controls::None;
 

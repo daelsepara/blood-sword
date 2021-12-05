@@ -25,6 +25,8 @@ namespace Enemy
     class Base
     {
     public:
+        Assets::Type Asset = Assets::Type::None;
+
         Enemy::Type Type = Enemy::Type::None;
 
         std::string Name = "";
@@ -60,8 +62,6 @@ namespace Enemy
         bool ActFirst = false;
 
         std::vector<Spell::Status> SpellStatus = {};
-
-        Assets::Type Asset = Assets::Type::None;
 
         Base()
         {

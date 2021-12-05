@@ -92,6 +92,9 @@ namespace Character
         // acts first before normal combat sequence
         bool ActFirst = false;
 
+        // shoot first before normal combat sequence
+        bool ShootFirst = false;
+
         // paralyzed characters can no longer take part in combat
         bool Paralyzed = false;
 

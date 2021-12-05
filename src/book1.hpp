@@ -171,7 +171,7 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
-            SurprisedEnemy = true;
+            Battle.SurprisedEnemy = true;
 
             Enemies.clear();
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
@@ -817,7 +817,7 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
-            SurprisedEnemy = true;
+            Battle.SurprisedEnemy = true;
 
             Enemies.clear();
 
@@ -1878,7 +1878,7 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
-            SurprisedEnemy = true;
+            Battle.SurprisedEnemy = true;
 
             Enemies.clear();
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 11, 1, 2, 1, Assets::Type::Barbarian));
