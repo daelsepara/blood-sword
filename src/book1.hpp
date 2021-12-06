@@ -2946,7 +2946,7 @@ namespace Book1
 
             Choices.clear();
             Choices.push_back(Choice::Base("(PARTY) Test Psychic Ability", {Book::Type::Book1, 428}, {Book::Type::Book1, -114}, Choice::Type::PartyAttribute, Attributes::Type::PsychicAbility, Choice::Consequence::LoseItemOrEndurance));
-            Choices.push_back(Choice::Base("Turn back and take the other gate", {Book::Type::Book1, 307});
+            Choices.push_back(Choice::Base("Turn back and take the other gate", {Book::Type::Book1, 307}));
 
             Controls = Story::Controls::Standard;
         }
