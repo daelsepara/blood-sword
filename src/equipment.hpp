@@ -56,7 +56,8 @@ namespace Equipment
         ChimeraSpittle,
         VellumScroll,
         RingOfWarding,
-        EmeraldScarab
+        EmeraldScarab,
+        HeartOfSkrymir
     };
 
     std::map<Equipment::Item, const char *> ItemDescription = {
@@ -78,7 +79,8 @@ namespace Equipment
         {Equipment::Item::ChimeraSpittle, "chimera spittle"},
         {Equipment::Item::VellumScroll, "vellum scroll"},
         {Equipment::Item::RingOfWarding, "ring of warding"},
-        {Equipment::Item::EmeraldScarab, "emerald scarab"}};
+        {Equipment::Item::EmeraldScarab, "emerald scarab"},
+        {Equipment::Item::HeartOfSkrymir, "heart of Skrymir"}};
 
     enum class Mode
     {
@@ -372,6 +374,7 @@ namespace Equipment
     auto ChimeraSpittle = Equipment::Base(Equipment::Item::ChimeraSpittle);
     auto RingOfWarding = Equipment::Base(Equipment::Item::RingOfWarding, 4, 4);
     auto EmeraldScarab = Equipment::Base(Equipment::Item::EmeraldScarab);
+    auto HeartOfSkrymir = Equipment::Base(Equipment::Item::HeartOfSkrymir);
 }
 
 namespace Scroll

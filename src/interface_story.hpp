@@ -254,7 +254,7 @@ namespace Interface
 
             if (Mode == Equipment::Mode::DROP)
             {
-                Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Party.Members[Character].Class]) + " is carrying too many items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
+                Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Party.Members[Character].Class]) + " needs to drop items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
             }
             else
             {
@@ -394,7 +394,7 @@ namespace Interface
 
                             for (auto i = 0; i < Equipment.size(); i++)
                             {
-                                if (!Engine::InList(Selection, i))
+                                if (!Engine::InList(Selection, i) || Equipment[i].Item == Equipment::Item::HeartOfSkrymir)
                                 {
                                     New.push_back(Equipment[i]);
                                 }

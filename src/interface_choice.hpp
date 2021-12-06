@@ -320,7 +320,7 @@ namespace Interface
 
                             for (auto i = 0; i < Equipment.size(); i++)
                             {
-                                if (!Engine::InList(Selection, i))
+                                if (!Engine::InList(Selection, i) || Equipment[i].Item == Equipment::Item::HeartOfSkrymir)
                                 {
                                     New.push_back(Equipment[i]);
                                 }

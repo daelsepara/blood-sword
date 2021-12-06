@@ -2056,8 +2056,8 @@ namespace Book1
             Text = "The Dirge-Man settles on the steps above you, flexing his enormous leathery wings as if glad of the rest. You notice that he does not have the spiked talons of a normal Dirge-Man, but human hands. \"I could fly you across,\" he declares in his cracked voice. \"But a question has arisen. Essentially, what's in it for me?\"";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Use a <b>gilded bridle<b>", {Book::Type::Book1, 301}, Equipment::Item::GildedBridle));
-            Choices.push_back(Choice::Base("Use a <b>chimera spittle<b>", {Book::Type::Book1, 321}, Equipment::Item::ChimeraSpittle));
+            Choices.push_back(Choice::Base("Use a <b>gilded bridle</b>", {Book::Type::Book1, 301}, Equipment::Item::GildedBridle));
+            Choices.push_back(Choice::Base("Use a <b>chimera spittle</b>", {Book::Type::Book1, 321}, Equipment::Item::ChimeraSpittle));
             Choices.push_back(Choice::Base("(ENCHANTER) Enthral the Dirge-Man", {Book::Type::Book1, 11}, Character::Class::Enchanter));
             Choices.push_back(Choice::Base("You cannot do any of these", {Book::Type::Book1, 22}));
 
@@ -2336,9 +2336,9 @@ namespace Book1
             Text = "Which item will you use?";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Use an <b>ice jewel<b>", {Book::Type::Book1, 99}, Equipment::Item::BlueIceJewel));
-            Choices.push_back(Choice::Base("... a <b>vellum scroll<b>", {Book::Type::Book1, 312}, Equipment::Item::VellumScroll));
-            Choices.push_back(Choice::Base("... or a <b>ruby ring<b>", {Book::Type::Book1, 391}, Equipment::Item::RubyRing));
+            Choices.push_back(Choice::Base("Use an <b>ice jewel</b>", {Book::Type::Book1, 99}, Equipment::Item::BlueIceJewel));
+            Choices.push_back(Choice::Base("... a <b>vellum scroll</b>", {Book::Type::Book1, 312}, Equipment::Item::VellumScroll));
+            Choices.push_back(Choice::Base("... or a <b>ruby ring</b>", {Book::Type::Book1, 391}, Equipment::Item::RubyRing));
             Choices.push_back(Choice::Base("You do not have any of these, or choose not to use them", {Book::Type::Book1, 112}));
 
             Controls = Story::Controls::Standard;
@@ -2971,6 +2971,119 @@ namespace Book1
         Book::Destination Background(Party::Base &Party) { return {Book::Type::Book1, 114}; }
     };
 
+    class Story115 : public Story::Base
+    {
+    public:
+        Story115()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 115;
+
+            Text = "After <i>recovering</i> for the next Spiral, Kief has three heads and three tails. This contrasts rather strongly with your three heads -- and no tails. He watches you for a moment, then says: \"Well, you have reached a no-win situation. A Converging Spiral, as we call it.\" His hands snake out to sweep the coins from the table.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
+    };
+
+    class Story116 : public Story::Base
+    {
+    public:
+        Story116()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 116;
+
+            Text = "\"Ah, it is well,\" says the ghost with a misty, emotionless smile. \"The loyal servants of Zyn shall share in his glory, and I shall reward you above all others.\" It passes its hands over the sarcophagus lid, which slowly rises into the air. You look upon a mouldered skeleton that clutches a lump of granite in its broken fingers.\n\n\"My mortal form...\" says the ghost wistfully. \"So long since I could taste the musky wines of Asmuly or feel a scented breeze from off the meadows... Take the stone! Take it quickly! I wish to wallow no longer in the memory of things lost to me.\"\n\nYou have no choice but to comply. Your agreement to aid the ghost has bereft you of any power to oppose him. You take the lump of granite from the skeleton's hands, and the sarcophagus slowly closes again.\n\nYou see that you hold a fossilised heart. \"It is the heart of the giant Skrymir,\" explains the ghost. \"He was destroyed by the True Magi, but he shall be my instrument of vengeance against their heirs, these mewling modern magi who have usurped the ancient grandeur...\" He flickers and seems to grow larger and more tenebrous for a moment, then settles down into a cold hard radiance. \"Go towards the atoll. I have no interest in this petty contest; it is of no concern to me whether you take the Emblem of Victory or not. Do so if you wish. However, on your way to the Emblem at the summit, you will pass through chambers where the sundered fragments of Skrymir's body lie -- his massive legs, his rib-cage, his arms and fleshless skull. Take them with you. At the summit, assemble them and place the fossilised heart in his dusty chest. Then stand you back, for the magic of Zyn shall roar forth from the cosmic interstices once again, as it did in times of old. Flesh shall clothe his yellowed bones; his heart shall beat and warm blood shall course through his veins; his eyes shall open and behold this travesty of ancient Krarth, and to the upstart magi he shall mete out a most fitting fate. Now, make ready to return below...\"\n\nHe lifts diaphanous hands. A stream of grey-blue lights surrounds you. The scene shifts, and once more you find yourself on the plain below the floating platform.\n\n<b>NOTE</b>\n\nYou can proceed as before -- but remember that you have the heart of Skrymir now and -- for the moment at least -- you cannot discard it.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Take the <b>heart of Skrymir</b>", {Book::Type::Book1, 238}, Choice::Type::TakeEquipment, {Equipment::HeartOfSkrymir}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story117 : public Story::Base
+    {
+    public:
+        Story117()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 117;
+
+            Text = "Skrymir rises from the ground, seeming to tower up and up. His beard flows like rivulets from a glacier; his eyes burn like frost. He raises his arms towards the cavern roof and gives a great wordless bellow of exultation. The walls seem to shake. If the magi in the city above hear it, they must be trembling now.\n\n\"Life!\" he thunders. \"To live again! To turn about the yoke of death and place it about the magi's necks! This is what I have dreamed of in my centuried sleep. And now, quake, you magi. Bolt the gates of your citadels. Marshal your armies and your puny magics. Skrymir strides the earth once more, and this time his iron-shod feet shall tread your mortal bodies into the mire!\"\n\nSkrymir is obviously getting ready to return to the surface to put some of his plans for vengeance into immediate effect.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Point out that you have just restored him to life", {Book::Type::Book1, 84}));
+            Choices.push_back(Choice::Base("Say nothing", {Book::Type::Book1, 257}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story118 : public Story::Base
+    {
+    public:
+        Story118()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 118;
+
+            Text = "On the Dirge-Man's back, you are carried far out across the chasm. The roaring wind-currents seem to slam you to and fro at random, but the Dirge-Man is used to them and manoeuvres with a bizarre elegance. Halfway across, he brings up the matter of the chimera spittle: \"I think it is best to be quite candid. If you do not allow me to finish the liquor, I shall loop over and drop you into the chasm below.\"\n\n\"Do not be too hasty,\" you retort. \"The 'liquor' was in fact a deadly poison for which I had already taken the antidote. If you expect to receive the antidote yourself, you had better ensure a safe and comfortable landing.\"\n\nWhimpering in fear for his life, the Dirge-Man flutters in to a landing on the opposite rim of the chasm. You hand him the rest of the chimera spittle -- swearing that, although it looks like the poison, it is in fact the antidote. The Dirge-Man drinks eagerly, and you leave before he discovers the truth.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 359}; }
+    };
+
+    class Story119 : public Story::Base
+    {
+    public:
+        Story119()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 119;
+
+            Text = "Dejectedly you return to the square. The black and purple pennant has gone. You are relieved to see that one pennant remains, however: the olive-green banner of Magus Kalugen, who rules this city. The steward is huddled beside a brazier, trying to draw what warmth he can from the glimmering coals. As you stride over, he looks up. \"The hour is late and I am cold,\" he says. Take this banner and let me go home.\"\n\nYou are just about to do so when another hand, velvet-gloved and bearing many white-gold rings, reaches out to snatch it.\n\n\"I shall be Kalugen's champion,\" states the newcomer. He appears to be an Enchanter. He turns to smile at you -- a very cold and sinister smile. \"I am Dominus Quel. And you -- you are dust if you try to oppose me.\"";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Oppose him", {Book::Type::Book1, 473}));
+            Choices.push_back(Choice::Base("Let him take the pennant", {Book::Type::Book1, 164}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story120 : public Story::Base
+    {
+    public:
+        Story120()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 120;
+
+            Text = "After <i>recovering</i> for the next Spiral, he has two heads and four tails. Your coins now show two heads and one tail. You must both play 1, drawing.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 115}; }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -3130,6 +3243,12 @@ namespace Book1
     auto story113 = Story113();
     auto story114 = Story114();
     auto event114 = Event114();
+    auto story115 = Story115();
+    auto story116 = Story116();
+    auto story117 = Story117();
+    auto story118 = Story118();
+    auto story119 = Story119();
+    auto story120 = Story120();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -3148,7 +3267,7 @@ namespace Book1
             &story081, &story082, &story083, &story084, &story085, &story086, &story087, &story088, &story089, &story090,
             &story091, &story092, &story093, &story094, &story095, &story096, &story097, &story098, &story099, &story100,
             &story101, &story102, &story103, &story104, &story105, &story106, &story107, &story108, &story109, &story110,
-            &story111, &story112, &story113, &story114,
+            &story111, &story112, &story113, &story114, &story115, &story116, &story117, &story118, &story119, &story120,
             &story398,
             &story452};
     }
