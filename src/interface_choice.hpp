@@ -820,7 +820,71 @@ namespace Interface
         }
     }
 
-    bool DropItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, std::string &Message)
+    bool HasItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    {
+        auto Result = false;
+
+        auto Item = Choice.Item;
+
+        if (Engine::HasItem(Party, Item))
+        {
+            Next = Interface::FindStory(Choice.Destination);
+
+            Result = true;
+        }
+        else
+        {
+            if (Engine::Count(Party) > 1)
+            {
+                Message = "No one has the " + std::string(Equipment::ItemDescription[Item]) + "!";
+            }
+            else
+            {
+                auto First = Engine::First(Party, Item);
+
+                Message = std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+            }
+        }
+
+        return Result;
+    }
+
+    bool CharacterItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    {
+        auto Result = false;
+
+        auto Item = Choice.Item;
+
+        auto Character = Choice.Character;
+
+        if (Engine::IsPresent(Party, Character) && Engine::HasItem(Party, Item))
+        {
+            Next = Interface::FindStory(Choice.Destination);
+
+            Result = true;
+        }
+        else if (Engine::HasItem(Party, Item))
+        {
+            Message = std::string(Character::ClassName[Character]) + " not present in your party!";
+        }
+        else
+        {
+            if (Engine::Count(Party) > 1)
+            {
+                Message = "No one has the " + std::string(Equipment::ItemDescription[Item]) + "!";
+            }
+            else
+            {
+                auto First = Engine::First(Party);
+
+                Message = std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+            }
+        }
+
+        return Result;
+    }
+
+    bool DropItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
     {
         auto Result = false;
 
@@ -837,6 +901,8 @@ namespace Interface
                 if (Engine::HasItem(Party.Members[Character], Item))
                 {
                     Engine::Drop(Party.Members[Character], Item);
+
+                    Next = Interface::FindStory(Choice.Destination);
 
                     Result = true;
                 }
@@ -863,7 +929,7 @@ namespace Interface
         return Result;
     }
 
-    bool DropWeapon(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, std::string &Message)
+    bool DropWeapon(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
     {
         auto Result = false;
 
@@ -880,6 +946,8 @@ namespace Interface
                 if (Engine::HasWeapon(Party.Members[Character], Weapon))
                 {
                     Engine::Drop(Party.Members[Character], Weapon);
+
+                    Next = Interface::FindStory(Choice.Destination);
 
                     Result = true;
                 }
@@ -906,7 +974,7 @@ namespace Interface
         return Result;
     }
 
-    bool Discharge(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, std::string &Message)
+    bool Discharge(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
     {
         auto Result = false;
 
@@ -928,6 +996,8 @@ namespace Interface
                     }
                     else
                     {
+                        Next = Interface::FindStory(Choice.Destination);
+
                         Result = true;
                     }
                 }
@@ -948,6 +1018,107 @@ namespace Interface
                 auto First = Engine::First(Party);
 
                 Message = std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+            }
+        }
+
+        return Result;
+    }
+
+    bool TestCharacter(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    {
+        auto TestResult = false;
+
+        if (Engine::IsPresent(Party, Choice.Character))
+        {
+            auto Character = Engine::Find(Party, Choice.Character);
+
+            auto Result = Interface::Test(Window, Renderer, Controls, intGR, Screen, Story, Party, Character, Choice.Attribute);
+
+            if (Result == Attributes::Result::SUCCESS)
+            {
+                Next = Interface::FindStory(Choice.Destination);
+
+                TestResult = true;
+            }
+            else
+            {
+                Next = Interface::FindStory(Choice.DestinationFail);
+
+                TestResult = true;
+            }
+        }
+        else
+        {
+            Message = std::string(Character::ClassName[Choice.Character]) + " not present in your party!";
+        }
+
+        return TestResult;
+    }
+
+    void TestSelectedCharacter(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next)
+    {
+        auto Character = Party.LastSelected >= 0 && Party.LastSelected < Party.Members.size() && Engine::IsAlive(Party.Members[Party.LastSelected]) ? Party.LastSelected : Engine::First(Party);
+
+        auto Result = Interface::Test(Window, Renderer, Controls, intGR, Screen, Story, Party, Character, Choice.Attribute);
+
+        if (Result == Attributes::Result::SUCCESS)
+        {
+            Next = Interface::FindStory(Choice.Destination);
+        }
+        else
+        {
+            Next = Interface::FindStory(Choice.DestinationFail);
+        }
+    }
+
+    bool HasAbility(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    {
+        auto Result = false;
+
+        auto Ability = Choice.Ability;
+
+        if (Engine::HasAbility(Party, Ability))
+        {
+            Next = Interface::FindStory(Choice.Destination);
+
+            Result = true;
+        }
+        else
+        {
+            if (Engine::Count(Party) > 1)
+            {
+                Message = "No one has the " + std::string(Abilities::Description[Ability]) + " ability!";
+            }
+            else
+            {
+                Message = "You do not have the " + std::string(Abilities::Description[Ability]) + " ability!";
+            }
+        }
+
+        return Result;
+    }
+
+    bool LoseMoney(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    {
+        auto Result = false;
+
+        auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, Choice.SelectMessage.c_str()) : Engine::First(Party);
+
+        if (Character >= 0 && Character < Party.Members.size())
+        {
+            if (Engine::CountMoney(Party.Members[Character]) >= Choice.Gold)
+            {
+                Party.LastSelected = Character;
+
+                Engine::LoseMoney(Party.Members[Character], Choice.Gold);
+
+                Next = Interface::FindStory(Choice.Destination);
+
+                Result = true;
+            }
+            else
+            {
+                Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have enough money!";
             }
         }
 
@@ -1139,116 +1310,65 @@ namespace Interface
                                     DisplayMessage(std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!", intBK);
                                 }
                             }
-                            else if (Story->Choices[Choice].Type == Choice::Type::Attribute)
+                            else if (Story->Choices[Choice].Type == Choice::Type::TestCharacter)
                             {
-                                if (Engine::IsPresent(Party, Story->Choices[Choice].Character))
+                                if (!Interface::TestCharacter(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
                                 {
-                                    auto Character = Engine::Find(Party, Story->Choices[Choice].Character);
-
-                                    auto Result = Interface::Test(Window, Renderer, Controls, intGR, Screen, Story, Party, Character, Story->Choices[Choice].Attribute);
-
-                                    if (Result == Attributes::Result::SUCCESS)
-                                    {
-                                        Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                        Done = true;
-                                    }
-                                    else
-                                    {
-                                        Next = Interface::FindStory(Story->Choices[Choice].DestinationFail);
-
-                                        Done = true;
-                                    }
+                                    DisplayMessage(Message, intBK);
                                 }
                                 else
                                 {
-                                    DisplayMessage(std::string(Character::ClassName[Story->Choices[Choice].Character]) + " not present in your party!", intBK);
-                                }
-                            }
-                            else if (Story->Choices[Choice].Type == Choice::Type::AttributeSelectedCharacter)
-                            {
-                                auto Character = Party.LastSelected >= 0 && Party.LastSelected < Party.Members.size() && Engine::IsAlive(Party.Members[Party.LastSelected]) ? Party.LastSelected : Engine::First(Party);
-
-                                auto Result = Interface::Test(Window, Renderer, Controls, intGR, Screen, Story, Party, Character, Story->Choices[Choice].Attribute);
-
-                                if (Result == Attributes::Result::SUCCESS)
-                                {
-                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                    Done = true;
-                                }
-                                else
-                                {
-                                    Next = Interface::FindStory(Story->Choices[Choice].DestinationFail);
-
                                     Done = true;
                                 }
                             }
-                            else if (Story->Choices[Choice].Type == Choice::Type::Ability)
+                            else if (Story->Choices[Choice].Type == Choice::Type::TestSelectedCharacter)
                             {
-                                auto Ability = Story->Choices[Choice].Ability;
+                                Interface::TestSelectedCharacter(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next);
 
-                                if (Engine::HasAbility(Party, Ability))
+                                Done = true;
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::HasAbility)
+                            {
+                                if (!Interface::HasAbility(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
                                 {
-                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                    Done = true;
+                                    DisplayMessage(Message, intBK);
                                 }
                                 else
                                 {
-                                    if (Engine::Count(Party) > 1)
-                                    {
-                                        DisplayMessage("No one has the " + std::string(Abilities::Description[Ability]) + " ability!", intBK);
-                                    }
-                                    else
-                                    {
-                                        DisplayMessage("You do not have the " + std::string(Abilities::Description[Ability]) + " ability!", intBK);
-                                    }
+                                    Done = true;
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::Discharge)
                             {
-                                auto Result = Interface::Discharge(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Message);
-
-                                if (Result)
+                                if (!Interface::Discharge(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
                                 {
-                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                    Done = true;
+                                    DisplayMessage(Message, intBK);
                                 }
                                 else
                                 {
-                                    DisplayMessage(Message, intBK);
+                                    Done = true;
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::DropWeapon)
                             {
-                                auto Result = Interface::DropWeapon(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Message);
-
-                                if (Result)
+                                if (!Interface::DropWeapon(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
                                 {
-                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                    Done = true;
+                                    DisplayMessage(Message, intBK);
                                 }
                                 else
                                 {
-                                    DisplayMessage(Message, intBK);
+                                    Done = true;
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::DropItem)
                             {
-                                auto Result = Interface::DropItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Message);
-
-                                if (Result)
+                                if (!Interface::DropItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
                                 {
-                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                    Done = true;
+                                    DisplayMessage(Message, intBK);
                                 }
                                 else
                                 {
-                                    DisplayMessage(Message, intBK);
+                                    Done = true;
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::SelectAdventurer)
@@ -1264,26 +1384,15 @@ namespace Interface
                                     Done = true;
                                 }
                             }
-                            else if (Story->Choices[Choice].Type == Choice::Type::AdventurerPays)
+                            else if (Story->Choices[Choice].Type == Choice::Type::LoseMoney)
                             {
-                                auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, Story->Choices[Choice].SelectMessage.c_str()) : Engine::First(Party);
-
-                                if (Character >= 0 && Character < Party.Members.size())
+                                if (!Interface::LoseMoney(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
                                 {
-                                    if (Engine::CountMoney(Party.Members[Character]) >= Story->Choices[Choice].Gold)
-                                    {
-                                        Party.LastSelected = Character;
-
-                                        Engine::LoseMoney(Party.Members[Character], Story->Choices[Choice].Gold);
-
-                                        Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                        Done = true;
-                                    }
-                                    else
-                                    {
-                                        DisplayMessage(std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have enough money!", intBK);
-                                    }
+                                    DisplayMessage(Message, intBK);
+                                }
+                                else
+                                {
+                                    Done = true;
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::SelectDice)
@@ -1301,56 +1410,24 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::CharacterItem)
                             {
-                                auto Item = Story->Choices[Choice].Item;
-
-                                auto Character = Story->Choices[Choice].Character;
-
-                                if (Engine::IsPresent(Party, Character) && Engine::HasItem(Party, Item))
+                                if (!Interface::CharacterItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
                                 {
-                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                    Done = true;
-                                }
-                                else if (Engine::HasItem(Party, Item))
-                                {
-                                    DisplayMessage(std::string(Character::ClassName[Character]) + " not present in your party!", intBK);
+                                    DisplayMessage(Message, intBK);
                                 }
                                 else
                                 {
-                                    if (Engine::Count(Party) > 1)
-                                    {
-                                        DisplayMessage("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                    }
-                                    else
-                                    {
-                                        auto First = Engine::First(Party);
-
-                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                    }
+                                    Done = true;
                                 }
                             }
-                            else if (Story->Choices[Choice].Type == Choice::Type::Item)
+                            else if (Story->Choices[Choice].Type == Choice::Type::HasItem)
                             {
-                                auto Item = Story->Choices[Choice].Item;
-
-                                if (Engine::HasItem(Party, Item))
+                                if (!Interface::HasItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
                                 {
-                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                    Done = true;
+                                    DisplayMessage(Message, intBK);
                                 }
                                 else
                                 {
-                                    if (Engine::Count(Party) > 1)
-                                    {
-                                        DisplayMessage("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                    }
-                                    else
-                                    {
-                                        auto First = Engine::First(Party, Item);
-
-                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                    }
+                                    Done = true;
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::EnemyCastSpell)

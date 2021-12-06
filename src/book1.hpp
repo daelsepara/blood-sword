@@ -1154,7 +1154,7 @@ namespace Book1
             Text = "You roll the heavy stones off the mound. The stones make an eerie clattering echo in the stillness of the cave as they roll away. Suddenly a dead white hand smashes through the rubble and grabs you by the wrist in a vice-like grip.\n\nYou are under a psychic attack.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Resist the psychic attack", {Book::Type::Book1, 447}, {Book::Type::Book1, 138}, Choice::Type::AttributeSelectedCharacter, Attributes::Type::PsychicAbility));
+            Choices.push_back(Choice::Base("Resist the psychic attack", {Book::Type::Book1, 447}, {Book::Type::Book1, 138}, Choice::Type::TestSelectedCharacter, Attributes::Type::PsychicAbility));
 
             Controls = Story::Controls::Standard;
         }
@@ -1625,7 +1625,7 @@ namespace Book1
 
             if (Engine::Count(Party) > 1)
             {
-                Choices.push_back(Choice::Base("Let others drink the same potion", {Book::Type::Book1, -62}, Choice::Type::AdventurerPays, "Who shall drink the bubbling green soup", 2));
+                Choices.push_back(Choice::Base("Let others drink the same potion", {Book::Type::Book1, -62}, Choice::Type::LoseMoney, "Who shall drink the bubbling green soup", 2));
             }
             else
             {
@@ -2649,11 +2649,11 @@ namespace Book1
 
             Choices.clear();
             Choices.push_back(Choice::Base("(SAGE) Examine the potions", {Book::Type::Book1, 9}, Character::Class::Sage));
-            Choices.push_back(Choice::Base("Try the bubbling green soup", {Book::Type::Book1, 62}, Choice::Type::AdventurerPays, "Who drinks the soup?", 2));
-            Choices.push_back(Choice::Base("... the tarry black substance", {Book::Type::Book1, 299}, Choice::Type::AdventurerPays, "Who shall try the tarry black substance?", 2));
-            Choices.push_back(Choice::Base("... the effervescent liquid", {Book::Type::Book1, 358}, Choice::Type::AdventurerPays, "Who shall try the effervescent liquid?", 2));
-            Choices.push_back(Choice::Base("... the slimy green concoction", {Book::Type::Book1, 44}, Choice::Type::AdventurerPays, "Who shall try the slimy green concoction?", 2));
-            Choices.push_back(Choice::Base("... the colourless brew", {Book::Type::Book1, 409}, Choice::Type::AdventurerPays, "Who shall try the colourless brew?", 2));
+            Choices.push_back(Choice::Base("Try the bubbling green soup", {Book::Type::Book1, 62}, Choice::Type::LoseMoney, "Who drinks the soup?", 2));
+            Choices.push_back(Choice::Base("... the tarry black substance", {Book::Type::Book1, 299}, Choice::Type::LoseMoney, "Who shall try the tarry black substance?", 2));
+            Choices.push_back(Choice::Base("... the effervescent liquid", {Book::Type::Book1, 358}, Choice::Type::LoseMoney, "Who shall try the effervescent liquid?", 2));
+            Choices.push_back(Choice::Base("... the slimy green concoction", {Book::Type::Book1, 44}, Choice::Type::LoseMoney, "Who shall try the slimy green concoction?", 2));
+            Choices.push_back(Choice::Base("... the colourless brew", {Book::Type::Book1, 409}, Choice::Type::LoseMoney, "Who shall try the colourless brew?", 2));
             Choices.push_back(Choice::Base("You cannot pay", {Book::Type::Book1, 481}));
 
             Controls = Story::Controls::Standard;

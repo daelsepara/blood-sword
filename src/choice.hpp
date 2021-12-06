@@ -12,12 +12,12 @@ namespace Choice
     enum class Type
     {
         Normal = 0,
-        Ability,
-        Attribute,
-        AttributeSelectedCharacter,
+        HasAbility,
+        TestCharacter,
+        TestSelectedCharacter,
         Character,
         Equipment,
-        Item,
+        HasItem,
         Weapon,
         Codeword,
         Shoot,
@@ -31,7 +31,7 @@ namespace Choice
         TakeScrolls,
         EnemyCastSpell,
         TakeEquipment,
-        AdventurerPays,
+        LoseMoney,
         PartyAttribute
     };
 
@@ -118,7 +118,7 @@ namespace Choice
 
             Attribute = attribute;
 
-            Type = Choice::Type::Attribute;
+            Type = Choice::Type::TestCharacter;
         }
 
         Base(const char *choice, Book::Destination destination, Book::Destination destinationFail, Choice::Type type, Attributes::Type attribute)
@@ -155,7 +155,7 @@ namespace Choice
 
             Ability = ability;
 
-            Type = Choice::Type::Ability;
+            Type = Choice::Type::HasAbility;
         }
 
         Base(const char *choice, Book::Destination destination, Code::Word codeword)
@@ -208,7 +208,7 @@ namespace Choice
 
             Item = item;
 
-            Type = Choice::Type::Item;
+            Type = Choice::Type::HasItem;
         }
 
         Base(const char *choice, Book::Destination destination, Choice::Type type, Equipment::Item item)
