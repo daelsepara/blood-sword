@@ -820,7 +820,7 @@ namespace Interface
         }
     }
 
-    bool HasItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    bool HasItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
     {
         auto Result = false;
 
@@ -828,7 +828,7 @@ namespace Interface
 
         if (Engine::HasItem(Party, Item))
         {
-            Next = Interface::FindStory(Choice.Destination);
+            *Next = Interface::FindStory(Choice.Destination);
 
             Result = true;
         }
@@ -849,7 +849,7 @@ namespace Interface
         return Result;
     }
 
-    bool CharacterItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    bool CharacterItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
     {
         auto Result = false;
 
@@ -859,7 +859,7 @@ namespace Interface
 
         if (Engine::IsPresent(Party, Character) && Engine::HasItem(Party, Item))
         {
-            Next = Interface::FindStory(Choice.Destination);
+            *Next = Interface::FindStory(Choice.Destination);
 
             Result = true;
         }
@@ -884,7 +884,7 @@ namespace Interface
         return Result;
     }
 
-    bool DropItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    bool DropItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
     {
         auto Result = false;
 
@@ -902,7 +902,7 @@ namespace Interface
                 {
                     Engine::Drop(Party.Members[Character], Item);
 
-                    Next = Interface::FindStory(Choice.Destination);
+                    *Next = Interface::FindStory(Choice.Destination);
 
                     Result = true;
                 }
@@ -929,7 +929,7 @@ namespace Interface
         return Result;
     }
 
-    bool DropWeapon(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    bool DropWeapon(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
     {
         auto Result = false;
 
@@ -947,7 +947,7 @@ namespace Interface
                 {
                     Engine::Drop(Party.Members[Character], Weapon);
 
-                    Next = Interface::FindStory(Choice.Destination);
+                    *Next = Interface::FindStory(Choice.Destination);
 
                     Result = true;
                 }
@@ -974,7 +974,7 @@ namespace Interface
         return Result;
     }
 
-    bool Discharge(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    bool Discharge(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
     {
         auto Result = false;
 
@@ -996,7 +996,7 @@ namespace Interface
                     }
                     else
                     {
-                        Next = Interface::FindStory(Choice.Destination);
+                        *Next = Interface::FindStory(Choice.Destination);
 
                         Result = true;
                     }
@@ -1024,7 +1024,7 @@ namespace Interface
         return Result;
     }
 
-    bool TestCharacter(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    bool TestCharacter(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
     {
         auto TestResult = false;
 
@@ -1036,13 +1036,13 @@ namespace Interface
 
             if (Result == Attributes::Result::SUCCESS)
             {
-                Next = Interface::FindStory(Choice.Destination);
+                *Next = Interface::FindStory(Choice.Destination);
 
                 TestResult = true;
             }
             else
             {
-                Next = Interface::FindStory(Choice.DestinationFail);
+                *Next = Interface::FindStory(Choice.DestinationFail);
 
                 TestResult = true;
             }
@@ -1055,7 +1055,7 @@ namespace Interface
         return TestResult;
     }
 
-    void TestSelectedCharacter(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next)
+    void TestSelectedCharacter(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next)
     {
         auto Character = Party.LastSelected >= 0 && Party.LastSelected < Party.Members.size() && Engine::IsAlive(Party.Members[Party.LastSelected]) ? Party.LastSelected : Engine::First(Party);
 
@@ -1063,15 +1063,15 @@ namespace Interface
 
         if (Result == Attributes::Result::SUCCESS)
         {
-            Next = Interface::FindStory(Choice.Destination);
+            *Next = Interface::FindStory(Choice.Destination);
         }
         else
         {
-            Next = Interface::FindStory(Choice.DestinationFail);
+            *Next = Interface::FindStory(Choice.DestinationFail);
         }
     }
 
-    bool HasAbility(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    bool HasAbility(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
     {
         auto Result = false;
 
@@ -1079,7 +1079,7 @@ namespace Interface
 
         if (Engine::HasAbility(Party, Ability))
         {
-            Next = Interface::FindStory(Choice.Destination);
+            *Next = Interface::FindStory(Choice.Destination);
 
             Result = true;
         }
@@ -1098,7 +1098,7 @@ namespace Interface
         return Result;
     }
 
-    bool LoseMoney(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base *Next, std::string &Message)
+    bool LoseMoney(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
     {
         auto Result = false;
 
@@ -1112,7 +1112,7 @@ namespace Interface
 
                 Engine::LoseMoney(Party.Members[Character], Choice.Gold);
 
-                Next = Interface::FindStory(Choice.Destination);
+                *Next = Interface::FindStory(Choice.Destination);
 
                 Result = true;
             }
@@ -1312,7 +1312,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::TestCharacter)
                             {
-                                if (!Interface::TestCharacter(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
+                                if (!Interface::TestCharacter(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
                                 {
                                     DisplayMessage(Message, intBK);
                                 }
@@ -1323,13 +1323,13 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::TestSelectedCharacter)
                             {
-                                Interface::TestSelectedCharacter(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next);
+                                Interface::TestSelectedCharacter(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next);
 
                                 Done = true;
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::HasAbility)
                             {
-                                if (!Interface::HasAbility(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
+                                if (!Interface::HasAbility(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
                                 {
                                     DisplayMessage(Message, intBK);
                                 }
@@ -1340,7 +1340,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::Discharge)
                             {
-                                if (!Interface::Discharge(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
+                                if (!Interface::Discharge(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
                                 {
                                     DisplayMessage(Message, intBK);
                                 }
@@ -1351,7 +1351,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::DropWeapon)
                             {
-                                if (!Interface::DropWeapon(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
+                                if (!Interface::DropWeapon(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
                                 {
                                     DisplayMessage(Message, intBK);
                                 }
@@ -1362,7 +1362,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::DropItem)
                             {
-                                if (!Interface::DropItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
+                                if (!Interface::DropItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
                                 {
                                     DisplayMessage(Message, intBK);
                                 }
@@ -1386,7 +1386,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::LoseMoney)
                             {
-                                if (!Interface::LoseMoney(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
+                                if (!Interface::LoseMoney(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
                                 {
                                     DisplayMessage(Message, intBK);
                                 }
@@ -1410,7 +1410,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::CharacterItem)
                             {
-                                if (!Interface::CharacterItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
+                                if (!Interface::CharacterItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
                                 {
                                     DisplayMessage(Message, intBK);
                                 }
@@ -1421,7 +1421,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::HasItem)
                             {
-                                if (!Interface::HasItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Next, Message))
+                                if (!Interface::HasItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
                                 {
                                     DisplayMessage(Message, intBK);
                                 }
