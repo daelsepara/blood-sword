@@ -32,6 +32,11 @@ namespace Interface
         int InfoBoxX = 0;
         int InfoBoxY = 0;
         int InfoWidth = 0;
+
+        int Width = 0;
+        int Height = 0;
+        int X = 0;
+        int Y = 0;
     };
 
     void DisplayParty(SDL_Renderer *Renderer, Party::Base &Party, Interface::ScreenDimensions &Screen)
@@ -186,6 +191,60 @@ namespace Interface
         Graphics::PutText(Renderer, std::string("ARMOUR RATING: " + std::to_string(Armour)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 6 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("DAMAGE: " + std::to_string(Damage) + (DamageModifier >= 0 ? "D+" : "D") + std::to_string(DamageModifier)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 7 * (FontSize + 2));
         Graphics::PutText(Renderer, std::string("EXPERIENCE: " + std::to_string(Character.ExperiencePoints)).c_str(), Font, 0, FlipColors ? clrGR : clrWH, Bg, TTF_STYLE_NORMAL, TextWidth, FontSize, X, Y + 8 * (FontSize + 2));
+    }
+
+    std::vector<Button> ChoiceList(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<std::string> &Choices, Interface::ScreenDimensions &Screen, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+
+        auto Controls = std::vector<Button>();
+
+        if (Choices.size() > 0)
+        {
+            for (auto i = 0; i < Last - Start; i++)
+            {
+                auto index = Start + i;
+
+                auto y = (i > 0 ? Controls[i - 1].Y + Controls[i - 1].H + 3 * text_space : Screen.TextBoxY + 2 * text_space);
+
+                Controls.push_back(Button(i, Graphics::CreateHeaderButton(Window, FONT_BOOKMAN, FontSize, Choices[index].c_str(), Fg, Bg, Screen.TextWidth - 3 * text_space, (FontSize * 3 + text_space), text_space), i, i, (i > 0 ? i - 1 : i), i + 1, Screen.TextBoxX + 2 * text_space, y, Highlight, Control::Type::CHOICE));
+
+                Controls[i].W = Screen.TextWidth - 2 * text_space;
+
+                Controls[i].H = Controls[i].Surface->h;
+            }
+        }
+
+        auto idx = (int)Controls.size();
+
+        if (Choices.size() > Limit)
+        {
+            if (Start > 0)
+            {
+                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Up), idx, idx, idx, idx + 1, Screen.X + Screen.Width - (buttonw + 4 * text_space), Screen.Y + (buttonh + 3 * text_space), Highlight == intBK ? intWH : Highlight, Control::Type::SCROLL_UP));
+
+                idx += 1;
+            }
+
+            if (Choices.size() - Last > 0)
+            {
+                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Down), idx, idx, Start > 0 ? idx - 1 : idx, idx + 1, Screen.X + Screen.Width - (buttonw + 4 * text_space), Screen.Y + Screen.Height - 3 * (buttonh + 2 * text_space) + text_space, Highlight == intBK ? intWH : Highlight, Control::Type::SCROLL_DOWN));
+
+                idx += 1;
+            }
+        }
+
+        idx = (int)Controls.size();
+
+        auto IconSize = (buttonw + 2 * text_space);
+
+        auto OffsetY = Screen.Y + Screen.Height - 2 * (IconSize - text_space);
+
+        auto LastX = Screen.X + Screen.Width - (2 * IconSize) - (3 * text_space);
+
+        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx, idx, idx > 0 ? idx - 1 : idx, idx, LastX, OffsetY, Highlight == intBK ? intWH : Highlight, Control::Type::BACK));
+
+        return Controls;
     }
 
     std::vector<Button> EquipmentList(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Equipment::Base> &Equipment, int WindowW, int WindowH, int WindowTextX, int WindowTextY, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight, Equipment::Mode Mode)

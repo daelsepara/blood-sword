@@ -28,15 +28,15 @@ namespace Interface
 
         Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
 
-        auto FlashW = 3 * SCREEN_WIDTH / 5;
+        auto FlashW = 3 * Screen.Width / 5;
 
-        auto FlashH = SCREEN_HEIGHT / 5;
+        auto FlashH = Screen.Height / 5;
 
-        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2);
+        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.Y + (Screen.Height - FlashH) / 2);
 
         if (FlashColor == intBK)
         {
-            Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2, intWH);
+            Graphics::DrawRect(Renderer, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.Y + (Screen.Height - FlashH) / 2, intWH);
         }
 
         SDL_RenderPresent(Renderer);
@@ -49,9 +49,9 @@ namespace Interface
         auto Result = -1;
 
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 4 * FontSize + Screen.IconSize;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto ButtonX = WindowX + 2 * text_space;
 
@@ -126,9 +126,9 @@ namespace Interface
     {
         auto Result = -1;
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 2 * Screen.TextBoxHeight / 5;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto RowHeight = TTF_FontHeight(Fonts::Normal);
         auto TextY = WindowY + 2 * text_space;
@@ -201,9 +201,9 @@ namespace Interface
     void ItemScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int Character, Equipment::Mode Mode)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 12 * FontSize + Screen.IconSize;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto WindowTextWidth = WindowW - 4 * text_space;
         auto TextY = WindowY + 2 * text_space;
@@ -394,7 +394,7 @@ namespace Interface
 
                             for (auto i = 0; i < Equipment.size(); i++)
                             {
-                                if (!Engine::InList(Selection, i) || Equipment[i].Item == Equipment::Item::HeartOfSkrymir)
+                                if (!Engine::InList(Selection, i) || (Equipment[i].Item == Equipment::Item::HeartOfSkrymir && Party.Book == Book::Type::Book1) || (Equipment[i].Item == Equipment::Item::ScorchedSkull && Party.Story == 38 && Party.Book == Book::Type::Book1))
                                 {
                                     New.push_back(Equipment[i]);
                                 }
@@ -433,9 +433,9 @@ namespace Interface
     void TakeScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 12 * FontSize + Screen.IconSize;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto WindowTextWidth = WindowW - 4 * text_space;
         auto TextY = WindowY + 2 * text_space;
@@ -735,9 +735,9 @@ namespace Interface
     void ManageAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int Character)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 12 * FontSize + Screen.IconSize;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto WindowTextWidth = WindowW - 4 * text_space;
         auto ColumnWidth = WindowTextWidth / 2;
@@ -828,9 +828,9 @@ namespace Interface
     void Bye(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, std::string Bye)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 8 * FontSize + Screen.IconSize;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto WindowTextWidth = WindowW - 4 * text_space;
         auto TextY = WindowY + 2 * text_space;
@@ -904,15 +904,15 @@ namespace Interface
 
             auto ShowMessage = [&](std::string DisplayMessage, int Color)
             {
-                auto FlashW = 3 * SCREEN_WIDTH / 5;
+                auto FlashW = 3 * Screen.Width / 5;
 
-                auto FlashH = SCREEN_HEIGHT / 5;
+                auto FlashH = Screen.Height / 5;
 
-                Graphics::PutTextBox(Renderer, DisplayMessage.c_str(), Fonts::Normal, -1, clrWH, Color, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2);
+                Graphics::PutTextBox(Renderer, DisplayMessage.c_str(), Fonts::Normal, -1, clrWH, Color, TTF_STYLE_NORMAL, FlashW, FlashH, (Screen.Width - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2);
 
                 if (Color == intBK)
                 {
-                    Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH), intWH);
+                    Graphics::DrawRect(Renderer, FlashW, FlashH, (Screen.Width - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH), intWH);
                 }
             };
 
@@ -963,24 +963,32 @@ namespace Interface
 
             auto Quit = false;
 
+            Screen.X = 0;
+            Screen.Y = 0;
+            Screen.Width = SCREEN_WIDTH;
+            Screen.Height = SCREEN_HEIGHT;
             Screen.IconSize = (buttonw + 2 * text_space);
-            Screen.BoxWidth = (SCREEN_WIDTH - 2 * Screen.IconSize) / 2 + text_space;
-            Screen.BoxHeight = (SCREEN_HEIGHT - 3 * (buttonh + 2 * text_space));
+            Screen.BoxWidth = (Screen.Width - 2 * Screen.IconSize) / 2 + text_space;
+            Screen.BoxHeight = (Screen.Height - 3 * (buttonh + 2 * text_space));
             Screen.TextBoxWidth = Screen.BoxWidth;
             Screen.TextBoxHeight = Screen.BoxHeight;
-            Screen.TextBoxX = Screen.IconSize / 2 + Screen.BoxWidth - text_space;
-            Screen.TextBoxY = Screen.IconSize;
+            Screen.TextBoxX = Screen.X + Screen.IconSize / 2 + Screen.BoxWidth - text_space;
+            Screen.TextBoxY = Screen.Y + Screen.IconSize;
             Screen.TextBounds = Screen.TextBoxHeight - 2 * text_space;
             Screen.TextWidth = Screen.TextBoxWidth - 2 * text_space;
             Screen.InfoBoxWidth = Screen.TextBoxWidth - 2 * text_space;
             Screen.InfoBoxHeight = Screen.TextBoxHeight;
             Screen.InfoWidth = Screen.InfoBoxWidth - 2 * text_space;
-            Screen.InfoBoxX = Screen.IconSize / 2;
-            Screen.InfoBoxY = Screen.IconSize;
+            Screen.InfoBoxX = Screen.X + Screen.IconSize / 2;
+            Screen.InfoBoxY = Screen.Y + Screen.IconSize;
             Screen.ObjectSize = buttonw;
 
             while (!Quit)
             {
+                Party.Book = Story->Book;
+
+                Party.Story = Story->Id;
+
                 // make a backup of current party
                 auto SaveParty = Party;
 

@@ -5,7 +5,7 @@
 
 namespace Interface
 {
-    void RenderChoiceScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, int Current, Uint32 Bg)
+    void RenderChoiceScreen(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, int Current)
     {
         Interface::RenderLeftPanel(Window, Renderer, Party, Story, Screen, Controls);
 
@@ -14,28 +14,28 @@ namespace Interface
         {
             if (Controls[i].Type == Control::Type::CHOICE)
             {
-                Graphics::FillRect(Renderer, Controls[i].W + text_space, Controls[i].H + text_space, Controls[i].X - border_pts, Controls[i].Y - border_pts, Bg);
+                Graphics::FillRect(Renderer, Controls[i].W + text_space, Controls[i].H + text_space, Controls[i].X - border_pts, Controls[i].Y - border_pts, intGR);
             }
         }
 
         Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
     }
 
-    void RenderMessage(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &ChoiceScreen, int Current, Uint32 Bg, std::string Message, Uint32 FlashColor)
+    void RenderMessage(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &ChoiceScreen, int Current, std::string Message, Uint32 FlashColor)
     {
         Uint32 Duration = 1500;
 
-        Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg);
+        Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current);
 
-        auto FlashW = 3 * SCREEN_WIDTH / 5;
+        auto FlashW = 3 * Screen.Width / 5;
 
-        auto FlashH = SCREEN_HEIGHT / 5;
+        auto FlashH = Screen.Height / 5;
 
-        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2);
+        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.Y + (Screen.Height - FlashH) / 2);
 
         if (FlashColor == intBK)
         {
-            Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2, intWH);
+            Graphics::DrawRect(Renderer, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.Y + (Screen.Height - FlashH) / 2, intWH);
         }
 
         SDL_RenderPresent(Renderer);
@@ -43,14 +43,14 @@ namespace Interface
         SDL_Delay(Duration);
     }
 
-    int Choose(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
+    int Choose(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
     {
         auto Result = -1;
 
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 4 * FontSize + Screen.IconSize;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto ButtonX = WindowX + 2 * text_space;
 
@@ -77,7 +77,7 @@ namespace Interface
 
         while (!Done)
         {
-            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, Bg);
+            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1);
 
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
 
@@ -127,9 +127,9 @@ namespace Interface
     void ItemScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, int Character, Equipment::Mode Mode)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 12 * FontSize + Screen.IconSize;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto WindowTextWidth = WindowW - 4 * text_space;
         auto TextY = WindowY + 2 * text_space;
@@ -172,7 +172,7 @@ namespace Interface
                 Mode = Equipment::Mode::DROP;
             }
 
-            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, intGR);
+            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1);
 
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
@@ -312,7 +312,7 @@ namespace Interface
 
                         std::string Options = Selection.size() > 1 ? "Drop items" : ("Drop the " + Equipment[Selection[0]].String());
 
-                        auto Result = Interface::Choose(Window, Renderer, ChoiceScreen, intGR, Party, Story, Screen, {Assets::Type::Ok}, {Options.c_str()}, Message.c_str());
+                        auto Result = Interface::Choose(Window, Renderer, ChoiceScreen, Party, Story, Screen, {Assets::Type::Ok}, {Options.c_str()}, Message.c_str());
 
                         if (Result == 0)
                         {
@@ -320,7 +320,7 @@ namespace Interface
 
                             for (auto i = 0; i < Equipment.size(); i++)
                             {
-                                if (!Engine::InList(Selection, i) || Equipment[i].Item == Equipment::Item::HeartOfSkrymir)
+                                if (!Engine::InList(Selection, i) || (Equipment[i].Item == Equipment::Item::HeartOfSkrymir && Party.Book == Book::Type::Book1) || (Equipment[i].Item == Equipment::Item::ScorchedSkull && Party.Story == 38 && Party.Book == Book::Type::Book1))
                                 {
                                     New.push_back(Equipment[i]);
                                 }
@@ -356,13 +356,13 @@ namespace Interface
         }
     }
 
-    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, const char *SelectMessage)
+    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, const char *SelectMessage)
     {
         auto Result = -1;
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 2 * Screen.TextBoxHeight / 5;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto RowHeight = TTF_FontHeight(Fonts::Normal);
         auto TextY = WindowY + 2 * text_space;
@@ -397,7 +397,7 @@ namespace Interface
 
         while (!Done)
         {
-            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, Bg);
+            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1);
 
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
 
@@ -434,62 +434,22 @@ namespace Interface
 
     std::vector<Button> CreateChoices(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Choice::Base> &Choices, Interface::ScreenDimensions &Screen, int Start, int Last, int Limit, SDL_Color Fg, Uint32 Bg, Uint32 Highlight)
     {
-        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto ChoicesText = std::vector<std::string>();
 
-        auto Controls = std::vector<Button>();
-
-        if (Choices.size() > 0)
+        for (auto i = 0; i < Choices.size(); i++)
         {
-            for (auto i = 0; i < Last - Start; i++)
-            {
-                auto index = Start + i;
-
-                auto y = (i > 0 ? Controls[i - 1].Y + Controls[i - 1].H + 3 * text_space : Screen.TextBoxY + 2 * text_space);
-
-                Controls.push_back(Button(i, Graphics::CreateHeaderButton(Window, FONT_BOOKMAN, FontSize, Choices[index].Text.c_str(), Fg, Bg, Screen.TextWidth - 3 * text_space, (FontSize * 3 + text_space), text_space), i, i, (i > 0 ? i - 1 : i), i + 1, Screen.TextBoxX + 2 * text_space, y, Highlight, Control::Type::CHOICE));
-
-                Controls[i].W = Screen.TextWidth - 2 * text_space;
-
-                Controls[i].H = Controls[i].Surface->h;
-            }
+            ChoicesText.push_back(Choices[i].Text);
         }
 
-        auto idx = (int)Controls.size();
-
-        if (Choices.size() > Limit)
-        {
-            if (Start > 0)
-            {
-                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Up), idx, idx, idx, idx + 1, SCREEN_WIDTH - (buttonw + 4 * text_space), (buttonh + 3 * text_space), Highlight == intBK ? intWH : Highlight, Control::Type::SCROLL_UP));
-
-                idx += 1;
-            }
-
-            if (Choices.size() - Last > 0)
-            {
-                Controls.push_back(Button(idx, Assets::Get(Assets::Type::Down), idx, idx, Start > 0 ? idx - 1 : idx, idx + 1, SCREEN_WIDTH - (buttonw + 4 * text_space), SCREEN_HEIGHT - 3 * (buttonh + 2 * text_space) + text_space, Highlight == intBK ? intWH : Highlight, Control::Type::SCROLL_DOWN));
-
-                idx += 1;
-            }
-        }
-
-        idx = (int)Controls.size();
-
-        auto IconSize = (buttonw + 2 * text_space);
-        auto OffsetY = SCREEN_HEIGHT - 2 * (IconSize - text_space);
-        auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * text_space);
-
-        Controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx, idx, idx > 0 ? idx - 1 : idx, idx, LastX, OffsetY, Highlight == intBK ? intWH : Highlight, Control::Type::BACK));
-
-        return Controls;
+        return Interface::ChoiceList(Window, Renderer, ChoicesText, Screen, Start, Last, Limit, Fg, Bg, Highlight);
     }
 
-    Attributes::Result Test(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Uint32 Bg, Interface::ScreenDimensions &Screen, Story::Base *Story, Party::Base &Party, int Character, Attributes::Type Attribute)
+    Attributes::Result Test(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &ChoiceScreen, Interface::ScreenDimensions &Screen, Story::Base *Story, Party::Base &Party, int Character, Attributes::Type Attribute)
     {
         auto Result = Attributes::Result::NONE;
-        auto WindowW = 3 * SCREEN_WIDTH / 5;
+        auto WindowW = 3 * Screen.Width / 5;
         auto WindowH = 4 * Screen.TextBoxHeight / 5;
-        auto WindowX = (SCREEN_WIDTH - WindowW) / 2;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
         auto ColumnWidth = WindowW - 4 * text_space;
         auto RowHeight = TTF_FontHeight(Fonts::Normal);
@@ -572,7 +532,7 @@ namespace Interface
         while (!Done)
         {
             // render current combat screen
-            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, Bg);
+            Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1);
 
             Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
 
@@ -662,11 +622,11 @@ namespace Interface
         return Result;
     }
 
-    void ProcessSpell(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, std::vector<Button> &ChoiceScreen, Interface::ScreenDimensions &Screen, int Current, Uint32 Bg, Spell::Type Spell)
+    void ProcessSpell(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, std::vector<Button> &ChoiceScreen, Interface::ScreenDimensions &Screen, int Current, Spell::Type Spell)
     {
         std::string SpellString = std::string(Spell::Name[Spell]) + " was cast against " + (Engine::Count(Party) > 1 ? "the party!" : "you!");
 
-        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg, SpellString, intBK);
+        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, SpellString, intBK);
 
         if (Spell == Spell::Type::MistsOfDeath)
         {
@@ -678,13 +638,13 @@ namespace Interface
                 {
                     auto Damage = Engine::Roll(2, 0);
 
-                    auto Result = Interface::Test(Window, Renderer, ChoiceScreen, Bg, Screen, Story, Party, i, Attributes::Type::PsychicAbility);
+                    auto Result = Interface::Test(Window, Renderer, ChoiceScreen, Screen, Story, Party, i, Attributes::Type::PsychicAbility);
 
                     if (Result == Attributes::Result::FAILURE)
                     {
                         std::string DamageString = std::string(Character::ClassName[Character.Class]) + " dealt " + std::to_string(Damage) + " damage!";
 
-                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg, DamageString, intBK);
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, DamageString, intBK);
 
                         Engine::Gain(Character, -Damage);
                     }
@@ -692,19 +652,19 @@ namespace Interface
                     {
                         std::string ResistString = std::string(Character::ClassName[Character.Class]) + " resisted the " + std::string(Spell::Name[Spell]) + "!";
 
-                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg, ResistString, intGR);
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, ResistString, intGR);
                     }
 
                     if (!Engine::IsAlive(Character))
                     {
-                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, Bg, std::string(Character::ClassName[Character.Class]) + " killed!", intBK);
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, ChoiceScreen, Current, std::string(Character::ClassName[Character.Class]) + " killed!", intBK);
                     }
                 }
             }
         }
     }
 
-    void TakeItems(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Uint32 Bg, std::string &Message)
+    void TakeItems(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, std::string &Message)
     {
         auto Equipment = Choice.Equipment;
 
@@ -718,13 +678,13 @@ namespace Interface
                 {
                     std::string TakeMessage = "Give the " + Equipment[i].Name + " to";
 
-                    Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
+                    Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
 
                     if (Character >= 0 && Character < Party.Members.size())
                     {
                         if ((Equipment[i].Weapon == Equipment::Weapon::Bow || Equipment[i].Class == Equipment::Class::Quiver) && Party.Members[Character].Class != Character::Class::Trickster && Party.Members[Character].Class != Character::Class::Sage)
                         {
-                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, (std::string(Character::ClassName[Party.Members[Character].Class]) + " cannot use the " + Equipment[i].Name), intBK);
+                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, (std::string(Character::ClassName[Party.Members[Character].Class]) + " cannot use the " + Equipment[i].Name), intBK);
 
                             if (Engine::Count(Party) == 1)
                             {
@@ -753,7 +713,7 @@ namespace Interface
                 {
                     std::string TakeMessage = "Give the " + std::to_string(Gold) + (Gold != 1 ? " gold pieces" : " gold piece") + " to";
 
-                    auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
+                    auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
 
                     if (Character >= 0 && Character < Party.Members.size())
                     {
@@ -765,7 +725,7 @@ namespace Interface
                         }
                         else
                         {
-                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, "No space oeft for the gold!", intBK);
+                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, "No space oeft for the gold!", intBK);
 
                             if (Engine::Count(Party) == 1)
                             {
@@ -787,7 +747,7 @@ namespace Interface
                 {
                     std::string TakeMessage = "Give the " + std::to_string(Arrows) + (Arrows != 1 ? " arrows" : " arrow") + " to";
 
-                    auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
+                    auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
 
                     if (Character >= 0 && Character < Party.Members.size())
                     {
@@ -799,7 +759,7 @@ namespace Interface
                         }
                         else
                         {
-                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, "No space left for the arrows!", intBK);
+                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, "No space left for the arrows!", intBK);
 
                             if (Engine::Count(Party) == 1)
                             {
@@ -890,7 +850,7 @@ namespace Interface
         {
             auto DropMessage = "Select whose " + std::string(Equipment::ItemDescription[Item]) + " to drop";
 
-            auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Item);
+            auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Item);
 
             if (Character >= 0 && Character < Party.Members.size())
             {
@@ -935,7 +895,7 @@ namespace Interface
         {
             auto DropMessage = "Select whose " + std::string(Equipment::WeaponDescription[Weapon]) + " to drop";
 
-            auto Character = Engine::Count(Party, Weapon) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Weapon);
+            auto Character = Engine::Count(Party, Weapon) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Weapon);
 
             if (Character >= 0 && Character < Party.Members.size())
             {
@@ -980,7 +940,7 @@ namespace Interface
         {
             auto DischargeMessage = "Select whose " + std::string(Equipment::ItemDescription[Item]) + " to discharge";
 
-            auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DischargeMessage.c_str()) : Engine::First(Party, Item);
+            auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Party, Story, Screen, DischargeMessage.c_str()) : Engine::First(Party, Item);
 
             if (Character >= 0 && Character < Party.Members.size())
             {
@@ -1028,7 +988,7 @@ namespace Interface
         {
             auto Character = Engine::Find(Party, Choice.Character);
 
-            auto Result = Interface::Test(Window, Renderer, Controls, intGR, Screen, Story, Party, Character, Choice.Attribute);
+            auto Result = Interface::Test(Window, Renderer, Controls, Screen, Story, Party, Character, Choice.Attribute);
 
             if (Result == Attributes::Result::SUCCESS)
             {
@@ -1061,7 +1021,7 @@ namespace Interface
         {
             if (Engine::IsAlive(Party.Members[i]))
             {
-                auto Result = Interface::Test(Window, Renderer, Controls, intGR, Screen, Story, Party, i, Choice.Attribute);
+                auto Result = Interface::Test(Window, Renderer, Controls, Screen, Story, Party, i, Choice.Attribute);
 
                 if (Result == Attributes::Result::FAILURE)
                 {
@@ -1069,7 +1029,7 @@ namespace Interface
 
                     if (Consequence == Choice::Consequence::LoseItemOrEndurance)
                     {
-                        auto ConsequenceChoice = Interface::Choose(Window, Renderer, Controls, intGR, Party, Story, Screen, {Assets::Type::Cancel, Assets::Type::Healing}, {"Item", "Endurance"}, "Lose one item or a point of endurance?");
+                        auto ConsequenceChoice = Interface::Choose(Window, Renderer, Controls, Party, Story, Screen, {Assets::Type::Cancel, Assets::Type::Healing}, {"Item", "Endurance"}, "Lose one item or a point of endurance?");
 
                         if (ConsequenceChoice == 0)
                         {
@@ -1110,7 +1070,7 @@ namespace Interface
     {
         auto Character = Party.LastSelected >= 0 && Party.LastSelected < Party.Members.size() && Engine::IsAlive(Party.Members[Party.LastSelected]) ? Party.LastSelected : Engine::First(Party);
 
-        auto Result = Interface::Test(Window, Renderer, Controls, intGR, Screen, Story, Party, Character, Choice.Attribute);
+        auto Result = Interface::Test(Window, Renderer, Controls, Screen, Story, Party, Character, Choice.Attribute);
 
         if (Result == Attributes::Result::SUCCESS)
         {
@@ -1153,7 +1113,7 @@ namespace Interface
     {
         auto Result = false;
 
-        auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, Choice.SelectMessage.c_str()) : Engine::First(Party);
+        auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Party, Story, Screen, Choice.SelectMessage.c_str()) : Engine::First(Party);
 
         if (Character >= 0 && Character < Party.Members.size())
         {
@@ -1207,15 +1167,15 @@ namespace Interface
             {
                 if ((SDL_GetTicks() - StartTicks) < Duration)
                 {
-                    auto FlashW = 3 * SCREEN_WIDTH / 5;
+                    auto FlashW = 3 * Screen.Width / 5;
 
-                    auto FlashH = SCREEN_HEIGHT / 5;
+                    auto FlashH = Screen.Height / 5;
 
-                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2);
+                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.Y + Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2);
 
                     if (FlashColor == intBK)
                     {
-                        Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2, intWH);
+                        Graphics::DrawRect(Renderer, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.Y + Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2, intWH);
                     }
                 }
                 else
@@ -1255,7 +1215,7 @@ namespace Interface
 
             while (!Done)
             {
-                Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, Controls, Current, Bg);
+                Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, Controls, Current);
 
                 if (Current >= 0 && Current < Controls.size())
                 {
@@ -1424,7 +1384,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::SelectAdventurer)
                             {
-                                auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, Story->Choices[Choice].SelectMessage.c_str()) : Engine::First(Party);
+                                auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Party, Story, Screen, Story->Choices[Choice].SelectMessage.c_str()) : Engine::First(Party);
 
                                 if (Character >= 0 && Character < Party.Members.size())
                                 {
@@ -1448,7 +1408,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::SelectDice)
                             {
-                                auto Value = Interface::Choose(Window, Renderer, Controls, intGR, Party, Story, Screen, {Assets::Type::Dice1, Assets::Type::Dice2, Assets::Type::Dice3, Assets::Type::Dice4, Assets::Type::Dice5, Assets::Type::Dice6}, {}, Story->Choices[Choice].SelectMessage.c_str());
+                                auto Value = Interface::Choose(Window, Renderer, Controls, Party, Story, Screen, {Assets::Type::Dice1, Assets::Type::Dice2, Assets::Type::Dice3, Assets::Type::Dice4, Assets::Type::Dice5, Assets::Type::Dice6}, {}, Story->Choices[Choice].SelectMessage.c_str());
 
                                 if (Value >= 0 && Value < 6)
                                 {
@@ -1483,7 +1443,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::EnemyCastSpell)
                             {
-                                Interface::ProcessSpell(Window, Renderer, Party, Story, Controls, Screen, Current, Bg, Story->Choices[Choice].Spell);
+                                Interface::ProcessSpell(Window, Renderer, Party, Story, Controls, Screen, Current, Story->Choices[Choice].Spell);
 
                                 if (Engine::IsAlive(Party))
                                 {
@@ -1498,7 +1458,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::TakeEquipment)
                             {
-                                Interface::TakeItems(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Bg, Message);
+                                Interface::TakeItems(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Message);
 
                                 Next = Interface::FindStory(Story->Choices[Choice].Destination);
 
