@@ -32,6 +32,21 @@ namespace Choice
         EnemyCastSpell,
         TakeEquipment,
         AdventurerPays,
+        PartyAttribute
+    };
+
+    enum class Consequence
+    {
+        None = 0,
+        LoseItem,
+        LoseFightingProwess,
+        LosePsychicAbility,
+        LoseAwareness,
+        LoseEndurance,
+        LoseItemOrFightingProwess,
+        LoseItemOrPsychicAbility,
+        LoseItemOrAwareness,
+        LoseItemOrEndurance
     };
 
     class Base
@@ -46,6 +61,8 @@ namespace Choice
         Attributes::Type Attribute = Attributes::Type::None;
 
         Abilities::Type Ability = Abilities::Type::None;
+
+        Choice::Consequence Consequence = Choice::Consequence::None;
 
         Spell::Type Spell = Spell::Type::None;
 

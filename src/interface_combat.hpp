@@ -3348,7 +3348,7 @@ namespace Interface
         return Result;
     }
 
-    void RenderMapInfo(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, Combat::Mode CurrentMode, int CombatRound, int Current, int CurrentCombatant, int SelectedCombatant, int SelectedSpell)
+    void RenderMapInfo(SDL_Renderer *Renderer, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, std::vector<Button> &Controls, std::vector<Combatants> &Sequence, Combat::Mode CurrentMode, int CombatRound, int ShootingRounds, int Current, int CurrentCombatant, int SelectedCombatant, int SelectedSpell)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
 
@@ -3409,7 +3409,14 @@ namespace Interface
                 }
                 else
                 {
-                    Graphics::PutText(Renderer, ("Round: " + std::to_string(CombatRound + 1)).c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                    if (ShootingRounds > 0)
+                    {
+                        Graphics::PutText(Renderer, ("Shooting Rounds Left: " + std::to_string(ShootingRounds)).c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                    }
+                    else
+                    {
+                        Graphics::PutText(Renderer, ("Round: " + std::to_string(CombatRound + 1)).c_str(), Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, Map.TextWidth, FontSize, Map.TextX, Map.TextY);
+                    }
                 }
             }
             else if (CurrentMode == Combat::Mode::MOVE)
@@ -3779,7 +3786,7 @@ namespace Interface
 
         auto ScrollOfInvisibilityRound = 0;
 
-        auto ActFirstRound = (Battle.SurprisedEnemy || Battle.SurprisedByEnemy) ? true : false;
+        auto ActFirstRound = false;
 
         auto ShootingRounds = Battle.ShootingRounds;
 
@@ -3910,20 +3917,37 @@ namespace Interface
         Controls.push_back(Button(1, Assets::Get(Assets::Type::Left), 1, MidMapY, 0, 2, MapButtonsX, MapButtonsY + (MapButtonsGridSize + 2 * text_space), Map.MapX > 0 ? intWH : intGR, Control::Type::MAP_LEFT));
         Controls.push_back(Button(2, Assets::Get(Assets::Type::Right), 2, MidMapY + Map.SizeX, 1, 3, MapButtonsX, MapButtonsY + 2 * (MapButtonsGridSize + 2 * text_space), (Map.MapX < Map.Width - Map.SizeX) ? intWH : intGR, Control::Type::MAP_RIGHT));
         Controls.push_back(Button(3, Assets::Get(Assets::Type::Down), 3, BottomMapX, 2, 5, MapButtonsX, MapButtonsY + 3 * (MapButtonsGridSize + 2 * text_space), (Map.MapY < Map.Height - Map.SizeY) ? intWH : intGR, Control::Type::MAP_DOWN));
-        Controls.push_back(Button(4, Assets::Get(Assets::Type::Exit), StartMap - 1, 4, StartMap - 1, 4, lastx, buttony, intWH, Control::Type::EXIT));
-        Controls.push_back(Button(5, Assets::Get(Assets::Type::Move), 4, 6, BottomMapX, 5, ActionsX, ActionsY, intWH, Control::Type::MOVE));
-        Controls.push_back(Button(6, Assets::Get(Assets::Type::Fight), 5, 7, Map.SizeX > 1 ? BottomMapX + 1 : 6, 6, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
-        Controls.push_back(Button(7, Assets::Get(Assets::Type::Defend), 6, 8, Map.SizeX > 2 ? BottomMapX + 2 : 7, 7, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
-        Controls.push_back(Button(8, Assets::Get(Assets::Type::Shoot), 7, 9, Map.SizeX > 3 ? BottomMapX + 3 : 8, 8, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
-        Controls.push_back(Button(9, Assets::Get(Assets::Type::Ability), 8, 10, Map.SizeX > 4 ? BottomMapX + 4 : 9, 9, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
-        Controls.push_back(Button(10, Assets::Get(Assets::Type::Items), 9, 11, Map.SizeX > 5 ? BottomMapX + 5 : 10, 10, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
-        Controls.push_back(Button(11, Assets::Get(Assets::Type::Flee), 10, 4, Map.SizeX > 6 ? BottomMapX + 6 : 11, 4, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
+        Controls.push_back(Button(4, Assets::Get(Assets::Type::Move), 3, 5, BottomMapX, 4, ActionsX, ActionsY, intWH, Control::Type::MOVE));
+        Controls.push_back(Button(5, Assets::Get(Assets::Type::Fight), 4, 6, Map.SizeX > 1 ? BottomMapX + 1 : 5, 5, ActionsX + ActionsGrid, ActionsY, intWH, Control::Type::ATTACK));
+        Controls.push_back(Button(6, Assets::Get(Assets::Type::Defend), 5, 7, Map.SizeX > 2 ? BottomMapX + 2 : 6, 6, ActionsX + 2 * ActionsGrid, ActionsY, intWH, Control::Type::DEFEND));
+        Controls.push_back(Button(7, Assets::Get(Assets::Type::Shoot), 6, 8, Map.SizeX > 3 ? BottomMapX + 3 : 7, 7, ActionsX + 3 * ActionsGrid, ActionsY, intWH, Control::Type::SHOOT));
+        Controls.push_back(Button(8, Assets::Get(Assets::Type::Ability), 7, 9, Map.SizeX > 4 ? BottomMapX + 4 : 8, 8, ActionsX + 4 * ActionsGrid, ActionsY, intWH, Control::Type::ABILITY));
+        Controls.push_back(Button(9, Assets::Get(Assets::Type::Items), 8, 10, Map.SizeX > 5 ? BottomMapX + 5 : 9, 9, ActionsX + 5 * ActionsGrid, ActionsY, intWH, Control::Type::ITEMS));
+        Controls.push_back(Button(10, Assets::Get(Assets::Type::Flee), 9, 11, Map.SizeX > 6 ? BottomMapX + 6 : 10, 10, ActionsX + 6 * ActionsGrid, ActionsY, intWH, Control::Type::FLEE));
+        Controls.push_back(Button(11, Assets::Get(Assets::Type::Exit), 10, 11, Map.SizeX > 6 ? BottomMapX + 7 : 11, 11, ActionsX + 7 * ActionsGrid, ActionsY, intWH, Control::Type::EXIT));
 
         // center map on first player
         Center(Engine::First(Party));
 
         // generate controls within the map window
         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+
+        auto StartShootingRound = [&]()
+        {
+            if (ShootingRounds > 0)
+            {
+                Engine::ShootFirst(Party);
+
+                CurrentCombatant = NextShooter();
+            }
+            else
+            {
+                if (Battle.ShootingRounds > 0)
+                {
+                    Interface::RenderMessage(Renderer, Controls, Map, intBK, "Shooting Round Ends!", intGR);
+                }
+            }
+        };
 
         auto CycleCombatants = [&]()
         {
@@ -3997,27 +4021,18 @@ namespace Interface
 
                         CurrentCombatant = 0;
 
-                        Current = 0;
+                        Selected = false;
                     }
                 }
                 else if (ShootingRounds > 0)
                 {
                     CurrentCombatant = NextShooter();
 
-                    if (CurrentCombatant < 0 || CurrentCombatant >= Sequence.size())
+                    if (CurrentCombatant == 0 || CurrentCombatant >= Sequence.size())
                     {
                         ShootingRounds--;
 
-                        if (ShootingRounds > 0)
-                        {
-                            Engine::ShootFirst(Party);
-
-                            CurrentCombatant = NextShooter();
-                        }
-                    }
-                    else
-                    {
-                        CurrentCombatant = 0;
+                        StartShootingRound();
                     }
                 }
                 else if (QuickThinkingRound)
@@ -4036,7 +4051,7 @@ namespace Interface
 
                         CombatRound++;
 
-                        Current = 0;
+                        Selected = false;
                     }
                 }
                 else
@@ -4071,7 +4086,7 @@ namespace Interface
 
                             CurrentCombatant = NextQuickThinker();
 
-                            Current = 0;
+                            Selected = false;
                         }
                         else
                         {
@@ -4151,6 +4166,8 @@ namespace Interface
 
         auto StartSurpriseRound = [&]()
         {
+            ActFirstRound = (Battle.SurprisedEnemy || Battle.SurprisedByEnemy) ? true : false;
+
             if (ActFirstRound)
             {
                 if (Battle.SurprisedEnemy)
@@ -4201,10 +4218,6 @@ namespace Interface
 
             ResetSelection();
 
-            Center(Engine::First(Party));
-
-            GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-
             CurrentMode = Combat::Mode::NORMAL;
 
             QuickThinkingRound = false;
@@ -4217,11 +4230,24 @@ namespace Interface
 
             SelectedSpell = -1;
 
-            // setup surprise first round attacks
-            ActFirstRound = (Battle.SurprisedEnemy || Battle.SurprisedByEnemy) ? true : false;
-
+            // setup shooting round
             ShootingRounds = Battle.ShootingRounds;
 
+            StartShootingRound();
+
+            Center(Engine::First(Party));
+
+            GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+
+            if (ShootingRounds > 0)
+            {
+                if (Battle.ShootingRounds > 0)
+                {
+                    Interface::RenderMessage(Renderer, Controls, Map, intBK, "Shooting Round Begins!", intGR);
+                }
+            }
+
+            // setup surprise first round attacks
             StartSurpriseRound();
 
             if (Reader >= 0 && Reader < Party.Members.size())
@@ -4311,7 +4337,7 @@ namespace Interface
 
                 Interface::RenderSelection(Renderer, Map, Party, Enemies, Sequence, SelectedCombatant);
 
-                Interface::RenderMapInfo(Renderer, Map, Party, Enemies, Controls, Sequence, CurrentMode, CombatRound, Current, CurrentCombatant, SelectedCombatant, SelectedSpell);
+                Interface::RenderMapInfo(Renderer, Map, Party, Enemies, Controls, Sequence, CurrentMode, CombatRound, ShootingRounds, Current, CurrentCombatant, SelectedCombatant, SelectedSpell);
 
                 RenderFlashMessage();
 
@@ -4354,7 +4380,7 @@ namespace Interface
                         {
                             Exit = true;
 
-                            Current = -1;
+                            Selected = false;
 
                             Done = true;
                         }
@@ -4401,8 +4427,6 @@ namespace Interface
                             Character.Defending = true;
 
                             Selected = false;
-
-                            Current = -1;
 
                             CycleCombatants();
                         }
@@ -4452,8 +4476,6 @@ namespace Interface
                             }
 
                             Selected = false;
-
-                            Current = -1;
                         }
                         else if (Controls[Current].Type == Control::Type::PLAYER && !Hold)
                         {
@@ -4652,7 +4674,7 @@ namespace Interface
                                 }
                                 else if (Engine::CanShoot(Character))
                                 {
-                                    if (!Interface::NearbyEnemies(Map, Enemies, PlayerId, true))
+                                    if (!Interface::NearbyEnemies(Map, Enemies, PlayerId, true) || Character.ShootFirst)
                                     {
                                         if (Engine::HasBow(Character) && Engine::HasArrows(Character))
                                         {
@@ -4931,8 +4953,6 @@ namespace Interface
                                         }
 
                                         Selected = false;
-
-                                        Current = -1;
                                     }
                                     else if (Engine::IsAlive(Target))
                                     {
@@ -4950,7 +4970,7 @@ namespace Interface
                             {
                                 SelectedSpell = -1;
 
-                                if (!Interface::IsAdjacent(Map, PlayerId, TargetId) && Engine::IsAlive(Target))
+                                if ((!Interface::IsAdjacent(Map, PlayerId, TargetId) || Character.ShootFirst) && Engine::IsAlive(Target))
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Target, Combat::FightMode::SHOOT, false);
 
@@ -4975,8 +4995,6 @@ namespace Interface
                                     }
 
                                     Selected = false;
-
-                                    Current = -1;
                                 }
                                 else if (Engine::IsAlive(Target))
                                 {
@@ -5080,7 +5098,7 @@ namespace Interface
 
                         if (Controls[Current].Type == Control::Type::EXIT && !Hold)
                         {
-                            Current = -1;
+                            Exit = true;
 
                             Done = true;
                         }
@@ -5123,8 +5141,6 @@ namespace Interface
                         else if (Controls[Current].Type == Control::Type::DEFEND && !Hold)
                         {
                             Selected = false;
-
-                            Current = -1;
 
                             CycleCombatants();
                         }
@@ -5336,8 +5352,6 @@ namespace Interface
                                     }
 
                                     Selected = false;
-
-                                    Current = -1;
                                 }
                                 else if (Engine::IsAlive(Target))
                                 {
@@ -5394,8 +5408,6 @@ namespace Interface
                                     }
 
                                     Selected = false;
-
-                                    Current = -1;
                                 }
                                 else
                                 {

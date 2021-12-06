@@ -19,7 +19,8 @@ namespace Enemy
         IconTheUngodly,
         ManInBlue,
         Corpse,
-        Bowmen
+        Bowmen,
+        Dirges
     };
 
     class Base

@@ -370,12 +370,12 @@ namespace Book1
         {
             Enemies.clear();
 
-            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
-            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR 1", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR 2", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR 3", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR 4", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR 5", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR 6", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
         }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 223}; }
@@ -2851,6 +2851,88 @@ namespace Book1
         }
     };
 
+    class Story111 : public Story::Base
+    {
+    public:
+        Story111()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 111;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Try to rob the merchant", {Book::Type::Book1, 329}, {Book::Type::Book1, 444}, Character::Class::Trickster, Attributes::Type::Awareness));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story112 : public Story::Base
+    {
+    public:
+        Story112()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 112;
+
+            Text = "You wedge back against some rock outcroppings on the ledge to give you partial cover from the Dirges' attack.\n\n<b>NOTE</b>\n\nIf the party includes a Sage and/or a Trickster, they can shoot twice at the Dirges (assuming they have arrows) before normal combat begins. It is not worth trying to get away, as they would only swoop in pursuit.";
+
+            Bye = "You continue down the ledge to the platform.";
+
+            MapFile = "maps/book1/map112.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+
+            Enemies.push_back(Enemy::Base(Enemy::Type::Dirges, "DIRGES 1", 6, 5, 6, 5, 1, 2, 0, Assets::Type::Dirges));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Dirges, "DIRGES 2", 6, 5, 6, 5, 1, 2, 0, Assets::Type::Dirges));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Dirges, "DIRGES 3", 6, 5, 6, 5, 1, 2, 0, Assets::Type::Dirges));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Dirges, "DIRGES 4", 6, 5, 6, 5, 1, 2, 0, Assets::Type::Dirges));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Dirges, "DIRGES 5", 6, 5, 6, 5, 1, 2, 0, Assets::Type::Dirges));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Dirges, "DIRGES 6", 6, 5, 6, 5, 1, 2, 0, Assets::Type::Dirges));
+
+            Battle.ShootingRounds = 2;
+        }
+
+        void SetupCombat(Map::Base &Map, Party::Base &Party)
+        {
+            Map.Put(3, 1, Map::Object::Enemy, 0);
+            Map.Put(3, 4, Map::Object::Enemy, 1);
+            Map.Put(3, 5, Map::Object::Enemy, 2);
+            Map.Put(3, 7, Map::Object::Enemy, 3);
+            Map.Put(3, 8, Map::Object::Enemy, 4);
+            Map.Put(3, 10, Map::Object::Enemy, 5);
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 142}; }
+    };
+
+    class Story113 : public Story::Base
+    {
+    public:
+        Story113()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 113;
+
+            Text = "(TRICKSTER) You have to decide which of the two bridges to use. They appear identical, but in order to reach the further of the two you must first pass through the waterfall issuing from the gargoyle's mouth.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Cross via the nearer bridge", {Book::Type::Book1, 267}, Character::Class::Trickster));
+            Choices.push_back(Choice::Base("Go through the waterfall to the other bridge", {Book::Type::Book1, 464}, Character::Class::Trickster));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -3004,7 +3086,10 @@ namespace Book1
     auto story107 = Story107();
     auto story108 = Story108();
     auto story109 = Story109();
-    auto story110 = Story110();   
+    auto story110 = Story110();
+    auto story111 = Story111();
+    auto story112 = Story112();
+    auto story113 = Story113();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -3023,6 +3108,7 @@ namespace Book1
             &story081, &story082, &story083, &story084, &story085, &story086, &story087, &story088, &story089, &story090,
             &story091, &story092, &story093, &story094, &story095, &story096, &story097, &story098, &story099, &story100,
             &story101, &story102, &story103, &story104, &story105, &story106, &story107, &story108, &story109, &story110,
+            &story111, &story112, &story113,
             &story398,
             &story452};
     }

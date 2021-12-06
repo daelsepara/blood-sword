@@ -263,6 +263,8 @@ namespace Input
 
                 hold = false;
 
+                current = -1;
+
                 for (auto i = 0; i < choices.size(); i++)
                 {
                     if (result.motion.x >= choices[i].X && result.motion.x <= choices[i].X + choices[i].W - 1 && result.motion.y >= choices[i].Y && result.motion.y <= choices[i].Y + choices[i].H - 1)
@@ -271,8 +273,6 @@ namespace Input
 
                         break;
                     }
-
-                    current = -1;
                 }
 
                 if (previous != current)

@@ -331,6 +331,10 @@
         {
             "id": 309,
             "path": "images/enemies/bowmen.png"
+        },
+        {
+            "id": 310,
+            "path": "images/enemies/dirges.png"
         }
     ]
 }
