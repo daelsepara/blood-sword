@@ -291,6 +291,21 @@ namespace Choice
 
             Gold = gold;
         }
+
+        Base(const char *choice, Book::Destination destination, Book::Destination destinationFail, Choice::Type type, Attributes::Type attribute, Choice::Consequence consequence)
+        {
+            Text = choice;
+
+            Destination = destination;
+
+            DestinationFail = destinationFail;
+
+            Type = type;
+
+            Attribute = attribute;
+
+            Consequence = consequence;
+        }
     };
 }
 #endif

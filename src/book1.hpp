@@ -2861,7 +2861,7 @@ namespace Book1
             Id = 111;
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Try to rob the merchant", {Book::Type::Book1, 329}, {Book::Type::Book1, 444}, Character::Class::Trickster, Attributes::Type::Awareness));
+            Choices.push_back(Choice::Base("(TRICKSTER) Try something", {Book::Type::Book1, 329}, {Book::Type::Book1, 444}, Character::Class::Trickster, Attributes::Type::Awareness));
 
             Controls = Story::Controls::Standard;
         }
@@ -2931,6 +2931,44 @@ namespace Book1
 
             Controls = Story::Controls::Standard;
         }
+    };
+
+    class Story114 : public Story::Base
+    {
+    public:
+        Story114()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 114;
+
+            Text = "The moment you enter the gate, you are under assault by some unknown psychic force. You spin in the air as though in a tunnel of glaring blue light. Ahead is an area of darkness -- the destination of the gate. Behind, you can still see the distorted image of the area you have just come from: the table of rock, with the jangled edges of the stairway and temple beyond it.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(PARTY) Test Psychic Ability", {Book::Type::Book1, 428}, {Book::Type::Book1, -114}, Choice::Type::PartyAttribute, Attributes::Type::PsychicAbility, Choice::Consequence::LoseItemOrEndurance));
+            Choices.push_back(Choice::Base("Turn back and take the other gate", {Book::Type::Book1, 307});
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Event114 : public Story::Base
+    {
+    public:
+        Event114()
+        {
+            Book = Book::Type::Book1;
+
+            Id = -114;
+
+            DisplayId = 114;
+
+            Choices.clear();
+
+            Controls = Story::Controls::Info;
+        }
+
+        Book::Destination Background(Party::Base &Party) { return {Book::Type::Book1, 114}; }
     };
 
     class Story398 : public Story::Base
@@ -3090,13 +3128,15 @@ namespace Book1
     auto story111 = Story111();
     auto story112 = Story112();
     auto story113 = Story113();
+    auto story114 = Story114();
+    auto event114 = Event114();
     auto story398 = Story398();
     auto story452 = Story452();
 
     void InitializeStories()
     {
         Book1::Stories = {
-            &event015, &event038, &event062, &event076,
+            &event015, &event038, &event062, &event076, &event114,
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
             &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
             &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
