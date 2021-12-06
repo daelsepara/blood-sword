@@ -2945,7 +2945,7 @@ namespace Book1
             Text = "The moment you enter the gate, you are under assault by some unknown psychic force. You spin in the air as though in a tunnel of glaring blue light. Ahead is an area of darkness -- the destination of the gate. Behind, you can still see the distorted image of the area you have just come from: the table of rock, with the jangled edges of the stairway and temple beyond it.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("(PARTY) Test Psychic Ability", {Book::Type::Book1, 428}, {Book::Type::Book1, -114}, Choice::Type::PartyAttribute, Attributes::Type::PsychicAbility, Choice::Consequence::LoseItemOrEndurance));
+            Choices.push_back(Choice::Base("(PARTY) Test Psychic Ability", {Book::Type::Book1, 428}, {Book::Type::Book1, -114}, Choice::Type::TestParty, Attributes::Type::PsychicAbility, Choice::Consequence::LoseItemOrEndurance));
             Choices.push_back(Choice::Base("Turn back and take the other gate", {Book::Type::Book1, 307}));
 
             Controls = Story::Controls::Standard;

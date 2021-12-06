@@ -15,6 +15,7 @@ namespace Choice
         HasAbility,
         TestCharacter,
         TestSelectedCharacter,
+        TestParty,
         Character,
         Equipment,
         HasItem,
@@ -27,12 +28,11 @@ namespace Choice
         DropItem,
         SelectAdventurer,
         SelectDice,
-        CharacterItem,
+        CharacterHasItem,
         TakeScrolls,
         EnemyCastSpell,
         TakeEquipment,
-        LoseMoney,
-        PartyAttribute
+        LoseMoney
     };
 
     enum class Consequence
@@ -144,7 +144,7 @@ namespace Choice
 
             Item = item;
 
-            Type = Choice::Type::CharacterItem;
+            Type = Choice::Type::CharacterHasItem;
         }
 
         Base(const char *choice, Book::Destination destination, Abilities::Type ability)

@@ -171,10 +171,6 @@ namespace Interface
             {
                 Mode = Equipment::Mode::DROP;
             }
-            else
-            {
-                Mode = Equipment::Mode::USE;
-            }
 
             Interface::RenderChoiceScreen(Window, Renderer, Party, Story, Screen, ChoiceScreen, -1, intGR);
 
@@ -184,7 +180,7 @@ namespace Interface
 
             if (Mode == Equipment::Mode::DROP)
             {
-                Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Party.Members[Character].Class]) + " is carrying too many items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
+                Graphics::PutText(Renderer, ("The " + std::string(Character::ClassName[Party.Members[Character].Class]) + " needs to drop items").c_str(), Fonts::Normal, 0, clrBK, intWH, TTF_STYLE_NORMAL, WindowTextWidth, FontSize, ButtonX, TextY);
             }
             else
             {
@@ -849,7 +845,7 @@ namespace Interface
         return Result;
     }
 
-    bool CharacterItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
+    bool CharacterHasItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
     {
         auto Result = false;
 
@@ -1053,6 +1049,61 @@ namespace Interface
         }
 
         return TestResult;
+    }
+
+    void TestParty(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next)
+    {
+        auto TestResult = true;
+
+        auto Consequence = Choice.Consequence;
+
+        for (auto i = 0; i < Party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(Party.Members[i]))
+            {
+                auto Result = Interface::Test(Window, Renderer, Controls, intGR, Screen, Story, Party, i, Choice.Attribute);
+
+                if (Result == Attributes::Result::FAILURE)
+                {
+                    TestResult = false;
+
+                    if (Consequence == Choice::Consequence::LoseItemOrEndurance)
+                    {
+                        auto ConsequenceChoice = Interface::Choose(Window, Renderer, Controls, intGR, Party, Story, Screen, {Assets::Type::Cancel, Assets::Type::Healing}, {"Item", "Endurance"}, "Lose one item or a point of endurance?");
+
+                        if (ConsequenceChoice == 0)
+                        {
+                            auto Equipment = Party.Members[i].Equipment.size();
+
+                            if (Equipment > 0)
+                            {
+                                while (Party.Members[i].Equipment.size() >= Equipment)
+                                {
+                                    Interface::ItemScreen(Window, Renderer, Controls, Party, Story, Screen, i, Equipment::Mode::DROP);
+                                }
+                            }
+                            else
+                            {
+                                Engine::Gain(Party.Members[i], -1);
+                            }
+                        }
+                        else if (ConsequenceChoice == 1)
+                        {
+                            Engine::Gain(Party.Members[i], -1);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (TestResult && Engine::IsAlive(Party))
+        {
+            *Next = Interface::FindStory(Choice.Destination);
+        }
+        else if (!TestResult && Engine::IsAlive(Party))
+        {
+            *Next = Interface::FindStory(Choice.DestinationFail);
+        }
     }
 
     void TestSelectedCharacter(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next)
@@ -1408,9 +1459,9 @@ namespace Interface
                                     Done = true;
                                 }
                             }
-                            else if (Story->Choices[Choice].Type == Choice::Type::CharacterItem)
+                            else if (Story->Choices[Choice].Type == Choice::Type::CharacterHasItem)
                             {
-                                if (!Interface::CharacterItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
+                                if (!Interface::CharacterHasItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
                                 {
                                     DisplayMessage(Message, intBK);
                                 }
@@ -1450,6 +1501,12 @@ namespace Interface
                                 Interface::TakeItems(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Bg, Message);
 
                                 Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                Done = true;
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::TestParty)
+                            {
+                                Interface::TestParty(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next);
 
                                 Done = true;
                             }

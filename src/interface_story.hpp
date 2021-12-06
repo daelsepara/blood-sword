@@ -245,10 +245,6 @@ namespace Interface
             {
                 Mode = Equipment::Mode::DROP;
             }
-            else
-            {
-                Mode = Equipment::Mode::USE;
-            }
 
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
 
