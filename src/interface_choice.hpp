@@ -743,11 +743,11 @@ namespace Interface
 
                     auto FlashH = SCREEN_HEIGHT / 5;
 
-                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2);
+                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2);
 
                     if (FlashColor == intBK)
                     {
-                        Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, (SCREEN_HEIGHT - FlashH) / 2, intWH);
+                        Graphics::DrawRect(Renderer, FlashW, FlashH, (SCREEN_WIDTH - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2, intWH);
                     }
                 }
                 else
@@ -778,7 +778,9 @@ namespace Interface
             }
 
             auto Fg = clrBK;
+            
             auto Bg = intGR;
+            
             auto Highlight = intBK;
 
             auto Controls = Interface::CreateChoices(Window, Renderer, Story->Choices, Screen, Offset, Last, Limit, Fg, Bg, Highlight);
