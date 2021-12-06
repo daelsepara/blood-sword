@@ -234,12 +234,16 @@ namespace Interface
 
         idx = (int)Controls.size();
 
-        if (Mode == Equipment::Mode::USE || Mode == Equipment::Mode::DROP)
+        if (Mode == Equipment::Mode::USE)
         {
             Controls.push_back(Button(idx, Assets::Get(Assets::Type::Use), idx, idx + 1, idx > 0 ? idx - 1 : idx, idx, WindowTextX, OffsetY, Highlight, Control::Type::USE));
             Controls.push_back(Button(idx + 1, Assets::Get(Assets::Type::Transfer), idx, idx + 2, idx > 0 ? idx - 1 : idx + 1, idx + 1, WindowTextX + IconSize, OffsetY, Highlight, Control::Type::TRANSFER));
             Controls.push_back(Button(idx + 2, Assets::Get(Assets::Type::Cancel), idx + 1, idx + 3, idx > 0 ? idx - 1 : idx + 2, idx + 2, WindowTextX + 2 * IconSize, OffsetY, Highlight, Control::Type::DROP));
             Controls.push_back(Button(idx + 3, Assets::Get(Assets::Type::Back), idx + 2, idx + 3, idx > 0 ? idx - 1 : idx + 3, idx + 3, WindowTextX + 3 * IconSize, OffsetY, Highlight, Control::Type::BACK));
+        }
+        else if (Mode == Equipment::Mode::DROP)
+        {
+            Controls.push_back(Button(idx, Assets::Get(Assets::Type::Cancel), idx, idx, idx > 0 ? idx - 1 : idx, idx, WindowTextX, OffsetY, Highlight, Control::Type::DROP));
         }
         else if (Mode == Equipment::Mode::TAKE)
         {
