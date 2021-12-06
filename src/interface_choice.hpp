@@ -708,6 +708,252 @@ namespace Interface
         }
     }
 
+    void TakeItems(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Uint32 Bg, std::string &Message)
+    {
+        auto Equipment = Choice.Equipment;
+
+        for (auto i = 0; i < Equipment.size(); i++)
+        {
+            if (Equipment[i].Class != Equipment::Class::Gold && Equipment[i].Class != Equipment::Class::Arrow)
+            {
+                auto Character = Engine::First(Party);
+
+                while (Character >= 0 && Character < Party.Members.size())
+                {
+                    std::string TakeMessage = "Give the " + Equipment[i].Name + " to";
+
+                    Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
+
+                    if (Character >= 0 && Character < Party.Members.size())
+                    {
+                        if ((Equipment[i].Weapon == Equipment::Weapon::Bow || Equipment[i].Class == Equipment::Class::Quiver) && Party.Members[Character].Class != Character::Class::Trickster && Party.Members[Character].Class != Character::Class::Sage)
+                        {
+                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, (std::string(Character::ClassName[Party.Members[Character].Class]) + " cannot use the " + Equipment[i].Name), intBK);
+
+                            if (Engine::Count(Party) == 1)
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Party.Members[Character].Equipment.push_back(Equipment[i]);
+
+                            while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
+                            {
+                                Interface::ItemScreen(Window, Renderer, Controls, Party, Story, Screen, Character, Equipment::Mode::DROP);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (Equipment[i].Class == Equipment::Class::Gold)
+            {
+                auto Gold = Equipment[i].Gold;
+
+                while (Gold > 0)
+                {
+                    std::string TakeMessage = "Give the " + std::to_string(Gold) + (Gold != 1 ? " gold pieces" : " gold piece") + " to";
+
+                    auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
+
+                    if (Character >= 0 && Character < Party.Members.size())
+                    {
+                        auto Pouch = Engine::FirstPouch(Party.Members[Character]);
+
+                        if (Pouch >= 0 && Pouch < Party.Members[Character].Equipment.size())
+                        {
+                            Gold = Engine::GainGold(Party.Members[Character], Gold);
+                        }
+                        else
+                        {
+                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, "No space oeft for the gold!", intBK);
+
+                            if (Engine::Count(Party) == 1)
+                            {
+                                Gold = 0;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Gold = 0;
+                    }
+                }
+            }
+            else if (Equipment[i].Class == Equipment::Class::Arrow)
+            {
+                auto Arrows = Equipment[i].Arrows;
+
+                while (Arrows > 0)
+                {
+                    std::string TakeMessage = "Give the " + std::to_string(Arrows) + (Arrows != 1 ? " arrows" : " arrow") + " to";
+
+                    auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
+
+                    if (Character >= 0 && Character < Party.Members.size())
+                    {
+                        auto Quiver = Engine::FirstQuiver(Party.Members[Character]);
+
+                        if (Quiver >= 0 && Quiver < Party.Members[Character].Equipment.size())
+                        {
+                            Arrows = Engine::GainArrows(Party.Members[Character], Arrows);
+                        }
+                        else
+                        {
+                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, "No space left for the arrows!", intBK);
+
+                            if (Engine::Count(Party) == 1)
+                            {
+                                Arrows = 0;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Arrows = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    bool DropItem(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, std::string &Message)
+    {
+        auto Result = false;
+
+        auto Item = Choice.Item;
+
+        if (Engine::HasItem(Party, Item))
+        {
+            auto DropMessage = "Select whose " + std::string(Equipment::ItemDescription[Item]) + " to drop";
+
+            auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Item);
+
+            if (Character >= 0 && Character < Party.Members.size())
+            {
+                if (Engine::HasItem(Party.Members[Character], Item))
+                {
+                    Engine::Drop(Party.Members[Character], Item);
+
+                    Result = true;
+                }
+                else
+                {
+                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+                }
+            }
+        }
+        else
+        {
+            if (Engine::Count(Party) > 1)
+            {
+                Message = "No one has the " + std::string(Equipment::ItemDescription[Item]) + "!";
+            }
+            else
+            {
+                auto First = Engine::First(Party, Item);
+
+                Message = std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+            }
+        }
+
+        return Result;
+    }
+
+    bool DropWeapon(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, std::string &Message)
+    {
+        auto Result = false;
+
+        auto Weapon = Choice.Weapon;
+
+        if (Engine::HasWeapon(Party, Weapon))
+        {
+            auto DropMessage = "Select whose " + std::string(Equipment::WeaponDescription[Weapon]) + " to drop";
+
+            auto Character = Engine::Count(Party, Weapon) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Weapon);
+
+            if (Character >= 0 && Character < Party.Members.size())
+            {
+                if (Engine::HasWeapon(Party.Members[Character], Weapon))
+                {
+                    Engine::Drop(Party.Members[Character], Weapon);
+
+                    Result = true;
+                }
+                else
+                {
+                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!";
+                }
+            }
+        }
+        else
+        {
+            if (Engine::Count(Party) > 1)
+            {
+                Message = "No one has the " + std::string(Equipment::WeaponDescription[Weapon]) + "!";
+            }
+            else
+            {
+                auto First = Engine::First(Party, Weapon);
+
+                Message = std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!";
+            }
+        }
+
+        return Result;
+    }
+
+    bool Discharge(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, std::string &Message)
+    {
+        auto Result = false;
+
+        auto Item = Choice.Item;
+
+        if (Engine::HasItem(Party, Item))
+        {
+            auto DischargeMessage = "Select whose " + std::string(Equipment::ItemDescription[Item]) + " to discharge";
+
+            auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DischargeMessage.c_str()) : Engine::First(Party, Item);
+
+            if (Character >= 0 && Character < Party.Members.size())
+            {
+                if (Engine::HasItem(Party.Members[Character], Item))
+                {
+                    if (!Engine::Discharge(Party.Members[Character], Item, Choice.Charge))
+                    {
+                        Message = std::string(Equipment::ItemDescription[Item]) + " does not have enough charges!";
+                    }
+                    else
+                    {
+                        Result = true;
+                    }
+                }
+                else
+                {
+                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+                }
+            }
+        }
+        else
+        {
+            if (Engine::Count(Party) > 1)
+            {
+                Message = "No one has the " + std::string(Equipment::ItemDescription[Item]) + "!";
+            }
+            else
+            {
+                auto First = Engine::First(Party);
+
+                Message = std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+            }
+        }
+
+        return Result;
+    }
+
     Story::Base *ProcessChoices(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen)
     {
         Story::Base *Next = &Story::notImplemented;
@@ -778,9 +1024,9 @@ namespace Interface
             }
 
             auto Fg = clrBK;
-            
+
             auto Bg = intGR;
-            
+
             auto Highlight = intBK;
 
             auto Controls = Interface::CreateChoices(Window, Renderer, Story->Choices, Screen, Offset, Last, Limit, Fg, Bg, Highlight);
@@ -962,127 +1208,47 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::Discharge)
                             {
-                                auto Item = Story->Choices[Choice].Item;
+                                auto Result = Interface::Discharge(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Message);
 
-                                if (Engine::HasItem(Party, Item))
+                                if (Result)
                                 {
-                                    auto DischargeMessage = "Select whose " + std::string(Equipment::ItemDescription[Item]) + " to discharge";
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
 
-                                    auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DischargeMessage.c_str()) : Engine::First(Party, Item);
-
-                                    if (Character >= 0 && Character < Party.Members.size())
-                                    {
-                                        if (Engine::HasItem(Party.Members[Character], Item))
-                                        {
-                                            if (!Engine::Discharge(Party.Members[Character], Item, Story->Choices[Choice].Charge))
-                                            {
-                                                DisplayMessage(std::string(Equipment::ItemDescription[Item]) + " does not have enough charges!", intBK);
-                                            }
-                                            else
-                                            {
-                                                Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                                Done = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            DisplayMessage(std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                        }
-                                    }
+                                    Done = true;
                                 }
                                 else
                                 {
-                                    if (Engine::Count(Party) > 1)
-                                    {
-                                        DisplayMessage("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                    }
-                                    else
-                                    {
-                                        auto First = Engine::First(Party);
-
-                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                    }
+                                    DisplayMessage(Message, intBK);
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::DropWeapon)
                             {
-                                auto Weapon = Story->Choices[Choice].Weapon;
+                                auto Result = Interface::DropWeapon(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Message);
 
-                                if (Engine::HasWeapon(Party, Weapon))
+                                if (Result)
                                 {
-                                    auto DropMessage = "Select whose " + std::string(Equipment::WeaponDescription[Weapon]) + " to drop";
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
 
-                                    auto Character = Engine::Count(Party, Weapon) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Weapon);
-
-                                    if (Character >= 0 && Character < Party.Members.size())
-                                    {
-                                        if (Engine::HasWeapon(Party.Members[Character], Weapon))
-                                        {
-                                            Engine::Drop(Party.Members[Character], Weapon);
-
-                                            Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                            Done = true;
-                                        }
-                                        else
-                                        {
-                                            DisplayMessage(std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!", intBK);
-                                        }
-                                    }
+                                    Done = true;
                                 }
                                 else
                                 {
-                                    if (Engine::Count(Party) > 1)
-                                    {
-                                        DisplayMessage("No one has the " + std::string(Equipment::WeaponDescription[Weapon]) + "!", intBK);
-                                    }
-                                    else
-                                    {
-                                        auto First = Engine::First(Party, Weapon);
-
-                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!", intBK);
-                                    }
+                                    DisplayMessage(Message, intBK);
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::DropItem)
                             {
-                                auto Item = Story->Choices[Choice].Item;
+                                auto Result = Interface::DropItem(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Message);
 
-                                if (Engine::HasItem(Party, Item))
+                                if (Result)
                                 {
-                                    auto DropMessage = "Select whose " + std::string(Equipment::ItemDescription[Item]) + " to drop";
+                                    Next = Interface::FindStory(Story->Choices[Choice].Destination);
 
-                                    auto Character = Engine::Count(Party, Item) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, intGR, Party, Story, Screen, DropMessage.c_str()) : Engine::First(Party, Item);
-
-                                    if (Character >= 0 && Character < Party.Members.size())
-                                    {
-                                        if (Engine::HasItem(Party.Members[Character], Item))
-                                        {
-                                            Engine::Drop(Party.Members[Character], Item);
-
-                                            Next = Interface::FindStory(Story->Choices[Choice].Destination);
-
-                                            Done = true;
-                                        }
-                                        else
-                                        {
-                                            DisplayMessage(std::string(Character::ClassName[Party.Members[Character].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                        }
-                                    }
+                                    Done = true;
                                 }
                                 else
                                 {
-                                    if (Engine::Count(Party) > 1)
-                                    {
-                                        DisplayMessage("No one has the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                    }
-                                    else
-                                    {
-                                        auto First = Engine::First(Party, Item);
-
-                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
-                                    }
+                                    DisplayMessage(Message, intBK);
                                 }
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::SelectAdventurer)
@@ -1159,7 +1325,7 @@ namespace Interface
                                     {
                                         auto First = Engine::First(Party);
 
-                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
+                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
                                     }
                                 }
                             }
@@ -1183,7 +1349,7 @@ namespace Interface
                                     {
                                         auto First = Engine::First(Party, Item);
 
-                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + "  does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
+                                        DisplayMessage(std::string(Character::ClassName[Party.Members[First].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!", intBK);
                                     }
                                 }
                             }
@@ -1204,114 +1370,7 @@ namespace Interface
                             }
                             else if (Story->Choices[Choice].Type == Choice::Type::TakeEquipment)
                             {
-                                auto Equipment = Story->Choices[Choice].Equipment;
-
-                                for (auto i = 0; i < Equipment.size(); i++)
-                                {
-                                    if (Equipment[i].Class != Equipment::Class::Gold && Equipment[i].Class != Equipment::Class::Arrow)
-                                    {
-                                        auto Character = Engine::First(Party);
-
-                                        while (Character >= 0 && Character < Party.Members.size())
-                                        {
-                                            std::string TakeMessage = "Give the " + Equipment[i].Name + " to";
-
-                                            Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
-
-                                            if (Character >= 0 && Character < Party.Members.size())
-                                            {
-                                                if ((Equipment[i].Weapon == Equipment::Weapon::Bow || Equipment[i].Class == Equipment::Class::Quiver) && Party.Members[Character].Class != Character::Class::Trickster && Party.Members[Character].Class != Character::Class::Sage)
-                                                {
-                                                    Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, (std::string(Character::ClassName[Party.Members[Character].Class]) + " cannot use the " + Equipment[i].Name), intBK);
-
-                                                    if (Engine::Count(Party) == 1)
-                                                    {
-                                                        break;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    Party.Members[Character].Equipment.push_back(Equipment[i]);
-
-                                                    while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
-                                                    {
-                                                        Interface::ItemScreen(Window, Renderer, Controls, Party, Story, Screen, Character, Equipment::Mode::DROP);
-                                                    }
-
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else if (Equipment[i].Class == Equipment::Class::Gold)
-                                    {
-                                        auto Gold = Equipment[i].Gold;
-
-                                        while (Gold > 0)
-                                        {
-                                            std::string TakeMessage = "Give the " + std::to_string(Gold) + (Gold != 1 ? " gold pieces" : " gold piece") + " to";
-
-                                            auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
-
-                                            if (Character >= 0 && Character < Party.Members.size())
-                                            {
-                                                auto Pouch = Engine::FirstPouch(Party.Members[Character]);
-
-                                                if (Pouch >= 0 && Pouch < Party.Members[Character].Equipment.size())
-                                                {
-                                                    Gold = Engine::GainGold(Party.Members[Character], Gold);
-                                                }
-                                                else
-                                                {
-                                                    Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, "No space oeft for the gold!", intBK);
-
-                                                    if (Engine::Count(Party) == 1)
-                                                    {
-                                                        Gold = 0;
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                Gold = 0;
-                                            }
-                                        }
-                                    }
-                                    else if (Equipment[i].Class == Equipment::Class::Arrow)
-                                    {
-                                        auto Arrows = Equipment[i].Arrows;
-
-                                        while (Arrows > 0)
-                                        {
-                                            std::string TakeMessage = "Give the " + std::to_string(Arrows) + (Arrows != 1 ? " arrows" : " arrow") + " to";
-
-                                            auto Character = Engine::Count(Party) > 1 ? Interface::SelectAdventurer(Window, Renderer, Controls, Bg, Party, Story, Screen, TakeMessage.c_str()) : Engine::First(Party);
-
-                                            if (Character >= 0 && Character < Party.Members.size())
-                                            {
-                                                auto Quiver = Engine::FirstQuiver(Party.Members[Character]);
-
-                                                if (Quiver >= 0 && Quiver < Party.Members[Character].Equipment.size())
-                                                {
-                                                    Arrows = Engine::GainArrows(Party.Members[Character], Arrows);
-                                                }
-                                                else
-                                                {
-                                                    Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, Bg, "No space left for the arrows!", intBK);
-
-                                                    if (Engine::Count(Party) == 1)
-                                                    {
-                                                        Arrows = 0;
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                Arrows = 0;
-                                            }
-                                        }
-                                    }
-                                }
+                                Interface::TakeItems(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], Bg, Message);
 
                                 Next = Interface::FindStory(Story->Choices[Choice].Destination);
 
