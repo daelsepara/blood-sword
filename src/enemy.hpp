@@ -21,7 +21,8 @@ namespace Enemy
         Corpse,
         Bowmen,
         Dirges,
-        Guillarme
+        Guillarme,
+        Echidna
     };
 
     class Base

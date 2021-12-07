@@ -96,6 +96,9 @@ namespace Map
         // locations of exits
         std::vector<Map::Point> Exits = {};
 
+        // exit triggers
+        std::vector<int> ExitTriggers = {};
+
         // map dimensions
         int Width = 0;
 
@@ -132,20 +135,22 @@ namespace Map
 
         void Initialize(int sizex, int sizey)
         {
-            Width = sizex;
+            this->Width = sizex;
 
-            Height = sizey;
+            this->Height = sizey;
 
-            Tiles.clear();
+            this->Tiles.clear();
 
-            Tiles.resize(sizey);
+            this->Tiles.resize(sizey);
 
             for (auto i = 0; i < sizey; i++)
             {
-                Tiles[i] = std::vector<Map::Tile>(sizex);
+                this->Tiles[i] = std::vector<Map::Tile>(sizex);
             }
 
-            Exits.clear();
+            this->Exits.clear();
+
+            this->ExitTriggers.clear();
         }
 
         void Put(int x, int y, Map::Object object, int id)
@@ -208,12 +213,16 @@ namespace Map
                             Put(x, y, Map::Object::Exit, Assets::Type::MapExit, false, false);
 
                             Exits.push_back(std::make_pair(x, y));
+
+                            ExitTriggers.push_back(0);
                         }
                         else if (map[y][x] == Map::Stairs)
                         {
                             Put(x, y, Map::Object::Exit, Assets::Type::Stairs, false, false);
 
                             Exits.push_back(std::make_pair(x, y));
+
+                            ExitTriggers.push_back(0);
                         }
                         else if (map[y][x] == Map::Passable)
                         {
@@ -222,11 +231,13 @@ namespace Map
                         else if (player != std::string::npos && player >= 0 && player != std::string::npos)
                         {
                             Put(x, y, Map::Object::Passable, Assets::Type::Passable, true, true);
+
                             Put(x, y, Map::Object::Player, player);
                         }
                         else if (enemy != std::string::npos && enemy >= 0 && enemy != std::string::npos)
                         {
                             Put(x, y, Map::Object::Passable, Assets::Type::Passable, true, true);
+
                             Put(x, y, Map::Object::Enemy, enemy);
                         }
                         else if (map[y][x] == Map::Steep)
@@ -381,6 +392,11 @@ namespace Map
                             {
                                 LoadError = true;
                             }
+                        }
+
+                        if (this->Exits.size() > 0)
+                        {
+                            this->ExitTriggers = std::vector<int>(this->Exits.size());
                         }
                     }
                 }
@@ -658,6 +674,54 @@ namespace Map
                     this->Remove(srcX, srcY);
 
                     result = true;
+                }
+            }
+
+            return result;
+        }
+
+        void TriggerExit(int srcX, int srcY)
+        {
+            if (this->Exits.size() > 0 && this->ExitTriggers.size() > 0)
+            {
+                for (auto i = 0; i < this->Exits.size(); i++)
+                {
+                    if (srcX == this->Exits[i].first && srcY == this->Exits[i].second)
+                    {
+                        this->ExitTriggers[i]++;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        void ClearExitTriggers()
+        {
+            if (this->ExitTriggers.size() > 0)
+            {
+                for (auto i = 0; i < this->ExitTriggers.size(); i++)
+                {
+                    this->ExitTriggers[i] = 0;
+                }
+            }
+        }
+
+        int ExitTriggered()
+        {
+            auto result = -1;
+            auto triggers = 0;
+
+            if (this->ExitTriggers.size() > 0)
+            {
+                for (auto i = 0; i < this->ExitTriggers.size(); i++)
+                {
+                    if (this->ExitTriggers[i] > triggers)
+                    {
+                        result = i;
+
+                        triggers = this->ExitTriggers[i];
+                    }
                 }
             }
 

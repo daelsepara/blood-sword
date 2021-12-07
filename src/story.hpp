@@ -52,6 +52,8 @@ namespace Story
 
         int Limit = 0;
 
+        int ExitTriggered = -1;
+
         Battle::Base Battle = Battle::Base();
 
         std::vector<Enemy::Base> Enemies = {};

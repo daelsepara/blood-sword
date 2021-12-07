@@ -92,13 +92,13 @@ namespace Interface
                 }
                 else
                 {
-                    if (CtrlX < (StartMap - 5))
+                    if (CtrlX < (StartMap - 4))
                     {
-                        CtrlDn = CtrlX + 5;
+                        CtrlDn = CtrlX + 4;
                     }
                     else
                     {
-                        CtrlDn = 5;
+                        CtrlDn = 4;
                     }
                 }
 
@@ -3503,6 +3503,8 @@ namespace Interface
         // remove non-existent players and enemies
         Map.Clean(Party, Story->Enemies);
 
+        Map.ClearExitTriggers();
+
         Battle::Base &Battle = Story->Battle;
 
         if (Battle.SoloCombat >= 0 && Battle.SoloCombat < Party.Members.size())
@@ -3783,7 +3785,7 @@ namespace Interface
         auto MapButtonsGridSize = MapSizeY / 4;
 
         auto ActionsX = Map.DrawX;
-        auto ActionsY = Map.DrawY + ((Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize) + 2 * text_space;
+        auto ActionsY = Map.DrawY + ((Map.SizeY < 9 ? 9 : Map.SizeY) * Map.ObjectSize) + 2 * text_space;
         auto ActionsGrid = MapButtonSize;
 
         auto StartMap = 12;
@@ -4344,6 +4346,8 @@ namespace Interface
                                             Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " escapes!"), intGR);
 
                                             Character.Escaped = true;
+
+                                            Map.TriggerExit(CurrentX, CurrentY);
                                         }
 
                                         Map.Remove(CurrentX, CurrentY);
@@ -5587,6 +5591,8 @@ namespace Interface
             }
             else if (Engine::Escaped(Party))
             {
+                Story->ExitTriggered = Map.ExitTriggered();
+
                 CombatResult = Combat::Result::ESCAPED;
             }
             else if (Engine::Enthraled(Enemies))

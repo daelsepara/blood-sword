@@ -95,7 +95,8 @@ namespace Assets
         ManInBlue,
         Corpse,
         Bowmen,
-        Dirges
+        Dirges,
+        Demoness
     };
 
     typedef std::pair<Assets::Type, SDL_Surface *> Surface;
