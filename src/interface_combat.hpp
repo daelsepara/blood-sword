@@ -714,9 +714,9 @@ namespace Interface
         {
             Interface::SortLocations(Locations);
 
-            DstX = std::get<0>(Locations[0]);
+            DstX = std::get<0>(Locations.front());
 
-            DstY = std::get<1>(Locations[0]);
+            DstY = std::get<1>(Locations.front());
 
             Result = true;
         }
