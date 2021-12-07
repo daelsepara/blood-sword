@@ -3307,6 +3307,99 @@ namespace Book1
         }
     };
 
+    class Story128 : public Story::Base
+    {
+    public:
+        int Character = -1;
+
+        Story128()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 128;
+
+            Text = "(ENCHANTER) You step out on to the bridge. As you do, the rumbling voice of the gargoyle's head echoes across the cave: \"Return from darkness.\" In answer to this summons, a figure appears at the far end of the bridge. The Hags mutter excitedly as he steps rapidly forwards to confront you. A wall of force arises behind you, cutting off your retreat. You must face this foe alone. As he draws near, you recognise the coat-of-arms on his shield: a three-horned dragon in gold on an azure field. It is the insignia of Sir Guillarme le Cauchemar, an evil knight who was your deadliest foe -- until you slew him, months ago...\n\nGuillarme speaks, his voice sounding cold and tinny within his black helm. \"We meet again for one final encounter, you spell-tossing churl. This time it is I, Guillarme le Cauchemar, who shall send you down into the icy embrace of Lady Death.\" He gives a curt, contemptuous salute and then doses for the kill.\n\n<b>NOTE</b>\n\nGuillarme's Endurance and Awareness are the same as yours were at the start of the adventure. His Fighting Prowess is one point greater than your initial Fighting Prowess, while his Psychic Ability is two points lower. He inflicts the same damage as you do with each blow, and his Armour Rating is three.\n\nYou cannot <i>flee</i>, and your companions (if any) cannot intervene in any way.";
+
+            MapFile = "maps/book1/mapsolo.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+
+            Battle.SoloCombat = -1;
+
+            Character = -1;
+
+            if (Engine::IsPresent(Party, Character::Class::Enchanter))
+            {
+                Character = Engine::Find(Party, Character::Class::Enchanter);
+
+                Battle.SoloCombat = Character;
+
+                auto Characters = Party.Members.size();
+
+                if (Engine::IsPresent(Party, Character::Class::Imragarn))
+                {
+                    Characters--;
+                }
+
+                auto Rank = 2;
+
+                if (Characters >= 4)
+                {
+                    Rank = 2;
+                }
+                else if (Characters >= 3)
+                {
+                    Rank = 3;
+                }
+                else if (Characters >= 2)
+                {
+                    Rank = 4;
+                }
+                else if (Characters >= 1)
+                {
+                    Rank = 8;
+                }
+
+                auto Guillarme = Character::Create(Character::Class::Enchanter, Book::Type::Book1, Rank);
+
+                auto FightingProwess = Engine::Score(Guillarme, Attributes::Type::FightingProwess) + 1;
+                auto PsychicAbility = std::max(0, Engine::Score(Guillarme, Attributes::Type::PsychicAbility) - 2);
+                auto Endurance = Engine::Score(Guillarme, Attributes::Type::Endurance);
+                auto Awareness = Engine::Score(Guillarme, Attributes::Type::Awareness);
+
+                Enemies.push_back(Enemy::Base(Enemy::Type::Guillarme, "GUILLARME", FightingProwess, PsychicAbility, Awareness, Endurance, Guillarme.Damage, Guillarme.DamageModifier, 3, Assets::Type::Enchanter, true, true, false));
+            }
+        }
+
+        void SetupCombat(Map::Base &Map, Party::Base &Party)
+        {
+            if (Engine::IsPresent(Party, Character::Class::Enchanter))
+            {
+                Map.Put(2, 2, Map::Object::Player, Character);
+            }
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            if (Result == Combat::Result::VICTORY)
+            {
+                if (Engine::IsPresent(Party, Character::Class::Enchanter))
+                {
+                    Engine::GetCode(Party.Members[Character], Code::Status::CROSSED_BRIDGE);
+                }
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 88}; }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -3480,6 +3573,7 @@ namespace Book1
     auto story125 = Story125();
     auto story126 = Story126();
     auto story127 = Story127();
+    auto story128 = Story128();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -3499,7 +3593,7 @@ namespace Book1
             &story091, &story092, &story093, &story094, &story095, &story096, &story097, &story098, &story099, &story100,
             &story101, &story102, &story103, &story104, &story105, &story106, &story107, &story108, &story109, &story110,
             &story111, &story112, &story113, &story114, &story115, &story116, &story117, &story118, &story119, &story120,
-            &story121, &story122, &story123, &story124, &story125, &story126, &story127,
+            &story121, &story122, &story123, &story124, &story125, &story126, &story127, &story128,
             &story398,
             &story452};
     }

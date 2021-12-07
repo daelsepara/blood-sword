@@ -219,7 +219,7 @@ namespace Engine
 
         for (auto i = 0; i < party.Members.size(); i++)
         {
-            if (Engine::IsAlive(party.Members[i]) && !party.Members[i].Escaped)
+            if (Engine::IsAlive(party.Members[i]) && !party.Members[i].Escaped && !party.Members[i].Away)
             {
                 result++;
             }
@@ -753,6 +753,15 @@ namespace Engine
         return Engine::CountMoney(character) > 0;
     }
 
+    void ClearAwayStatus(Party::Base &party)
+    {
+        // clear defensive stance
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            party.Members[i].Away = false;
+        }
+    }
+
     void ClearDefendingStatus(Party::Base &party)
     {
         // clear defensive stance
@@ -785,7 +794,7 @@ namespace Engine
         // clear escaped status
         for (auto i = 0; i < party.Members.size(); i++)
         {
-            party.Members[i].Escaped = false;
+            party.Members[i].Engaged = false;
         }
     }
 
@@ -798,7 +807,7 @@ namespace Engine
         }
     }
 
-    void NormalCombat(Party::Base &party)
+    void NormalCombatOrder(Party::Base &party)
     {
         // clear act first flag
         for (auto i = 0; i < party.Members.size(); i++)
@@ -807,7 +816,7 @@ namespace Engine
         }
     }
 
-    void NormalCombat(std::vector<Enemy::Base> &enemies)
+    void NormalCombatOrder(std::vector<Enemy::Base> &enemies)
     {
         // clear act first flag
         for (auto i = 0; i < enemies.size(); i++)
@@ -971,16 +980,16 @@ namespace Engine
         return (result >= 0 && result < character.SpellStatus.size()) && Engine::IsAlive(character);
     }
 
-    void ClearStatus(Character::Base &character)
+    void ClearSpellStatus(Character::Base &character)
     {
         character.SpellStatus.clear();
     }
 
-    void ClearStatus(Party::Base &party)
+    void ClearSpellStatus(Party::Base &party)
     {
         for (auto i = 0; i < party.Members.size(); i++)
         {
-            Engine::ClearStatus(party.Members[i]);
+            Engine::ClearSpellStatus(party.Members[i]);
         }
     }
 

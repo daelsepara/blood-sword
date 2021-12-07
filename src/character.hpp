@@ -101,6 +101,9 @@ namespace Character
         // engaged in combat
         bool Engaged = false;
 
+        // away
+        bool Away = false;
+
         Base()
         {
         }

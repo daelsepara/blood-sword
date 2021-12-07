@@ -451,7 +451,7 @@ namespace Map
             }
         }
 
-        void Solo(int PlayerId)
+        void Solo(Party::Base &party, int PlayerId)
         {
             for (auto y = 0; y < this->Height; y++)
             {
@@ -459,13 +459,19 @@ namespace Map
                 {
                     Map::Object &Occupant = Tiles[y][x].Occupant;
 
-                    int &Id = Tiles[y][x].Id;
+                    int &id = Tiles[y][x].Id;
 
-                    if (Occupant == Map::Object::Player && (Id != PlayerId + 1))
+                    if (Occupant == Map::Object::Player && (id != PlayerId + 1))
                     {
                         Occupant = Map::Object::None;
 
-                        Id = 0;
+                        party.Members[id - 1].Away = true;
+
+                        id = 0;
+                    }
+                    else if (Occupant == Map::Object::Player && (id == PlayerId + 1))
+                    {
+                        party.Members[id - 1].Away = false;
                     }
                 }
             }

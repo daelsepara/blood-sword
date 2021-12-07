@@ -507,7 +507,7 @@ namespace Interface
         // cycle through the players
         for (auto i = 0; i < Party.Members.size(); i++)
         {
-            if (Engine::IsAlive(Party.Members[i]) && !Party.Members[i].Escaped)
+            if (Engine::IsAlive(Party.Members[i]) && !Party.Members[i].Escaped && !Party.Members[i].Away)
             {
                 auto LocationX = 0;
 
@@ -3507,7 +3507,7 @@ namespace Interface
 
         if (Battle.SoloCombat >= 0 && Battle.SoloCombat < Party.Members.size())
         {
-            Map.Solo(Battle.SoloCombat);
+            Map.Solo(Party, Battle.SoloCombat);
         }
 
         std::vector<Enemy::Base> &Enemies = Story->Enemies;
@@ -3783,7 +3783,7 @@ namespace Interface
         auto MapButtonsGridSize = MapSizeY / 4;
 
         auto ActionsX = Map.DrawX;
-        auto ActionsY = Map.DrawY + MapSizeY + 2 * text_space;
+        auto ActionsY = Map.DrawY + ((Map.SizeY < 8 ? 8 : Map.SizeY) * Map.ObjectSize) + 2 * text_space;
         auto ActionsGrid = MapButtonSize;
 
         auto StartMap = 12;
@@ -3991,7 +3991,7 @@ namespace Interface
                 {
                     auto character = Party.Members[GetId(CurrentCombatant)];
 
-                    Active = Engine::IsAlive(character) && !character.Escaped && !Engine::Paralyzed(character);
+                    Active = Engine::IsAlive(character) && !character.Escaped && !Engine::Paralyzed(character) && !character.Away;
 
                     if (Party.Members[GetId(CurrentCombatant)].Defending)
                     {
@@ -4069,6 +4069,30 @@ namespace Interface
             }
         };
 
+        auto ClearPartyStatus = [&]()
+        {
+            Engine::ClearAwayStatus(Party);
+
+            Engine::ClearDefendingStatus(Party);
+
+            Engine::ClearEngaged(Party);
+
+            Engine::NormalThinking(Party);
+
+            Engine::ResetSpellDifficulty(Party);
+
+            Engine::ClearSpellStatus(Party);
+
+            Engine::NormalCombatOrder(Party);
+        };
+
+        auto ClearRemainingStatus = [&]()
+        {
+            Engine::ClearEscaped(Party);
+
+            Engine::ClearParalyzed(Party);
+        };
+
         auto TimeBlink = [&](int Reader)
         {
             Map = InitialMap;
@@ -4078,23 +4102,11 @@ namespace Interface
             Story->Enemies = InitialEnemies;
 
             // clear combat status
-            Engine::ClearDefendingStatus(Party);
+            ClearPartyStatus();
 
-            Engine::ClearParalyzed(Party);
+            ClearRemainingStatus();
 
-            Engine::ClearEngaged(Party);
-
-            Engine::ClearEscaped(Party);
-
-            Engine::NormalThinking(Party);
-
-            Engine::ResetSpellDifficulty(Party);
-
-            Engine::ClearStatus(Party);
-
-            Engine::NormalCombat(Party);
-
-            Engine::NormalCombat(Story->Enemies);
+            Engine::NormalCombatOrder(Story->Enemies);
 
             GenerateSequence(Sequence);
 
@@ -5551,17 +5563,9 @@ namespace Interface
         }
         else
         {
-            Engine::ClearDefendingStatus(Party);
+            ClearPartyStatus();
 
-            Engine::NormalThinking(Party);
-
-            Engine::ResetSpellDifficulty(Party);
-
-            Engine::ClearStatus(Party);
-
-            Engine::NormalCombat(Party);
-
-            // track Enemies who have survive
+            // track Enemies who have survived
             auto SurvivingEnemies = std::vector<Enemy::Base>();
 
             for (auto i = 0; i < Enemies.size(); i++)
@@ -5591,8 +5595,6 @@ namespace Interface
             }
             else if (Engine::IsAlive(Party))
             {
-                Engine::ClearParalyzed(Party);
-
                 CombatResult = Combat::Result::VICTORY;
             }
             else
@@ -5602,6 +5604,8 @@ namespace Interface
         }
 
         Enemies.clear();
+
+        ClearRemainingStatus();
 
         return CombatResult;
     }

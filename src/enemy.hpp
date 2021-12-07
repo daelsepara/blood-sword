@@ -20,7 +20,8 @@ namespace Enemy
         ManInBlue,
         Corpse,
         Bowmen,
-        Dirges
+        Dirges,
+        Guillarme
     };
 
     class Base
