@@ -20,14 +20,14 @@ namespace Interface
     // player id, location x, location y
     typedef std::tuple<int, int, int> TargetDestination;
 
-    void RenderCombatScreen(SDL_Renderer *Renderer, std::vector<Button> &Controls, int Current, Uint32 bg)
+    void RenderCombatScreen(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, int Current, Uint32 bg)
     {
         Graphics::FillWindow(Renderer, bg);
 
-        Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+        Graphics::RenderButtons(Renderer, BattleScreen, Current, text_space, border_pts);
     }
 
-    void RenderMessage(SDL_Renderer *Renderer, std::vector<Button> &Controls, Map::Base &Map, Uint32 bg, std::string Message, Uint32 FlashColor)
+    void RenderMessage(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Map::Base &Map, Uint32 bg, std::string Message, Uint32 FlashColor)
     {
         Uint32 Duration = 1500;
 
@@ -35,7 +35,7 @@ namespace Interface
 
         auto MapSizeY = Map.SizeY * Map.ObjectSize;
 
-        Interface::RenderCombatScreen(Renderer, Controls, -1, bg);
+        Interface::RenderCombatScreen(Renderer, BattleScreen, -1, bg);
 
         auto FlashW = 4 * MapSizeX / 5;
 
