@@ -3400,6 +3400,77 @@ namespace Book1
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 88}; }
     };
 
+    class Story129 : public Story::Base
+    {
+    public:
+        Book::Destination Destination = {};
+
+        Story129()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 129;
+
+            Text = "Echidna slithers forwards across the marble floor to attack you.\n\n<b>NOTE</b>\n\nHer bite contains a strong poison, and anyone wounded by her rolls one Die: on a roll of 1 to 5 the poison does not flow into the wound, but on a roll of 6 the player must lose 3D Endurance.";
+
+            MapFile = "maps/book1/map129.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+            Enemies.push_back(Enemy::Base(Enemy::Type::Echidna, "ECHIDNA", 8, 9, 8, 40, 2, 2, 2, Assets::Type::Demoness, true, false, false));
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            if (Result == Combat::Result::ESCAPED)
+            {
+                if (ExitTriggered == 0)
+                {
+                    Destination = {Book::Type::Book1, 357};
+                }
+                else
+                {
+                    Destination = {Book::Type::Book1, 56};
+                }
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 253};
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
+    };
+
+    class Story130 : public Story::Base
+    {
+    public:
+        Story130()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 130;
+
+            Image = "images/book1/filler1.png";
+
+            TopImage = true;
+
+            Text = "After <i>recovering</i> for the next Spiral, he has two heads and five tails. You have only two heads. You are wondering whether you have any chance of winning when Kief says: \"No, you don't. We have reached the Converging Spiral, where playing on would only prolong your inevitable defeat.\" He gathers the coins.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -3574,6 +3645,8 @@ namespace Book1
     auto story126 = Story126();
     auto story127 = Story127();
     auto story128 = Story128();
+    auto story129 = Story129();
+    auto story130 = Story130();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -3593,7 +3666,7 @@ namespace Book1
             &story091, &story092, &story093, &story094, &story095, &story096, &story097, &story098, &story099, &story100,
             &story101, &story102, &story103, &story104, &story105, &story106, &story107, &story108, &story109, &story110,
             &story111, &story112, &story113, &story114, &story115, &story116, &story117, &story118, &story119, &story120,
-            &story121, &story122, &story123, &story124, &story125, &story126, &story127, &story128,
+            &story121, &story122, &story123, &story124, &story125, &story126, &story127, &story128, &story129, &story130,
             &story398,
             &story452};
     }

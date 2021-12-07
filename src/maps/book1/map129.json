@@ -1,0 +1,478 @@
+{
+    "exits": [
+        {
+            "x": 0,
+            "y": 1
+        },
+        {
+            "x": 7,
+            "y": 1
+        }
+    ],
+    "height": 7,
+    "tiles": [
+        [
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            }
+        ],
+        [
+            {
+                "asset": 7,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 4
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 7,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 4
+            }
+        ],
+        [
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 1,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 1,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 1,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 7,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            }
+        ],
+        [
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 5,
+                "id": 2,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 1,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            }
+        ],
+        [
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 4,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 1,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 3,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 1,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            }
+        ],
+        [
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            }
+        ],
+        [
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 5,
+                "id": 0,
+                "isPassable": true,
+                "isPassableToEnemy": true,
+                "occupant": 0,
+                "type": 2
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            },
+            {
+                "asset": 6,
+                "id": 0,
+                "isPassable": false,
+                "isPassableToEnemy": false,
+                "occupant": 0,
+                "type": 3
+            }
+        ]
+    ],
+    "width": 8
+}
