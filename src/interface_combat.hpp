@@ -2028,6 +2028,7 @@ namespace Interface
             auto CalculatedDamage = false;
             auto AssignedDamage = false;
             auto Retribution = false;
+            auto Poisoned = false;
             auto Done = false;
 
             Result = Combat::Result::NONE;
@@ -2253,6 +2254,14 @@ namespace Interface
                             Retribution = true;
                         }
 
+                        if (Attacked && FightMode != Combat::FightMode::SHOOT && DamageSum > 0 && Enemy.Type == Enemy::Type::Echidna)
+                        {
+                            if (Engine::Roll(1, 0) == 6)
+                            {
+                                Poisoned = true;
+                            }
+                        }
+
                         CalculatedDamage = true;
                     }
                 }
@@ -2392,6 +2401,14 @@ namespace Interface
                             {
                                 Character.Paralyzed = true;
                             }
+                        }
+                        else if (Attacked && Enemy.Type == Enemy::Type::Echidna && Poisoned)
+                        {
+                            auto PoisonDamage = Engine::Roll(3, 0);
+
+                            RenderMessage(Renderer, BattleScreen, Map, bg, "Poison flows into your wounds for " + std::to_string(PoisonDamage) + " damage!", intBK);
+
+                            Engine::Gain(Character, -PoisonDamage);
                         }
                         else if (!Attacked && Retribution)
                         {
