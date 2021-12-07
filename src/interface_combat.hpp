@@ -3614,10 +3614,60 @@ namespace Interface
         }
     }
 
+    void SetupAdditionalPlayers(Map::Base &Map, Party::Base &Party)
+    {
+        std::vector<std::pair<int, int>> Neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+
+        if (Party.Members.size() > 4)
+        {
+            for (auto i = 4; i < Party.Members.size(); i++)
+            {
+                auto Setup = false;
+
+                if (Engine::IsAlive(Party.Members[i]))
+                {
+                    for (auto j = 0; j < 4; j++)
+                    {
+                        auto PlayerX = -1;
+                        auto PlayerY = -1;
+
+                        Interface::Find(Map, Map::Object::Player, j, PlayerX, PlayerY);
+
+                        if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY))
+                        {
+                            for (auto k = 0; k < Neighbors.size(); k++)
+                            {
+                                auto PutX = PlayerX + Neighbors[k].first;
+                                auto PutY = PlayerY + Neighbors[k].second;
+
+                                if (Interface::ValidX(Map, PutX) && Interface::ValidY(Map, PutY) && Map.Tiles[PutY][PutX].IsPassable && !Map.Tiles[PutY][PutX].IsOccupied())
+                                {
+                                    Map.Put(PutX, PutY, Map::Object::Player, i);
+
+                                    Setup = true;
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (Setup)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, Story::Base *Story, Map::Base &Map, Party::Base &Party)
     {
         // remove non-existent players and enemies
         Map.Clean(Party, Story->Enemies);
+
+        // setup additional players
+        Interface::SetupAdditionalPlayers(Map, Party);
 
         Battle::Base &Battle = Story->Battle;
 

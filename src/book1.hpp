@@ -3084,6 +3084,229 @@ namespace Book1
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 115}; }
     };
 
+    class Story121 : public Story::Base
+    {
+    public:
+        Story121()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 121;
+
+            Text = "(TRICKSTER) You saunter casually past the merchant and, reaching deftly inside his jacket, remove his doubtless ill-gotten gains. He is so drunk that he does not notice a thing.\n\n<i>Inspecting your haul, you find that you now have the grand sum of fifty gold pieces.</i>";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            auto Character = Engine::Find(Party, Character::Class::Trickster);
+
+            if (Character >= 0 && Character < Party.Members.size())
+            {
+                Engine::GainGold(Party.Members[Character], 50);
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 344}; }
+    };
+
+    class Story122 : public Story::Base
+    {
+    public:
+        Story122()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 122;
+
+            Text = "(ENCHANTER) You cast the spell. You seem to stare into a vast endless void. Does this mean you have no future? Certainly that is one possible future -- the dark oblivion of death. But there are other possibilities also.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) Try something", {Book::Type::Book1, 108}, Character::Class::Sage));
+            Choices.push_back(Choice::Base("Heave the iron chain out of the water", {Book::Type::Book1, 502}));
+            Choices.push_back(Choice::Base("Tell the gondolier to carry on", {Book::Type::Book1, 247}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story123 : public Story::Base
+    {
+    public:
+        Story123()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 123;
+
+            Text = "You stride up to the man, saying, \"Balhazar, you are discovered!\" He turns with a kind of half smile, then shimmers and fades away! You look around to see all the other guests disappearing as well. Only one remains -- a man in a domino cape. When he stands up, you recognise the imposing height and imperious stance of Magus Balhazar.\n\n\"You have failed my test, I fear,\" says Balhazar as he unmasks. \"Regrettable, as I had hoped you would do better. Now it is time for you to leave.\"";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 119}; }
+    };
+
+    class Story124 : public Story::Base
+    {
+    public:
+        Story124()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 124;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Add IMRAGARN to the party", {Book::Type::Book1, -124}));
+            Choices.push_back(Choice::Base("Leave him be", {Book::Type::Book1, 369}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "The scarab burns with a bright green light. Suddenly the man groans and sits up. Having restored him to life, the scarab crumbles away to dust. The man looks around, astonished. \"What happened?\" he says. The last thing I remember is my old chum Fashmar getting killed by that Frost-Wizard\n\nYou quickly fill him in. It seems he's been frozen in ice for almost a decade, since he entered the Battlepits with several companions as the champions of Magus Laglor. His name is Imragarn, and he is naturally grateful that you have restored him to life. In fact, he swears allegiance to you.\n\n<b>NOTE</b>\n\nYou can add him to your party.\n\nIMRAGARN\n\nFighting Prowess: 8\n\nDamage per blow: 1D+1\n\nPyschic Ability: 6\n\nAwareness: 6\n\nEndurance: 12.\n\nHe has no weapon. He is a second-rank Warrior.";
+
+            auto Character = Engine::First(Party, Equipment::Item::EmeraldScarab);
+
+            if (Character >= 0 && Character < Party.Members.size())
+            {
+                Engine::Drop(Party.Members[Character], Equipment::Item::EmeraldScarab);
+            }
+
+            if (Engine::Count(Party, Code::Status::STRIPPED_IMRAGARN) == 0)
+            {
+                Text += " He has leather armour (Armour Rating 1).";
+            }
+
+            Text += " It is possible to <i>flee</i> from a combat without Imragarn, but if you do, any Warriors in the party must lose fifty experience points from their awards at the end of the adventure.";
+        }
+    };
+
+    class Event124 : public Story::Base
+    {
+    public:
+        Event124()
+        {
+            Book = Book::Type::Book1;
+
+            Id = -124;
+
+            DisplayId = 124;
+
+            Choices.clear();
+
+            Controls = Story::Controls::Info;
+        }
+
+        Book::Destination Background(Party::Base &Party)
+        {
+            auto Imragarn = Character::Create(Character::Class::Imragarn, Book::Type::Book1, 2);
+
+            if (Engine::Count(Party, Code::Status::STRIPPED_IMRAGARN) == 0)
+            {
+                Imragarn.Equipment.push_back(Equipment::LeatherArmour);
+            }
+
+            Party.Members.push_back(Imragarn);
+
+            return {Book::Type::Book1, 369};
+        }
+    };
+
+    class Story125 : public Story::Base
+    {
+    public:
+        Story125()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 125;
+
+            Image = "images/book1/filler2.png";
+
+            TopImage = true;
+
+            Text = "Kief reveals his number: a 3.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party)
+        {
+            std::vector<int> Destinations = {130, 95, 135, 286, 286, 286};
+
+            if (Party.LastValue >= 0 && Party.LastValue < 6)
+            {
+                return {Book::Type::Book1, Destinations[Party.LastValue]};
+            }
+            else
+            {
+                return {Book::Type::Book1, Destinations[Engine::Roll(1, 0) - 1]};
+            }
+        }
+    };
+
+    class Story126 : public Story::Base
+    {
+    public:
+        Story126()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 126;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Fight him", {Book::Type::Book1, 371}));
+            Choices.push_back(Choice::Base("Turn and run", {Book::Type::Book1, 154}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "You rush on, blindly barging the doors open so as to get out of the hail of razor-pointed arrows. You now stand in a circular chamber filled with coruscating blue light. A desperate, insane laugh seems to waver at the edge of your hearing. Your skin crawls with a terror you cannot define.";
+
+            if (Engine::HasArmour(Party))
+            {
+                Text += " The blue light is causing your armour to rot and slough away.";
+            }
+
+            Text += "\n\nYou are not alone in the room. An indistinct, shimmering figure is now beside you. It is the creature known in Krarthian mythology as the Prince of Desolation. He steps in front of you, leering like a madman.";
+        }
+    };
+
+    class Story127 : public Story::Base
+    {
+    public:
+        Story127()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 127;
+
+            Text = "You slay the Assassins. They have three daggers that you can take if you want. Their Shuriken throwing-spikes are useless to you. You also find a vial of black liquid which a Sage could perhaps identify.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) Identify the <b>vial of black liquid</b>", {Book::Type::Book1, 463}, Character::Class::Sage, Equipment::Item::VialOfBlackLiquid));
+            Choices.push_back(Choice::Base("Continue", {Book::Type::Book1, 236}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment = {Equipment::Dagger, Equipment::Dagger, Equipment::Dagger, Equipment::VialOfBlackLiquid};
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -3249,13 +3472,21 @@ namespace Book1
     auto story118 = Story118();
     auto story119 = Story119();
     auto story120 = Story120();
+    auto story121 = Story121();
+    auto story122 = Story122();
+    auto story123 = Story123();
+    auto story124 = Story124();
+    auto event124 = Event124();
+    auto story125 = Story125();
+    auto story126 = Story126();
+    auto story127 = Story127();
     auto story398 = Story398();
     auto story452 = Story452();
 
     void InitializeStories()
     {
         Book1::Stories = {
-            &event015, &event038, &event062, &event076, &event114,
+            &event015, &event038, &event062, &event076, &event114, &event124,
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
             &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
             &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
@@ -3268,6 +3499,7 @@ namespace Book1
             &story091, &story092, &story093, &story094, &story095, &story096, &story097, &story098, &story099, &story100,
             &story101, &story102, &story103, &story104, &story105, &story106, &story107, &story108, &story109, &story110,
             &story111, &story112, &story113, &story114, &story115, &story116, &story117, &story118, &story119, &story120,
+            &story121, &story122, &story123, &story124, &story125, &story126, &story127,
             &story398,
             &story452};
     }

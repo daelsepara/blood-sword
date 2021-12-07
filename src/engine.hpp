@@ -228,6 +228,24 @@ namespace Engine
         return result;
     }
 
+
+    bool HasArmour(Party::Base &Party)
+    {
+        auto result = false;
+
+        for (auto i = 0; i < Party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(Party.Members[i]) && Engine::Armour(Party.Members[i]) > 0)
+            {
+                result = true;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
     int Find(Character::Base &character, Code::Status code)
     {
         auto result = -1;

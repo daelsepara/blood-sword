@@ -41,7 +41,9 @@ namespace Code
     enum class Status
     {
         NONE = 0,
-        CROSSED_BRIDGE
+        CROSSED_BRIDGE,
+        STRIPPED_IMRAGARN,
+        PRINCE_OF_DESOLATION
     };
 }
 #endif

@@ -805,8 +805,6 @@ namespace Character
         else if (character.Class == Character::Class::Imragarn)
         {
             Character::Warrior(character);
-
-            character.Equipment = {Equipment::Sword, Equipment::LeatherArmour};
             character.Abilities = Character::Abilities[Character::Class::Warrior];
             character.Asset = Assets::Type::Adventurer;
         }
