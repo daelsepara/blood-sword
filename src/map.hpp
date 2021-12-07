@@ -496,6 +496,167 @@ namespace Map
                 }
             }
         }
+
+        void Find(Map::Object object, int id, int &findX, int &findY)
+        {
+            auto found = false;
+
+            for (auto y = 0; y < this->Height; y++)
+            {
+                for (auto x = 0; x < this->Width; x++)
+                {
+                    if (this->Tiles[y][x].Occupant == object && this->Tiles[y][x].Id == (id + 1))
+                    {
+                        findX = x;
+
+                        findY = y;
+
+                        found = true;
+
+                        break;
+                    }
+                }
+
+                if (found)
+                {
+                    break;
+                }
+            }
+        }
+
+        bool ValidX(int x)
+        {
+            return x >= 0 && x < this->Width;
+        }
+
+        bool ValidY(int y)
+        {
+            return y >= 0 && y < this->Height;
+        }
+
+        bool IsVisible(int x, int y)
+        {
+            auto validXY = this->ValidX(x) && this->ValidY(y);
+
+            return validXY && ((x >= this->MapX) && (x < this->SizeX + this->MapX) && (y >= this->MapY) && (y < this->SizeY + this->MapY));
+        }
+
+        void AdditionalPlayers(Party::Base &party)
+        {
+            std::vector<std::pair<int, int>> neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+
+            if (party.Members.size() > 4)
+            {
+                for (auto i = 4; i < party.Members.size(); i++)
+                {
+                    auto setup = false;
+
+                    for (auto j = 0; j < 4; j++)
+                    {
+                        auto playerX = -1;
+
+                        auto playerY = -1;
+
+                        this->Find(Map::Object::Player, j, playerX, playerY);
+
+                        if (this->ValidX(playerX) && this->ValidY(playerY))
+                        {
+                            for (auto k = 0; k < neighbors.size(); k++)
+                            {
+                                auto putX = playerX + neighbors[k].first;
+
+                                auto putY = playerY + neighbors[k].second;
+
+                                if (this->ValidX(putX) && this->ValidY(putY) && this->Tiles[putY][putX].IsPassable && !this->Tiles[putY][putX].IsOccupied())
+                                {
+                                    this->Put(putX, putY, Map::Object::Player, i);
+
+                                    setup = true;
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (setup)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        int Distance(int srcX, int srcY, int dstX, int dstY)
+        {
+            return std::abs(dstX - srcX) + std::abs(dstY - srcY);
+        }
+
+        bool IsAdjacent(int AttackerId, Map::Object AttackerType, int DefenderId, Map::Object DefenderType)
+        {
+            auto AttackerX = -1;
+
+            auto AttackerY = -1;
+
+            auto DefenderX = -1;
+
+            auto DefenderY = -1;
+
+            this->Find(AttackerType, AttackerId, AttackerX, AttackerY);
+
+            this->Find(DefenderType, DefenderId, DefenderX, DefenderY);
+
+            auto IsValidX = this->ValidX(AttackerX) && this->ValidX(DefenderX);
+
+            auto IsValidY = this->ValidY(AttackerY) && this->ValidY(DefenderY);
+
+            return IsValidX && IsValidY && this->Distance(AttackerX, AttackerY, DefenderX, DefenderY) <= 1;
+        }
+
+        bool IsAdjacent(int PlayerId, int EnemyId)
+        {
+            return this->IsAdjacent(PlayerId, Map::Object::Player, EnemyId, Map::Object::Enemy);
+        }
+
+        void Remove(int srcX, int srcY)
+        {
+            if (this->ValidX(srcX) && this->ValidY(srcY))
+            {
+                if (this->Tiles[srcY][srcX].IsPlayer() || this->Tiles[srcY][srcX].IsEnemy())
+                {
+                    this->Tiles[srcY][srcX].Id = 0;
+
+                    this->Tiles[srcY][srcX].Occupant = Map::Object::None;
+                }
+            }
+        }
+
+        bool Move(int srcX, int srcY, int dstX, int dstY)
+        {
+            auto result = false;
+
+            if (this->ValidX(srcX) && this->ValidY(srcY) && this->ValidX(dstX) && this->ValidY(dstY))
+            {
+                if (this->Tiles[srcY][srcX].IsPlayer() && (this->Tiles[dstY][dstX].IsPassable || this->Tiles[dstY][dstX].IsExit()) && this->Tiles[dstY][dstX].Occupant == Map::Object::None)
+                {
+                    this->Put(dstX, dstY, this->Tiles[srcY][srcX].Occupant, this->Tiles[srcY][srcX].Id - 1);
+
+                    this->Remove(srcX, srcY);
+
+                    result = true;
+                }
+                else if (this->Tiles[srcY][srcX].IsEnemy() && (this->Tiles[dstY][dstX].IsPassable || this->Tiles[dstY][dstX].IsPassableToEnemy) && this->Tiles[dstY][dstX].Occupant == Map::Object::None)
+                {
+                    this->Put(dstX, dstY, this->Tiles[srcY][srcX].Occupant, this->Tiles[srcY][srcX].Id - 1);
+
+                    this->Remove(srcX, srcY);
+
+                    result = true;
+                }
+            }
+
+            return result;
+        }
     };
 }
 #endif

@@ -20,16 +20,6 @@ namespace Interface
     // player id, location x, location y
     typedef std::tuple<int, int, int> TargetDestination;
 
-    bool ValidX(Map::Base &Map, int x)
-    {
-        return (x >= 0 && x < Map.Width);
-    }
-
-    bool ValidY(Map::Base &Map, int y)
-    {
-        return (y >= 0 && y < Map.Height);
-    }
-
     void RenderCombatScreen(SDL_Renderer *Renderer, std::vector<Button> &Controls, int Current, Uint32 bg)
     {
         Graphics::FillWindow(Renderer, bg);
@@ -63,52 +53,6 @@ namespace Interface
         SDL_Delay(Duration);
     }
 
-    void Remove(Map::Base &Map, int srcX, int srcY)
-    {
-        if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY))
-        {
-            if (Map.Tiles[srcY][srcX].IsPlayer() || Map.Tiles[srcY][srcX].IsEnemy())
-            {
-                Map.Tiles[srcY][srcX].Id = 0;
-                Map.Tiles[srcY][srcX].Occupant = Map::Object::None;
-            }
-        }
-    }
-
-    bool Move(Map::Base &Map, int srcX, int srcY, int dstX, int dstY)
-    {
-        auto result = false;
-
-        if (Interface::ValidX(Map, srcX) && Interface::ValidY(Map, srcY) && Interface::ValidX(Map, dstX) && Interface::ValidY(Map, dstY))
-        {
-            if (Map.Tiles[srcY][srcX].IsPlayer() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsExit()) && Map.Tiles[dstY][dstX].Occupant == Map::Object::None)
-            {
-                Map.Put(dstX, dstY, Map.Tiles[srcY][srcX].Occupant, Map.Tiles[srcY][srcX].Id - 1);
-
-                Interface::Remove(Map, srcX, srcY);
-
-                result = true;
-            }
-            else if (Map.Tiles[srcY][srcX].IsEnemy() && (Map.Tiles[dstY][dstX].IsPassable || Map.Tiles[dstY][dstX].IsPassableToEnemy) && Map.Tiles[dstY][dstX].Occupant == Map::Object::None)
-            {
-                Map.Put(dstX, dstY, Map.Tiles[srcY][srcX].Occupant, Map.Tiles[srcY][srcX].Id - 1);
-
-                Interface::Remove(Map, srcX, srcY);
-
-                result = true;
-            }
-        }
-
-        return result;
-    }
-
-    bool IsVisible(Map::Base &Map, int X, int Y)
-    {
-        auto ValidXY = Interface::ValidX(Map, X) && Interface::ValidY(Map, Y);
-
-        return ValidXY && ((X >= Map.MapX) && (X < Map.SizeX + Map.MapX) && (Y >= Map.MapY) && (Y < Map.SizeY + Map.MapY));
-    }
-
     void GenerateMapControls(Map::Base &Map, std::vector<Button> &Controls, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int NumControls)
     {
         auto StartMap = NumControls;
@@ -135,7 +79,6 @@ namespace Interface
                 auto CtrlDn = NumControls;
                 auto CtrlLt = NumControls;
                 auto CtrlRt = NumControls;
-
                 auto CtrlX = (x - Map.MapX);
 
                 if (CtrlY > 0)
@@ -194,9 +137,9 @@ namespace Interface
                     CtrlRt = NumControls + 1;
                 }
 
-                auto AssetX = Map.DrawX + (x - Map.MapX) * Map.ObjectSize;
-
                 Map::Tile &Tile = Map.Tiles[y][x];
+
+                auto AssetX = Map.DrawX + (x - Map.MapX) * Map.ObjectSize;
 
                 auto ObjectId = Tile.Id - 1;
 
@@ -255,11 +198,11 @@ namespace Interface
     bool AnimateMove(SDL_Renderer *Renderer, std::vector<Button> &BattleScreen, Uint32 Bg, Map::Base &Map, Party::Base &Party, std::vector<Enemy::Base> &Enemies, int SrcX, int SrcY, int DstX, int DstY)
     {
         // do not render off screen animations
-        if (!Interface::IsVisible(Map, SrcX, SrcY) || !Interface::IsVisible(Map, DstX, DstY))
+        if (!Map.IsVisible(SrcX, SrcY) || !Map.IsVisible(DstX, DstY))
         {
             SDL_Delay(5);
 
-            return Interface::Move(Map, SrcX, SrcY, DstX, DstY);
+            return Map.Move(SrcX, SrcY, DstX, DstY);
         }
 
         auto Sign = [&](int Value)
@@ -301,7 +244,7 @@ namespace Interface
 
         auto Result = false;
 
-        if (Interface::ValidX(Map, SrcX) && Interface::ValidY(Map, SrcY) && Interface::ValidX(Map, DstX) && Interface::ValidY(Map, DstY))
+        if (Map.ValidX(SrcX) && Map.ValidY(SrcY) && Map.ValidX(DstX) && Map.ValidY(DstY))
         {
             if (Map.Tiles[SrcY][SrcX].IsPlayer() && (Map.Tiles[DstY][DstX].IsPassable || Map.Tiles[DstY][DstX].IsExit()) && !Map.Tiles[DstY][DstX].IsOccupied())
             {
@@ -317,7 +260,7 @@ namespace Interface
 
                 SDL_FreeSurface(Asset);
 
-                Result = Interface::Move(Map, SrcX, SrcY, DstX, DstY);
+                Result = Map.Move(SrcX, SrcY, DstX, DstY);
             }
             else if (Map.Tiles[SrcY][SrcX].IsEnemy() && (Map.Tiles[DstY][DstX].IsPassable || Map.Tiles[DstY][DstX].IsPassableToEnemy) && !Map.Tiles[DstY][DstX].IsOccupied())
             {
@@ -333,7 +276,7 @@ namespace Interface
 
                 SDL_FreeSurface(Asset);
 
-                Result = Interface::Move(Map, SrcX, SrcY, DstX, DstY);
+                Result = Map.Move(SrcX, SrcY, DstX, DstY);
             }
         }
 
@@ -385,75 +328,13 @@ namespace Interface
         return Found;
     }
 
-    void Find(Map::Base &Map, Map::Object Object, int Id, int &LocationX, int &LocationY)
-    {
-        auto Found = false;
-
-        LocationX = -1;
-
-        LocationY = -1;
-
-        for (auto y = 0; y < Map.Height; y++)
-        {
-            for (auto x = 0; x < Map.Width; x++)
-            {
-                if (Map.Tiles[y][x].Occupant == Object && Map.Tiles[y][x].Id == (Id + 1))
-                {
-                    LocationX = x;
-
-                    LocationY = y;
-
-                    Found = true;
-
-                    break;
-                }
-            }
-
-            if (Found)
-            {
-                break;
-            }
-        }
-    }
-
-    int Distance(int SrcX, int SrcY, int DstX, int DstY)
-    {
-        return std::abs(DstX - SrcX) + std::abs(DstY - SrcY);
-    }
-
-    bool IsAdjacent(Map::Base &Map, int AttackerId, Map::Object AttackerType, int DefenderId, Map::Object DefenderType)
-    {
-        auto AttackerX = -1;
-
-        auto AttackerY = -1;
-
-        auto DefenderX = -1;
-
-        auto DefenderY = -1;
-
-        Interface::Find(Map, AttackerType, AttackerId, AttackerX, AttackerY);
-
-        Interface::Find(Map, DefenderType, DefenderId, DefenderX, DefenderY);
-
-        auto IsValidX = Interface::ValidX(Map, AttackerX) && Interface::ValidX(Map, DefenderX);
-
-        auto IsValidY = Interface::ValidY(Map, AttackerY) && Interface::ValidY(Map, DefenderY);
-
-        return IsValidX && IsValidY && Interface::Distance(AttackerX, AttackerY, DefenderX, DefenderY) <= 1;
-    }
-
-    bool IsAdjacent(Map::Base &Map, int PlayerId, int EnemyId)
-    {
-        return Interface::IsAdjacent(Map, PlayerId, Map::Object::Player, EnemyId, Map::Object::Enemy);
-    }
-
     bool NearbyEnemies(Map::Base &Map, std::vector<Enemy::Base> &Enemies, int PlayerId, bool ShootMode)
     {
         auto Result = false;
 
         for (auto i = 0; i < Enemies.size(); i++)
         {
-            Result |= (Engine::IsAlive(Enemies[i]) && Interface::IsAdjacent(Map, PlayerId, i) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode));
+            Result |= (Engine::IsAlive(Enemies[i]) && Map.IsAdjacent(PlayerId, i) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode));
         }
 
         return Result;
@@ -465,7 +346,7 @@ namespace Interface
 
         for (auto i = 0; i < Enemies.size(); i++)
         {
-            Result |= (i != EnemyId && Engine::IsAlive(Enemies[i]) && Interface::IsAdjacent(Map, EnemyId, Map::Object::Enemy, i, Map::Object::Enemy) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode));
+            Result |= (i != EnemyId && Engine::IsAlive(Enemies[i]) && Map.IsAdjacent(EnemyId, Map::Object::Enemy, i, Map::Object::Enemy) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode));
         }
 
         return Result;
@@ -481,7 +362,7 @@ namespace Interface
         {
             Enemy::Base &Enemy = Enemies[i];
 
-            if (Engine::IsAlive(Enemy) && Interface::IsAdjacent(Map, PlayerId, i) && Enemy.Awareness >= Engine::Awareness(character) && Enemy.Attacked == PlayerId && !character.ActFirst)
+            if (Engine::IsAlive(Enemy) && Map.IsAdjacent(PlayerId, i) && Enemy.Awareness >= Engine::Awareness(character) && Enemy.Attacked == PlayerId && !character.ActFirst)
             {
                 WasAttacked = true;
 
@@ -519,7 +400,7 @@ namespace Interface
 
                 auto Y = CurrentPath.Points[i].Y;
 
-                if (Interface::IsVisible(Map, X, Y))
+                if (Map.IsVisible(X, Y))
                 {
                     Graphics::FillRect(Renderer, Map.ObjectSize, Map.ObjectSize, Map.DrawX + (X - Map.MapX) * Map.ObjectSize, Map.DrawY + (Y - Map.MapY) * Map.ObjectSize, Color);
                 }
@@ -527,7 +408,7 @@ namespace Interface
 
             SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_NONE);
 
-            if (Interface::IsVisible(Map, TargetX, TargetY))
+            if (Map.IsVisible(TargetX, TargetY))
             {
                 Graphics::ThickRect(Renderer, Map.ObjectSize - 4 * border_pts, Map.ObjectSize - 4 * border_pts, Map.DrawX + (TargetX - Map.MapX) * Map.ObjectSize + 2 * border_pts, Map.DrawY + (TargetY - Map.MapY) * Map.ObjectSize + 2 * border_pts, color, border_pts);
             }
@@ -632,13 +513,13 @@ namespace Interface
 
                 auto LocationY = 0;
 
-                Interface::Find(Map, Map::Object::Player, i, LocationX, LocationY);
+                Map.Find(Map::Object::Player, i, LocationX, LocationY);
 
                 auto TempPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, ignore);
 
                 if (TempPath.Points.size() > 0)
                 {
-                    auto Distance = Interface::Distance(EnemyX, EnemyY, LocationX, LocationY);
+                    auto Distance = Map.Distance(EnemyX, EnemyY, LocationX, LocationY);
 
                     Distances.push_back({Map::Object::Player, i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Engine::Endurance(Party.Members[i])});
                 }
@@ -656,13 +537,13 @@ namespace Interface
 
                     auto LocationY = 0;
 
-                    Interface::Find(Map, Map::Object::Enemy, i, LocationX, LocationY);
+                    Map.Find(Map::Object::Enemy, i, LocationX, LocationY);
 
                     auto TempPath = AStar::FindPath(Map, EnemyX, EnemyY, LocationX, LocationY, ignore);
 
                     if (TempPath.Points.size() > 0)
                     {
-                        auto Distance = Interface::Distance(EnemyX, EnemyY, LocationX, LocationY);
+                        auto Distance = Map.Distance(EnemyX, EnemyY, LocationX, LocationY);
 
                         Distances.push_back({Map::Object::Enemy, i, ignore ? (Distance + Map.SizeX * Map.SizeY) : Distance, Enemies[i].Endurance});
                     }
@@ -684,7 +565,7 @@ namespace Interface
 
         auto EnemyY = -1;
 
-        Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
+        Map.Find(Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
         Distances = Interface::CycleTargets(Map, Party, Enemies, EnemyId, EnemyX, EnemyY, Ignore);
 
@@ -729,11 +610,11 @@ namespace Interface
 
         auto EnemyY = -1;
 
-        Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
+        Map.Find(Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
-        auto ValidEnemyX = Interface::ValidX(Map, EnemyX);
+        auto ValidEnemyX = Map.ValidX(EnemyX);
 
-        auto ValidEnemyY = Interface::ValidY(Map, EnemyY);
+        auto ValidEnemyY = Map.ValidY(EnemyY);
 
         auto PlayerX = -1;
 
@@ -743,15 +624,15 @@ namespace Interface
         {
             auto PlayerId = Engine::First(Party);
 
-            Interface::Find(Map, Map::Object::Player, PlayerId, PlayerX, PlayerY);
+            Map.Find(Map::Object::Player, PlayerId, PlayerX, PlayerY);
 
-            auto ValidX = ValidEnemyX && Interface::ValidX(Map, PlayerX);
+            auto ValidX = ValidEnemyX && Map.ValidX(PlayerX);
 
-            auto ValidY = ValidEnemyY && Interface::ValidY(Map, PlayerY);
+            auto ValidY = ValidEnemyY && Map.ValidY(PlayerY);
 
             if (ValidX && ValidY)
             {
-                NearestTarget = {Map::Object::Player, PlayerId, Interface::Distance(EnemyX, EnemyY, PlayerX, PlayerY), Engine::Endurance(Party.Members[PlayerId])};
+                NearestTarget = {Map::Object::Player, PlayerId, Map.Distance(EnemyX, EnemyY, PlayerX, PlayerY), Engine::Endurance(Party.Members[PlayerId])};
             }
         }
         else
@@ -760,15 +641,15 @@ namespace Interface
             {
                 if (Engine::IsAlive(Party.Members[i]) && Party.Members[i].Engaged && !Party.Members[i].Escaped)
                 {
-                    Interface::Find(Map, Map::Object::Player, i, PlayerX, PlayerY);
+                    Map.Find(Map::Object::Player, i, PlayerX, PlayerY);
 
-                    auto ValidX = ValidEnemyX && Interface::ValidX(Map, PlayerX);
+                    auto ValidX = ValidEnemyX && Map.ValidX(PlayerX);
 
-                    auto ValidY = ValidEnemyY && Interface::ValidY(Map, PlayerY);
+                    auto ValidY = ValidEnemyY && Map.ValidY(PlayerY);
 
                     if (ValidX && ValidY)
                     {
-                        Distances.push_back({Map::Object::Player, i, Interface::Distance(EnemyX, EnemyY, PlayerX, PlayerY), Engine::Endurance(Party.Members[i])});
+                        Distances.push_back({Map::Object::Player, i, Map.Distance(EnemyX, EnemyY, PlayerX, PlayerY), Engine::Endurance(Party.Members[i])});
                     }
                 }
             }
@@ -818,13 +699,13 @@ namespace Interface
 
             auto TargetY = DstY + Neighbors[i].second;
 
-            if (Interface::ValidX(Map, TargetX) && Interface::ValidY(Map, TargetY))
+            if (Map.ValidX(TargetX) && Map.ValidY(TargetY))
             {
                 auto TempPath = AStar::FindPath(Map, SrcX, SrcY, TargetX, TargetY);
 
                 if (TempPath.Points.size() > 0)
                 {
-                    Locations.push_back({TargetX, TargetY, Interface::Distance(DstX, DstY, TargetX, TargetY)});
+                    Locations.push_back({TargetX, TargetY, Map.Distance(DstX, DstY, TargetX, TargetY)});
                 }
             }
         }
@@ -901,9 +782,9 @@ namespace Interface
 
         auto LocationY = -1;
 
-        Interface::Find(Map, Map::Object::Player, PlayerId, LocationX, LocationY);
+        Map.Find(Map::Object::Player, PlayerId, LocationX, LocationY);
 
-        if (Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
+        if (Map.ValidX(LocationX) && Map.ValidY(LocationY))
         {
             Interface::ShowCoordinates(Renderer, Map.Tiles[LocationY][LocationX].Type, LocationX, LocationY, Font, Map.TextRightWidth, Map.TextRightX - text_space, Map.DrawY + TextOffset * (FontSize + 2));
 
@@ -950,9 +831,9 @@ namespace Interface
 
         auto LocationY = -1;
 
-        Interface::Find(Map, Map::Object::Enemy, EnemyId, LocationX, LocationY);
+        Map.Find(Map::Object::Enemy, EnemyId, LocationX, LocationY);
 
-        if (Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
+        if (Map.ValidX(LocationX) && Map.ValidY(LocationY))
         {
             Interface::ShowCoordinates(Renderer, Map.Tiles[LocationY][LocationX].Type, LocationX, LocationY, Font, Map.TextRightWidth, Map.TextRightX - text_space, Map.DrawY + RowOffset * (FontSize + 2));
 
@@ -1031,7 +912,7 @@ namespace Interface
 
         auto EnemyY = -1;
 
-        Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
+        Map.Find(Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
         auto TotalDamage = std::max(0, Damage - (UseArmour ? Enemies[EnemyId].Armour : 0));
 
@@ -1039,7 +920,7 @@ namespace Interface
 
         if (!Engine::IsAlive(Enemies[EnemyId]))
         {
-            Interface::Remove(Map, EnemyX, EnemyY);
+            Map.Remove(EnemyX, EnemyY);
         }
     }
 
@@ -1540,7 +1421,7 @@ namespace Interface
                         auto PlayerX = -1;
                         auto PlayerY = -1;
 
-                        Interface::Find(Map, Map::Object::Player, i, PlayerX, PlayerY);
+                        Map.Find(Map::Object::Player, i, PlayerX, PlayerY);
 
                         for (auto j = 0; j < Map.Exits.size(); j++)
                         {
@@ -1563,7 +1444,7 @@ namespace Interface
                                     auto X = Map.Exits[j].first + neighbors[k].first;
                                     auto Y = Map.Exits[j].second + neighbors[k].second;
 
-                                    if (Interface::ValidX(Map, X) && Interface::ValidY(Map, Y) && Map.Tiles[Y][X].Occupant == Map::Object::None)
+                                    if (Map.ValidX(X) && Map.ValidY(Y) && Map.Tiles[Y][X].Occupant == Map::Object::None)
                                     {
                                         teleported = Interface::AnimateMove(Renderer, BattleScreen, bg, Map, Party, Enemies, PlayerX, PlayerY, X, Y);
                                     }
@@ -3377,21 +3258,21 @@ namespace Interface
 
             if (ControlType == Control::Type::PLAYER && NoneSelected)
             {
-                if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
+                if (Map.ValidX(SelectX) && Map.ValidY(SelectY))
                 {
                     Interface::CharacterSheet(Renderer, Map, Party, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
             }
             else if (ControlType == Control::Type::ENEMY && NoneSelected)
             {
-                if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
+                if (Map.ValidX(SelectX) && Map.ValidY(SelectY))
                 {
                     Interface::EnemyData(Renderer, Map, Enemies, Fonts::Fixed, Map.Tiles[SelectY][SelectX].Id - 1);
                 }
             }
             else if ((ControlType == Control::Type::MAP_NONE || ControlType == Control::Type::DESTINATION || ControlType == Control::Type::MAP_EXIT) && NoneSelected)
             {
-                if (Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY))
+                if (Map.ValidX(SelectX) && Map.ValidY(SelectY))
                 {
                     Interface::ShowCoordinates(Renderer, Map.Tiles[SelectY][SelectX].Type, SelectX, SelectY, Fonts::Normal, Map.TextWidth, Map.TextRightX, Map.DrawY);
                 }
@@ -3431,9 +3312,9 @@ namespace Interface
 
                     auto PlayerY = -1;
 
-                    Interface::Find(Map, std::get<0>(Sequence[CurrentCombatant]), PlayerId, PlayerX, PlayerY);
+                    Map.Find(std::get<0>(Sequence[CurrentCombatant]), PlayerId, PlayerX, PlayerY);
 
-                    if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY) && Interface::ValidX(Map, SelectX) && Interface::ValidY(Map, SelectY) && Interface::Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
+                    if (Map.ValidX(PlayerX) && Map.ValidY(PlayerY) && Map.ValidX(SelectX) && Map.ValidY(SelectY) && Map.Distance(PlayerX, PlayerY, SelectX, SelectY) > 1)
                     {
                         auto TempPath = AStar::FindPath(Map, PlayerX, PlayerY, SelectX, SelectY, IsPlayer ? false : true);
 
@@ -3514,7 +3395,7 @@ namespace Interface
 
             auto Selected = std::get<0>(Sequence[SelectedCombatant]);
 
-            Interface::Find(Map, Selected, SelectedId, SelectedX, SelectedY);
+            Map.Find(Selected, SelectedId, SelectedX, SelectedY);
 
             auto IsPlayer = Selected == Map::Object::Player;
 
@@ -3567,24 +3448,24 @@ namespace Interface
 
                     auto TargetType = std::get<0>(NearestTarget);
 
-                    Interface::Find(Map, Map::Object::Enemy, SelectedId, EnemyX, EnemyY);
+                    Map.Find(Map::Object::Enemy, SelectedId, EnemyX, EnemyY);
 
                     if (TargetType == Map::Object::Player)
                     {
                         if (TargetId >= 0 && TargetId < Party.Members.size())
                         {
-                            Interface::Find(Map, Map::Object::Player, TargetId, LocationX, LocationY);
+                            Map.Find(Map::Object::Player, TargetId, LocationX, LocationY);
                         }
                     }
                     else if (TargetType == Map::Object::Enemy)
                     {
                         if (TargetId >= 0 && TargetId < Enemies.size())
                         {
-                            Interface::Find(Map, Map::Object::Enemy, TargetId, LocationX, LocationY);
+                            Map.Find(Map::Object::Enemy, TargetId, LocationX, LocationY);
                         }
                     }
 
-                    if (Interface::ValidX(Map, EnemyX) && Interface::ValidY(Map, EnemyY) && Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY))
+                    if (Map.ValidX(EnemyX) && Map.ValidY(EnemyY) && Map.ValidX(LocationX) && Map.ValidY(LocationY))
                     {
                         if (Enemies[SelectedId].CanMove)
                         {
@@ -3597,7 +3478,7 @@ namespace Interface
                         }
                         else
                         {
-                            if (Interface::IsVisible(Map, LocationX, LocationY))
+                            if (Map.IsVisible(LocationX, LocationY))
                             {
                                 SDL_SetRenderDrawBlendMode(Renderer, SDL_BLENDMODE_BLEND);
 
@@ -3614,60 +3495,13 @@ namespace Interface
         }
     }
 
-    void SetupAdditionalPlayers(Map::Base &Map, Party::Base &Party)
-    {
-        std::vector<std::pair<int, int>> Neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
-
-        if (Party.Members.size() > 4)
-        {
-            for (auto i = 4; i < Party.Members.size(); i++)
-            {
-                auto Setup = false;
-
-                if (Engine::IsAlive(Party.Members[i]))
-                {
-                    for (auto j = 0; j < 4; j++)
-                    {
-                        auto PlayerX = -1;
-                        auto PlayerY = -1;
-
-                        Interface::Find(Map, Map::Object::Player, j, PlayerX, PlayerY);
-
-                        if (Interface::ValidX(Map, PlayerX) && Interface::ValidY(Map, PlayerY))
-                        {
-                            for (auto k = 0; k < Neighbors.size(); k++)
-                            {
-                                auto PutX = PlayerX + Neighbors[k].first;
-                                auto PutY = PlayerY + Neighbors[k].second;
-
-                                if (Interface::ValidX(Map, PutX) && Interface::ValidY(Map, PutY) && Map.Tiles[PutY][PutX].IsPassable && !Map.Tiles[PutY][PutX].IsOccupied())
-                                {
-                                    Map.Put(PutX, PutY, Map::Object::Player, i);
-
-                                    Setup = true;
-
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (Setup)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     Combat::Result CombatScreen(SDL_Window *Window, SDL_Renderer *Renderer, Story::Base *Story, Map::Base &Map, Party::Base &Party)
     {
+        // setup additional players
+        Map.AdditionalPlayers(Party);
+
         // remove non-existent players and enemies
         Map.Clean(Party, Story->Enemies);
-
-        // setup additional players
-        Interface::SetupAdditionalPlayers(Map, Party);
 
         Battle::Base &Battle = Story->Battle;
 
@@ -3762,7 +3596,7 @@ namespace Interface
 
             auto CenterY = -1;
 
-            Interface::Find(Map, Map::Object::Player, PlayerId, CenterX, CenterY);
+            Map.Find(Map::Object::Player, PlayerId, CenterX, CenterY);
 
             Map.MapX = CenterX - (Map.SizeX / 2);
 
@@ -4330,9 +4164,9 @@ namespace Interface
 
                     auto PlayerY = -1;
 
-                    Interface::Find(Map, Map::Object::Player, GetId(CurrentCombatant), PlayerX, PlayerY);
+                    Map.Find(Map::Object::Player, GetId(CurrentCombatant), PlayerX, PlayerY);
 
-                    if (Interface::IsVisible(Map, PlayerX, PlayerY))
+                    if (Map.IsVisible(PlayerX, PlayerY))
                     {
                         BlinkX = Map.DrawX + (PlayerX - Map.MapX) * Map.ObjectSize;
 
@@ -4354,9 +4188,9 @@ namespace Interface
 
                         auto EnemyY = -1;
 
-                        Interface::Find(Map, Map::Object::Enemy, GetId(CurrentCombatant), EnemyX, EnemyY);
+                        Map.Find(Map::Object::Enemy, GetId(CurrentCombatant), EnemyX, EnemyY);
 
-                        if (Interface::IsVisible(Map, EnemyX, EnemyY))
+                        if (Map.IsVisible(EnemyX, EnemyY))
                         {
                             BlinkX = Map.DrawX + (EnemyX - Map.MapX) * Map.ObjectSize;
 
@@ -4411,7 +4245,7 @@ namespace Interface
 
                     auto CurrentY = -1;
 
-                    Interface::Find(Map, Map::Object::Player, PlayerId, CurrentX, CurrentY);
+                    Map.Find(Map::Object::Player, PlayerId, CurrentX, CurrentY);
 
                     if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
                     {
@@ -4500,7 +4334,7 @@ namespace Interface
                                             Character.Escaped = true;
                                         }
 
-                                        Interface::Remove(Map, CurrentX, CurrentY);
+                                        Map.Remove(CurrentX, CurrentY);
 
                                         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
 
@@ -4569,7 +4403,7 @@ namespace Interface
                                 {
                                     SelectedSpell = -1;
 
-                                    if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
+                                    if (Map.Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                     {
                                         auto CurrentPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
 
@@ -4598,7 +4432,7 @@ namespace Interface
                                                     {
                                                         auto Destination = CurrentPath.Points.size() - 1;
 
-                                                        Interface::Remove(Map, CurrentPath.Points[Destination].X, CurrentPath.Points[Destination].Y);
+                                                        Map.Remove(CurrentPath.Points[Destination].X, CurrentPath.Points[Destination].Y);
 
                                                         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                                     }
@@ -4634,7 +4468,7 @@ namespace Interface
 
                                                 if (!Engine::IsAlive(Character))
                                                 {
-                                                    Interface::Remove(Map, SelectX, SelectY);
+                                                    Map.Remove(SelectX, SelectY);
 
                                                     Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                                 }
@@ -4959,7 +4793,7 @@ namespace Interface
                                 {
                                     SelectedSpell = -1;
 
-                                    if (Interface::IsAdjacent(Map, PlayerId, TargetId) && Engine::IsAlive(Target))
+                                    if (Map.IsAdjacent(PlayerId, TargetId) && Engine::IsAlive(Target))
                                     {
                                         auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Target, Combat::FightMode::FIGHT, false);
 
@@ -4967,7 +4801,7 @@ namespace Interface
                                         {
                                             Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
 
-                                            Interface::Remove(Map, SelectX, SelectY);
+                                            Map.Remove(SelectX, SelectY);
 
                                             Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                         }
@@ -4976,7 +4810,7 @@ namespace Interface
                                         {
                                             Interface::RenderMessage(Renderer, Controls, Map, intBK, (std::string(Character::ClassName[Character.Class]) + " killed!"), intBK);
 
-                                            Interface::Remove(Map, CurrentX, CurrentY);
+                                            Map.Remove(CurrentX, CurrentY);
 
                                             Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                         }
@@ -5020,7 +4854,7 @@ namespace Interface
                             {
                                 SelectedSpell = -1;
 
-                                if ((!Interface::IsAdjacent(Map, PlayerId, TargetId) || Character.ShootFirst) && Engine::IsAlive(Target))
+                                if ((!Map.IsAdjacent(PlayerId, TargetId) || Character.ShootFirst) && Engine::IsAlive(Target))
                                 {
                                     auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Target, Combat::FightMode::SHOOT, false);
 
@@ -5028,7 +4862,7 @@ namespace Interface
                                     {
                                         Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
 
-                                        Interface::Remove(Map, SelectX, SelectY);
+                                        Map.Remove(SelectX, SelectY);
 
                                         Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                     }
@@ -5065,7 +4899,7 @@ namespace Interface
 
                                 if (Character.Spells[SelectedSpell].Type == Spell::Type::GhastlyTouch)
                                 {
-                                    if (!Interface::IsAdjacent(Map, PlayerId, TargetId))
+                                    if (!Map.IsAdjacent(PlayerId, TargetId))
                                     {
                                         DisplayMessage("Ghastly Touch can only be cast on an adjacent target!", intBK);
 
@@ -5131,7 +4965,7 @@ namespace Interface
 
                     Enemy::Base &Enemy = Enemies[EnemyId];
 
-                    Interface::Find(Map, Map::Object::Enemy, EnemyId, CurrentX, CurrentY);
+                    Map.Find(Map::Object::Enemy, EnemyId, CurrentX, CurrentY);
 
                     if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
                     {
@@ -5230,7 +5064,7 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::MOVE)
                             {
-                                if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
+                                if (Map.Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                 {
                                     auto EnemyPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
 
@@ -5347,7 +5181,7 @@ namespace Interface
                             }
                             else if (CurrentMode == Combat::Mode::ATTACK)
                             {
-                                if (Interface::IsAdjacent(Map, EnemyId, Map::Object::Enemy, TargetId, Map::Object::Enemy) && Engine::IsAlive(Target))
+                                if (Map.IsAdjacent(EnemyId, Map::Object::Enemy, TargetId, Map::Object::Enemy) && Engine::IsAlive(Target))
                                 {
                                     // implement Enemy vs Enemy fight
                                     if (EnemyId != TargetId)
@@ -5371,7 +5205,7 @@ namespace Interface
                                             {
                                                 Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
 
-                                                Interface::Remove(Map, SelectX, SelectY);
+                                                Map.Remove(SelectX, SelectY);
 
                                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                             }
@@ -5380,7 +5214,7 @@ namespace Interface
                                             {
                                                 Interface::RenderMessage(Renderer, Controls, Map, intBK, Enemy.Name + " killed!", intGR);
 
-                                                Interface::Remove(Map, CurrentX, CurrentY);
+                                                Map.Remove(CurrentX, CurrentY);
 
                                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                             }
@@ -5436,7 +5270,7 @@ namespace Interface
                                             {
                                                 Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
 
-                                                Interface::Remove(Map, SelectX, SelectY);
+                                                Map.Remove(SelectX, SelectY);
 
                                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                             }
@@ -5493,7 +5327,7 @@ namespace Interface
                             {
                                 if (Map.Tiles[SelectY][SelectX].IsPassableToEnemy)
                                 {
-                                    if (Interface::Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
+                                    if (Map.Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                     {
                                         auto EnemyPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
 
@@ -5559,7 +5393,7 @@ namespace Interface
 
                     auto EnemyY = -1;
 
-                    Interface::Find(Map, Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
+                    Map.Find(Map::Object::Enemy, EnemyId, EnemyX, EnemyY);
 
                     auto NearestTarget = Interface::EmptyTarget;
 
@@ -5595,20 +5429,20 @@ namespace Interface
                     {
                         if (TargetId >= 0 && TargetId < Party.Members.size())
                         {
-                            Interface::Find(Map, Map::Object::Player, TargetId, LocationX, LocationY);
+                            Map.Find(Map::Object::Player, TargetId, LocationX, LocationY);
                         }
                     }
                     else if (TargetIsEnemy)
                     {
                         if (TargetId >= 0 && TargetId < Enemies.size())
                         {
-                            Interface::Find(Map, Map::Object::Enemy, TargetId, LocationX, LocationY);
+                            Map.Find(Map::Object::Enemy, TargetId, LocationX, LocationY);
                         }
                     }
 
                     if (TargetIsPlayer || TargetIsEnemy)
                     {
-                        if (Interface::ValidX(Map, LocationX) && Interface::ValidY(Map, LocationY) && Interface::Distance(EnemyX, EnemyY, LocationX, LocationY) <= 1)
+                        if (Map.ValidX(LocationX) && Map.ValidY(LocationY) && Map.Distance(EnemyX, EnemyY, LocationX, LocationY) <= 1)
                         {
                             // do attack
                             auto Result = TargetIsPlayer ? Interface::Fight(Renderer, Controls, intBK, Map, Party.Members[TargetId], Enemies[EnemyId], Combat::FightMode::FIGHT, true) : Interface::Fight(Renderer, Controls, intBK, Map, Enemies[EnemyId], Enemies[TargetId], Combat::FightMode::FIGHT);
@@ -5623,7 +5457,7 @@ namespace Interface
                             {
                                 Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[TargetId].Class]) + " killed!", intBK);
 
-                                Interface::Remove(Map, LocationX, LocationY);
+                                Map.Remove(LocationX, LocationY);
 
                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                             }
@@ -5631,7 +5465,7 @@ namespace Interface
                             {
                                 Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[TargetId].Class]) + " paralyzed!", intBK);
 
-                                Interface::Remove(Map, LocationX, LocationY);
+                                Map.Remove(LocationX, LocationY);
 
                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                             }
@@ -5639,7 +5473,7 @@ namespace Interface
                             {
                                 Interface::RenderMessage(Renderer, Controls, Map, intBK, Enemies[TargetId].Name + " killed!", intGR);
 
-                                Interface::Remove(Map, LocationX, LocationY);
+                                Map.Remove(LocationX, LocationY);
 
                                 Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                             }
@@ -5674,7 +5508,7 @@ namespace Interface
                                 {
                                     Interface::RenderMessage(Renderer, Controls, Map, intBK, std::string(Character::ClassName[Party.Members[TargetId].Class]) + " killed!", intBK);
 
-                                    Interface::Remove(Map, LocationX, LocationY);
+                                    Map.Remove(LocationX, LocationY);
 
                                     Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                 }
@@ -5682,7 +5516,7 @@ namespace Interface
                                 {
                                     Interface::RenderMessage(Renderer, Controls, Map, intBK, Enemies[TargetId].Name + " killed!", intGR);
 
-                                    Interface::Remove(Map, LocationX, LocationY);
+                                    Map.Remove(LocationX, LocationY);
 
                                     Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
                                 }
