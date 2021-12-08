@@ -22,7 +22,8 @@ namespace Enemy
         Bowmen,
         Dirges,
         Guillarme,
-        Echidna
+        Echidna,
+        SkrymirTheGiant
     };
 
     class Base

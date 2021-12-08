@@ -82,6 +82,7 @@ namespace Book1
         {
             // TODO: only the survivng assassins from previous section should be setup here
             Enemies.clear();
+
             Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
             Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
             Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
@@ -174,6 +175,7 @@ namespace Book1
             Battle.SurprisedEnemy = true;
 
             Enemies.clear();
+
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian));
@@ -368,6 +370,13 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
+            auto Character = Engine::First(Party, Equipment::Item::BlueIceJewel);
+
+            if (Character >= 0 && Character < Party.Members.size())
+            {
+                Engine::Drop(Party.Members[Character], Equipment::Item::BlueIceJewel);
+            }
+
             Enemies.clear();
 
             Enemies.push_back(Enemy::Base(Enemy::Type::Skiapyr, "SKIAPYR 1", 5, 7, 8, 10, 1, 0, 0, Assets::Type::Skiapyr));
@@ -428,6 +437,7 @@ namespace Book1
         {
             // TODO: only the survivng assassins from previous section should be setup here
             Enemies.clear();
+
             Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 5, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, false));
             Enemies.push_back(Enemy::Base(Enemy::Type::MagusVyl, "MAGUS VYL", 7, 9, 9, 35, 3, 0, 2, Assets::Type::MagusVyl));
         }
@@ -878,12 +888,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party)
-        {
-            Equipment = {Equipment::OctagonalPrism};
-
-            Limit = 1;
-        }
+        void Event(Party::Base &Party) { Equipment = {Equipment::OctagonalPrism}; }
     };
 
     class Story032 : public Story::Base
@@ -1415,6 +1420,7 @@ namespace Book1
         void Event(Party::Base &Party)
         {
             Enemies.clear();
+
             Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 1", 7, 6, 7, 6, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
             Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 2", 7, 6, 7, 6, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
             Enemies.push_back(Enemy::Base(Enemy::Type::NinjaAssassin, "ASSASSIN 3", 7, 6, 7, 6, 1, 0, 0, Assets::Type::NinjaAssassin, false, true, true));
@@ -1881,6 +1887,7 @@ namespace Book1
             Battle.SurprisedEnemy = true;
 
             Enemies.clear();
+
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 11, 1, 2, 1, Assets::Type::Barbarian));
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 11, 1, 2, 1, Assets::Type::Barbarian));
             Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 10, 1, 2, 1, Assets::Type::Barbarian));
@@ -2143,6 +2150,7 @@ namespace Book1
         void Event(Party::Base &Party)
         {
             Enemies.clear();
+
             Enemies.push_back(Enemy::Base(Enemy::Type::Bowmen, "BOWMAN 1", 7, 6, 7, 6, 1, 0, 0, Assets::Type::Bowmen, false, true, false));
             Enemies.push_back(Enemy::Base(Enemy::Type::Bowmen, "BOWMAN 2", 7, 6, 7, 6, 1, 0, 0, Assets::Type::Bowmen, false, true, false));
             Enemies.push_back(Enemy::Base(Enemy::Type::Bowmen, "BOWMAN 3", 7, 6, 7, 6, 1, 0, 0, Assets::Type::Bowmen, false, true, false));
@@ -2220,12 +2228,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party)
-        {
-            Equipment = {Equipment::OctagonalPrism, Equipment::BlueIceJewel};
-
-            Limit = 2;
-        }
+        void Event(Party::Base &Party) { Equipment = {Equipment::OctagonalPrism, Equipment::BlueIceJewel}; }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; }
     };
@@ -2774,12 +2777,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party)
-        {
-            Equipment = {Equipment::EmeraldScarab};
-
-            Limit = 1;
-        }
+        void Event(Party::Base &Party) { Equipment = {Equipment::EmeraldScarab}; }
     };
 
     class Story108 : public Story::Base
@@ -3301,10 +3299,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party)
-        {
-            Equipment = {Equipment::Dagger, Equipment::Dagger, Equipment::Dagger, Equipment::VialOfBlackLiquid};
-        }
+        void Event(Party::Base &Party) { Equipment = {Equipment::Dagger, Equipment::Dagger, Equipment::Dagger, Equipment::VialOfBlackLiquid}; }
     };
 
     class Story128 : public Story::Base
@@ -3423,6 +3418,7 @@ namespace Book1
         void Event(Party::Base &Party)
         {
             Enemies.clear();
+
             Enemies.push_back(Enemy::Base(Enemy::Type::Echidna, "ECHIDNA", 8, 9, 8, 40, 2, 2, 2, Assets::Type::Demoness, true, false, false));
         }
 
@@ -3469,6 +3465,256 @@ namespace Book1
         }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
+    };
+
+    class Story131 : public Story::Base
+    {
+    public:
+        Story131()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 131;
+
+            Text = "You brandish the talisman. The baleful lava-light causes it to sparkle like the heart of a flame. The Skiapyrs stop, wavering like guttering candles. \"The talisman,\" says one, its voice a soft susurration of air. \"We await your wishes.\"\n\n\"Slay the brigands that pursue us,\" you command. Instantly the Skiapyrs turn upon the Adventurers you fought a few moments ago. As they do, their fiery faces change from expressions of serene obedience to masks of hate. \"Slay the interlopers!\" they shriek, reaching out with white-hot claws. In moments, only charred bones and the stench of roasted flesh remain to show that the Adventurers ever existed.\n\nNo, not only that. A second glance tells you that the Adventurers dropped something -- something that gleams like burnished gold in the light of the clustering Skiapyrs. When you go to investigate, you find a gilded bridle, which you can take if you want. The Skiapyrs watch wistfully as you depart.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party) { Equipment = {Equipment::GildedBridle}; }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 223}; }
+    };
+
+    class Story132 : public Story::Base
+    {
+    public:
+        Story132()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 132;
+
+            Text = "You set to work improvising a raft from the sections of wooden door. Another lump of wood -- apparently the bolt that once held the doors shut -- becomes your oar. When you are ready, you gently ease the raft out on to the moat. Globules of molten stone cling to the sides and hiss furiously, but the wood does not burn. Yet.\n\nYou have to row slowly across the magma, careful not to splash deadly streams of white-hot magma across your feet. So intent are you on this that you almost fail to notice a deadly battle that is being enacted on the ridge encircling the craters. Two unshaven Adventurers have encountered a horde of Skiapyrs -- malicious flame-demons that dwell in the magma. Balanced precariously on the ridge, the Adventurers struggle desperately but without hope. One falls as a Skiapyr's fiery claws rake his chest, plunging into the moat where the magma burns the flesh and bones away in seconds. The other, disarmed by a treacherous blow from behind, turns, clutching his wounded arm. Seeing you, he calls out a greeting and then jumps, preferring to take his own life rather than let the Skiapyrs steal his vital energies for themselves.\n\nYour raft strikes the crater rim and you hastily scramble up towards the ridge. The Skiapyrs see you and give out unearthly screams of delight as they scamper along the ridge towards you. Behind you, more Skiapyrs are awakened by the cries of their fellows and now pursue you up the ridge.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Use an <b>ice jewel</b>", {Book::Type::Book1, 12}, Equipment::Item::BlueIceJewel));
+            Choices.push_back(Choice::Base("You do not have or choose not to use an <b>ice jewel</b>", {Book::Type::Book1, 376}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story133 : public Story::Base
+    {
+    public:
+        Story133()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 133;
+
+            Text = "\"Reward?\" He turns an icy stare upon you. \"Yes, you shall have your reward. You shall have the honour of being swatted by Skrymir's hand, you mortal vermin!\"\n\n<b>NOTE</b>\n\nYou face a truly awesome opponent this time. It would take the luck of the gods to defeat him.";
+
+            MapFile = "maps/book1/map133.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+
+            Enemies.push_back(Enemy::Base(Enemy::Type::SkrymirTheGiant, "SKRYMIR THE GIANT", 9, 9, 8, 70, 4, 0, 3, Assets::Type::Ogre, true, true, false));
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 432}; }
+    };
+
+    class Story134 : public Story::Base
+    {
+    public:
+        Story134()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 134;
+
+            Text = "\"I need consider no more champions,\" says Balhazar. \"Now it is time to equip you for the contest tomorrow.\" He hands each player in the party an <b>opal medallion</b>; Balhazar tells you that this will allow him to monitor your progress through the Battlepits, and possibly intervene with magic or advice when you are in trouble. He also gives the first player in the battle order a strange item -- an octagonal glass prism. He's not sure what it does, but thinks you will find a use for it. Then a servant shows you to bedchambers where you may get some rest.\n\nYou are up before the dawn, practising your combat techniques and preparing your mind for the ordeal to come. Balhazar and his guards take you out. The streets are full of bleary-eyed revellers -- many of them have been up all night -- jostling one another for a better view. You see the curtained litter of Magus Vyl, who obviously does not enjoy the dawn, accompanied by the three dark-robed Assassins who will champion him. Several other magi stand upon a dais in urgent consultation, making last-minute deals and alliances before the contest begins.\n\nYou are escorted across the cold tundra. Other groups are also filing away from the citadel. Among them you notice a group of bronze-armoured Barbarians employed by Magus Tor and the Master Warlock, Icon the Ungodly, who carries the pen- nant of Magus Uru. At last you reach a huge portal set into a hillside. Balhazar ushers you in, and you step through into the greatest adventure of your life ...";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            for (auto i = 0; i < Party.Members.size(); i++)
+            {
+                if (Engine::IsAlive(Party.Members[i]))
+                {
+                    Party.Members[i].Equipment.push_back(Equipment::OpalMedallion);
+                }
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 201}; }
+    };
+
+    class Story135 : public Story::Base
+    {
+    public:
+        Story135()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 135;
+
+            Text = "You drew. After <i>recovering</i> for the next Spiral, this leaves him with five heads and two tails. You have no coins to recover from tails, so you still have four heads.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your next number", {Book::Type::Book1, 140}, Choice::Type::SelectDice, "Choose a number"));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story136 : public Story::Base
+    {
+    public:
+        Story136()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 136;
+
+            Text = "You descend into the torchlit gloom. The sound of dripping water reaches your ears and soon you are standing in a damp stairwell, with a single bricked archway in front of you and a tunnel leading off behind it. You follow the tunnel for a few steps then find another tunnel leading off to the right. As you peer down it you fancy you can make out a motionless figure standing in the gloom. Ahead, you can see that the passage ends in a huge ornamental doorway.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Approach the figure down the right-hand tunnel", {Book::Type::Book1, 278}));
+            Choices.push_back(Choice::Base("Carry on up the corridor to the ornamental doorway", {Book::Type::Book1, 246}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story137 : public Story::Base
+    {
+    public:
+        Story137()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 137;
+
+            Text = "You wrench the huge stone lid of the sarcophagus aside. A slight breeze across the cavern stirs the old bones and mouldering grave-clothes, swiftly reduc- ing them to ash. A small item gleams dully amid the decayed remnants of the mummy. It is a <b>bronze key</b>.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Open the first sarcophagus", {Book::Type::Book1, 351}));
+            Choices.push_back(Choice::Base("... the second", {Book::Type::Book1, 186}));
+            Choices.push_back(Choice::Base("... the third", {Book::Type::Book1, 403}));
+            Choices.push_back(Choice::Base("You have had enough of grave-rifling. Proceed to the beach", {Book::Type::Book1, 293}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment.clear();
+
+            if (!Engine::HasItem(Party, Equipment::Item::BronzeKey))
+            {
+                Equipment = {Equipment::BronzeKey};
+            }
+        }
+    };
+
+    class Story138 : public Story::Base
+    {
+    public:
+        Story138()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 138;
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "(SEIZED PLAYER) You stare in horror at the dead hand holding your arm. Suddenly you give a wail of utter despair and burst into night-black flames. Within seconds your body is consumed, shrivelled away like a leaf burnt in a bonfire.";
+
+            if (Party.LastSelected >= 0 && Party.LastSelected < Party.Members.size())
+            {
+                Engine::Endurance(Party.Members[Party.LastSelected], 0);
+            }
+
+            if (Engine::Count(Party) > 0)
+            {
+                Text += " Your companions can only stare as you die. They rake the sand of the beach over your ashes and go on with their quest.";
+            }
+
+            Text += "\n\n<b>NOTE</b>\n\nAny items you possessed are destroyed along with you.";
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 447}; }
+    };
+
+    class Story139 : public Story::Base
+    {
+    public:
+        Story139()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 139;
+
+            Text = "(SAGE) This is a shrine to Vactris, the ravenous household god of Magus Tor. Possibly you recall the party Tor engaged as champions, as you saw them on your way from Balhazar's mansion.\n\n<i>Certainly the shrine will be charged with accursed demon-magic and you should not stay here any longer than you have to.</i>";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 476}; }
+    };
+
+    class Story140 : public Story::Base
+    {
+    public:
+        Story140()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 140;
+
+            Text = "His number is 3.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party)
+        {
+            std::vector<int> Destinations = {145, 50, 150, 286, 286, 286};
+
+            if (Party.LastValue >= 0 && Party.LastValue < 6)
+            {
+                return {Book::Type::Book1, Destinations[Party.LastValue]};
+            }
+            else
+            {
+                return {Book::Type::Book1, Destinations[Engine::Roll(1, 0) - 1]};
+            }
+        }
     };
 
     class Story398 : public Story::Base
@@ -3647,6 +3893,16 @@ namespace Book1
     auto story128 = Story128();
     auto story129 = Story129();
     auto story130 = Story130();
+    auto story131 = Story131();
+    auto story132 = Story132();
+    auto story133 = Story133();
+    auto story134 = Story134();
+    auto story135 = Story135();
+    auto story136 = Story136();
+    auto story137 = Story137();
+    auto story138 = Story138();
+    auto story139 = Story139();
+    auto story140 = Story140();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -3667,6 +3923,7 @@ namespace Book1
             &story101, &story102, &story103, &story104, &story105, &story106, &story107, &story108, &story109, &story110,
             &story111, &story112, &story113, &story114, &story115, &story116, &story117, &story118, &story119, &story120,
             &story121, &story122, &story123, &story124, &story125, &story126, &story127, &story128, &story129, &story130,
+            &story131, &story132, &story133, &story134, &story135, &story136, &story137, &story138, &story139, &story140,
             &story398,
             &story452};
     }
