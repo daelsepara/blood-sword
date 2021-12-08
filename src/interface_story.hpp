@@ -912,7 +912,7 @@ namespace Interface
 
                 if (Color == intBK)
                 {
-                    Graphics::DrawRect(Renderer, FlashW, FlashH, (Screen.Width - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH), intWH);
+                    Graphics::DrawRect(Renderer, FlashW, FlashH, (Screen.Width - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2, intWH);
                 }
             };
 
