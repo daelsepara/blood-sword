@@ -3563,7 +3563,7 @@ namespace Interface
 
         auto PaddingX = 2 * startx + 2 * Map.ObjectSize;
 
-        auto PaddingY = 2 * starty + 2 * Map.ObjectSize;
+        auto PaddingY = 2 * starty + Map.ObjectSize;
 
         // size of viewable grid
         Map.SizeX = (SCREEN_WIDTH - 2 * PaddingX) / Map.ObjectSize;
