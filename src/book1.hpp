@@ -3778,7 +3778,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party) { Engine::Gain(Party, Character::Class::Trickster, Equipment::ChimeraSpittle); }
+        void Event(Party::Base &Party) { Engine::Gain(Party, Character::Class::Trickster, {Equipment::ChimeraSpittle}); }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 267}; }
     };
@@ -3837,6 +3837,86 @@ namespace Book1
             Choices.clear();
             Choices.push_back(Choice::Base("Point out that you have just resurrected him", {Book::Type::Book1, 539}));
             Choices.push_back(Choice::Base("Keep quiet and let him depart", {Book::Type::Book1, 257}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story147 : public Story::Base
+    {
+    public:
+        Story147()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 147;
+
+            Text = "TRICKSTER) \"Why, this is nonsense!\" you cry, quickly turning on your charm. \"How can you describe yourself as soulless, you who are more lovely than any earthly woman? Regard your exquisite reflection in yonder fountain. Tell me whether it is not the face of a vibrant elemental persona, a passionate beauty who laughs in the face of the spiteful Fates!\" Larisha looks startled for a moment, then turns to regard herself in the crystal-clear water of the fountain. \"Why, you speak true,\" she murmurs. She uses her real voice now, not her power of telepathy, and her tones are so chillingly cold that you could well believe she has no soul \"Let us spite the Fates then -- those hideous crones! I'll give you another item as well, not because I must but because I choose to do so...\"\n\n<b>NOTE</b>\n\nYou now have two of the following: the <b>Dagger of Vislet</b>, the <b>Golden Snuff-Box</b> and the <b>Dragonlord Gem</b>.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Engine::Gain(Party, Character::Class::Trickster, {Equipment::DaggerOfVislet, Equipment::DaggerOfVislet, Equipment::GoldenSnuffBox, Equipment::GoldenSnuffBox, Equipment::DragonlordGem, Equipment::DragonlordGem});
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 203}; }
+    };
+
+    class Story148 : public Story::Base
+    {
+    public:
+        Story148()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 148;
+
+            Text = "Your reputation for daring adventure is not based on stupidity. You quickly back away from the room beyond the gate, then turn and scramble up the stairs towards the top of the Tower.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 3}; }
+    };
+
+    class Story149 : public Story::Base
+    {
+    public:
+        Story149()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 149;
+
+            Text = "Although he is a powerful and knowledgeable wizard, Balhazar is not used to using his magic in the thick of battle. He hesitates for a fatal split second too long, giving the Assassin time to throw his dagger. It spins in the air and impales Balhazar in the arm. Shocked, he pulls it free. You see that the dagger glistens with a coating of poison. Balhazar staggers and falls.\n\nYou turn to deal with the Assassin. To your amazement he has scaled a long drape and now stands at a window on the balcony above. You make for the stairs, but he hurls three spiked <i>sha-ken</i> in quick succession to delay you. Then he is gone into the night.\n\nYou go over to Balhazar. \"My magic will not cure this poison,\" he says weakly. \"The Assassin must have been sent by my rival, Magus Vyl. He employs an entire network of the scum.\" Balhazar coughs, obviously near death. \"My death deprives you of an employer. I hear that only Kalugen is still looking for champions, so you must return and take his pennant. I can perform but one service for you -- open the cabinet yonder and take what you find within...\"\n\nHe dies.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Open the cabinet", {Book::Type::Book1, 196}));
+            Choices.push_back(Choice::Base("Return to the main square at once", {Book::Type::Book1, 119}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story150 : public Story::Base
+    {
+    public:
+        Story150()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 150;
+
+            Text = "After <i>recovering</i> for the next Spiral, You have only four coins left, but at least they are all heads. Behind his thin hand, Kief sets the Die to his chosen number.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Choose your next number", {Book::Type::Book1, 155}, Choice::Type::SelectDice, "Choose a number"));
 
             Controls = Story::Controls::Standard;
         }
@@ -4034,6 +4114,10 @@ namespace Book1
     auto story144 = Story144();
     auto story145 = Story145();
     auto story146 = Story146();
+    auto story147 = Story147();
+    auto story148 = Story148();
+    auto story149 = Story149();
+    auto story150 = Story150();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -4055,7 +4139,7 @@ namespace Book1
             &story111, &story112, &story113, &story114, &story115, &story116, &story117, &story118, &story119, &story120,
             &story121, &story122, &story123, &story124, &story125, &story126, &story127, &story128, &story129, &story130,
             &story131, &story132, &story133, &story134, &story135, &story136, &story137, &story138, &story139, &story140,
-            &story141, &story142, &story143, &story144, &story145, &story146,
+            &story141, &story142, &story143, &story144, &story145, &story146, &story147, &story148, &story149, &story150,
             &story398,
             &story452};
     }

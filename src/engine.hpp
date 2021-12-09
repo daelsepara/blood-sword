@@ -1425,13 +1425,13 @@ namespace Engine
         return result;
     }
 
-    void Gain(Party::Base &party, Character::Class character, Equipment::Base equipment)
+    void Gain(Party::Base &party, Character::Class character, std::vector<Equipment::Base> equipment)
     {
         if (Engine::IsPresent(party, character))
         {
             auto member = Engine::Find(party, character);
 
-            party.Members[member].Equipment.push_back(equipment);
+            party.Members[member].Equipment.insert(party.Members[member].Equipment.end(), equipment.begin(), equipment.end());
         }
     }
 }

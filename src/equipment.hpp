@@ -59,7 +59,10 @@ namespace Equipment
         EmeraldScarab,
         HeartOfSkrymir,
         OpalMedallion,
-        BronzeKey
+        BronzeKey,
+        DaggerOfVislet,
+        GoldenSnuffBox,
+        DragonlordGem
     };
 
     std::map<Equipment::Item, const char *> ItemDescription = {
@@ -84,7 +87,10 @@ namespace Equipment
         {Equipment::Item::EmeraldScarab, "emerald scarab"},
         {Equipment::Item::HeartOfSkrymir, "heart of Skrymir"},
         {Equipment::Item::OpalMedallion, "opal medallion"},
-        {Equipment::Item::BronzeKey, "bronze key"}};
+        {Equipment::Item::BronzeKey, "bronze key"},
+        {Equipment::Item::DaggerOfVislet, "dagger of Vislet"},
+        {Equipment::Item::GoldenSnuffBox, "golden snuff-box"},
+        {Equipment::Item::DragonlordGem, "dragonlord gem"}};
 
     enum class Mode
     {
@@ -381,6 +387,9 @@ namespace Equipment
     auto HeartOfSkrymir = Equipment::Base(Equipment::Item::HeartOfSkrymir);
     auto OpalMedallion = Equipment::Base(Equipment::Item::OpalMedallion);
     auto BronzeKey = Equipment::Base(Equipment::Item::BronzeKey);
+    auto DaggerOfVislet = Equipment::Base(Equipment::Item::DaggerOfVislet);
+    auto GoldenSnuffBox = Equipment::Base(Equipment::Item::GoldenSnuffBox);
+    auto DragonlordGem = Equipment::Base(Equipment::Item::DragonlordGem);
 }
 
 namespace Scroll
