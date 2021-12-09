@@ -328,16 +328,41 @@ namespace Interface
         return Found;
     }
 
-    bool NearbyEnemies(Map::Base &Map, std::vector<Enemy::Base> &Enemies, int PlayerId, bool ShootMode)
+    int CountNearbyEnemies(Map::Base &Map, std::vector<Enemy::Base> &Enemies, int PlayerId, bool ShootMode)
     {
-        auto Result = false;
+        auto Result = 0;
 
         for (auto i = 0; i < Enemies.size(); i++)
         {
-            Result |= (Engine::IsAlive(Enemies[i]) && Map.IsAdjacent(PlayerId, i) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode));
+            if (Engine::IsAlive(Enemies[i]) && Map.IsAdjacent(PlayerId, i) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode))
+            {
+                Result++;
+            }
         }
 
         return Result;
+    }
+
+    int FirstNearbyEnemy(Map::Base &Map, std::vector<Enemy::Base> &Enemies, int PlayerId, bool ShootMode)
+    {
+        auto Result = 0;
+
+        for (auto i = 0; i < Enemies.size(); i++)
+        {
+            if (Engine::IsAlive(Enemies[i]) && Map.IsAdjacent(PlayerId, i) && ((ShootMode && !Enemies[i].Enthraled) || !ShootMode))
+            {
+                Result = i;
+
+                break;
+            }
+        }
+
+        return Result;
+    }
+
+    bool NearbyEnemies(Map::Base &Map, std::vector<Enemy::Base> &Enemies, int PlayerId, bool ShootMode)
+    {
+        return Interface::CountNearbyEnemies(Map, Enemies, PlayerId, ShootMode) > 0;
     }
 
     bool NearbyOpponents(Map::Base &Map, std::vector<Enemy::Base> &Enemies, int EnemyId, bool ShootMode)
@@ -699,7 +724,7 @@ namespace Interface
 
             auto TargetY = DstY + Neighbors[i].second;
 
-            if (Map.ValidX(TargetX) && Map.ValidY(TargetY))
+            if (Map.ValidX(TargetX) && Map.ValidY(TargetY) && (Map.Tiles[TargetY][TargetX].IsPassable || Map.Tiles[TargetY][TargetX].IsPassableToEnemy))
             {
                 auto TempPath = AStar::FindPath(Map, SrcX, SrcY, TargetX, TargetY);
 
@@ -4562,7 +4587,61 @@ namespace Interface
                                 }
                                 else if (Interface::NearbyEnemies(Map, Enemies, PlayerId, false))
                                 {
-                                    CurrentMode = Combat::Mode::ATTACK;
+                                    if (Interface::CountNearbyEnemies(Map, Enemies, PlayerId, false) > 1)
+                                    {
+                                        CurrentMode = Combat::Mode::ATTACK;
+                                    }
+                                    else if (Interface::CountNearbyEnemies(Map, Enemies, PlayerId, false) == 1)
+                                    {
+                                        auto TargetId = Interface::FirstNearbyEnemy(Map, Enemies, PlayerId, false);
+
+                                        Map.Find(Map::Object::Enemy, TargetId, SelectX, SelectY);
+
+                                        Enemy::Base &Target = Enemies[TargetId];
+
+                                        auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Target, Combat::FightMode::FIGHT, false);
+
+                                        if (!Engine::IsAlive(Target))
+                                        {
+                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
+
+                                            Map.Remove(SelectX, SelectY);
+
+                                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                        }
+
+                                        if (!Engine::IsAlive(Character))
+                                        {
+                                            Interface::RenderMessage(Renderer, Controls, Map, intBK, (std::string(Character::ClassName[Character.Class]) + " killed!"), intBK);
+
+                                            Map.Remove(CurrentX, CurrentY);
+
+                                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                        }
+
+                                        if (Result != Combat::Result::NONE)
+                                        {
+                                            Engine::ResetSpellDifficulty(Character);
+
+                                            if (Result == Combat::Result::KNOCKED_OFF)
+                                            {
+                                                if (Engine::IsAlive(Target))
+                                                {
+                                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " knocked off!", intGR);
+                                                }
+                                            }
+
+                                            CycleCombatants();
+                                        }
+                                        else
+                                        {
+                                            DisplayMessage("Fight canceled", intGR);
+
+                                            CurrentMode = Combat::Mode::NORMAL;
+                                        }
+
+                                        Selected = false;
+                                    }
                                 }
                                 else
                                 {
