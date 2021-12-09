@@ -330,7 +330,7 @@ namespace Interface
 
                             Selection.clear();
 
-                            if (Equipment.size() == 0)
+                            if (Equipment.size() == 0 || Mode == Equipment::Mode::DROP)
                             {
                                 Done = true;
                             }
