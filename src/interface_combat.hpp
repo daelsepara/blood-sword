@@ -3656,6 +3656,8 @@ namespace Interface
         auto ScrollDown = false;
         auto Current = 0;
 
+        auto CombatRound = 0;
+
         auto GenerateSequence = [&](std::vector<Interface::Combatants> &Sequence)
         {
             Sequence.clear();
@@ -3674,9 +3676,12 @@ namespace Interface
 
             for (auto i = 0; i < Enemies.size(); i++)
             {
-                auto Awareness = Enemies[i].Awareness;
+                if (Enemies[i].StartRound >= CombatRound)
+                {
+                    auto Awareness = Enemies[i].Awareness;
 
-                Sequence.push_back({Map::Object::Enemy, i, Awareness});
+                    Sequence.push_back({Map::Object::Enemy, i, Awareness});
+                }
             }
         };
 
@@ -3705,8 +3710,6 @@ namespace Interface
         {
             SelectedCombatant = -1;
         };
-
-        auto CombatRound = 0;
 
         auto QuickThinkingRound = false;
 
@@ -3833,6 +3836,16 @@ namespace Interface
         auto StartMap = 12;
         auto BottomMapX = StartMap + (Map.SizeX * (Map.SizeY - 1));
         auto MidMapY = StartMap + (Map.SizeY / 2 * Map.SizeX) - Map.SizeX;
+
+        for (auto i = 0; i < Enemies.size(); i++)
+        {
+            if (Enemies[i].StartRound != 0 && Map.ValidX(Enemies[i].StartX) && Map.ValidY(Enemies[i].StartY))
+            {
+                Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassable = false;
+                
+                Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassableToEnemy = false;
+            }
+        }
 
         // preserve starting map, party, and enemy stats (for use with time blink)
         auto InitialMap = Map;
@@ -4018,7 +4031,6 @@ namespace Interface
                         }
                         else
                         {
-                            Interface::SortCombatants(Sequence);
 
                             ActFirstRound = false;
 
@@ -4027,6 +4039,22 @@ namespace Interface
                             CurrentCombatant = 0;
 
                             CombatRound++;
+
+                            for (auto i = 0; i < Enemies.size(); i++)
+                            {
+                                if (Enemies[i].StartRound > 0 && Enemies[i].StartRound == CombatRound && Map.ValidX(Enemies[i].StartX) && Map.ValidY(Enemies[i].StartY))
+                                {
+                                    Sequence.push_back({Map::Object::Enemy, i, Enemies[i].Awareness});
+
+                                    Map.Put(Enemies[i].StartX, Enemies[i].StartY, Map::Object::Enemy, i);
+
+                                    Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassable = true;
+
+                                    Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassableToEnemy = true;
+                                }
+                            }
+
+                            Interface::SortCombatants(Sequence);
                         }
                     }
                 }

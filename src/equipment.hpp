@@ -327,6 +327,17 @@ namespace Equipment
             {
                 ItemString = (strong ? "<b>" : "") + std::to_string(Arrows) + " " + Name + (strong ? "</b>" : "");
             }
+            else if (ChargeLimit > 0)
+            {
+                if (ModCount > 0)
+                {
+                    Modifiers += ", ";
+                }
+
+                Modifiers += std::to_string(Charge) + " charge" + (Charge != 1 ? "s" : "");
+
+                ModCount++;
+            }
 
             if (ModCount > 0)
             {

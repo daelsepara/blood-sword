@@ -330,7 +330,7 @@ namespace Interface
 
                             Selection.clear();
 
-                            if (Equipment.size() == 0 || Mode == Equipment::Mode::DROP)
+                            if (Equipment.size() == 0 || (Mode == Equipment::Mode::DROP && Equipment.size() <= Party.Members[Character].Encumbrance))
                             {
                                 Done = true;
                             }

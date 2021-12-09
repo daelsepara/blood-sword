@@ -67,6 +67,14 @@ namespace Enemy
 
         std::vector<Spell::Status> SpellStatus = {};
 
+        // round available
+        int StartRound = 0;
+
+        // start locations: Default for (-1, -1)
+        int StartX = -1;
+
+        int StartY = -1;
+
         Base()
         {
         }
@@ -148,6 +156,41 @@ namespace Enemy
             CanShoot = shoot;
 
             TargetAll = target;
+        }
+
+        Base(Enemy::Type type, const char *name, int fightingProwess, int psychicAbility, int awareness, int endurance, int damage, int damageModifier, int armour, Assets::Type asset, bool move, bool shoot, bool target, int round, int startx, int starty)
+        {
+            Type = type;
+
+            Name = name;
+
+            FightingProwess = fightingProwess;
+
+            PsychicAbility = psychicAbility;
+
+            Awareness = awareness;
+
+            Endurance = endurance;
+
+            Damage = damage;
+
+            DamageModifier = damageModifier;
+
+            Armour = armour;
+
+            Asset = asset;
+
+            CanMove = move;
+
+            CanShoot = shoot;
+
+            TargetAll = target;
+
+            StartRound = round;
+
+            StartX = startx;
+
+            StartY = starty;
         }
     };
 }

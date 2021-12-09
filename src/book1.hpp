@@ -3922,6 +3922,167 @@ namespace Book1
         }
     };
 
+    class Story151 : public Story::Base
+    {
+    public:
+        Story151()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 151;
+
+            Bye = "You have no other way to go, so you make your way back to the ornamental doorway at the end of the main corridor.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "The passage ends in a heavy door. Grasping the iron ring in the middle, you haul it open and step into a small room. There are no other exits. On a table of red granite you see a steel sceptre that seems to glimmer with magical energy. Taking this, you see an indicator on the side that shows it has four charges. ";
+
+            Equipment = {Equipment::SteelSceptre};
+
+            if (!Engine::IsPresent(Party, Character::Class::Sage))
+            {
+                Text += "You used up 1 charge to test it and see what it does.";
+
+                Engine::Discharge(Equipment[0], 1);
+            }
+            else
+            {
+                Text += " The SAGE recognizes this device from various historical documents.";
+            }
+
+            Text += "\n\n<b>NOTE</b>\n\nEach charge of the device releases a blast of destructive energy. You can use it in combat in place of the <i>Fight</i> option. It affects one monster in an adjacent square to the user, inflicting 5D damage. The blast of the sceptre always hits. Each time it is used in combat or non-combat situations, 1 charge is expended. When it reaches zero charges it ceases to function.";
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 246}; }
+    };
+
+    class Story152 : public Story::Base
+    {
+    public:
+        Story152()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 152;
+
+            Text = "A tunnel of worked stone leads off ahead of you from the jetty. It soon opens out into a small circular room with two exits. One is directly ahead of you: a rough rectangular opening in the stonework barred by a heavy iron grille with an even heavier iron chain and padlock locking it. The other exit leads off to your right, where you can see an archway and a corridor lit with torches in brackets. The corridor leads to a door. There are deep alcoves all along the corridor on either side.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Use a <b>bronze key</b>", {Book::Type::Book1, 221}, Equipment::Item::BronzeKey));
+            Choices.push_back(Choice::Base("Use 1 charge of the <b>steel sceptre</b>", {Book::Type::Book1, 296}, Choice::Type::Discharge, Equipment::Item::SteelSceptre, 1));
+            Choices.push_back(Choice::Base("You do not have any of these, or choose not to use them", {Book::Type::Book1, 316}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story153 : public Story::Base
+    {
+    public:
+        Story153()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 153;
+
+            Text = "(SAGE) You know the proper words of the prayer to this goddess. You speak them now, and the goddess responds by suffusing your spirit with the energy to do great good.\n\n<b>NOTE</b>\n\nIf you wish to use your power to Heal, double the amount of restored Endurance points. You can get this benefit only if you do the Healing right now, and it is a one-off benefit.";
+
+            HealRate = 2;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Have a look at the ice block", {Book::Type::Book1, 334}));
+            Choices.push_back(Choice::Base("Dig up one of the mounds", {Book::Type::Book1, 42}));
+            Choices.push_back(Choice::Base("Continue on your way", {Book::Type::Book1, 279}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story154 : public Story::Base
+    {
+    public:
+        Story154()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 154;
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Run up the steps to the balcony", {Book::Type::Book1, 82}));
+            Choices.push_back(Choice::Base("Return the way you came in", {Book::Type::Book1, 48}));
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "Arrows cut through the air as you race the length of the room. Three arrows strike home.\n";
+
+            auto PartySize = Engine::Count(Party);
+
+            if (PartySize > 0)
+            {
+                for (auto i = 0; i < 3; i++)
+                {
+                    auto Target = Engine::Find(Party, Engine::Roll(1, 0) % PartySize + 1);
+
+                    if (Target >= 0 && Target < Party.Members.size())
+                    {
+                        auto Damage = Engine::Damage(Party.Members[Target], Engine::Roll(1, 0));
+
+                        Text += "\n" + std::string(Character::ClassName[Party.Members[Target].Class]) + " dealt " + std::to_string(Damage) + " damage!";
+
+                        if (!Engine::IsAlive(Party.Members[Target]))
+                        {
+                            Text += " " + std::string(Character::ClassName[Party.Members[Target].Class]) + " was killed!";
+                        }
+                    }
+                }
+            }
+
+            if (Engine::IsAlive(Party))
+            {
+                Text += "\n\nThe chessmen provide you with momentary cover from which to consider your plan of action.";
+            }
+        }
+    };
+
+    class Story155 : public Story::Base
+    {
+    public:
+        Story155()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 155;
+
+            Text = "Kief's number this time is 3.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party)
+        {
+            std::vector<int> Destinations = {160, 165, 170, 286, 286, 286};
+
+            if (Party.LastValue >= 0 && Party.LastValue < 6)
+            {
+                return {Book::Type::Book1, Destinations[Party.LastValue]};
+            }
+            else
+            {
+                return {Book::Type::Book1, Destinations[Engine::Roll(1, 0) - 1]};
+            }
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -4118,6 +4279,11 @@ namespace Book1
     auto story148 = Story148();
     auto story149 = Story149();
     auto story150 = Story150();
+    auto story151 = Story151();
+    auto story152 = Story152();
+    auto story153 = Story153();
+    auto story154 = Story154();
+    auto story155 = Story155();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -4140,6 +4306,7 @@ namespace Book1
             &story121, &story122, &story123, &story124, &story125, &story126, &story127, &story128, &story129, &story130,
             &story131, &story132, &story133, &story134, &story135, &story136, &story137, &story138, &story139, &story140,
             &story141, &story142, &story143, &story144, &story145, &story146, &story147, &story148, &story149, &story150,
+            &story151, &story152, &story153, &story154, &story155,
             &story398,
             &story452};
     }

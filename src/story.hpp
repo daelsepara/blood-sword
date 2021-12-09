@@ -58,6 +58,9 @@ namespace Story
 
         std::vector<Enemy::Base> Enemies = {};
 
+        // Sage healing rate
+        int HealRate = 1;
+
         Story::Controls Controls = Story::Controls::None;
 
         // background events

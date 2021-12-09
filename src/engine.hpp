@@ -193,6 +193,15 @@ namespace Engine
         return armour;
     }
 
+    int Damage(Character::Base &character, int damage)
+    {
+        auto total_damage = std::max(0, damage - Engine::Armour(character));
+
+        Engine::Gain(character, -total_damage);
+
+        return total_damage;
+    }
+
     bool IsAlive(Character::Base &character)
     {
         return (Engine::Score(character, Attributes::Type::Endurance) > 0);
@@ -310,6 +319,30 @@ namespace Engine
                 result = i;
 
                 break;
+            }
+        }
+
+        return result;
+    }
+
+    int Find(Party::Base &party, int index)
+    {
+        auto result = -1;
+
+        auto found = 0;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]))
+            {
+                found++;
+
+                if (found == index)
+                {
+                    result = i;
+
+                    break;
+                }
             }
         }
 
@@ -1187,6 +1220,20 @@ namespace Engine
         return Engine::HasItem(character, item, charge);
     }
 
+    bool Discharge(Equipment::Base &equipment, int charge)
+    {
+        auto Discharged = false;
+
+        if (equipment.Charge >= charge)
+        {
+            equipment.Charge -= charge;
+
+            Discharged = true;
+        }
+
+        return Discharged;
+    }
+
     bool Discharge(Character::Base &character, Equipment::Item item, int charge)
     {
         auto Discharged = false;
@@ -1195,9 +1242,7 @@ namespace Engine
         {
             auto found = Engine::Find(character.Equipment, item, charge);
 
-            character.Equipment[found].Charge -= charge;
-
-            Discharged = true;
+            Discharged = Engine::Discharge(character.Equipment[found], charge);
         }
 
         return Discharged;
