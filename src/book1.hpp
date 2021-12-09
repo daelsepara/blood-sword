@@ -3748,7 +3748,7 @@ namespace Book1
 
             Image = "images/book1/bridge.png";
 
-            TopImage = false;
+            TopImage = true;
 
             Text = "The platform is a wide shelf of rock jutting out from the cave wall. Across the deep gorge you jeer at the ugly Hags, now incensed that you have defeated their 'pets'. The only way to get across the gorge is via one of two bridges that span the distance to the temple terrace. A waterfall cascades over the middle of the platform, bisecting it and cutting you off from the further of the two bridges. Looking up, you see a huge gargoyle head carved into the cave wall near the roof. The water issues from its mouth, cascades down in a torrent across the middle of the platform, then pours down into the swirling river far beneath you.\n\nAs you consider the two bridges, a booming voice makes you look up once more. The mouth of the gargoyle is moving, and by listening hard you can make sense out of the deep rumbling words. Over and over, it intones: \"Face that which you fear most, or confront a lesser foe.\"\n\nPresumably it is referring to the two bridges. You could cross the nearer bridge with no apparent trouble, but to get to the further one you must step through the waterfall. The gargoyle's words are weighty with ambiguity. Which to choose?\n\n<b>NOTE</b>\n\nAll players must cross. This must be done one at a time. The order in which they cross is up to them...";
 
