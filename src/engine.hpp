@@ -228,7 +228,6 @@ namespace Engine
         return result;
     }
 
-
     bool HasArmour(Party::Base &Party)
     {
         auto result = false;
@@ -1424,6 +1423,16 @@ namespace Engine
         }
 
         return result;
+    }
+
+    void Gain(Party::Base &party, Character::Class character, Equipment::Base equipment)
+    {
+        if (Engine::IsPresent(party, character))
+        {
+            auto member = Engine::Find(party, character);
+
+            party.Members[member].Equipment.push_back(equipment);
+        }
     }
 }
 #endif

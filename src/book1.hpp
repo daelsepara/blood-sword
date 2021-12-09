@@ -3717,6 +3717,131 @@ namespace Book1
         }
     };
 
+    class Story141 : public Story::Base
+    {
+    public:
+        Story141()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 141;
+
+            Text = "The Barbarians swagger off down the corridor, discussing all the ale they'll be able to buy with their loot once they have won the contest. You smile wryly, muttering under your breath that this is a clear case of counting one's chickens...";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(SAGE) This might be a good time to try an ESP scan of the vicinity", {{Book::Type::Book1, 297}, {Book::Type::Book1, 447}}, Choice::Type::RandomDestination, Character::Class::Sage, Abilities::Type::ESP));
+            Choices.push_back(Choice::Base("Dislodge the grille and drop down to follow the Barbarians", {Book::Type::Book1, 477}));
+            Choices.push_back(Choice::Base("Wait where you are, watching through the grille", {Book::Type::Book1, 73}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story142 : public Story::Base
+    {
+    public:
+        Story142()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 142;
+
+            Image = "images/book1/bridge.png";
+
+            TopImage = false;
+
+            Text = "The platform is a wide shelf of rock jutting out from the cave wall. Across the deep gorge you jeer at the ugly Hags, now incensed that you have defeated their 'pets'. The only way to get across the gorge is via one of two bridges that span the distance to the temple terrace. A waterfall cascades over the middle of the platform, bisecting it and cutting you off from the further of the two bridges. Looking up, you see a huge gargoyle head carved into the cave wall near the roof. The water issues from its mouth, cascades down in a torrent across the middle of the platform, then pours down into the swirling river far beneath you.\n\nAs you consider the two bridges, a booming voice makes you look up once more. The mouth of the gargoyle is moving, and by listening hard you can make sense out of the deep rumbling words. Over and over, it intones: \"Face that which you fear most, or confront a lesser foe.\"\n\nPresumably it is referring to the two bridges. You could cross the nearer bridge with no apparent trouble, but to get to the further one you must step through the waterfall. The gargoyle's words are weighty with ambiguity. Which to choose?\n\n<b>NOTE</b>\n\nAll players must cross. This must be done one at a time. The order in which they cross is up to them...";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("(WARRIOR)", {Book::Type::Book1, 478}, Character::Class::Warrior));
+            Choices.push_back(Choice::Base("(TRICKSTER)", {Book::Type::Book1, 113}, Character::Class::Trickster));
+            Choices.push_back(Choice::Base("(SAGE)", {Book::Type::Book1, 426}, Character::Class::Sage));
+            Choices.push_back(Choice::Base("(ENCHANTER)", {Book::Type::Book1, 252}, Character::Class::Enchanter));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story143 : public Story::Base
+    {
+    public:
+        Story143()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 143;
+
+            Text = "(TRICKSTER) You feel a faint tug at your belt, and instantly realise that unseen fingers are trying to steal your possessions! \"Set a thief to catch a thief,\" you whisper to yourself, suddenly whirling around under the waterfall and fending the invisible hands away. One of them clutches something -- probably filched from another Adventurer who passed this way -- and you grab this as you retreat out of the water. You examine the item you have gained.\n\n<i>It is a phial of chimera spittle -- a deadly, delayed-action poison.</i>";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party) { Engine::Gain(Party, Character::Class::Trickster, Equipment::ChimeraSpittle); }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 267}; }
+    };
+
+    // TODO: this section describes an item effect that will be implemented in
+    // the CombatScreen/StoryScreen interface. It is preserved here for completeness.
+    class Story144 : public Story::Base
+    {
+    public:
+        Story144()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 144;
+
+            Type = Story::Type::Info;
+
+            Text = "Did you also drink the <b>effervescent potion</b>? If so, you are all right because that was the antidote to the <b>chimera spittle</b> you imbibed. If you did not drink the <b>effervescent potion</b>, you die in terrible agony.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Info;
+        }
+    };
+
+    class Story145 : public Story::Base
+    {
+    public:
+        Story145()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 145;
+
+            Text = "He reaches out to sweep away the coins. \"You have already lost,\" he explains. \"The next Spiral you can only choose a 1 and, by putting a 2, I can force you to lose one of your two remaining coins. Once that happens, you cannot go. So we need not prolong the conflict...\"";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
+    };
+
+    class Story146 : public Story::Base
+    {
+    public:
+        Story146()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 146;
+
+            Text = "You slip the great gauntlet on to the skeleton's right hand as the skin starts to draw across it. Moments later, the body begins to throb with life and the pink bloom of blood washes through its veins as the stone heart reverts to flesh. Slabs of muscle swell across the bones, sewn with gristle and skin. Skrymir rises from the dead.\n\nHe stands before you, towering towards the cave roof like the shadow of a great glacier. His beard sparkles with icicles; his eyes blaze with cold fury.\n\n\"Skrymir stands upon Middle-Earth once more!\" he cries, shaking the rock walls with his voice of thunder. \"Legend reverberates to his battle-roar. Let the magi who crouch upon the old thrones of Krarth beware -- they shall not see another dawn, for the sky then shall be washed with their blood!\"\n\nHe turns and glares at the flickering beam of the Teleportation spell. He obviously intends to return to the surface, to the Great Hall where the magi are waiting for a champion to emerge.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Point out that you have just resurrected him", {Book::Type::Book1, 539}));
+            Choices.push_back(Choice::Base("Keep quiet and let him depart", {Book::Type::Book1, 257}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -3903,6 +4028,12 @@ namespace Book1
     auto story138 = Story138();
     auto story139 = Story139();
     auto story140 = Story140();
+    auto story141 = Story141();
+    auto story142 = Story142();
+    auto story143 = Story143();
+    auto story144 = Story144();
+    auto story145 = Story145();
+    auto story146 = Story146();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -3924,6 +4055,7 @@ namespace Book1
             &story111, &story112, &story113, &story114, &story115, &story116, &story117, &story118, &story119, &story120,
             &story121, &story122, &story123, &story124, &story125, &story126, &story127, &story128, &story129, &story130,
             &story131, &story132, &story133, &story134, &story135, &story136, &story137, &story138, &story139, &story140,
+            &story141, &story142, &story143, &story144, &story145, &story146,
             &story398,
             &story452};
     }

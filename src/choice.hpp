@@ -32,7 +32,8 @@ namespace Choice
         TakeScrolls,
         EnemyCastSpell,
         TakeEquipment,
-        LoseMoney
+        LoseMoney,
+        RandomDestination
     };
 
     enum class Consequence
@@ -55,6 +56,8 @@ namespace Choice
         Book::Destination Destination = {Book::Type::None, 0};
 
         Book::Destination DestinationFail = {Book::Type::None, 0};
+
+        std::vector<Book::Destination> Destinations = {};
 
         Character::Class Character = Character::Class::None;
 
@@ -305,6 +308,19 @@ namespace Choice
             Attribute = attribute;
 
             Consequence = consequence;
+        }
+
+        Base(const char *choice, std::vector<Book::Destination> destinations, Choice::Type type, Character::Class character, Abilities::Type ability)
+        {
+            Text = choice;
+
+            Destinations = destinations;
+
+            Character = character;
+
+            Type = type;
+
+            Ability = ability;
         }
     };
 }

@@ -1136,6 +1136,60 @@ namespace Interface
         return Result;
     }
 
+    bool RandomDestination(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, std::vector<Button> &Controls, Choice::Base &Choice, Story::Base **Next, std::string &Message)
+    {
+        auto Result = false;
+
+        auto Character = Choice.Character;
+
+        auto Ability = Choice.Ability;
+
+        auto Destinations = Choice.Destinations;
+
+        if (Character != Character::Class::None && !Engine::IsPresent(Party, Character))
+        {
+            Message = std::string(Character::ClassName[Character]) + " not present in your party!";
+        }
+        else if (Ability != Abilities::Type::None && !Engine::HasAbility(Party, Ability))
+        {
+            if (Engine::Count(Party) > 1)
+            {
+                Message = "No one has the " + std::string(Abilities::Description[Ability]) + " ability!";
+            }
+            else
+            {
+                Message = "You do not have the " + std::string(Abilities::Description[Ability]) + " ability!";
+            }
+        }
+        else
+        {
+            if (Destinations.size() > 0)
+            {
+                auto BinSize = (6 / ((int)Destinations.size()));
+
+                auto Roll = Engine::Roll(1, 0);
+
+                for (auto i = 0; i < Destinations.size(); i++)
+                {
+                    if (Roll >= (i * BinSize + 1) && Roll <= ((i + 1) * BinSize))
+                    {
+                        *Next = Interface::FindStory(Destinations[i]);
+
+                        Result = true;
+
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                Message = "Internal Error: Unable to turn to section";
+            }
+        }
+
+        return Result;
+    }
+
     Story::Base *ProcessChoices(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen)
     {
         Story::Base *Next = &Story::notImplemented;
@@ -1469,6 +1523,17 @@ namespace Interface
                                 Interface::TestParty(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next);
 
                                 Done = true;
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::RandomDestination)
+                            {
+                                if (!Interface::RandomDestination(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next, Message))
+                                {
+                                    DisplayMessage(Message, intBK);
+                                }
+                                else
+                                {
+                                    Done = true;
+                                }
                             }
                             else
                             {
