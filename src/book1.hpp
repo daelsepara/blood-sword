@@ -3455,7 +3455,7 @@ namespace Book1
 
             Image = "images/book1/filler1.png";
 
-            TopImage = true;
+            TopImage = false;
 
             Text = "After <i>recovering</i> for the next Spiral, he has two heads and five tails. You have only two heads. You are wondering whether you have any chance of winning when Kief says: \"No, you don't. We have reached the Converging Spiral, where playing on would only prolong your inevitable defeat.\" He gathers the coins.";
 
