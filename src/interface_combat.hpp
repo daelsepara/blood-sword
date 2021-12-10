@@ -712,7 +712,7 @@ namespace Interface
 
     bool CloseDistance(Map::Base &Map, int SrcX, int SrcY, int &DstX, int &DstY)
     {
-        std::vector<std::pair<int, int>> Neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+        std::vector<std::pair<int, int>> Neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
 
         auto Result = false;
 
@@ -724,7 +724,7 @@ namespace Interface
 
             auto TargetY = DstY + Neighbors[i].second;
 
-            if (Map.ValidX(TargetX) && Map.ValidY(TargetY) && (Map.Tiles[TargetY][TargetX].IsPassable || Map.Tiles[TargetY][TargetX].IsPassableToEnemy))
+            if (Map.ValidX(TargetX) && Map.ValidY(TargetY) && (Map.Tiles[TargetY][TargetX].IsPassable || Map.Tiles[TargetY][TargetX].IsPassableToEnemy) && !Map.Tiles[TargetY][TargetX].IsOccupied())
             {
                 auto TempPath = AStar::FindPath(Map, SrcX, SrcY, TargetX, TargetY);
 
