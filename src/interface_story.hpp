@@ -1069,6 +1069,8 @@ namespace Interface
 
                     if ((Story->Text.empty() || Text == NULL) && Engine::IsAlive(Party) && !Engine::Paralyzed(Party))
                     {
+                        SDL_RenderPresent(Renderer);
+                        
                         Current = Interface::FindControl(Controls, Control::Type::CONTINUE);
 
                         Selected = true;
