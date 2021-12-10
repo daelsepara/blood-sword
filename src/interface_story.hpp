@@ -1026,11 +1026,11 @@ namespace Interface
 
                 if (!Engine::IsAlive(Party))
                 {
-                    Controls = Story::ExitControls();
+                    Controls = Story::ExitControls(Compact);
                 }
                 else if (Story->Type == Story::Type::Doom)
                 {
-                    Controls = Story::ExitControls();
+                    Controls = Story::ExitControls(Compact);
                 }
                 else if (Story->Controls == Story::Controls::Standard)
                 {
@@ -1038,11 +1038,11 @@ namespace Interface
                 }
                 else if (Story->Controls == Story::Controls::Info)
                 {
-                    Controls = Story::InfoControls();
+                    Controls = Story::InfoControls(Compact);
                 }
                 else
                 {
-                    Controls = Story::ExitControls();
+                    Controls = Story::ExitControls(Compact);
                 }
 
                 auto ScrollSpeed = 20;
@@ -1209,19 +1209,12 @@ namespace Interface
 
                                     Transition = true;
                                 }
-                                else
-                                {
-                                    if (!Engine::IsAlive(Party))
-                                    {
-                                        Controls = Story::ExitControls();
-                                    }
-                                }
                             }
                             else
                             {
                                 CheckPartyStatus();
 
-                                Controls = Story::ExitControls();
+                                Controls = Story::ExitControls(Compact);
                             }
 
                             Selected = false;

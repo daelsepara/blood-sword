@@ -346,14 +346,18 @@
         },
         {
             "id": 311,
-            "path": "images/enemies/demoness.png"
+            "path": "images/enemies/knight.png"
         },
         {
             "id": 312,
-            "path": "images/enemies/ogre.png"
+            "path": "images/enemies/demoness.png"
         },
         {
             "id": 313,
+            "path": "images/enemies/ogre.png"
+        },
+        {
+            "id": 314,
             "path": "images/enemies/gargoyle.png"
         }
     ]

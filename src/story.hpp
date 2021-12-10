@@ -65,16 +65,16 @@ namespace Story
 
         // background events
         virtual Book::Destination Background(Party::Base &Party) { return {Book::Type::None, 0}; };
-        
+
         // events before story branches
         virtual void Event(Party::Base &Party){};
-        
+
         // jump to next book/section
         virtual Book::Destination Continue(Party::Base &Party) { return {Book::Type::None, 0}; };
-        
+
         // event handlers before combat
         virtual void SetupCombat(Map::Base &Map, Party::Base &Party){};
-        
+
         // event handlers after combat
         virtual void AfterCombat(Party::Base &Party, Combat::Result Result){};
 
@@ -113,28 +113,48 @@ namespace Story
         return controls;
     }
 
-    std::vector<Button> ExitControls()
+    std::vector<Button> ExitControls(bool compact = false)
     {
         auto controls = std::vector<Button>();
+
+        auto idx = 0;
+
+        if (!compact)
+        {
+            controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, 1, 0, 1, SCREEN_WIDTH - (buttonw + 4 * text_space), (buttonh + 3 * text_space), intWH, Control::Type::SCROLL_UP));
+            controls.push_back(Button(1, Assets::Get(Assets::Type::Down), 0, 2, 0, 2, SCREEN_WIDTH - (buttonw + 4 * text_space), SCREEN_HEIGHT - 3 * (buttonh + 2 * text_space) + text_space, intWH, Control::Type::SCROLL_DOWN));
+
+            idx = 2;
+        }
 
         auto IconSize = (buttonw + 2 * text_space);
         auto OffsetY = SCREEN_HEIGHT - 2 * (IconSize - text_space);
         auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * text_space);
 
-        controls.push_back(Button(0, Assets::Get(Assets::Type::Exit), 0, 0, 0, 0, LastX, OffsetY, intWH, Control::Type::EXIT));
+        controls.push_back(Button(idx, Assets::Get(Assets::Type::Exit), idx, idx, compact ? idx : idx - 1, idx, LastX, OffsetY, intWH, Control::Type::EXIT));
 
         return controls;
     }
 
-    std::vector<Button> InfoControls()
+    std::vector<Button> InfoControls(bool compact = false)
     {
         auto controls = std::vector<Button>();
+
+        auto idx = 0;
+
+        if (!compact)
+        {
+            controls.push_back(Button(0, Assets::Get(Assets::Type::Up), 0, 1, 0, 1, SCREEN_WIDTH - (buttonw + 4 * text_space), (buttonh + 3 * text_space), intWH, Control::Type::SCROLL_UP));
+            controls.push_back(Button(1, Assets::Get(Assets::Type::Down), 0, 2, 0, 2, SCREEN_WIDTH - (buttonw + 4 * text_space), SCREEN_HEIGHT - 3 * (buttonh + 2 * text_space) + text_space, intWH, Control::Type::SCROLL_DOWN));
+
+            idx = 2;
+        }
 
         auto IconSize = (buttonw + 2 * text_space);
         auto OffsetY = SCREEN_HEIGHT - 2 * (IconSize - text_space);
         auto LastX = SCREEN_WIDTH - (2 * IconSize) - (3 * text_space);
 
-        controls.push_back(Button(0, Assets::Get(Assets::Type::Back), 0, 0, 0, 0, LastX, OffsetY, intWH, Control::Type::BACK));
+        controls.push_back(Button(idx, Assets::Get(Assets::Type::Back), idx, idx, compact ? idx : idx - 1, idx, LastX, OffsetY, intWH, Control::Type::BACK));
 
         return controls;
     }

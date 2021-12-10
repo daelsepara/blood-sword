@@ -98,6 +98,7 @@ namespace Assets
         Corpse,
         Bowmen,
         Dirges,
+        Knight,
         Demoness,
         Ogre,
         Gargoyle

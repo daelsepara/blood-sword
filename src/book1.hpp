@@ -3369,7 +3369,7 @@ namespace Book1
                 auto Endurance = Engine::Score(Guillarme, Attributes::Type::Endurance);
                 auto Awareness = Engine::Score(Guillarme, Attributes::Type::Awareness);
 
-                Enemies.push_back(Enemy::Base(Enemy::Type::Guillarme, "GUILLARME", FightingProwess, PsychicAbility, Awareness, Endurance, Guillarme.Damage, Guillarme.DamageModifier, 3, Assets::Type::Warrior, true, true, false));
+                Enemies.push_back(Enemy::Base(Enemy::Type::Guillarme, "GUILLARME", FightingProwess, PsychicAbility, Awareness, Endurance, Guillarme.Damage, Guillarme.DamageModifier, 3, Assets::Type::Knight, true, true, false));
             }
         }
 
