@@ -394,7 +394,7 @@ namespace Interface
 
                             for (auto i = 0; i < Equipment.size(); i++)
                             {
-                                if (!Engine::InList(Selection, i) || (Equipment[i].Item == Equipment::Item::HeartOfSkrymir && Party.Book == Book::Type::Book1) || (Equipment[i].Item == Equipment::Item::ScorchedSkull && Party.Story == 38 && Party.Book == Book::Type::Book1))
+                                if (!Engine::InList(Selection, i) || !Equipment[i].CanDrop)
                                 {
                                     New.push_back(Equipment[i]);
                                 }
@@ -1070,7 +1070,7 @@ namespace Interface
                     if ((Story->Text.empty() || Text == NULL) && Engine::IsAlive(Party) && !Engine::Paralyzed(Party))
                     {
                         SDL_RenderPresent(Renderer);
-                        
+
                         Current = Interface::FindControl(Controls, Control::Type::CONTINUE);
 
                         Selected = true;

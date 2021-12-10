@@ -70,6 +70,8 @@ namespace Assets
         Stats,
         Use,
         Transfer,
+        HeartPlus,
+        HeartMinus,
         Spells = 200,
         VolcanoSpray,
         Nighthowl,

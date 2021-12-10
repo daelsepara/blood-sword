@@ -237,6 +237,14 @@
             "path": "icons/transfer.png"
         },
         {
+            "id": 166,
+            "path": "icons/heart-plus.png"
+        },
+        {
+            "id": 167,
+            "path": "icons/heart-minus.png"
+        },
+        {
             "id": 201,
             "path": "images/spells/volcano-spray.png"
         },

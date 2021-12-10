@@ -330,6 +330,35 @@ namespace Engine
         return result;
     }
 
+    bool HasSpace(Character::Base &character)
+    {
+        return character.Equipment.size() < character.Encumbrance;
+    }
+
+    int FirstSpace(Party::Base &party)
+    {
+        auto result = -1;
+
+        for (auto i = 0; i < party.Members.size(); i++)
+        {
+            if (Engine::IsAlive(party.Members[i]) && Engine::HasSpace(party.Members[i]))
+            {
+                result = i;
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasSpace(Party::Base &party)
+    {
+        auto result = Engine::FirstSpace(party);
+
+        return result >= 0 && result < party.Members.size();
+    }
+
     int Find(Party::Base &party, int index)
     {
         auto result = -1;

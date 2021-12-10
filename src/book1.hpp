@@ -4270,7 +4270,7 @@ namespace Book1
                 auto Endurance = Engine::Score(Nemesis, Attributes::Type::Endurance);
                 auto Awareness = Engine::Score(Nemesis, Attributes::Type::Awareness);
 
-                Enemies.push_back(Enemy::Base(Enemy::Type::Nemesis, "NEMESIS", FightingProwess, PsychicAbility, Awareness, Endurance, Nemesis.Damage, Nemesis.DamageModifier + 1, 0, Assets::Type::Gargoyle, true, true, false));
+                Enemies.push_back(Enemy::Base(Enemy::Type::Nemesis, "NEMESIS", FightingProwess, PsychicAbility, Awareness, Endurance, Nemesis.Damage, Nemesis.DamageModifier + 1, 0, Assets::Type::Gargoyle, true, false, false));
             }
         }
 
@@ -4294,6 +4294,73 @@ namespace Book1
         }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 88}; }
+    };
+
+    class Story158 : public Story::Base
+    {
+    public:
+        Story158()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 158;
+
+            Text = "As they behold the talisman, its burnished surface glowing like the sun in the reflected light from the lava pit, the Skiapyrs waver in awe. \"It is the sacred talisman,\" whispers one. \"Pass by in peace.\"\n\nYou hurry on before they can change their minds.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 223}; }
+    };
+
+    class Story159 : public Story::Base
+    {
+    public:
+        Story159()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 159;
+
+            Text = "You pass on up the tunnel until you reach another chamber. You must be half way to the summit by now. Another tunnel leads up from the far side of the room, but to reach it you must pass a roughly carved throne of rock to which a giant skeletal pelvis and legs are shackled.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party)
+        {
+            if (Engine::HasItem(Party, Equipment::Item::GiantsSkull))
+            {
+                return {Book::Type::Book1, 433};
+            }
+            else
+            {
+                return {Book::Type::Book1, 538};
+            }
+        }
+    };
+
+    class Story160 : public Story::Base
+    {
+    public:
+        Story160()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 160;
+
+            Text = "Kief shakes his head and mutters something, then scoops up the remaining coins. \"Well,\" he says as you give a grunt of surprise, \"surely you could see that you'd lose?\"";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
     };
 
     class Story398 : public Story::Base
@@ -4500,6 +4567,9 @@ namespace Book1
     auto story156 = Story156();
     auto story157 = Story157();
     auto event157 = Event157();
+    auto story158 = Story158();
+    auto story159 = Story159();
+    auto story160 = Story160();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -4522,7 +4592,7 @@ namespace Book1
             &story121, &story122, &story123, &story124, &story125, &story126, &story127, &story128, &story129, &story130,
             &story131, &story132, &story133, &story134, &story135, &story136, &story137, &story138, &story139, &story140,
             &story141, &story142, &story143, &story144, &story145, &story146, &story147, &story148, &story149, &story150,
-            &story151, &story152, &story153, &story154, &story155, &story156, &story157,
+            &story151, &story152, &story153, &story154, &story155, &story156, &story157, &story158, &story159, &story160,
             &story398,
             &story452};
     }

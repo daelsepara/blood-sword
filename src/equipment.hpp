@@ -62,7 +62,8 @@ namespace Equipment
         BronzeKey,
         DaggerOfVislet,
         GoldenSnuffBox,
-        DragonlordGem
+        DragonlordGem,
+        GiantsSkull
     };
 
     std::map<Equipment::Item, const char *> ItemDescription = {
@@ -90,7 +91,8 @@ namespace Equipment
         {Equipment::Item::BronzeKey, "bronze key"},
         {Equipment::Item::DaggerOfVislet, "dagger of Vislet"},
         {Equipment::Item::GoldenSnuffBox, "golden snuff-box"},
-        {Equipment::Item::DragonlordGem, "dragonlord gem"}};
+        {Equipment::Item::DragonlordGem, "dragonlord gem"},
+        {Equipment::Item::GiantsSkull, "giant's skull"}};
 
     enum class Mode
     {
@@ -136,6 +138,8 @@ namespace Equipment
 
         int Damage = 0;
 
+        bool CanDrop = true;
+
         Base(Equipment::Class type, const char *name, const char *description)
         {
             Class = type;
@@ -178,6 +182,17 @@ namespace Equipment
             Name = Equipment::ItemDescription[item];
 
             Description = Equipment::ItemDescription[item];
+        }
+
+        Base(Equipment::Item item, bool canDrop)
+        {
+            Item = item;
+
+            Name = Equipment::ItemDescription[item];
+
+            Description = Equipment::ItemDescription[item];
+
+            CanDrop = canDrop;
         }
 
         Base(Equipment::Item item, int charge, int limit)
@@ -388,19 +403,20 @@ namespace Equipment
     auto BlueIceJewel = Equipment::Base(Equipment::Item::BlueIceJewel);
     auto SteelSceptre = Equipment::Base(Equipment::Item::SteelSceptre, 4, 4);
     auto VialOfBlackLiquid = Equipment::Base(Equipment::Item::VialOfBlackLiquid);
-    auto ScorchedSkull = Equipment::Base(Equipment::Item::ScorchedSkull);
+    auto ScorchedSkull = Equipment::Base(Equipment::Item::ScorchedSkull, false);
     auto BronzeMallet = Equipment::Base(Equipment::Item::BronzeMallet);
     auto MagnificentSword = Equipment::Base(Equipment::Item::MagnificentSword);
     auto GildedBridle = Equipment::Base(Equipment::Item::GildedBridle);
     auto ChimeraSpittle = Equipment::Base(Equipment::Item::ChimeraSpittle);
     auto RingOfWarding = Equipment::Base(Equipment::Item::RingOfWarding, 4, 4);
     auto EmeraldScarab = Equipment::Base(Equipment::Item::EmeraldScarab);
-    auto HeartOfSkrymir = Equipment::Base(Equipment::Item::HeartOfSkrymir);
+    auto HeartOfSkrymir = Equipment::Base(Equipment::Item::HeartOfSkrymir, false);
     auto OpalMedallion = Equipment::Base(Equipment::Item::OpalMedallion);
     auto BronzeKey = Equipment::Base(Equipment::Item::BronzeKey);
     auto DaggerOfVislet = Equipment::Base(Equipment::Item::DaggerOfVislet);
     auto GoldenSnuffBox = Equipment::Base(Equipment::Item::GoldenSnuffBox);
     auto DragonlordGem = Equipment::Base(Equipment::Item::DragonlordGem);
+    auto GiantsSkull = Equipment::Base(Equipment::Item::GiantsSkull, false);
 }
 
 namespace Scroll
