@@ -23,7 +23,8 @@ namespace Enemy
         Dirges,
         Guillarme,
         Echidna,
-        SkrymirTheGiant
+        SkrymirTheGiant,
+        Nemesis
     };
 
     class Base

@@ -3369,7 +3369,7 @@ namespace Book1
                 auto Endurance = Engine::Score(Guillarme, Attributes::Type::Endurance);
                 auto Awareness = Engine::Score(Guillarme, Attributes::Type::Awareness);
 
-                Enemies.push_back(Enemy::Base(Enemy::Type::Guillarme, "GUILLARME", FightingProwess, PsychicAbility, Awareness, Endurance, Guillarme.Damage, Guillarme.DamageModifier, 3, Assets::Type::Enchanter, true, true, false));
+                Enemies.push_back(Enemy::Base(Enemy::Type::Guillarme, "GUILLARME", FightingProwess, PsychicAbility, Awareness, Endurance, Guillarme.Damage, Guillarme.DamageModifier, 3, Assets::Type::Warrior, true, true, false));
             }
         }
 
@@ -4035,11 +4035,14 @@ namespace Book1
                     {
                         auto Damage = Engine::Damage(Party.Members[Target], Engine::Roll(1, 0));
 
-                        Text += "\n" + std::string(Character::ClassName[Party.Members[Target].Class]) + " dealt " + std::to_string(Damage) + " damage!";
-
-                        if (!Engine::IsAlive(Party.Members[Target]))
+                        if (Damage > 0)
                         {
-                            Text += " " + std::string(Character::ClassName[Party.Members[Target].Class]) + " was killed!";
+                            Text += "\n" + std::string(Character::ClassName[Party.Members[Target].Class]) + " dealt " + std::to_string(Damage) + " damage!";
+
+                            if (!Engine::IsAlive(Party.Members[Target]))
+                            {
+                                Text += " " + std::string(Character::ClassName[Party.Members[Target].Class]) + " was killed!";
+                            }
                         }
                     }
                 }
@@ -4081,6 +4084,216 @@ namespace Book1
                 return {Book::Type::Book1, Destinations[Engine::Roll(1, 0) - 1]};
             }
         }
+    };
+
+    class Story156 : public Story::Base
+    {
+    public:
+        Book::Destination Destination = {};
+
+        Story156()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 156;
+
+            MapFile = "maps/book1/map156.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Bye = "";
+
+            Text = "You come to a door and open it on to a scene of carnage. Two Barbarians are just putting an end to a blood-splattered, black-robed Assassin. Two other black-robed figures lie dead on the floor. The Assassins presumably served another magus, but they don't seem to have been a match for the Barbarians. Just as you burst into the room, the last of them, reacting instinctively, throws a Shuriken at you.";
+
+            auto Target = Engine::Find(Party, 1);
+
+            if (Target >= 0 && Target < Party.Members.size())
+            {
+                auto Damage = Engine::Damage(Party.Members[Target], Engine::Roll(1, -1));
+
+                if (Damage > 0)
+                {
+                    Text += "\n\n" + std::string(Character::ClassName[Party.Members[Target].Class]) + " dealt " + std::to_string(Damage) + " damage!";
+
+                    if (!Engine::IsAlive(Party.Members[Target]))
+                    {
+                        Text += " " + std::string(Character::ClassName[Party.Members[Target].Class]) + " was killed!";
+                    }
+                }
+            }
+
+            Text += "\n\nJust as he does so, a bone-shattering axe-blow levels him to the ground, and the Barbarians turn around to deal with you. You see the berserk fanaticism in their eyes and know they cannot be reasoned with. You also know that their two comrades will probably be racing down the corridor behind you even at this moment...\n\n<b>NOTE</b>\n\nYou cannot flee at first because you know the other two Barbarians must be somewhere behind you.";
+
+            Battle.SurprisedEnemy = false;
+
+            Enemies.clear();
+
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 1", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian, true, false, false));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 2", 8, 5, 7, 12, 1, 2, 1, Assets::Type::Barbarian, true, false, false));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 3", 8, 5, 7, 11, 1, 2, 1, Assets::Type::Barbarian, true, false, false, 6, 1, 3));
+            Enemies.push_back(Enemy::Base(Enemy::Type::Barbarian, "BARBARIAN 4", 8, 5, 7, 11, 1, 2, 1, Assets::Type::Barbarian, true, false, false, 6, 1, 4));
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            Choices.clear();
+
+            if (Result == Combat::Result::ESCAPED)
+            {
+                Bye = "You went back taking the other corridor.";
+
+                Destination = {Book::Type::Book1, 354};
+            }
+            else
+            {
+                Destination = {Book::Type::Book1, 32};
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return Destination; }
+    };
+
+    class Story157 : public Story::Base
+    {
+    public:
+        Story157()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 157;
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Text = "(SAGE) You step out on to the bridge and begin to make your way along it. You look down to see a surging river of miasma gushing along the bottom of the gorge a hundred metres below. Just as you reach the mid-point of the bridge, the gargoyle's head speaks again. \"Be mortal again,\" it says.\n\nAs if in answer, a dark shape begins to form on the bridge in front of you. Within moments, it is a thin pale woman who stands there. She sweeps forwards, drawing a sharp steel sword from under her torn black robes. Her eyes glimmer with recognition at the same instant that yours do. She is Nemesis, whose mother was a demon and whose father was a mortal man. She was your bitterest foe -- until the day you took her life, six years ago.\n\n\"Life and death are not immutable,\" groans the gargoyle. \"Fight to decide who shall live.\"\n\nNemesis gives a slight bow, which turns into a forward roll as she closes to strike. He sword slashes your arm, inflicting four Endurance points damage (less Armour Rating).\n";
+
+            Choices.clear();
+
+            if (Engine::IsPresent(Party, Character::Class::Sage))
+            {
+                auto Target = Engine::Find(Party, Character::Class::Sage);
+
+                auto Damage = Engine::Damage(Party.Members[Target], 4);
+
+                Text += "\n" + std::string(Character::ClassName[Party.Members[Target].Class]) + " dealt " + std::to_string(Damage) + " damage!";
+
+                if (!Engine::IsAlive(Party.Members[Target]))
+                {
+                    Text += " " + std::string(Character::ClassName[Party.Members[Target].Class]) + " was killed!";
+                }
+                else
+                {
+                    Text += "\n\nYou lose no time in counter-attacking.\n\n<b>NOTE</b>\n\nShe has the same Fighting Prowess, Awareness, Endurance and Psychic Ability as you started the adventure with. She inflicts one more point of damage than you do each time she hits, but she has no armour.\n\nYou cannot retreat, as an energy-barrier now blocks the bridge behind you. Your companions, if any, cannot help you by any means. The only way you could get out of this battle would be to try Levitating yourself off the bridge.";
+
+                    Choices.push_back(Choice::Base("(SAGE) Use Levitation", {Book::Type::Book1, 282}, Abilities::Type::Levitation));
+                    Choices.push_back(Choice::Base("Fight Nemesis", {Book::Type::Book1, -157}));
+                }
+            }
+            else
+            {
+                Choices.push_back(Choice::Base("Let others cross the bridge", {Book::Type::Book1, 88}));
+            }
+        }
+    };
+
+    class Event157 : public Story::Base
+    {
+    public:
+        int Character = -1;
+
+        Event157()
+        {
+            Book = Book::Type::Book1;
+
+            Id = -157;
+
+            DisplayId = 157;
+
+            MapFile = "maps/book1/mapsolo.json";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Enemies.clear();
+
+            Battle.SoloCombat = -1;
+
+            Character = -1;
+
+            if (Engine::IsPresent(Party, Character::Class::Sage))
+            {
+                Character = Engine::Find(Party, Character::Class::Sage);
+
+                Battle.SoloCombat = Character;
+
+                auto Characters = Party.Members.size();
+
+                if (Engine::IsPresent(Party, Character::Class::Imragarn))
+                {
+                    Characters--;
+                }
+
+                auto Rank = 2;
+
+                if (Characters >= 4)
+                {
+                    Rank = 2;
+                }
+                else if (Characters >= 3)
+                {
+                    Rank = 3;
+                }
+                else if (Characters >= 2)
+                {
+                    Rank = 4;
+                }
+                else if (Characters >= 1)
+                {
+                    Rank = 8;
+                }
+
+                auto Nemesis = Character::Create(Character::Class::Sage, Book::Type::Book1, Rank);
+
+                auto FightingProwess = Engine::Score(Nemesis, Attributes::Type::FightingProwess);
+                auto PsychicAbility = Engine::Score(Nemesis, Attributes::Type::PsychicAbility);
+                auto Endurance = Engine::Score(Nemesis, Attributes::Type::Endurance);
+                auto Awareness = Engine::Score(Nemesis, Attributes::Type::Awareness);
+
+                Enemies.push_back(Enemy::Base(Enemy::Type::Nemesis, "NEMESIS", FightingProwess, PsychicAbility, Awareness, Endurance, Nemesis.Damage, Nemesis.DamageModifier + 1, 0, Assets::Type::Gargoyle, true, true, false));
+            }
+        }
+
+        void SetupCombat(Map::Base &Map, Party::Base &Party)
+        {
+            if (Engine::IsPresent(Party, Character::Class::Sage))
+            {
+                Map.Put(2, 2, Map::Object::Player, Character);
+            }
+        }
+
+        void AfterCombat(Party::Base &Party, Combat::Result Result)
+        {
+            if (Result == Combat::Result::VICTORY)
+            {
+                if (Engine::IsPresent(Party, Character::Class::Sage))
+                {
+                    Engine::GetCode(Party.Members[Character], Code::Status::CROSSED_BRIDGE);
+                }
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 88}; }
     };
 
     class Story398 : public Story::Base
@@ -4284,13 +4497,16 @@ namespace Book1
     auto story153 = Story153();
     auto story154 = Story154();
     auto story155 = Story155();
+    auto story156 = Story156();
+    auto story157 = Story157();
+    auto event157 = Event157();
     auto story398 = Story398();
     auto story452 = Story452();
 
     void InitializeStories()
     {
         Book1::Stories = {
-            &event015, &event038, &event062, &event076, &event114, &event124,
+            &event015, &event038, &event062, &event076, &event114, &event124, &event157,
             &story001, &story002, &story003, &story004, &story005, &story006, &story007, &story008, &story009, &story010,
             &story011, &story012, &story013, &story014, &story015, &story016, &story017, &story018, &story019, &story020,
             &story021, &story022, &story023, &story024, &story025, &story026, &story027, &story028, &story029, &story030,
@@ -4306,7 +4522,7 @@ namespace Book1
             &story121, &story122, &story123, &story124, &story125, &story126, &story127, &story128, &story129, &story130,
             &story131, &story132, &story133, &story134, &story135, &story136, &story137, &story138, &story139, &story140,
             &story141, &story142, &story143, &story144, &story145, &story146, &story147, &story148, &story149, &story150,
-            &story151, &story152, &story153, &story154, &story155,
+            &story151, &story152, &story153, &story154, &story155, &story156, &story157,
             &story398,
             &story452};
     }

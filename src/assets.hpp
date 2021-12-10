@@ -97,7 +97,8 @@ namespace Assets
         Bowmen,
         Dirges,
         Demoness,
-        Ogre
+        Ogre,
+        Gargoyle
     };
 
     typedef std::pair<Assets::Type, SDL_Surface *> Surface;

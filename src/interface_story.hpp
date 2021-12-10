@@ -1067,7 +1067,7 @@ namespace Interface
                         Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
                     }
 
-                    if (Story->Text.empty() || Text == NULL)
+                    if ((Story->Text.empty() || Text == NULL) && Engine::IsAlive(Party) && !Engine::Paralyzed(Party))
                     {
                         Current = Interface::FindControl(Controls, Control::Type::CONTINUE);
 
@@ -1152,13 +1152,11 @@ namespace Interface
 
                                 auto Load = Map.Load(Story->MapFile.c_str());
 
-                                auto Result = Combat::Result::NONE;
-
                                 if (Load)
                                 {
                                     Story->SetupCombat(Map, Party);
 
-                                    Result = Interface::CombatScreen(Window, Renderer, Story, Map, Party);
+                                    auto Result = Interface::CombatScreen(Window, Renderer, Story, Map, Party);
 
                                     if (Result == Combat::Result::NONE)
                                     {
@@ -1175,7 +1173,7 @@ namespace Interface
                                 }
                             }
 
-                            if (Engine::IsAlive(Party) && !Engine::Paralyzed(Party))
+                            if (Engine::Remaining(Party) > 0)
                             {
                                 if (Story->Equipment.size() > 0)
                                 {
@@ -1216,8 +1214,6 @@ namespace Interface
                                         Controls = Story::ExitControls();
                                     }
                                 }
-
-                                Selected = false;
                             }
                             else
                             {
@@ -1225,6 +1221,8 @@ namespace Interface
 
                                 Controls = Story::ExitControls();
                             }
+
+                            Selected = false;
                         }
                         else if (Controls[Current].Type == Control::Type::BACK && !Hold)
                         {

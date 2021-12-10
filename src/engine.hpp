@@ -207,6 +207,11 @@ namespace Engine
         return (Engine::Score(character, Attributes::Type::Endurance) > 0);
     }
 
+    bool Paralyzed(Character::Base &character)
+    {
+        return Engine::IsAlive(character) && character.Paralyzed;
+    }
+
     int Count(Party::Base &party)
     {
         auto result = 0;
@@ -228,7 +233,7 @@ namespace Engine
 
         for (auto i = 0; i < party.Members.size(); i++)
         {
-            if (Engine::IsAlive(party.Members[i]) && !party.Members[i].Escaped && !party.Members[i].Away)
+            if (Engine::IsAlive(party.Members[i]) && !party.Members[i].Escaped && !party.Members[i].Away && !Engine::Paralyzed(party.Members[i]))
             {
                 result++;
             }
@@ -366,11 +371,6 @@ namespace Engine
         return result;
     }
 
-    bool Paralyzed(Character::Base &character)
-    {
-        return Engine::IsAlive(character) && character.Paralyzed;
-    }
-
     bool Paralyzed(Party::Base &party)
     {
         auto paralyzed = 0;
@@ -389,7 +389,7 @@ namespace Engine
             }
         }
 
-        return (paralyzed > 0 && (paralyzed + dead) == party.Members.size());
+        return (paralyzed > 0 && (paralyzed + dead) >= party.Members.size());
     }
 
     bool Escaped(Party::Base &party)
@@ -410,7 +410,7 @@ namespace Engine
             }
         }
 
-        return (escaped > 0 && (escaped + dead) == party.Members.size());
+        return (escaped > 0 && (escaped + dead) >= party.Members.size());
     }
 
     bool Wounded(Party::Base &party)
@@ -921,7 +921,7 @@ namespace Engine
             }
         }
 
-        return (enthraled > 0 && (enthraled + dead) == enemies.size());
+        return (enthraled > 0 && (enthraled + dead) >= enemies.size());
     }
 
     void UpdateSpellStatus(Character::Base &character, int CombatRound)

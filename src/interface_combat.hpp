@@ -532,7 +532,7 @@ namespace Interface
         // cycle through the players
         for (auto i = 0; i < Party.Members.size(); i++)
         {
-            if (Engine::IsAlive(Party.Members[i]) && !Party.Members[i].Escaped && !Party.Members[i].Away)
+            if (Engine::IsAlive(Party.Members[i]) && !Party.Members[i].Escaped && !Party.Members[i].Paralyzed && !Party.Members[i].Away)
             {
                 auto LocationX = 0;
 
@@ -3655,7 +3655,6 @@ namespace Interface
         auto ScrollUp = false;
         auto ScrollDown = false;
         auto Current = 0;
-
         auto CombatRound = 0;
 
         auto GenerateSequence = [&](std::vector<Interface::Combatants> &Sequence)
@@ -3666,32 +3665,23 @@ namespace Interface
 
             for (auto i = 0; i < Party.Members.size(); i++)
             {
-                if ((SoloCombat && i == Battle.SoloCombat) || !SoloCombat)
+                if (((SoloCombat && i == Battle.SoloCombat) || !SoloCombat) && Engine::IsAlive(Party.Members[i]))
                 {
-                    auto Awareness = Engine::Awareness(Party.Members[i]);
-
-                    Sequence.push_back({Map::Object::Player, i, Awareness});
+                    Sequence.push_back({Map::Object::Player, i, Engine::Awareness(Party.Members[i])});
                 }
             }
 
             for (auto i = 0; i < Enemies.size(); i++)
             {
-                if (Enemies[i].StartRound >= CombatRound)
+                if (Enemies[i].StartRound <= CombatRound && Engine::IsAlive(Enemies[i]))
                 {
-                    auto Awareness = Enemies[i].Awareness;
-
-                    Sequence.push_back({Map::Object::Enemy, i, Awareness});
+                    Sequence.push_back({Map::Object::Enemy, i, Enemies[i].Awareness});
                 }
             }
         };
 
         // round sequence
         std::vector<Interface::Combatants> Sequence = {};
-
-        GenerateSequence(Sequence);
-
-        // sort combatants based on awareness
-        Interface::SortCombatants(Sequence);
 
         auto CurrentMode = Combat::Mode::NORMAL;
 
@@ -3842,7 +3832,7 @@ namespace Interface
             if (Enemies[i].StartRound != 0 && Map.ValidX(Enemies[i].StartX) && Map.ValidY(Enemies[i].StartY))
             {
                 Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassable = false;
-                
+
                 Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassableToEnemy = false;
             }
         }
@@ -3887,6 +3877,32 @@ namespace Interface
                 {
                     Interface::RenderMessage(Renderer, Controls, Map, intBK, "Shooting Round Ends!", intGR);
                 }
+            }
+        };
+
+        auto EnterNewCombatants = [&]()
+        {
+            auto NewCombatants = false;
+
+            for (auto i = 0; i < Enemies.size(); i++)
+            {
+                if (Enemies[i].StartRound > 0 && Enemies[i].StartRound == CombatRound && Map.ValidX(Enemies[i].StartX) && Map.ValidY(Enemies[i].StartY))
+                {
+                    NewCombatants = true;
+
+                    Sequence.push_back({Map::Object::Enemy, i, Enemies[i].Awareness});
+
+                    Map.Put(Enemies[i].StartX, Enemies[i].StartY, Map::Object::Enemy, i);
+
+                    Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassable = true;
+
+                    Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassableToEnemy = true;
+                }
+            }
+
+            if (NewCombatants)
+            {
+                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
             }
         };
 
@@ -3939,7 +3955,7 @@ namespace Interface
 
             while (!Active)
             {
-                if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party) || Engine::Paralyzed(Party))
+                if (!Engine::IsAlive(Enemies) || Engine::Enthraled(Enemies) || Engine::Remaining(Party) == 0)
                 {
                     break;
                 }
@@ -3950,7 +3966,7 @@ namespace Interface
                     {
                         CurrentCombatant = NextFirst();
                     }
-                    else if (Battle.SurprisedByEnemy && Engine::ActingFirst(Story->Enemies))
+                    else if (Battle.SurprisedByEnemy && Engine::ActingFirst(Enemies))
                     {
                         CurrentCombatant = NextFirst();
                     }
@@ -4005,7 +4021,7 @@ namespace Interface
                         {
                             CurrentCombatant = NextFirst();
                         }
-                        else if (ActFirstRound && Battle.SurprisedByEnemy && Engine::ActingFirst(Story->Enemies))
+                        else if (ActFirstRound && Battle.SurprisedByEnemy && Engine::ActingFirst(Enemies))
                         {
                             CurrentCombatant = NextFirst();
                         }
@@ -4031,7 +4047,6 @@ namespace Interface
                         }
                         else
                         {
-
                             ActFirstRound = false;
 
                             QuickThinkingRound = false;
@@ -4040,19 +4055,7 @@ namespace Interface
 
                             CombatRound++;
 
-                            for (auto i = 0; i < Enemies.size(); i++)
-                            {
-                                if (Enemies[i].StartRound > 0 && Enemies[i].StartRound == CombatRound && Map.ValidX(Enemies[i].StartX) && Map.ValidY(Enemies[i].StartY))
-                                {
-                                    Sequence.push_back({Map::Object::Enemy, i, Enemies[i].Awareness});
-
-                                    Map.Put(Enemies[i].StartX, Enemies[i].StartY, Map::Object::Enemy, i);
-
-                                    Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassable = true;
-
-                                    Map.Tiles[Enemies[i].StartY][Enemies[i].StartX].IsPassableToEnemy = true;
-                                }
-                            }
+                            EnterNewCombatants();
 
                             Interface::SortCombatants(Sequence);
                         }
@@ -4132,7 +4135,7 @@ namespace Interface
                 }
                 else if (Battle.SurprisedByEnemy)
                 {
-                    Engine::ActFirst(Story->Enemies);
+                    Engine::ActFirst(Enemies);
                 }
 
                 CurrentCombatant = NextFirst();
@@ -4158,27 +4161,24 @@ namespace Interface
             Engine::NormalCombatOrder(Party);
         };
 
-        auto ClearRemainingStatus = [&]()
-        {
-            Engine::ClearEscaped(Party);
-
-            Engine::ClearParalyzed(Party);
-        };
-
         auto TimeBlink = [&](int Reader)
         {
             Map = InitialMap;
 
             Party = InitialParty;
 
-            Story->Enemies = InitialEnemies;
+            Enemies = InitialEnemies;
 
             // clear combat status
             ClearPartyStatus();
 
-            ClearRemainingStatus();
+            Engine::ClearEscaped(Party);
 
-            Engine::NormalCombatOrder(Story->Enemies);
+            Engine::ClearParalyzed(Party);
+
+            Engine::NormalCombatOrder(Enemies);
+
+            Sequence.clear();
 
             GenerateSequence(Sequence);
 
@@ -4231,9 +4231,7 @@ namespace Interface
         {
             TimeBlink(-1);
 
-            auto Done = false;
-
-            while (!Done)
+            while (Engine::IsAlive(Enemies) && !Engine::Enthraled(Enemies) && Engine::Remaining(Party) > 0)
             {
                 CheckMapBounds();
 
@@ -4317,7 +4315,7 @@ namespace Interface
                 }
 
                 // get player input
-                if ((IsPlayer(CurrentCombatant) && !Party.Members[GetId(CurrentCombatant)].Defending && !Engine::Paralyzed(Party.Members[GetId(CurrentCombatant)])))
+                if ((IsPlayer(CurrentCombatant) && !Party.Members[GetId(CurrentCombatant)].Defending && !Engine::Paralyzed(Party.Members[GetId(CurrentCombatant)]) && Engine::IsAlive(Party.Members[GetId(CurrentCombatant)])))
                 {
                     Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
 
@@ -4350,7 +4348,7 @@ namespace Interface
 
                             Selected = false;
 
-                            Done = true;
+                            break;
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_UP || ScrollUp)
                         {
@@ -5124,7 +5122,7 @@ namespace Interface
                         {
                             Exit = true;
 
-                            Done = true;
+                            break;
                         }
                         else if (Controls[Current].Type == Control::Type::MAP_UP || ScrollUp)
                         {
@@ -5675,11 +5673,6 @@ namespace Interface
                 {
                     CycleCombatants();
                 }
-
-                if (!Engine::IsAlive(Party) || !Engine::IsAlive(Enemies) || Engine::Escaped(Party) || Engine::Enthraled(Enemies) || Engine::Paralyzed(Party))
-                {
-                    Done = true;
-                }
             }
         }
 
@@ -5735,7 +5728,7 @@ namespace Interface
 
         Enemies.clear();
 
-        ClearRemainingStatus();
+        Engine::ClearEscaped(Party);
 
         return CombatResult;
     }

@@ -343,6 +343,10 @@
         {
             "id": 312,
             "path": "images/enemies/ogre.png"
+        },
+        {
+            "id": 313,
+            "path": "images/enemies/gargoyle.png"
         }
     ]
 }
