@@ -4700,7 +4700,42 @@ namespace Interface
                                     {
                                         if (Engine::HasBow(Character) && Engine::HasArrows(Character))
                                         {
-                                            CurrentMode = Combat::Mode::SHOOT;
+                                            if (Engine::Count(Enemies) == 1)
+                                            {
+                                                auto TargetId = Engine::First(Enemies);
+
+                                                Map.Find(Map::Object::Enemy, TargetId, SelectX, SelectY);
+
+                                                Enemy::Base &Target = Enemies[TargetId];
+
+                                                auto Result = Interface::Fight(Renderer, Controls, intBK, Map, Character, Target, Combat::FightMode::SHOOT, false);
+
+                                                if (!Engine::IsAlive(Target))
+                                                {
+                                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, Target.Name + " killed!", intGR);
+
+                                                    Map.Remove(SelectX, SelectY);
+
+                                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+                                                }
+
+                                                if (Result != Combat::Result::NONE)
+                                                {
+                                                    Engine::ResetSpellDifficulty(Character);
+
+                                                    CycleCombatants();
+                                                }
+                                                else
+                                                {
+                                                    DisplayMessage("Shot canceled", intGR);
+                                                }
+
+                                                Selected = false;
+                                            }
+                                            else
+                                            {
+                                                CurrentMode = Combat::Mode::SHOOT;
+                                            }
                                         }
                                         else if (Engine::HasBow(Character))
                                         {
