@@ -1994,7 +1994,7 @@ namespace Interface
             auto Current = 0;
             auto Quarterstaff = false;
             auto SteelSceptre = false;
-            auto HasSteelSceptre = !Attacked && Engine::HasItem(Character, Equipment::Item::SteelSceptre, 1);
+            auto HasSteelSceptre = !Attacked && Engine::HasItem(Character, Item::Type::SteelSceptre, 1);
 
             auto CurrentStage = Combat::Stage::START;
             auto Weapons = Engine::Weapons(Character);
@@ -2004,7 +2004,7 @@ namespace Interface
             auto DamageModifier = Character.DamageModifier + (Weapons.size() > Round ? Weapons[Round].Damage : 0) + (Equipment.size() > 0 ? Equipment[0].Damage : 0);
             auto Armour = Engine::Armour(Character);
 
-            if (Engine::HasCharge(Character, Equipment::Item::RingOfWarding, 1))
+            if (Engine::HasCharge(Character, Item::Type::RingOfWarding, 1))
             {
                 Armour += 1;
             }
@@ -2220,7 +2220,7 @@ namespace Interface
 
                         if (SteelSceptre)
                         {
-                            Engine::Discharge(Character, Equipment::Item::SteelSceptre, 1);
+                            Engine::Discharge(Character, Item::Type::SteelSceptre, 1);
 
                             DamageRolls = 5;
 
@@ -2250,9 +2250,9 @@ namespace Interface
 
                                 if (DamageSum > 0)
                                 {
-                                    if (Engine::HasCharge(Character, Equipment::Item::RingOfWarding, 1))
+                                    if (Engine::HasCharge(Character, Item::Type::RingOfWarding, 1))
                                     {
-                                        Engine::Discharge(Character, Equipment::Item::RingOfWarding, 1);
+                                        Engine::Discharge(Character, Item::Type::RingOfWarding, 1);
                                     }
                                 }
                             }
@@ -4221,7 +4221,7 @@ namespace Interface
             if (Reader >= 0 && Reader < Party.Members.size())
             {
                 // remove scroll from adventurer who read it
-                Engine::Drop(Party.Members[Reader], Equipment::Item::ScrollOfTimeBlink);
+                Engine::Drop(Party.Members[Reader], Item::Type::ScrollOfTimeBlink);
 
                 InitialParty = Party;
             }

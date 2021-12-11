@@ -55,7 +55,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party) { Equipment = {Equipment::RubyRing}; }
+        void Event(Party::Base &Party) { Equipment = {Item::RubyRing}; }
     };
 
     class Story003 : public Story::Base
@@ -125,7 +125,7 @@ namespace Book1
 
             Choices.clear();
             Choices.push_back(Choice::Base("Discard the sword", {Book::Type::Book1, 503}));
-            Choices.push_back(Choice::Base("Discharge another 2 charges from the <b>steel sceptre</b>", {Book::Type::Book1, 503}, Choice::Type::Discharge, Equipment::Item::SteelSceptre, 2));
+            Choices.push_back(Choice::Base("Discharge another 2 charges from the <b>steel sceptre</b>", {Book::Type::Book1, 503}, Choice::Type::Discharge, Item::Type::SteelSceptre, 2));
 
             Controls = Story::Controls::Standard;
         }
@@ -370,11 +370,11 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
-            auto Character = Engine::First(Party, Equipment::Item::BlueIceJewel);
+            auto Character = Engine::First(Party, Item::Type::BlueIceJewel);
 
             if (Character >= 0 && Character < Party.Members.size())
             {
-                Engine::Drop(Party.Members[Character], Equipment::Item::BlueIceJewel);
+                Engine::Drop(Party.Members[Character], Item::Type::BlueIceJewel);
             }
 
             Enemies.clear();
@@ -888,7 +888,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party) { Equipment = {Equipment::OctagonalPrism}; }
+        void Event(Party::Base &Party) { Equipment = {Item::OctagonalPrism}; }
     };
 
     class Story032 : public Story::Base
@@ -903,7 +903,7 @@ namespace Book1
             Text = "You loot all the bodies in the room, quickly finding:\n\nfour <b>axes</b>\n\ntwenty <b>gold pieces</b>\n\nfour <b>breastplates</b> (Armour Rating: 1)\n\nthree <b>daggers</b>\n\nthirteen <b>shuriken</b> (useless to you)\n\na <b>vial of black liquid</b>";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("(SAGE) Identify the <b>vial of black liquid</b>", {Book::Type::Book1, 463}, Character::Class::Sage, Equipment::Item::VialOfBlackLiquid));
+            Choices.push_back(Choice::Base("(SAGE) Identify the <b>vial of black liquid</b>", {Book::Type::Book1, 463}, Character::Class::Sage, Item::Type::VialOfBlackLiquid));
             Choices.push_back(Choice::Base("Continue", {Book::Type::Book1, 236}));
 
             Controls = Story::Controls::Standard;
@@ -911,7 +911,7 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
-            Equipment = {Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Gold(20), Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate, Equipment::Dagger, Equipment::Dagger, Equipment::Dagger, Equipment::VialOfBlackLiquid};
+            Equipment = {Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Axe, Equipment::Gold(20), Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate, Equipment::BreastPlate, Equipment::Dagger, Equipment::Dagger, Equipment::Dagger, Item::VialOfBlackLiquid};
         }
     };
 
@@ -1034,7 +1034,7 @@ namespace Book1
             Text = "The moment you pick up the sword, a wall appears, blocking the corridor. By experimenting, you find that the wall appears when you pick up the sword and disappears when you put it down. You cannot go on, and the thought of retracing your steps is not inviting.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Use the <b>steel sceptre</b>", {Book::Type::Book1, 4}, Choice::Type::Discharge, Equipment::Item::SteelSceptre, 1));
+            Choices.push_back(Choice::Base("Use the <b>steel sceptre</b>", {Book::Type::Book1, 4}, Choice::Type::Discharge, Item::Type::SteelSceptre, 1));
             Choices.push_back(Choice::Base("Leave the sword", {Book::Type::Book1, 503}));
 
             Controls = Story::Controls::Standard;
@@ -1054,7 +1054,7 @@ namespace Book1
 
             Choices.clear();
             Choices.push_back(Choice::Base("Take some of the scrolls", {Book::Type::Book1, -38}, Choice::Type::TakeScrolls, {Scroll::Invisibility, Scroll::Healing, Scroll::Adjustment, Scroll::TimeBlink, Scroll::Precognition}));
-            Choices.push_back(Choice::Base("Use the <b>scorched skull</b> to leave", {Book::Type::Book1, 97}, Choice::Type::DropItem, Equipment::Item::ScorchedSkull));
+            Choices.push_back(Choice::Base("Use the <b>scorched skull</b> to leave", {Book::Type::Book1, 97}, Choice::Type::DropItem, Item::Type::ScorchedSkull));
 
             Controls = Story::Controls::Standard;
         }
@@ -1778,7 +1778,7 @@ namespace Book1
             Text = "You approach a remarkable sight. A large basalt platform hangs suspended in the air, apparently unsupported, fifty metres above the cavern floor. On the ground directly underneath it stands a bronze gong.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Use the <b>bronze mallet</b>", {Book::Type::Book1, 508}, Equipment::Item::BronzeMallet));
+            Choices.push_back(Choice::Base("Use the <b>bronze mallet</b>", {Book::Type::Book1, 508}, Item::Type::BronzeMallet));
             Choices.push_back(Choice::Base("Head straight for the Emblem of Victory", {Book::Type::Book1, 238}));
 
             Controls = Story::Controls::Standard;
@@ -2063,8 +2063,8 @@ namespace Book1
             Text = "The Dirge-Man settles on the steps above you, flexing his enormous leathery wings as if glad of the rest. You notice that he does not have the spiked talons of a normal Dirge-Man, but human hands. \"I could fly you across,\" he declares in his cracked voice. \"But a question has arisen. Essentially, what's in it for me?\"";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Use a <b>gilded bridle</b>", {Book::Type::Book1, 301}, Equipment::Item::GildedBridle));
-            Choices.push_back(Choice::Base("Use a <b>chimera spittle</b>", {Book::Type::Book1, 321}, Equipment::Item::ChimeraSpittle));
+            Choices.push_back(Choice::Base("Use a <b>gilded bridle</b>", {Book::Type::Book1, 301}, Item::Type::GildedBridle));
+            Choices.push_back(Choice::Base("Use a <b>chimera spittle</b>", {Book::Type::Book1, 321}, Item::Type::ChimeraSpittle));
             Choices.push_back(Choice::Base("(ENCHANTER) Enthral the Dirge-Man", {Book::Type::Book1, 11}, Character::Class::Enchanter));
             Choices.push_back(Choice::Base("You cannot do any of these", {Book::Type::Book1, 22}));
 
@@ -2228,7 +2228,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party) { Equipment = {Equipment::OctagonalPrism, Equipment::BlueIceJewel}; }
+        void Event(Party::Base &Party) { Equipment = {Item::OctagonalPrism, Item::BlueIceJewel}; }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 5}; }
     };
@@ -2268,7 +2268,7 @@ namespace Book1
             Text = "The last of them falls to the floor. As he dies, he reaches out towards the fire-burnt skull. His fingers twitch in front of its sightless sockets and he grunts something in the guttural Mercanian tongue. Then he dies. Examining their bodies, you find four <b>battleaxes</b> and four <b>breastplates</b> (Armour Rating 1) and <b>twenty gold pieces</b>.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Take the skull", {Book::Type::Book1, 38}, Choice::Type::TakeEquipment, {Equipment::ScorchedSkull}));
+            Choices.push_back(Choice::Base("Take the skull", {Book::Type::Book1, 38}, Choice::Type::TakeEquipment, {Item::ScorchedSkull}));
             Choices.push_back(Choice::Base("Leave this room and continue on your way", {Book::Type::Book1, 249}));
 
             Controls = Story::Controls::Standard;
@@ -2339,9 +2339,9 @@ namespace Book1
             Text = "Which item will you use?";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Use an <b>ice jewel</b>", {Book::Type::Book1, 99}, Equipment::Item::BlueIceJewel));
-            Choices.push_back(Choice::Base("... a <b>vellum scroll</b>", {Book::Type::Book1, 312}, Equipment::Item::VellumScroll));
-            Choices.push_back(Choice::Base("... or a <b>ruby ring</b>", {Book::Type::Book1, 391}, Equipment::Item::RubyRing));
+            Choices.push_back(Choice::Base("Use an <b>ice jewel</b>", {Book::Type::Book1, 99}, Item::Type::BlueIceJewel));
+            Choices.push_back(Choice::Base("... a <b>vellum scroll</b>", {Book::Type::Book1, 312}, Item::Type::VellumScroll));
+            Choices.push_back(Choice::Base("... or a <b>ruby ring</b>", {Book::Type::Book1, 391}, Item::Type::RubyRing));
             Choices.push_back(Choice::Base("You do not have any of these, or choose not to use them", {Book::Type::Book1, 112}));
 
             Controls = Story::Controls::Standard;
@@ -2632,7 +2632,7 @@ namespace Book1
 
             if (Character >= 0 && Character < Party.Members.size())
             {
-                Party.Members[Character].Equipment.push_back(Equipment::RingOfWarding);
+                Party.Members[Character].Equipment.push_back(Item::RingOfWarding);
             }
         }
 
@@ -2746,8 +2746,8 @@ namespace Book1
             Id = 106;
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Use the <b>steel sceptre</b>", {Book::Type::Book1, 219}, Equipment::Item::SteelSceptre));
-            Choices.push_back(Choice::Base("Use the <b>emerald scarab</b>", {Book::Type::Book1, 517}, Equipment::Item::EmeraldScarab));
+            Choices.push_back(Choice::Base("Use the <b>steel sceptre</b>", {Book::Type::Book1, 219}, Item::Type::SteelSceptre));
+            Choices.push_back(Choice::Base("Use the <b>emerald scarab</b>", {Book::Type::Book1, 517}, Item::Type::EmeraldScarab));
             Choices.push_back(Choice::Base("You have none of these or choose not to use them", {Book::Type::Book1, 369}));
 
             Controls = Story::Controls::Standard;
@@ -2770,14 +2770,14 @@ namespace Book1
             Text = "At last you manage to pull the cage up again. As it breaks the surface, the eidolon gives a forlorn howl and begins to wring its hands. It seems to be imploring you to leave its skeleton untouched, but you know that a monstrous being such as this can be shown no mercy. You tear the scarab amulet from the skeleton's neck. It gives a brief pulse of light. There is a scream from the eidolon, then it dissipates into empty air.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("(SAGE) Identify the <b>emerald scarab</b>", {Book::Type::Book1, 352}, Character::Class::Sage, Equipment::Item::EmeraldScarab));
+            Choices.push_back(Choice::Base("(SAGE) Identify the <b>emerald scarab</b>", {Book::Type::Book1, 352}, Character::Class::Sage, Item::Type::EmeraldScarab));
             Choices.push_back(Choice::Base("Risk putting it on", {Book::Type::Book1, 187}, Choice::Type::SelectAdventurer, "Who shall wear the emerald scarab?"));
             Choices.push_back(Choice::Base("Leave the scarab and go on your way", {Book::Type::Book1, 247}));
 
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party) { Equipment = {Equipment::EmeraldScarab}; }
+        void Event(Party::Base &Party) { Equipment = {Item::EmeraldScarab}; }
     };
 
     class Story108 : public Story::Base
@@ -3000,7 +3000,7 @@ namespace Book1
             Text = "\"Ah, it is well,\" says the ghost with a misty, emotionless smile. \"The loyal servants of Zyn shall share in his glory, and I shall reward you above all others.\" It passes its hands over the sarcophagus lid, which slowly rises into the air. You look upon a mouldered skeleton that clutches a lump of granite in its broken fingers.\n\n\"My mortal form...\" says the ghost wistfully. \"So long since I could taste the musky wines of Asmuly or feel a scented breeze from off the meadows... Take the stone! Take it quickly! I wish to wallow no longer in the memory of things lost to me.\"\n\nYou have no choice but to comply. Your agreement to aid the ghost has bereft you of any power to oppose him. You take the lump of granite from the skeleton's hands, and the sarcophagus slowly closes again.\n\nYou see that you hold a fossilised heart. \"It is the heart of the giant Skrymir,\" explains the ghost. \"He was destroyed by the True Magi, but he shall be my instrument of vengeance against their heirs, these mewling modern magi who have usurped the ancient grandeur...\" He flickers and seems to grow larger and more tenebrous for a moment, then settles down into a cold hard radiance. \"Go towards the atoll. I have no interest in this petty contest; it is of no concern to me whether you take the Emblem of Victory or not. Do so if you wish. However, on your way to the Emblem at the summit, you will pass through chambers where the sundered fragments of Skrymir's body lie -- his massive legs, his rib-cage, his arms and fleshless skull. Take them with you. At the summit, assemble them and place the fossilised heart in his dusty chest. Then stand you back, for the magic of Zyn shall roar forth from the cosmic interstices once again, as it did in times of old. Flesh shall clothe his yellowed bones; his heart shall beat and warm blood shall course through his veins; his eyes shall open and behold this travesty of ancient Krarth, and to the upstart magi he shall mete out a most fitting fate. Now, make ready to return below...\"\n\nHe lifts diaphanous hands. A stream of grey-blue lights surrounds you. The scene shifts, and once more you find yourself on the plain below the floating platform.\n\n<b>NOTE</b>\n\nYou can proceed as before -- but remember that you have the heart of Skrymir now and -- for the moment at least -- you cannot discard it.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Take the <b>heart of Skrymir</b>", {Book::Type::Book1, 238}, Choice::Type::TakeEquipment, {Equipment::HeartOfSkrymir}));
+            Choices.push_back(Choice::Base("Take the <b>heart of Skrymir</b>", {Book::Type::Book1, 238}, Choice::Type::TakeEquipment, {Item::HeartOfSkrymir}));
 
             Controls = Story::Controls::Standard;
         }
@@ -3170,11 +3170,11 @@ namespace Book1
         {
             Text = "The scarab burns with a bright green light. Suddenly the man groans and sits up. Having restored him to life, the scarab crumbles away to dust. The man looks around, astonished. \"What happened?\" he says. The last thing I remember is my old chum Fashmar getting killed by that Frost-Wizard\n\nYou quickly fill him in. It seems he's been frozen in ice for almost a decade, since he entered the Battlepits with several companions as the champions of Magus Laglor. His name is Imragarn, and he is naturally grateful that you have restored him to life. In fact, he swears allegiance to you.\n\n<b>NOTE</b>\n\nYou can add him to your party.\n\nIMRAGARN\nFighting Prowess: 8\nDamage per blow: 1D+1\nPyschic Ability: 6\nAwareness: 6\nEndurance: 12.\n\nHe has no weapon. He is a second-rank Warrior.";
 
-            auto Character = Engine::First(Party, Equipment::Item::EmeraldScarab);
+            auto Character = Engine::First(Party, Item::Type::EmeraldScarab);
 
             if (Character >= 0 && Character < Party.Members.size())
             {
-                Engine::Drop(Party.Members[Character], Equipment::Item::EmeraldScarab);
+                Engine::Drop(Party.Members[Character], Item::Type::EmeraldScarab);
             }
 
             if (Engine::Count(Party, Code::Status::STRIPPED_IMRAGARN) == 0)
@@ -3293,13 +3293,13 @@ namespace Book1
             Text = "You slay the Assassins. They have three daggers that you can take if you want. Their Shuriken throwing-spikes are useless to you. You also find a vial of black liquid which a Sage could perhaps identify.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("(SAGE) Identify the <b>vial of black liquid</b>", {Book::Type::Book1, 463}, Character::Class::Sage, Equipment::Item::VialOfBlackLiquid));
+            Choices.push_back(Choice::Base("(SAGE) Identify the <b>vial of black liquid</b>", {Book::Type::Book1, 463}, Character::Class::Sage, Item::Type::VialOfBlackLiquid));
             Choices.push_back(Choice::Base("Continue", {Book::Type::Book1, 236}));
 
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party) { Equipment = {Equipment::Dagger, Equipment::Dagger, Equipment::Dagger, Equipment::VialOfBlackLiquid}; }
+        void Event(Party::Base &Party) { Equipment = {Equipment::Dagger, Equipment::Dagger, Equipment::Dagger, Item::VialOfBlackLiquid}; }
     };
 
     class Story128 : public Story::Base
@@ -3483,7 +3483,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party) { Equipment = {Equipment::GildedBridle}; }
+        void Event(Party::Base &Party) { Equipment = {Item::GildedBridle}; }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 223}; }
     };
@@ -3500,7 +3500,7 @@ namespace Book1
             Text = "You set to work improvising a raft from the sections of wooden door. Another lump of wood -- apparently the bolt that once held the doors shut -- becomes your oar. When you are ready, you gently ease the raft out on to the moat. Globules of molten stone cling to the sides and hiss furiously, but the wood does not burn. Yet.\n\nYou have to row slowly across the magma, careful not to splash deadly streams of white-hot magma across your feet. So intent are you on this that you almost fail to notice a deadly battle that is being enacted on the ridge encircling the craters. Two unshaven Adventurers have encountered a horde of Skiapyrs -- malicious flame-demons that dwell in the magma. Balanced precariously on the ridge, the Adventurers struggle desperately but without hope. One falls as a Skiapyr's fiery claws rake his chest, plunging into the moat where the magma burns the flesh and bones away in seconds. The other, disarmed by a treacherous blow from behind, turns, clutching his wounded arm. Seeing you, he calls out a greeting and then jumps, preferring to take his own life rather than let the Skiapyrs steal his vital energies for themselves.\n\nYour raft strikes the crater rim and you hastily scramble up towards the ridge. The Skiapyrs see you and give out unearthly screams of delight as they scamper along the ridge towards you. Behind you, more Skiapyrs are awakened by the cries of their fellows and now pursue you up the ridge.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Use an <b>ice jewel</b>", {Book::Type::Book1, 12}, Equipment::Item::BlueIceJewel));
+            Choices.push_back(Choice::Base("Use an <b>ice jewel</b>", {Book::Type::Book1, 12}, Item::Type::BlueIceJewel));
             Choices.push_back(Choice::Base("You do not have or choose not to use an <b>ice jewel</b>", {Book::Type::Book1, 376}));
 
             Controls = Story::Controls::Standard;
@@ -3557,7 +3557,7 @@ namespace Book1
             {
                 if (Engine::IsAlive(Party.Members[i]))
                 {
-                    Party.Members[i].Equipment.push_back(Equipment::OpalMedallion);
+                    Party.Members[i].Equipment.push_back(Item::OpalMedallion);
                 }
             }
         }
@@ -3626,9 +3626,9 @@ namespace Book1
         {
             Equipment.clear();
 
-            if (!Engine::HasItem(Party, Equipment::Item::BronzeKey))
+            if (!Engine::HasItem(Party, Item::Type::BronzeKey))
             {
-                Equipment = {Equipment::BronzeKey};
+                Equipment = {Item::BronzeKey};
             }
         }
     };
@@ -3778,7 +3778,7 @@ namespace Book1
             Controls = Story::Controls::Standard;
         }
 
-        void Event(Party::Base &Party) { Engine::Gain(Party, Character::Class::Trickster, {Equipment::ChimeraSpittle}); }
+        void Event(Party::Base &Party) { Engine::Gain(Party, Character::Class::Trickster, {Item::ChimeraSpittle}); }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 267}; }
     };
@@ -3860,7 +3860,7 @@ namespace Book1
 
         void Event(Party::Base &Party)
         {
-            Engine::Gain(Party, Character::Class::Trickster, {Equipment::DaggerOfVislet, Equipment::DaggerOfVislet, Equipment::GoldenSnuffBox, Equipment::GoldenSnuffBox, Equipment::DragonlordGem, Equipment::DragonlordGem});
+            Engine::Gain(Party, Character::Class::Trickster, {Item::DaggerOfVislet, Item::DaggerOfVislet, Item::GoldenSnuffBox, Item::GoldenSnuffBox, Item::DragonlordGem, Item::DragonlordGem});
         }
 
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 203}; }
@@ -3942,7 +3942,7 @@ namespace Book1
         {
             Text = "The passage ends in a heavy door. Grasping the iron ring in the middle, you haul it open and step into a small room. There are no other exits. On a table of red granite you see a steel sceptre that seems to glimmer with magical energy. Taking this, you see an indicator on the side that shows it has four charges. ";
 
-            Equipment = {Equipment::SteelSceptre};
+            Equipment = {Item::SteelSceptre};
 
             if (!Engine::IsPresent(Party, Character::Class::Sage))
             {
@@ -3973,8 +3973,8 @@ namespace Book1
             Text = "A tunnel of worked stone leads off ahead of you from the jetty. It soon opens out into a small circular room with two exits. One is directly ahead of you: a rough rectangular opening in the stonework barred by a heavy iron grille with an even heavier iron chain and padlock locking it. The other exit leads off to your right, where you can see an archway and a corridor lit with torches in brackets. The corridor leads to a door. There are deep alcoves all along the corridor on either side.";
 
             Choices.clear();
-            Choices.push_back(Choice::Base("Use a <b>bronze key</b>", {Book::Type::Book1, 221}, Equipment::Item::BronzeKey));
-            Choices.push_back(Choice::Base("Use 1 charge of the <b>steel sceptre</b>", {Book::Type::Book1, 296}, Choice::Type::Discharge, Equipment::Item::SteelSceptre, 1));
+            Choices.push_back(Choice::Base("Use a <b>bronze key</b>", {Book::Type::Book1, 221}, Item::Type::BronzeKey));
+            Choices.push_back(Choice::Base("Use 1 charge of the <b>steel sceptre</b>", {Book::Type::Book1, 296}, Choice::Type::Discharge, Item::Type::SteelSceptre, 1));
             Choices.push_back(Choice::Base("You do not have any of these, or choose not to use them", {Book::Type::Book1, 316}));
 
             Controls = Story::Controls::Standard;
@@ -4333,7 +4333,7 @@ namespace Book1
 
         Book::Destination Continue(Party::Base &Party)
         {
-            if (Engine::HasItem(Party, Equipment::Item::GiantsSkull))
+            if (Engine::HasItem(Party, Item::Type::GiantsSkull))
             {
                 return {Book::Type::Book1, 433};
             }

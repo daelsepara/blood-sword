@@ -75,7 +75,7 @@ namespace Choice
 
         std::vector<Equipment::Base> Equipment = {};
 
-        Equipment::Item Item = Equipment::Item::Any;
+        Item::Type Item = Item::Type::Any;
 
         Equipment::Weapon Weapon = Equipment::Weapon::None;
 
@@ -137,7 +137,7 @@ namespace Choice
             Attribute = attribute;
         }
 
-        Base(const char *choice, Book::Destination destination, Character::Class character, Equipment::Item item)
+        Base(const char *choice, Book::Destination destination, Character::Class character, Item::Type item)
         {
             Text = choice;
 
@@ -203,7 +203,7 @@ namespace Choice
             Type = type;
         }
 
-        Base(const char *choice, Book::Destination destination, Equipment::Item item)
+        Base(const char *choice, Book::Destination destination, Item::Type item)
         {
             Text = choice;
 
@@ -214,7 +214,7 @@ namespace Choice
             Type = Choice::Type::HasItem;
         }
 
-        Base(const char *choice, Book::Destination destination, Choice::Type type, Equipment::Item item)
+        Base(const char *choice, Book::Destination destination, Choice::Type type, Item::Type item)
         {
             Text = choice;
 
@@ -225,7 +225,7 @@ namespace Choice
             Item = item;
         }
 
-        Base(const char *choice, Book::Destination destination, Choice::Type type, Equipment::Item item, int charge)
+        Base(const char *choice, Book::Destination destination, Choice::Type type, Item::Type item, int charge)
         {
             Text = choice;
 

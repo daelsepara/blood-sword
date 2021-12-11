@@ -1154,7 +1154,7 @@ namespace Engine
         }
     }
 
-    int Find(std::vector<Equipment::Base> &Equipment, Equipment::Item item)
+    int Find(std::vector<Equipment::Base> &Equipment, Item::Type item)
     {
         auto result = -1;
 
@@ -1171,7 +1171,7 @@ namespace Engine
         return result;
     }
 
-    int Find(std::vector<Equipment::Base> &Equipment, Equipment::Item item, int charge)
+    int Find(std::vector<Equipment::Base> &Equipment, Item::Type item, int charge)
     {
         auto result = -1;
 
@@ -1188,26 +1188,26 @@ namespace Engine
         return result;
     }
 
-    int Find(Character::Base &character, Equipment::Item item)
+    int Find(Character::Base &character, Item::Type item)
     {
         return Engine::Find(character.Equipment, item);
     }
 
-    bool HasItem(Character::Base &character, Equipment::Item item)
+    bool HasItem(Character::Base &character, Item::Type item)
     {
         auto found = Engine::Find(character.Equipment, item);
 
         return (found >= 0 && found < character.Equipment.size() && Engine::IsAlive(character));
     }
 
-    bool HasItem(Character::Base &character, Equipment::Item item, int charge)
+    bool HasItem(Character::Base &character, Item::Type item, int charge)
     {
         auto found = Engine::Find(character.Equipment, item, charge);
 
         return (found >= 0 && found < character.Equipment.size() && Engine::IsAlive(character));
     }
 
-    int Count(Party::Base &party, Equipment::Item item)
+    int Count(Party::Base &party, Item::Type item)
     {
         auto result = 0;
 
@@ -1222,12 +1222,12 @@ namespace Engine
         return result;
     }
 
-    bool HasItem(Party::Base &party, Equipment::Item item)
+    bool HasItem(Party::Base &party, Item::Type item)
     {
         return Engine::Count(party, item) > 0;
     }
 
-    int First(Party::Base &party, Equipment::Item item)
+    int First(Party::Base &party, Item::Type item)
     {
         auto result = 0;
 
@@ -1244,7 +1244,7 @@ namespace Engine
         return result;
     }
 
-    bool HasCharge(Character::Base &character, Equipment::Item item, int charge)
+    bool HasCharge(Character::Base &character, Item::Type item, int charge)
     {
         return Engine::HasItem(character, item, charge);
     }
@@ -1263,7 +1263,7 @@ namespace Engine
         return Discharged;
     }
 
-    bool Discharge(Character::Base &character, Equipment::Item item, int charge)
+    bool Discharge(Character::Base &character, Item::Type item, int charge)
     {
         auto Discharged = false;
 
@@ -1287,7 +1287,7 @@ namespace Engine
         }
     }
 
-    void Drop(Character::Base &character, Equipment::Item item)
+    void Drop(Character::Base &character, Item::Type item)
     {
         if (Engine::HasItem(character, item))
         {

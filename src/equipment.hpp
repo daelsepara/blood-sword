@@ -3,6 +3,42 @@
 
 #include <string>
 
+namespace Item
+{
+    // for non-weapon, non-quiver, non-money-pouches items, e.g. unique items
+    enum class Type
+    {
+        Any = 0,
+        RubyRing,
+        OctagonalPrism,
+        BlueIceJewel,
+        SteelSceptre,
+        VialOfBlackLiquid,
+        ScorchedSkull,
+        ScrollOfInvisibility,
+        ScrollOfHealing,
+        ScrollOfAdjustment,
+        ScrollOfTimeBlink,
+        ScrollOfPrecognition,
+        BronzeMallet,
+        MagnificentSword,
+        GildedBridle,
+        ChimeraSpittle,
+        VellumScroll,
+        RingOfWarding,
+        EmeraldScarab,
+        HeartOfSkrymir,
+        OpalMedallion,
+        BronzeKey,
+        DaggerOfVislet,
+        GoldenSnuffBox,
+        DragonlordGem,
+        GiantsSkull,
+        FossilizedHeart,
+        RibCage
+    };
+}
+
 namespace Equipment
 {
     enum class Class
@@ -35,64 +71,35 @@ namespace Equipment
         {Equipment::Weapon::Axe, "axe"},
         {Equipment::Weapon::Dagger, "dagger"}};
 
-    // for non-weapon, non-quiver, non-money-pouches items, e.g. unique items
-    enum class Item
-    {
-        Any = 0,
-        RubyRing,
-        OctagonalPrism,
-        BlueIceJewel,
-        SteelSceptre,
-        VialOfBlackLiquid,
-        ScorchedSkull,
-        ScrollOfInvisibility,
-        ScrollOfHealing,
-        ScrollOfAdjustment,
-        ScrollOfTimeBlink,
-        ScrollOfPrecognition,
-        BronzeMallet,
-        MagnificentSword,
-        GildedBridle,
-        ChimeraSpittle,
-        VellumScroll,
-        RingOfWarding,
-        EmeraldScarab,
-        HeartOfSkrymir,
-        OpalMedallion,
-        BronzeKey,
-        DaggerOfVislet,
-        GoldenSnuffBox,
-        DragonlordGem,
-        GiantsSkull
-    };
-
-    std::map<Equipment::Item, const char *> ItemDescription = {
-        {Equipment::Item::Any, "any item"},
-        {Equipment::Item::RubyRing, "ruby ring"},
-        {Equipment::Item::OctagonalPrism, "octagonal prism"},
-        {Equipment::Item::BlueIceJewel, "blue ice jewel"},
-        {Equipment::Item::SteelSceptre, "steel sceptre"},
-        {Equipment::Item::VialOfBlackLiquid, "vial of black liquid"},
-        {Equipment::Item::ScrollOfInvisibility, "vial of black liquid"},
-        {Equipment::Item::ScorchedSkull, "scorched skull"},
-        {Equipment::Item::ScrollOfHealing, "healing (scroll)"},
-        {Equipment::Item::ScrollOfAdjustment, "adjust (scroll)"},
-        {Equipment::Item::ScrollOfTimeBlink, "time blink (scroll)"},
-        {Equipment::Item::ScrollOfPrecognition, "precognition (scroll)"},
-        {Equipment::Item::BronzeMallet, "bronze mallet"},
-        {Equipment::Item::MagnificentSword, "magnificent sword"},
-        {Equipment::Item::GildedBridle, "gilded bridle"},
-        {Equipment::Item::ChimeraSpittle, "chimera spittle"},
-        {Equipment::Item::VellumScroll, "vellum scroll"},
-        {Equipment::Item::RingOfWarding, "ring of warding"},
-        {Equipment::Item::EmeraldScarab, "emerald scarab"},
-        {Equipment::Item::HeartOfSkrymir, "heart of Skrymir"},
-        {Equipment::Item::OpalMedallion, "opal medallion"},
-        {Equipment::Item::BronzeKey, "bronze key"},
-        {Equipment::Item::DaggerOfVislet, "dagger of Vislet"},
-        {Equipment::Item::GoldenSnuffBox, "golden snuff-box"},
-        {Equipment::Item::DragonlordGem, "dragonlord gem"},
-        {Equipment::Item::GiantsSkull, "giant's skull"}};
+    std::map<Item::Type, const char *> ItemDescription = {
+        {Item::Type::Any, "any item"},
+        {Item::Type::RubyRing, "ruby ring"},
+        {Item::Type::OctagonalPrism, "octagonal prism"},
+        {Item::Type::BlueIceJewel, "blue ice jewel"},
+        {Item::Type::SteelSceptre, "steel sceptre"},
+        {Item::Type::VialOfBlackLiquid, "vial of black liquid"},
+        {Item::Type::ScrollOfInvisibility, "vial of black liquid"},
+        {Item::Type::ScorchedSkull, "scorched skull"},
+        {Item::Type::ScrollOfHealing, "healing (scroll)"},
+        {Item::Type::ScrollOfAdjustment, "adjust (scroll)"},
+        {Item::Type::ScrollOfTimeBlink, "time blink (scroll)"},
+        {Item::Type::ScrollOfPrecognition, "precognition (scroll)"},
+        {Item::Type::BronzeMallet, "bronze mallet"},
+        {Item::Type::MagnificentSword, "magnificent sword"},
+        {Item::Type::GildedBridle, "gilded bridle"},
+        {Item::Type::ChimeraSpittle, "chimera spittle"},
+        {Item::Type::VellumScroll, "vellum scroll"},
+        {Item::Type::RingOfWarding, "ring of warding"},
+        {Item::Type::EmeraldScarab, "emerald scarab"},
+        {Item::Type::HeartOfSkrymir, "heart of Skrymir"},
+        {Item::Type::OpalMedallion, "opal medallion"},
+        {Item::Type::BronzeKey, "bronze key"},
+        {Item::Type::DaggerOfVislet, "dagger of Vislet"},
+        {Item::Type::GoldenSnuffBox, "golden snuff-box"},
+        {Item::Type::DragonlordGem, "dragonlord gem"},
+        {Item::Type::GiantsSkull, "giant's skull"},
+        {Item::Type::FossilizedHeart, "fossilized heart"},
+        {Item::Type::RibCage, "rib-cage"}};
 
     enum class Mode
     {
@@ -108,7 +115,7 @@ namespace Equipment
 
         Equipment::Weapon Weapon = Equipment::Weapon::None;
 
-        Equipment::Item Item = Equipment::Item::Any;
+        Item::Type Item = Item::Type::Any;
 
         // for money pouch
         int Gold = 0;
@@ -162,7 +169,7 @@ namespace Equipment
             Attribute = Attributes::Type::FightingProwess;
         }
 
-        Base(Equipment::Item item, Attributes::Type attribute, int score)
+        Base(Item::Type item, Attributes::Type attribute, int score)
         {
             Item = item;
 
@@ -175,7 +182,7 @@ namespace Equipment
             Score = score;
         }
 
-        Base(Equipment::Item item)
+        Base(Item::Type item)
         {
             Item = item;
 
@@ -184,7 +191,7 @@ namespace Equipment
             Description = Equipment::ItemDescription[item];
         }
 
-        Base(Equipment::Item item, bool canDrop)
+        Base(Item::Type item, bool canDrop)
         {
             Item = item;
 
@@ -195,7 +202,7 @@ namespace Equipment
             CanDrop = canDrop;
         }
 
-        Base(Equipment::Item item, int charge, int limit)
+        Base(Item::Type item, int charge, int limit)
         {
             Item = item;
 
@@ -396,35 +403,40 @@ namespace Equipment
     auto BreastPlate = Equipment::Base(Equipment::Class::Armour, "breastplate", "breastplate", 1);
     auto LeatherJerkin = Equipment::Base(Equipment::Class::Armour, "leather jerkin", "leather jerkin", 1);
     auto LeatherArmour = Equipment::Base(Equipment::Class::Armour, "leather armour", "leather armour", 1);
+}
 
+namespace Item
+{
     // book 1 items
-    auto RubyRing = Equipment::Base(Equipment::Item::RubyRing);
-    auto OctagonalPrism = Equipment::Base(Equipment::Item::OctagonalPrism);
-    auto BlueIceJewel = Equipment::Base(Equipment::Item::BlueIceJewel);
-    auto SteelSceptre = Equipment::Base(Equipment::Item::SteelSceptre, 4, 4);
-    auto VialOfBlackLiquid = Equipment::Base(Equipment::Item::VialOfBlackLiquid);
-    auto ScorchedSkull = Equipment::Base(Equipment::Item::ScorchedSkull, false);
-    auto BronzeMallet = Equipment::Base(Equipment::Item::BronzeMallet);
-    auto MagnificentSword = Equipment::Base(Equipment::Item::MagnificentSword);
-    auto GildedBridle = Equipment::Base(Equipment::Item::GildedBridle);
-    auto ChimeraSpittle = Equipment::Base(Equipment::Item::ChimeraSpittle);
-    auto RingOfWarding = Equipment::Base(Equipment::Item::RingOfWarding, 4, 4);
-    auto EmeraldScarab = Equipment::Base(Equipment::Item::EmeraldScarab);
-    auto HeartOfSkrymir = Equipment::Base(Equipment::Item::HeartOfSkrymir, false);
-    auto OpalMedallion = Equipment::Base(Equipment::Item::OpalMedallion);
-    auto BronzeKey = Equipment::Base(Equipment::Item::BronzeKey);
-    auto DaggerOfVislet = Equipment::Base(Equipment::Item::DaggerOfVislet);
-    auto GoldenSnuffBox = Equipment::Base(Equipment::Item::GoldenSnuffBox);
-    auto DragonlordGem = Equipment::Base(Equipment::Item::DragonlordGem);
-    auto GiantsSkull = Equipment::Base(Equipment::Item::GiantsSkull, false);
+    auto RubyRing = Equipment::Base(Item::Type::RubyRing);
+    auto OctagonalPrism = Equipment::Base(Item::Type::OctagonalPrism);
+    auto BlueIceJewel = Equipment::Base(Item::Type::BlueIceJewel);
+    auto SteelSceptre = Equipment::Base(Item::Type::SteelSceptre, 4, 4);
+    auto VialOfBlackLiquid = Equipment::Base(Item::Type::VialOfBlackLiquid);
+    auto ScorchedSkull = Equipment::Base(Item::Type::ScorchedSkull, false);
+    auto BronzeMallet = Equipment::Base(Item::Type::BronzeMallet);
+    auto MagnificentSword = Equipment::Base(Item::Type::MagnificentSword);
+    auto GildedBridle = Equipment::Base(Item::Type::GildedBridle);
+    auto ChimeraSpittle = Equipment::Base(Item::Type::ChimeraSpittle);
+    auto RingOfWarding = Equipment::Base(Item::Type::RingOfWarding, 4, 4);
+    auto EmeraldScarab = Equipment::Base(Item::Type::EmeraldScarab);
+    auto HeartOfSkrymir = Equipment::Base(Item::Type::HeartOfSkrymir, false);
+    auto OpalMedallion = Equipment::Base(Item::Type::OpalMedallion);
+    auto BronzeKey = Equipment::Base(Item::Type::BronzeKey);
+    auto DaggerOfVislet = Equipment::Base(Item::Type::DaggerOfVislet);
+    auto GoldenSnuffBox = Equipment::Base(Item::Type::GoldenSnuffBox);
+    auto DragonlordGem = Equipment::Base(Item::Type::DragonlordGem);
+    auto GiantsSkull = Equipment::Base(Item::Type::GiantsSkull, false);
+    auto FossilizedHeart = Equipment::Base(Item::Type::FossilizedHeart, false);
+    auto RibCage = Equipment::Base(Item::Type::RibCage, false);
 }
 
 namespace Scroll
 {
-    auto Invisibility = Equipment::Base(Equipment::Item::ScrollOfInvisibility);
-    auto Healing = Equipment::Base(Equipment::Item::ScrollOfHealing);
-    auto Adjustment = Equipment::Base(Equipment::Item::ScrollOfAdjustment);
-    auto TimeBlink = Equipment::Base(Equipment::Item::ScrollOfTimeBlink);
-    auto Precognition = Equipment::Base(Equipment::Item::ScrollOfPrecognition);
+    auto Invisibility = Equipment::Base(Item::Type::ScrollOfInvisibility);
+    auto Healing = Equipment::Base(Item::Type::ScrollOfHealing);
+    auto Adjustment = Equipment::Base(Item::Type::ScrollOfAdjustment);
+    auto TimeBlink = Equipment::Base(Item::Type::ScrollOfTimeBlink);
+    auto Precognition = Equipment::Base(Item::Type::ScrollOfPrecognition);
 }
 #endif
