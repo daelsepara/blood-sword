@@ -466,11 +466,11 @@ namespace Graphics
         }
         else if (control.Type == Control::Type::ENDURANCE_ADD)
         {
-            caption = "Increase Endurance";
+            caption = "Use more Endurance";
         }
         else if (control.Type == Control::Type::ENDURANCE_SUB)
         {
-            caption = "Decrease Endurance";
+            caption = "Use less Endurance";
         }
         else if (control.Type == Control::Type::CONFIRM)
         {

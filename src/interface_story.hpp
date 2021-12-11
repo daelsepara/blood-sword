@@ -125,7 +125,7 @@ namespace Interface
     void Heal(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, int Adventurer, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
     {
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 4 * Screen.IconSize;
+        auto WindowW = 6 * Screen.IconSize;
         auto WindowH = 3 * Screen.IconSize;
         auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
@@ -149,9 +149,9 @@ namespace Interface
         Character::Base &Character = Party.Members[Adventurer];
 
         auto Limit = Engine::Endurance(Character) - 1;
-        
+
         auto EndurancePoints = 1;
-        
+
         while (!Done)
         {
             Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
@@ -160,9 +160,7 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
 
-            Graphics::PutText(Renderer, "Attempt Healing", Fonts::Normal, text_space, clrBK, intWH, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, TextY);
-
-            Graphics::PutText(Renderer, ("ENDURANCE: " + std::to_string(EndurancePoints)).c_str(), Fonts::Normal, text_space, clrBK, intWH, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, TextY + 2 * FontSize);
+            Graphics::PutText(Renderer, ("ENDURANCE: " + std::to_string(EndurancePoints)).c_str(), Fonts::Normal, text_space, clrBK, intWH, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, TextY);
 
             Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
 
@@ -202,7 +200,7 @@ namespace Interface
         auto Result = Abilities::Type::None;
 
         auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 10 * Screen.IconSize;
+        auto WindowW = 9 * Screen.IconSize;
         auto WindowH = 3 * Screen.IconSize;
         auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
         auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
@@ -889,25 +887,32 @@ namespace Interface
 
                                     if (Character >= 0 && Character < Party.Members.size())
                                     {
-                                        if ((Equipment[Selection[i]].Weapon == Equipment::Weapon::Bow || Equipment[Selection[i]].Class == Equipment::Class::Quiver) && Party.Members[Character].Class != Character::Class::Trickster && Party.Members[Character].Class != Character::Class::Sage)
+                                        if (Engine::IsAlive(Party.Members[Character]))
                                         {
-                                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, (std::string(Character::ClassName[Party.Members[Character].Class]) + " cannot use the " + Equipment[Selection[i]].Name), intBK);
-
-                                            if (Engine::Count(Party) == 1)
+                                            if ((Equipment[Selection[i]].Weapon == Equipment::Weapon::Bow || Equipment[Selection[i]].Class == Equipment::Class::Quiver) && Party.Members[Character].Class != Character::Class::Trickster && Party.Members[Character].Class != Character::Class::Sage)
                                             {
+                                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, (std::string(Character::ClassName[Party.Members[Character].Class]) + " cannot use the " + Equipment[Selection[i]].Name), intBK);
+
+                                                if (Engine::Count(Party) == 1)
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Party.Members[Character].Equipment.push_back(Equipment[Selection[i]]);
+
+                                                while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
+                                                {
+                                                    Interface::ItemScreen(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Character, Equipment::Mode::DROP);
+                                                }
+
                                                 break;
                                             }
                                         }
                                         else
                                         {
-                                            Party.Members[Character].Equipment.push_back(Equipment[Selection[i]]);
-
-                                            while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
-                                            {
-                                                Interface::ItemScreen(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Character, Equipment::Mode::DROP);
-                                            }
-
-                                            break;
+                                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, (std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead."), intBK);
                                         }
                                     }
                                 }
@@ -924,20 +929,27 @@ namespace Interface
 
                                     if (Character >= 0 && Character < Party.Members.size())
                                     {
-                                        auto Pouch = Engine::FirstPouch(Party.Members[Character]);
-
-                                        if (Pouch >= 0 && Pouch < Party.Members[Character].Equipment.size())
+                                        if (Engine::IsAlive(Party.Members[Character]))
                                         {
-                                            Gold = Engine::GainGold(Party.Members[Character], Gold);
+                                            auto Pouch = Engine::FirstPouch(Party.Members[Character]);
+
+                                            if (Pouch >= 0 && Pouch < Party.Members[Character].Equipment.size())
+                                            {
+                                                Gold = Engine::GainGold(Party.Members[Character], Gold);
+                                            }
+                                            else
+                                            {
+                                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "No space oeft for the gold!", intBK);
+
+                                                if (Engine::Count(Party) == 1)
+                                                {
+                                                    Gold = 0;
+                                                }
+                                            }
                                         }
                                         else
                                         {
-                                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "No space oeft for the gold!", intBK);
-
-                                            if (Engine::Count(Party) == 1)
-                                            {
-                                                Gold = 0;
-                                            }
+                                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, (std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead."), intBK);
                                         }
                                     }
                                     else
@@ -958,20 +970,27 @@ namespace Interface
 
                                     if (Character >= 0 && Character < Party.Members.size())
                                     {
-                                        auto Quiver = Engine::FirstQuiver(Party.Members[Character]);
-
-                                        if (Quiver >= 0 && Quiver < Party.Members[Character].Equipment.size())
+                                        if (Engine::IsAlive(Party.Members[Character]))
                                         {
-                                            Arrows = Engine::GainArrows(Party.Members[Character], Arrows);
+                                            auto Quiver = Engine::FirstQuiver(Party.Members[Character]);
+
+                                            if (Quiver >= 0 && Quiver < Party.Members[Character].Equipment.size())
+                                            {
+                                                Arrows = Engine::GainArrows(Party.Members[Character], Arrows);
+                                            }
+                                            else
+                                            {
+                                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "No space left for the arrows!", intBK);
+
+                                                if (Engine::Count(Party) == 1)
+                                                {
+                                                    Arrows = 0;
+                                                }
+                                            }
                                         }
                                         else
                                         {
-                                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "No space left for the arrows!", intBK);
-
-                                            if (Engine::Count(Party) == 1)
-                                            {
-                                                Arrows = 0;
-                                            }
+                                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, (std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead."), intBK);
                                         }
                                     }
                                     else
@@ -1076,7 +1095,7 @@ namespace Interface
                 }
                 else if (Controls[Current].Type == Control::Type::ITEMS && !Hold)
                 {
-                    if (!Equipment.empty())
+                    if (Engine::IsAlive(Party.Members[Character]) && !Equipment.empty())
                     {
                         Interface::ItemScreen(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Character, Equipment::Mode::USE);
                     }

@@ -682,25 +682,32 @@ namespace Interface
 
                     if (Character >= 0 && Character < Party.Members.size())
                     {
-                        if ((Equipment[i].Weapon == Equipment::Weapon::Bow || Equipment[i].Class == Equipment::Class::Quiver) && Party.Members[Character].Class != Character::Class::Trickster && Party.Members[Character].Class != Character::Class::Sage)
+                        if (Engine::IsAlive(Party.Members[Character]))
                         {
-                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, (std::string(Character::ClassName[Party.Members[Character].Class]) + " cannot use the " + Equipment[i].Name), intBK);
-
-                            if (Engine::Count(Party) == 1)
+                            if ((Equipment[i].Weapon == Equipment::Weapon::Bow || Equipment[i].Class == Equipment::Class::Quiver) && Party.Members[Character].Class != Character::Class::Trickster && Party.Members[Character].Class != Character::Class::Sage)
                             {
+                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, (std::string(Character::ClassName[Party.Members[Character].Class]) + " cannot use the " + Equipment[i].Name), intBK);
+
+                                if (Engine::Count(Party) == 1)
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                Party.Members[Character].Equipment.push_back(Equipment[i]);
+
+                                while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
+                                {
+                                    Interface::ItemScreen(Window, Renderer, Controls, Party, Story, Screen, Character, Equipment::Mode::DROP);
+                                }
+
                                 break;
                             }
                         }
                         else
                         {
-                            Party.Members[Character].Equipment.push_back(Equipment[i]);
-
-                            while (Party.Members[Character].Equipment.size() > Party.Members[Character].Encumbrance)
-                            {
-                                Interface::ItemScreen(Window, Renderer, Controls, Party, Story, Screen, Character, Equipment::Mode::DROP);
-                            }
-
-                            break;
+                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, (std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead."), intBK);
                         }
                     }
                 }
@@ -717,20 +724,27 @@ namespace Interface
 
                     if (Character >= 0 && Character < Party.Members.size())
                     {
-                        auto Pouch = Engine::FirstPouch(Party.Members[Character]);
-
-                        if (Pouch >= 0 && Pouch < Party.Members[Character].Equipment.size())
+                        if (Engine::IsAlive(Party.Members[Character]))
                         {
-                            Gold = Engine::GainGold(Party.Members[Character], Gold);
+                            auto Pouch = Engine::FirstPouch(Party.Members[Character]);
+
+                            if (Pouch >= 0 && Pouch < Party.Members[Character].Equipment.size())
+                            {
+                                Gold = Engine::GainGold(Party.Members[Character], Gold);
+                            }
+                            else
+                            {
+                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, "No space oeft for the gold!", intBK);
+
+                                if (Engine::Count(Party) == 1)
+                                {
+                                    Gold = 0;
+                                }
+                            }
                         }
                         else
                         {
-                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, "No space oeft for the gold!", intBK);
-
-                            if (Engine::Count(Party) == 1)
-                            {
-                                Gold = 0;
-                            }
+                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, (std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead."), intBK);
                         }
                     }
                     else
@@ -751,20 +765,27 @@ namespace Interface
 
                     if (Character >= 0 && Character < Party.Members.size())
                     {
-                        auto Quiver = Engine::FirstQuiver(Party.Members[Character]);
-
-                        if (Quiver >= 0 && Quiver < Party.Members[Character].Equipment.size())
+                        if (Engine::IsAlive(Party.Members[Character]))
                         {
-                            Arrows = Engine::GainArrows(Party.Members[Character], Arrows);
+                            auto Quiver = Engine::FirstQuiver(Party.Members[Character]);
+
+                            if (Quiver >= 0 && Quiver < Party.Members[Character].Equipment.size())
+                            {
+                                Arrows = Engine::GainArrows(Party.Members[Character], Arrows);
+                            }
+                            else
+                            {
+                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, "No space left for the arrows!", intBK);
+
+                                if (Engine::Count(Party) == 1)
+                                {
+                                    Arrows = 0;
+                                }
+                            }
                         }
                         else
                         {
-                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, "No space left for the arrows!", intBK);
-
-                            if (Engine::Count(Party) == 1)
-                            {
-                                Arrows = 0;
-                            }
+                            Interface::RenderMessage(Window, Renderer, Party, Story, Screen, Controls, -1, (std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead."), intBK);
                         }
                     }
                     else
@@ -854,17 +875,24 @@ namespace Interface
 
             if (Character >= 0 && Character < Party.Members.size())
             {
-                if (Engine::HasItem(Party.Members[Character], Item))
+                if (Engine::IsAlive(Party.Members[Character]))
                 {
-                    Engine::Drop(Party.Members[Character], Item);
+                    if (Engine::HasItem(Party.Members[Character], Item))
+                    {
+                        Engine::Drop(Party.Members[Character], Item);
 
-                    *Next = Interface::FindStory(Choice.Destination);
+                        *Next = Interface::FindStory(Choice.Destination);
 
-                    Result = true;
+                        Result = true;
+                    }
+                    else
+                    {
+                        Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+                    }
                 }
                 else
                 {
-                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead.";
                 }
             }
         }
@@ -899,17 +927,24 @@ namespace Interface
 
             if (Character >= 0 && Character < Party.Members.size())
             {
-                if (Engine::HasWeapon(Party.Members[Character], Weapon))
+                if (Engine::IsAlive(Party.Members[Character]))
                 {
-                    Engine::Drop(Party.Members[Character], Weapon);
+                    if (Engine::HasWeapon(Party.Members[Character], Weapon))
+                    {
+                        Engine::Drop(Party.Members[Character], Weapon);
 
-                    *Next = Interface::FindStory(Choice.Destination);
+                        *Next = Interface::FindStory(Choice.Destination);
 
-                    Result = true;
+                        Result = true;
+                    }
+                    else
+                    {
+                        Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!";
+                    }
                 }
                 else
                 {
-                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have the " + std::string(Equipment::WeaponDescription[Weapon]) + "!";
+                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead.";
                 }
             }
         }
@@ -944,22 +979,29 @@ namespace Interface
 
             if (Character >= 0 && Character < Party.Members.size())
             {
-                if (Engine::HasItem(Party.Members[Character], Item))
+                if (Engine::IsAlive(Party.Members[Character]))
                 {
-                    if (!Engine::Discharge(Party.Members[Character], Item, Choice.Charge))
+                    if (Engine::HasItem(Party.Members[Character], Item))
                     {
-                        Message = std::string(Equipment::ItemDescription[Item]) + " does not have enough charges!";
+                        if (!Engine::Discharge(Party.Members[Character], Item, Choice.Charge))
+                        {
+                            Message = std::string(Equipment::ItemDescription[Item]) + " does not have enough charges!";
+                        }
+                        else
+                        {
+                            *Next = Interface::FindStory(Choice.Destination);
+
+                            Result = true;
+                        }
                     }
                     else
                     {
-                        *Next = Interface::FindStory(Choice.Destination);
-
-                        Result = true;
+                        Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
                     }
                 }
                 else
                 {
-                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have the " + std::string(Equipment::ItemDescription[Item]) + "!";
+                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead.";
                 }
             }
         }
@@ -1117,19 +1159,26 @@ namespace Interface
 
         if (Character >= 0 && Character < Party.Members.size())
         {
-            if (Engine::CountMoney(Party.Members[Character]) >= Choice.Gold)
+            if (Engine::IsAlive(Party.Members[Character]))
             {
-                Party.LastSelected = Character;
+                if (Engine::CountMoney(Party.Members[Character]) >= Choice.Gold)
+                {
+                    Party.LastSelected = Character;
 
-                Engine::LoseMoney(Party.Members[Character], Choice.Gold);
+                    Engine::LoseMoney(Party.Members[Character], Choice.Gold);
 
-                *Next = Interface::FindStory(Choice.Destination);
+                    *Next = Interface::FindStory(Choice.Destination);
 
-                Result = true;
+                    Result = true;
+                }
+                else
+                {
+                    Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have enough money!";
+                }
             }
             else
             {
-                Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " does not have enough money!";
+                Message = std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead.";
             }
         }
 
