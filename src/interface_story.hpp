@@ -1108,7 +1108,7 @@ namespace Interface
                     {
                         auto Result = Interface::Abilities(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
 
-                        if (Result == Abilities::Type::Healing)
+                        if (Result == Abilities::Type::Healing && Engine::Endurance(Party.Members[Character]) > 1)
                         {
                             Interface::Heal(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
                         }
