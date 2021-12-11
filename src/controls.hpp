@@ -37,6 +37,8 @@ namespace Control
         FLEE,
         MOVE,
         HEAL,
+        ENDURANCE_ADD,
+        ENDURANCE_SUB,
         ATTACK,
         DEFEND,
         SHOOT,

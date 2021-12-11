@@ -3242,7 +3242,7 @@ namespace Interface
 
             Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
 
-            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrGR, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
+            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
 
             Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
 

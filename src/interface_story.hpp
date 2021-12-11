@@ -122,6 +122,267 @@ namespace Interface
         return Result;
     }
 
+    void Heal(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, int Adventurer, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 4 * Screen.IconSize;
+        auto WindowH = 3 * Screen.IconSize;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto TextY = WindowY + 2 * text_space;
+        auto ButtonX = WindowX + 2 * text_space;
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + FontSize + border_pts);
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Done = false;
+        auto Current = 0;
+
+        auto Controls = std::vector<Button>();
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::Healing), 0, 1, 0, 0, ButtonX, OffsetY, intBK, Control::Type::HEAL));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::HeartPlus), 0, 2, 1, 1, ButtonX + Screen.IconSize, OffsetY, intBK, Control::Type::ENDURANCE_ADD));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::HeartMinus), 1, 3, 2, 2, ButtonX + 2 * Screen.IconSize, OffsetY, intBK, Control::Type::ENDURANCE_SUB));
+        Controls.push_back(Button(3, Assets::Get(Assets::Type::Back), 2, 3, 3, 3, ButtonX + 3 * Screen.IconSize, OffsetY, intBK, Control::Type::BACK));
+
+        Character::Base &Character = Party.Members[Adventurer];
+
+        auto Limit = Engine::Endurance(Character) - 1;
+        
+        auto EndurancePoints = 1;
+        
+        while (!Done)
+        {
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
+
+            Graphics::PutText(Renderer, "Attempt Healing", Fonts::Normal, text_space, clrBK, intWH, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, TextY);
+
+            Graphics::PutText(Renderer, ("ENDURANCE: " + std::to_string(EndurancePoints)).c_str(), Fonts::Normal, text_space, clrBK, intWH, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, TextY + 2 * FontSize);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrBK, intWH);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    Done = true;
+                }
+                else if (Controls[Current].Type == Control::Type::ENDURANCE_ADD && !Hold)
+                {
+                    if (EndurancePoints < Limit)
+                    {
+                        EndurancePoints++;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::ENDURANCE_SUB && !Hold)
+                {
+                    if (EndurancePoints > 1)
+                    {
+                        EndurancePoints--;
+                    }
+                }
+            }
+        }
+    }
+
+    Abilities::Type Abilities(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, int Adventurer, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
+    {
+        auto Result = Abilities::Type::None;
+
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 10 * Screen.IconSize;
+        auto WindowH = 3 * Screen.IconSize;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto TextY = WindowY + 2 * text_space;
+        auto ButtonX = WindowX + 2 * text_space;
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + FontSize + border_pts);
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<Abilities::Type> Abilities = {};
+
+        Character::Base &Character = Party.Members[Adventurer];
+
+        auto NumControls = 0;
+
+        std::vector<Button> Controls = {};
+
+        if (Engine::HasAbility(Character, Abilities::Type::Ambidextrousness))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Ambidextrousness, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::AMBIDEXTROUSNESS));
+
+            Abilities.push_back(Abilities::Type::Ambidextrousness);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::UnarmedMartialArts))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::UnarmedMartialArts, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::UNARMED_MARTIAL_ARTS));
+
+            Abilities.push_back(Abilities::Type::UnarmedMartialArts);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Archery))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Archery, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::ARCHERY));
+
+            Abilities.push_back(Abilities::Type::Archery);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Dodging))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Dodging, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::DODGING));
+
+            Abilities.push_back(Abilities::Type::Dodging);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::QuickThinking))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::QuickThinking, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::QUICKTHINKING));
+
+            Abilities.push_back(Abilities::Type::QuickThinking);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Quarterstaff))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Quarterstaff, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::QUARTERSTAFF));
+
+            Abilities.push_back(Abilities::Type::Quarterstaff);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Healing))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Healing), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::HEAL));
+
+            Abilities.push_back(Abilities::Type::Healing);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Exorcism))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Exorcism, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::EXORCISM));
+
+            Abilities.push_back(Abilities::Type::Exorcism);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::ESP))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::ESP, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::ESP));
+
+            Abilities.push_back(Abilities::Type::ESP);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::ParanormalSight))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::ParanormalSight, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::PARANORMAL_SIGHT));
+
+            Abilities.push_back(Abilities::Type::ParanormalSight);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::Levitation))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Levitation, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::LEVITATION));
+
+            Abilities.push_back(Abilities::Type::Levitation);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::CallToMind))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::CallToMind), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::CALL));
+
+            Abilities.push_back(Abilities::Type::CallToMind);
+
+            NumControls++;
+        }
+
+        if (Engine::HasAbility(Character, Abilities::Type::CastSpell))
+        {
+            Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::CastSpell, 0x66), NumControls > 0 ? NumControls - 1 : 0, NumControls + 1, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::CAST));
+
+            Abilities.push_back(Abilities::Type::CastSpell);
+
+            NumControls++;
+        }
+
+        Controls.push_back(Button(NumControls, Assets::Get(Assets::Type::Back), NumControls > 0 ? NumControls - 1 : 0, NumControls, NumControls, NumControls, ButtonX + NumControls * Screen.IconSize, OffsetY, intWH, Control::Type::BACK));
+
+        auto Done = false;
+
+        while (!Done)
+        {
+            // render current story screen
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, "Use Ability", Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 2 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, TextY);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK)
+                {
+                    Done = true;
+                }
+                else if (Current >= 0 && Current < Abilities.size())
+                {
+                    Result = Abilities[Current];
+
+                    Done = true;
+                }
+            }
+        }
+
+        return Result;
+    }
+
     int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage)
     {
         auto Result = -1;
@@ -755,6 +1016,7 @@ namespace Interface
         auto Controls = std::vector<Button>();
 
         std::vector<Equipment::Base> &Equipment = Party.Members[Character].Equipment;
+        std::vector<Abilities::Type> &Abilities = Party.Members[Character].Abilities;
 
         Controls.push_back(Button(0, Assets::Get(Assets::Type::Encyclopedia), 0, 1, 0, 0, ButtonX, OffsetY, intBK, Control::Type::INFO));
         Controls.push_back(Button(1, Assets::Get(Assets::Type::Stats), 0, 2, 1, 1, ButtonX + Screen.IconSize, OffsetY, intBK, Control::Type::STATS));
@@ -817,6 +1079,20 @@ namespace Interface
                     if (!Equipment.empty())
                     {
                         Interface::ItemScreen(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Character, Equipment::Mode::USE);
+                    }
+
+                    Current = -1;
+                }
+                else if (Controls[Current].Type == Control::Type::ABILITY && !Hold)
+                {
+                    if (!Abilities.empty())
+                    {
+                        auto Result = Interface::Abilities(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
+
+                        if (Result == Abilities::Type::Healing)
+                        {
+                            Interface::Heal(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
+                        }
                     }
 
                     Current = -1;

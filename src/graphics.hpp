@@ -464,6 +464,14 @@ namespace Graphics
         {
             caption = "Take item";
         }
+        else if (control.Type == Control::Type::ENDURANCE_ADD)
+        {
+            caption = "Increase Endurance";
+        }
+        else if (control.Type == Control::Type::ENDURANCE_SUB)
+        {
+            caption = "Decrease Endurance";
+        }
         else if (control.Type == Control::Type::CONFIRM)
         {
             caption = "Confirm Selection";
