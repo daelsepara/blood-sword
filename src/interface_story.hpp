@@ -32,11 +32,11 @@ namespace Interface
 
         auto FlashH = Screen.Height / 5;
 
-        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.Y + (Screen.Height - FlashH) / 2);
+        Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2);
 
         if (FlashColor == intBK)
         {
-            Graphics::DrawRect(Renderer, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.Y + (Screen.Height - FlashH) / 2, intWH);
+            Graphics::DrawRect(Renderer, FlashW, FlashH, Screen.X + (Screen.Width - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2, intWH);
         }
 
         SDL_RenderPresent(Renderer);
@@ -920,11 +920,11 @@ namespace Interface
 
                     auto FlashH = Screen.ObjectSize * 2;
 
-                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2);
+                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2);
 
                     if (FlashColor == intBK)
                     {
-                        Graphics::DrawRect(Renderer, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2, intWH);
+                        Graphics::DrawRect(Renderer, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, Screen.TextBoxY + (Screen.TextBoxHeight - FlashH) / 2, intWH);
                     }
                 }
                 else
