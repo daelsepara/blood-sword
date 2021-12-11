@@ -1108,9 +1108,16 @@ namespace Interface
                     {
                         auto Result = Interface::Abilities(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
 
-                        if (Result == Abilities::Type::Healing && Engine::Endurance(Party.Members[Character]) > 1)
+                        if (Result == Abilities::Type::Healing)
                         {
-                            Interface::Heal(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
+                            if (Engine::Endurance(Party.Members[Character]) > 1)
+                            {
+                                Interface::Heal(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
+                            }
+                            else
+                            {
+                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "You do not not have enough ENDURANCE!", intBK);
+                            }
                         }
                     }
 
