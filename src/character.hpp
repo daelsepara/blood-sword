@@ -71,8 +71,11 @@ namespace Character
 
         int DamageModifier = 0;
 
-        // equipment Limit
+        // equipment limit
         int Encumbrance = 10;
+
+        // spell limit
+        int SpellLimit = 4;
 
         // if defending during a combat round
         bool Defending = false;
@@ -271,7 +274,7 @@ namespace Character
             character.DamageModifier = 1;
         }
 
-        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 6));
+        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 6, character.Rank * 6));
     }
 
     void Trickster(Character::Base &character)
@@ -431,7 +434,7 @@ namespace Character
             character.DamageModifier = 0;
         }
 
-        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 6));
+        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 6, character.Rank * 6));
     }
 
     void Sage(Character::Base &character)
@@ -591,7 +594,7 @@ namespace Character
             character.DamageModifier = 0;
         }
 
-        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 5));
+        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 5, character.Rank * 5));
     }
 
     void Enchanter(Character::Base &character)
@@ -751,7 +754,7 @@ namespace Character
             character.DamageModifier = 2;
         }
 
-        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 5));
+        character.Attributes.push_back(Attributes::Base(Attributes::Type::Endurance, character.Rank * 5, character.Rank * 5));
     }
 
     void Initialize(Character::Base &character, Book::Type book, int rank)

@@ -16,6 +16,13 @@ namespace Engine
         Engine::Random.UniformDistribution(0, 1.0);
     }
 
+    enum class RollStage
+    {
+        START = 0,
+        ROLL,
+        END
+    };
+
     // For Die rolling
     int Roll(int count, int modifier)
     {
@@ -161,7 +168,12 @@ namespace Engine
         if (index >= 0 && index < character.Attributes.size())
         {
             character.Attributes[index].Value += value;
-            character.Attributes[index].Value = std::min(character.Attributes[index].Value, character.Attributes[index].Maximum);
+
+            if (character.Attributes[index].Maximum > 0)
+            {
+                character.Attributes[index].Value = std::min(character.Attributes[index].Value, character.Attributes[index].Maximum);
+            }
+
             character.Attributes[index].Value = std::max(0, character.Attributes[index].Value);
         }
     }

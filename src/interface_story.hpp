@@ -44,6 +44,130 @@ namespace Interface
         SDL_Delay(Duration);
     }
 
+    int Roll(SDL_Window *Window, SDL_Renderer *Renderer, Story::Base *Story, Party::Base &Party, std::vector<Button> &StoryScreen, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int DieRolls, int Modifier, std::string Message)
+    {
+        auto WindowW = 6 * Screen.IconSize;
+        auto WindowH = 4 * Screen.IconSize;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto ColumnWidth = WindowW - 4 * text_space;
+        auto RowHeight = TTF_FontHeight(Fonts::Normal);
+        auto TextY = WindowY + 2 * text_space;
+
+        auto TextButtonX = WindowX + 2 * text_space;
+        auto TextButtonY = (WindowY + WindowH) - (text_buttonh + 2 * text_space);
+        auto TextWidth = WindowW - 3 * text_space;
+
+        const char *ResistChoices[2] = {"ROLL"};
+
+        auto ResistControls = Graphics::CreateFixedTextButtons(ResistChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+        ResistControls[0].Fg = clrWH;
+        ResistControls[0].Highlight = intGR;
+        ResistControls[0].Color = intBK;
+        ResistControls[0].Type = Control::Type::ROLL;
+
+        const char *DoneChoices[1] = {"DONE"};
+        auto DoneControls = Graphics::CreateFixedTextButtons(DoneChoices, 1, text_buttonw, text_buttonh, text_space, TextButtonX, TextButtonY);
+        DoneControls[0].Fg = clrWH;
+        DoneControls[0].Highlight = intGR;
+        DoneControls[0].Color = intBK;
+        DoneControls[0].Type = Control::Type::BACK;
+
+        SDL_Surface *dice[6];
+
+        dice[0] = Assets::Copy(Assets::Type::Dice1);
+        dice[1] = Assets::Copy(Assets::Type::Dice2);
+        dice[2] = Assets::Copy(Assets::Type::Dice3);
+        dice[3] = Assets::Copy(Assets::Type::Dice4);
+        dice[4] = Assets::Copy(Assets::Type::Dice5);
+        dice[5] = Assets::Copy(Assets::Type::Dice6);
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<TextButton> &Controls = ResistControls;
+
+        auto Done = false;
+
+        auto CurrentStage = Engine::RollStage::START;
+
+        Engine::Randomize();
+
+        std::vector<int> Rolls(DieRolls, 0);
+
+        auto RollSum = -1;
+
+        while (!Done)
+        {
+            // render current combat screen
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, Message.c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, ColumnWidth, RowHeight, TextButtonX, TextY);
+
+            if (CurrentStage == Engine::RollStage::ROLL && RollSum == -1)
+            {
+                RollSum = 0;
+
+                for (auto i = 0; i < DieRolls; i++)
+                {
+                    Rolls[i] = Engine::Roll(1, 0);
+
+                    RollSum += Rolls[i];
+                }
+
+                RollSum = std::max(0, RollSum + Modifier);
+
+                CurrentStage = Engine::RollStage::END;
+            }
+            else if (CurrentStage == Engine::RollStage::END)
+            {
+                for (auto i = 0; i < DieRolls; i++)
+                {
+                    Graphics::StretchImage(Renderer, dice[Rolls[i] - 1], TextButtonX + i * (Screen.ObjectSize + 2 * text_space), TextY + 2 * RowHeight, Screen.ObjectSize, Screen.ObjectSize);
+                }
+
+                Graphics::PutText(Renderer, ("Score (" + (Modifier >= 0 ? ("+" + std::to_string(Modifier)) : std::to_string(Modifier)) + "): " + std::to_string(RollSum)).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, TextWidth, RowHeight, TextButtonX, TextY + 4 * RowHeight + Screen.ObjectSize);
+            }
+
+            Graphics::RenderTextButtons(Renderer, Controls, FONT_BOOKMAN, Current, 24, TTF_STYLE_NORMAL);
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::ROLL && !Hold)
+                {
+                    CurrentStage = Engine::RollStage::ROLL;
+
+                    Controls = DoneControls;
+                }
+                else if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    Done = true;
+                }
+            }
+        }
+
+        for (auto i = 0; i < 6; i++)
+        {
+            if (dice[i])
+            {
+                SDL_FreeSurface(dice[i]);
+
+                dice[i] = NULL;
+            }
+        }
+
+        return RollSum;
+    }
+
     int Choose(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, std::vector<Assets::Type> Assets, std::vector<std::string> Captions, const char *Message)
     {
         auto Result = -1;
@@ -120,79 +244,6 @@ namespace Interface
         }
 
         return Result;
-    }
-
-    void Heal(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, int Adventurer, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
-    {
-        auto FontSize = TTF_FontHeight(Fonts::Normal);
-        auto WindowW = 6 * Screen.IconSize;
-        auto WindowH = 3 * Screen.IconSize;
-        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
-        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
-        auto TextY = WindowY + 2 * text_space;
-        auto ButtonX = WindowX + 2 * text_space;
-        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + FontSize + border_pts);
-
-        auto Hold = false;
-        auto Selected = false;
-        auto ScrollUp = false;
-        auto ScrollDown = false;
-        auto Done = false;
-        auto Current = 0;
-
-        auto Controls = std::vector<Button>();
-        Controls.push_back(Button(0, Assets::Get(Assets::Type::Healing), 0, 1, 0, 0, ButtonX, OffsetY, intBK, Control::Type::HEAL));
-        Controls.push_back(Button(1, Assets::Get(Assets::Type::HeartPlus), 0, 2, 1, 1, ButtonX + Screen.IconSize, OffsetY, intBK, Control::Type::ENDURANCE_ADD));
-        Controls.push_back(Button(2, Assets::Get(Assets::Type::HeartMinus), 1, 3, 2, 2, ButtonX + 2 * Screen.IconSize, OffsetY, intBK, Control::Type::ENDURANCE_SUB));
-        Controls.push_back(Button(3, Assets::Get(Assets::Type::Back), 2, 3, 3, 3, ButtonX + 3 * Screen.IconSize, OffsetY, intBK, Control::Type::BACK));
-
-        Character::Base &Character = Party.Members[Adventurer];
-
-        auto Limit = Engine::Endurance(Character) - 1;
-
-        auto EndurancePoints = 1;
-
-        while (!Done)
-        {
-            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
-
-            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
-
-            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
-
-            Graphics::PutText(Renderer, ("ENDURANCE: " + std::to_string(EndurancePoints)).c_str(), Fonts::Normal, text_space, clrBK, intWH, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, TextY);
-
-            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
-
-            if (Current >= 0 && Current < Controls.size())
-            {
-                Graphics::RenderCaption(Renderer, Controls[Current], clrBK, intWH);
-            }
-
-            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
-
-            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
-            {
-                if (Controls[Current].Type == Control::Type::BACK && !Hold)
-                {
-                    Done = true;
-                }
-                else if (Controls[Current].Type == Control::Type::ENDURANCE_ADD && !Hold)
-                {
-                    if (EndurancePoints < Limit)
-                    {
-                        EndurancePoints++;
-                    }
-                }
-                else if (Controls[Current].Type == Control::Type::ENDURANCE_SUB && !Hold)
-                {
-                    if (EndurancePoints > 1)
-                    {
-                        EndurancePoints--;
-                    }
-                }
-            }
-        }
     }
 
     Abilities::Type Abilities(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, int Adventurer, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
@@ -381,7 +432,7 @@ namespace Interface
         return Result;
     }
 
-    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage)
+    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage, int Current)
     {
         auto Result = -1;
         auto FontSize = TTF_FontHeight(Fonts::Normal);
@@ -397,7 +448,6 @@ namespace Interface
         auto Selected = false;
         auto ScrollUp = false;
         auto ScrollDown = false;
-        auto Current = 0;
 
         auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + 2 * text_space + FontSize);
 
@@ -455,6 +505,142 @@ namespace Interface
         }
 
         return Result;
+    }
+
+    int SelectAdventurer(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, const char *SelectMessage)
+    {
+        return Interface::SelectAdventurer(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, SelectMessage, 0);
+    }
+
+    void DistributePoints(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, Attributes::Type Attribute, int Points)
+    {
+        if (Engine::Count(Party) > 1)
+        {
+            auto Character = 0;
+
+            while (Points > 0)
+            {
+                std::string Message = std::to_string(Points) + " " + std::string(Attributes::Description[Attribute]) + " left to distribute";
+
+                Character = Interface::SelectAdventurer(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Message.c_str(), Character);
+
+                if (Character >= 0 && Character < Party.Members.size())
+                {
+                    if (Engine::IsAlive(Party.Members[Character]))
+                    {
+                        Engine::Gain(Party.Members[Character], Attribute, 1);
+
+                        Points--;
+                    }
+                    else
+                    {
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, (std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead."), intBK);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        else
+        {
+            auto Character = Engine::First(Party);
+
+            Engine::Gain(Party.Members[Character], Attribute, Points);
+        }
+    }
+
+    void Heal(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, int Adventurer, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
+    {
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 6 * Screen.IconSize;
+        auto WindowH = 3 * Screen.IconSize;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
+        auto WindowY = Screen.TextBoxY + (Screen.TextBoxHeight - WindowH) / 2;
+        auto TextY = WindowY + 2 * text_space;
+        auto ButtonX = WindowX + 2 * text_space;
+        auto OffsetY = (WindowY + WindowH) - (Screen.IconSize + FontSize + border_pts);
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Done = false;
+        auto Current = 0;
+
+        auto Controls = std::vector<Button>();
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::Healing), 0, 1, 0, 0, ButtonX, OffsetY, intBK, Control::Type::HEAL));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::HeartPlus), 0, 2, 1, 1, ButtonX + Screen.IconSize, OffsetY, intBK, Control::Type::ENDURANCE_ADD));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::HeartMinus), 1, 3, 2, 2, ButtonX + 2 * Screen.IconSize, OffsetY, intBK, Control::Type::ENDURANCE_SUB));
+        Controls.push_back(Button(3, Assets::Get(Assets::Type::Back), 2, 3, 3, 3, ButtonX + 3 * Screen.IconSize, OffsetY, intBK, Control::Type::BACK));
+
+        Character::Base &Character = Party.Members[Adventurer];
+
+        auto Limit = Engine::Endurance(Character) - 1;
+
+        auto EndurancePoints = 1;
+
+        while (!Done)
+        {
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intGR);
+
+            Graphics::PutText(Renderer, ("ENDURANCE: " + std::to_string(EndurancePoints)).c_str(), Fonts::Normal, text_space, clrBK, intWH, TTF_STYLE_NORMAL, WindowW - 4 * text_space, TTF_FontHeight(Fonts::Normal), ButtonX - text_space, TextY);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                Graphics::RenderCaption(Renderer, Controls[Current], clrBK, intWH);
+            }
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK && !Hold)
+                {
+                    Done = true;
+                }
+                else if (Controls[Current].Type == Control::Type::HEAL && !Hold)
+                {
+                    auto Endurance = EndurancePoints * Interface::Roll(Window, Renderer, Story, Party, StoryScreen, Screen, Text, Offset, 1, -2, "Attempt Healing");
+
+                    if (Endurance > 0)
+                    {
+                        Engine::Gain(Character, -EndurancePoints);
+
+                        Interface::DistributePoints(Window, Renderer, StoryScreen, Party, Story, Screen, Text, Offset, Attributes::Type::Endurance, Endurance);
+                    }
+                    else
+                    {
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "The healing attempt was unsuccessful!", intBK);
+                    }
+
+                    Limit = Engine::Endurance(Character) - 1;
+
+                    EndurancePoints = 1;
+                }
+                else if (Controls[Current].Type == Control::Type::ENDURANCE_ADD && !Hold)
+                {
+                    if (EndurancePoints < Limit)
+                    {
+                        EndurancePoints++;
+                    }
+                }
+                else if (Controls[Current].Type == Control::Type::ENDURANCE_SUB && !Hold)
+                {
+                    if (EndurancePoints > 1)
+                    {
+                        EndurancePoints--;
+                    }
+                }
+            }
+        }
     }
 
     void ItemScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, int Character, Equipment::Mode Mode)
@@ -687,6 +873,162 @@ namespace Interface
                 }
             }
         }
+    }
+
+    int CallToMind(SDL_Window *Window, SDL_Renderer *Renderer, Party::Base &Party, Story::Base *Story, std::vector<Button> &StoryScreen, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset, Character::Base &Character, Control::Type Mode)
+    {
+        auto FlashMessage = false;
+
+        auto FlashColor = intGR;
+
+        std::string Message = "";
+
+        Uint32 StartTicks = 0;
+
+        Uint32 Duration = 3000;
+
+        auto DisplayMessage = [&](std::string msg, Uint32 color)
+        {
+            FlashMessage = true;
+
+            Message = msg;
+
+            FlashColor = color;
+
+            StartTicks = SDL_GetTicks();
+        };
+
+        auto Result = -1;
+
+        auto FontSize = TTF_FontHeight(Fonts::Normal);
+        auto WindowW = 10 * Screen.IconSize;
+        auto WindowH = 8 * Screen.IconSize;
+        auto WindowX = Screen.X + (Screen.Width - WindowW) / 2;
+        auto WindowY = Screen.Y + (Screen.Height - WindowH) / 2;
+        auto WindowButtonX = WindowX + 4 * text_space;
+        auto WindowButtonY = WindowY + FontSize + 4 * text_space;
+        auto WindowButtonGridX = Screen.IconSize + 2 * text_space;
+        auto WindowButtonGridY = Screen.IconSize + 2 * text_space;
+
+        auto RenderFlashMessage = [&]()
+        {
+            if (FlashMessage)
+            {
+                if ((SDL_GetTicks() - StartTicks) < Duration)
+                {
+                    auto FlashW = Screen.ObjectSize * 8;
+
+                    auto FlashH = Screen.ObjectSize * 2;
+
+                    Graphics::PutTextBox(Renderer, Message.c_str(), Fonts::Normal, -1, clrWH, FlashColor, TTF_STYLE_NORMAL, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2);
+
+                    if (FlashColor == intBK)
+                    {
+                        Graphics::DrawRect(Renderer, FlashW, FlashH, WindowX + (WindowW - FlashW) / 2, WindowY + (WindowH - FlashH) / 2, intWH);
+                    }
+                }
+                else
+                {
+                    FlashMessage = false;
+                }
+            }
+        };
+
+        auto Hold = false;
+        auto Selected = false;
+        auto ScrollUp = false;
+        auto ScrollDown = false;
+        auto Current = 0;
+
+        std::vector<Button> Controls = {};
+
+        Controls.push_back(Button(0, Assets::Get(Assets::Type::VolcanoSpray, Engine::WasCalledToMind(Character, Spell::Type::VolcanoSpray) ? 0xFF : 0x66), 0, 1, 0, 7, WindowButtonX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(1, Assets::Get(Assets::Type::Nighthowl, Engine::WasCalledToMind(Character, Spell::Type::Nighthowl) ? 0xFF : 0x66), 0, 2, 1, 8, WindowButtonX + WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(2, Assets::Get(Assets::Type::WhiteFire, Engine::WasCalledToMind(Character, Spell::Type::WhiteFire) ? 0xFF : 0x66), 1, 3, 2, 9, WindowButtonX + 2 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(3, Assets::Get(Assets::Type::Swordthrust, Engine::WasCalledToMind(Character, Spell::Type::Swordthrust) ? 0xFF : 0x66), 2, 4, 3, 10, WindowButtonX + 3 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(4, Assets::Get(Assets::Type::EyeOfTheTiger, Engine::WasCalledToMind(Character, Spell::Type::EyeOfTheTiger) ? 0xFF : 0x66), 3, 5, 4, 11, WindowButtonX + 4 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(5, Assets::Get(Assets::Type::ImmediateDeliverance, Engine::WasCalledToMind(Character, Spell::Type::ImmediateDeliverance) ? 0xFF : 0x66), 4, 6, 5, 12, WindowButtonX + 5 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(6, Assets::Get(Assets::Type::MistsOfDeath, Engine::WasCalledToMind(Character, Spell::Type::MistsOfDeath) ? 0xFF : 0x66), 5, 6, 6, 6, WindowButtonX + 6 * WindowButtonGridX, WindowButtonY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(7, Assets::Get(Assets::Type::TheVampireSpell, Engine::WasCalledToMind(Character, Spell::Type::TheVampireSpell) ? 0xFF : 0x66), 7, 8, 0, 7, WindowButtonX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(8, Assets::Get(Assets::Type::SheetLightning, Engine::WasCalledToMind(Character, Spell::Type::SheetLightning) ? 0xFF : 0x66), 7, 9, 1, 8, WindowButtonX + WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(9, Assets::Get(Assets::Type::GhastlyTouch, Engine::WasCalledToMind(Character, Spell::Type::GhastlyTouch) ? 0xFF : 0x66), 8, 10, 2, 9, WindowButtonX + 2 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(10, Assets::Get(Assets::Type::NemesisBolt, Engine::WasCalledToMind(Character, Spell::Type::NemesisBolt) ? 0xFF : 0x66), 9, 11, 3, 10, WindowButtonX + 3 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(11, Assets::Get(Assets::Type::ServileEnthralment, Engine::WasCalledToMind(Character, Spell::Type::ServileEnthralment) ? 0xFF : 0x66), 10, 12, 4, 11, WindowButtonX + 4 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::CAST));
+        Controls.push_back(Button(12, Assets::Get(Assets::Type::Back), 11, 12, 5, 12, WindowButtonX + 5 * WindowButtonGridX, WindowButtonY + WindowButtonGridY, intWH, Control::Type::BACK));
+
+        auto Done = false;
+
+        while (!Done)
+        {
+            // render current combat screen
+            Interface::RenderStoryScreen(Window, Renderer, Party, Story, Screen, StoryScreen, -1, Text, Offset);
+
+            Graphics::FillRect(Renderer, WindowW, WindowH, WindowX, WindowY, intBK);
+
+            Graphics::DrawRect(Renderer, WindowW, WindowH, WindowX, WindowY, intWH);
+
+            Graphics::PutText(Renderer, (std::string("Select a spell to ") + std::string(Mode == Control::Type::CALL ? "call to mind" : "forget")).c_str(), Fonts::Normal, text_space, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 5 * text_space, TTF_FontHeight(Fonts::Normal), WindowButtonX - text_space, WindowY + text_space);
+
+            Graphics::RenderButtons(Renderer, Controls, Current, text_space, border_pts);
+
+            if (Current >= 0 && Current < Controls.size())
+            {
+                // render spell details
+                if (Current == Spell::All.size())
+                {
+                    Graphics::RenderCaption(Renderer, Controls[Current], clrWH, intBK);
+                }
+                else
+                {
+                    Spell::Base &Spell = Spell::All[Current];
+
+                    Graphics::PutText(Renderer, ("(" + std::string(Spell::ClassDescription[Spell.Class]) + ") " + Spell.Name + " - Complexity Level: " + std::to_string(Spell.Complexity) + "\n\n" + Spell.Description).c_str(), Fonts::Normal, 0, clrWH, intBK, TTF_STYLE_NORMAL, WindowW - 5 * text_space, WindowH - (WindowButtonY + 2 * WindowButtonGridY), WindowButtonX - text_space, WindowButtonY + 2 * WindowButtonGridY);
+                }
+            }
+
+            RenderFlashMessage();
+
+            Input::GetInput(Renderer, Controls, Current, Selected, ScrollUp, ScrollDown, Hold, 50);
+
+            if ((Selected && Current >= 0 && Current < Controls.size()) || ScrollUp || ScrollDown || Hold)
+            {
+                if (Controls[Current].Type == Control::Type::BACK)
+                {
+                    Done = true;
+                }
+                else if (Controls[Current].Type == Control::Type::CAST)
+                {
+                    if (Mode == Control::Type::CALL)
+                    {
+                        if (Engine::WasCalledToMind(Character, Spell::All[Current].Type))
+                        {
+                            DisplayMessage((Spell::All[Current].Name + " already called to mind!"), intBK);
+                        }
+                        else
+                        {
+                            Result = Current;
+
+                            Done = true;
+                        }
+                    }
+                    else if (Mode == Control::Type::FORGET)
+                    {
+                        if (!Engine::WasCalledToMind(Character, Spell::All[Current].Type))
+                        {
+                            DisplayMessage((Spell::All[Current].Name + " not called to mind!"), intBK);
+                        }
+                        else
+                        {
+                            Result = Current;
+
+                            Done = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return Result;
     }
 
     void TakeScreen(SDL_Window *Window, SDL_Renderer *Renderer, std::vector<Button> &StoryScreen, Party::Base &Party, Story::Base *Story, Interface::ScreenDimensions &Screen, SDL_Surface *Text, int Offset)
@@ -1104,21 +1446,79 @@ namespace Interface
                 }
                 else if (Controls[Current].Type == Control::Type::ABILITY && !Hold)
                 {
-                    if (!Abilities.empty())
+                    if (!Abilities.empty() && Engine::IsAlive(Party.Members[Character]))
                     {
-                        auto Result = Interface::Abilities(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
-
-                        if (Result == Abilities::Type::Healing)
+                        while (true)
                         {
-                            if (Engine::Endurance(Party.Members[Character]) > 1)
+                            auto Result = Interface::Abilities(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
+
+                            if (Result == Abilities::Type::Healing)
                             {
-                                Interface::Heal(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
+                                if (Engine::Endurance(Party.Members[Character]) > 1)
+                                {
+                                    Interface::Heal(Window, Renderer, StoryScreen, Party, Character, Story, Screen, Text, Offset);
+                                }
+                                else
+                                {
+                                    Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "You do not not have enough ENDURANCE!", intBK);
+                                }
                             }
-                            else
+                            else if (Result == Abilities::Type::Ambidextrousness || Result == Abilities::Type::UnarmedMartialArts || Result == Abilities::Type::Dodging)
                             {
-                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "You do not not have enough ENDURANCE!", intBK);
+                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "This ability is always in effect!", intGR);
+                            }
+                            else if (Result == Abilities::Type::QuickThinking || Result == Abilities::Type::Archery || Result == Abilities::Type::Quarterstaff)
+                            {
+                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "This ability can only be used during combat", intGR);
+                            }
+                            else if (Result == Abilities::Type::Exorcism || Result == Abilities::Type::ESP || Result == Abilities::Type::ParanormalSight || Result == Abilities::Type::Levitation || Result == Abilities::Type::CastSpell)
+                            {
+                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "This ability can only be used in certain situations", intBK);
+                            }
+                            else if (Result == Abilities::Type::CallToMind)
+                            {
+                                auto CalledToMind = Interface::CallToMind(Window, Renderer, Party, Story, StoryScreen, Screen, Text, Offset, Party.Members[Character], Control::Type::CALL);
+
+                                if (CalledToMind >= 0 && CalledToMind < Spell::All.size())
+                                {
+                                    Party.Members[Character].Spells.push_back(Spell::All[CalledToMind]);
+
+                                    auto Forget = -1;
+
+                                    while (Party.Members[Character].Spells.size() > Party.Members[Character].SpellLimit)
+                                    {
+                                        Forget = Interface::CallToMind(Window, Renderer, Party, Story, StoryScreen, Screen, Text, Offset, Party.Members[Character], Control::Type::FORGET);
+
+                                        if (Forget >= 0 && Forget < Spell::All.size())
+                                        {
+                                            auto Result = Engine::Find(Party.Members[Character], Spell::All[Forget].Type);
+
+                                            if (Result >= 0 && Result < Party.Members[Character].Spells.size())
+                                            {
+                                                Party.Members[Character].Spells.erase(Party.Members[Character].Spells.begin() + Result);
+                                            }
+                                        }
+                                    }
+
+                                    if (Forget != CalledToMind)
+                                    {
+                                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, Spell::All[CalledToMind].Name + " called to mind!", intGR);
+                                    }
+                                }
+                            }
+                            else if (Result == Abilities::Type::None)
+                            {
+                                break;
                             }
                         }
+                    }
+                    else if (!Engine::IsAlive(Party.Members[Character]))
+                    {
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, (std::string(Character::ClassName[Party.Members[Character].Class]) + " is dead."), intBK);
+                    }
+                    else
+                    {
+                        Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "You cannot use abilities at this time!", intBK);
                     }
 
                     Current = -1;

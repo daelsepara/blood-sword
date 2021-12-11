@@ -59,6 +59,11 @@ This is an SDL Implementation of the Blood Sword gamebooks by Dave Morris and Ol
 - Sage (**DONE**)
 - Enchanter (**DONE**)
 
+## Story/Choice Mode Progress
+
+- Sage Healing (**DONE**)
+- Enchanter Call to Mind (**DONE**)
+
 ## Debugging
 
 **Testing Combat**

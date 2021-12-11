@@ -4910,7 +4910,7 @@ namespace Interface
 
                                         auto Forget = -1;
 
-                                        while (Character.Spells.size() > 4)
+                                        while (Character.Spells.size() > Character.SpellLimit)
                                         {
                                             Forget = Interface::CallToMind(Renderer, Controls, intBK, Map, Character, Control::Type::FORGET);
 

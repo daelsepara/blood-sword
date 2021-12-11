@@ -27,6 +27,7 @@ namespace Control
         MAP_EXIT,
         BACK,
         CONFIRM,
+        ROLL,
         PLAYER,
         ENEMY,
         DESTINATION,
