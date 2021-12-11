@@ -1469,7 +1469,7 @@ namespace Interface
                             }
                             else if (Result == Abilities::Type::QuickThinking || Result == Abilities::Type::Archery || Result == Abilities::Type::Quarterstaff)
                             {
-                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "This ability can only be used during combat", intGR);
+                                Interface::RenderMessage(Window, Renderer, Party, Story, Screen, StoryScreen, Text, Offset, "This ability can only be used during combat", intBK);
                             }
                             else if (Result == Abilities::Type::Exorcism || Result == Abilities::Type::ESP || Result == Abilities::Type::ParanormalSight || Result == Abilities::Type::Levitation || Result == Abilities::Type::CastSpell)
                             {
