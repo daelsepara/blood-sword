@@ -4363,6 +4363,45 @@ namespace Book1
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
     };
 
+    class Story161 : public Story::Base
+    {
+    public:
+        Story161()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 161;
+
+            Text = "A harsh command issues from the skull, sounding like the tolling of a death-knell. The padlock opens and the <b>rib-cage</b> falls at the base of the petrified tree.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        void Event(Party::Base &Party)
+        {
+            Equipment.clear();
+
+            Limit = 0;
+
+            if (Engine::HasItem(Party, Item::Type::FossilizedHeart))
+            {
+                auto Character = Engine::HasSpace(Party) ? Engine::FirstSpace(Party) : Engine::First(Party);
+
+                Party.Members[Character].Equipment.push_back(Item::RibCage);
+            }
+            else
+            {
+                Equipment = {Item::RibCage};
+
+                Limit = 1;
+            }
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 159}; }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -4570,6 +4609,7 @@ namespace Book1
     auto story158 = Story158();
     auto story159 = Story159();
     auto story160 = Story160();
+    auto story161 = Story161();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -4593,6 +4633,7 @@ namespace Book1
             &story131, &story132, &story133, &story134, &story135, &story136, &story137, &story138, &story139, &story140,
             &story141, &story142, &story143, &story144, &story145, &story146, &story147, &story148, &story149, &story150,
             &story151, &story152, &story153, &story154, &story155, &story156, &story157, &story158, &story159, &story160,
+            &story161,
             &story398,
             &story452};
     }
