@@ -25,6 +25,7 @@ namespace Party
     class Base
     {
     public:
+        // adventurers
         std::vector<Character::Base> Members = {};
 
         // completed books
@@ -33,12 +34,17 @@ namespace Party
         // surviving enemies from previous sections
         std::vector<Party::SurvivingEnemies> Enemies = {};
 
-        // list of codewords
+        // code words
         std::vector<Code::Word> Codewords = {};
 
+        // Book number
         Book::Type Book = Book::Type::None;
 
+        // Section Number
         int Story = 0;
+
+        // Pooled Money
+        int Gold = 0;
 
         // Last selected character
         int LastSelected = -1;
