@@ -33,7 +33,8 @@ namespace Choice
         EnemyCastSpell,
         TakeEquipment,
         LoseMoney,
-        RandomDestination
+        RandomDestination,
+        PoolMoney
     };
 
     enum class Consequence
