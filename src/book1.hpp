@@ -4402,6 +4402,24 @@ namespace Book1
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 159}; }
     };
 
+    class Story162 : public Story::Base
+    {
+    public:
+        Story162()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 162;
+
+            Text = "\"Yes,\" says Kalugen, nodding. \"That's a good game. First of all we must decide how much we're going to stake. You first...\"\n\n<b>NOTE</b>\n\nOnly one person will actually be playing against Kalugen on behalf of the whole party. The others can give some or all of their money if they wish. Decide how much money you are going to stake. Even if you still have more money on you, you cannot use it if you do not declare it now as part of your stake.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Decide the total amount of money you are going to use to play the game", {Book::Type::Book1, 189}, Choice::Type::PoolMoney));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
     class Story398 : public Story::Base
     {
     public:
@@ -4610,6 +4628,7 @@ namespace Book1
     auto story159 = Story159();
     auto story160 = Story160();
     auto story161 = Story161();
+    auto story162 = Story162();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -4633,7 +4652,7 @@ namespace Book1
             &story131, &story132, &story133, &story134, &story135, &story136, &story137, &story138, &story139, &story140,
             &story141, &story142, &story143, &story144, &story145, &story146, &story147, &story148, &story149, &story150,
             &story151, &story152, &story153, &story154, &story155, &story156, &story157, &story158, &story159, &story160,
-            &story161,
+            &story161, &story162,
             &story398,
             &story452};
     }
