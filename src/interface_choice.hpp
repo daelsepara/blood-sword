@@ -1567,6 +1567,14 @@ namespace Interface
 
                                 Done = true;
                             }
+                            else if (Story->Choices[Choice].Type == Choice::Type::TakeScrolls)
+                            {
+                                // TODO: TakeScrolls interface
+
+                                Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                Done = true;
+                            }
                             else if (Story->Choices[Choice].Type == Choice::Type::TestParty)
                             {
                                 Interface::TestParty(Window, Renderer, Party, Story, Screen, Controls, Story->Choices[Choice], &Next);
@@ -1583,6 +1591,14 @@ namespace Interface
                                 {
                                     Done = true;
                                 }
+                            }
+                            else if (Story->Choices[Choice].Type == Choice::Type::PoolMoney)
+                            {
+                                // TODO: PoolMoney interface
+
+                                Next = Interface::FindStory(Story->Choices[Choice].Destination);
+
+                                Done = true;
                             }
                             else
                             {
