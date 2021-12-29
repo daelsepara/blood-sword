@@ -4402,6 +4402,7 @@ namespace Book1
         Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 159}; }
     };
 
+    // TODO: pool money
     class Story162 : public Story::Base
     {
     public:
@@ -4415,6 +4416,102 @@ namespace Book1
 
             Choices.clear();
             Choices.push_back(Choice::Base("Decide the total amount of money you are going to use to play the game", {Book::Type::Book1, 189}, Choice::Type::PoolMoney));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    // TODO: cast spell. remove from spells called to mind.
+    class Story163 : public Story::Base
+    {
+    public:
+        Story163()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 163;
+
+            Text = "(ENCHANTER) You easily weave the necessary enchantment. Images pour in, showing you parts of several possible futures.\n\n<i>You start back as you see yourself in this very chamber, locked in mortal combat with a ravening vampire-lord! The image disintegrates to show another possibility -- this time you are entering the room at the top of the Tower. An oppressive feeling of danger weighs upon you...</i>\n\nThe spell fades, returning your spirit to the present. What do you wish to do now?";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("Continue searching the altar", {Book::Type::Book1, 444}));
+            Choices.push_back(Choice::Base("You would rather leave to go on up the stairs", {Book::Type::Book1, 3}));
+
+            Controls = Story::Controls::Standard;
+        }
+    };
+
+    class Story164 : public Story::Base
+    {
+    public:
+        Story164()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 164;
+
+            Type = Story::Type::Doom;
+
+            Text = "Dominus Quel becomes Kalugen's champion on the morrow. As for you, there is nothing you can do but head south for other adventures. Perhaps you will return another year to take part in the contest of the Battlepits.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Exit;
+        }
+    };
+
+    class Story165 : public Story::Base
+    {
+    public:
+        Story165()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 165;
+
+            Text = "Kief spreads his hands in a smug gesture. \"There you are,\" he says. \"As usual, I have manoeuvred my opponent into a no-win situation. It would be meaningless to play on from this point...\"";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 55}; }
+    };
+
+    class Story166 : public Story::Base
+    {
+    public:
+        Story166()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 166;
+
+            Text = "(TRICKSTER) \"Five now, five then,\" you tell him. You produce ten large gold coins and put five of them in his hand. You still keep your own hand closed around them.\n\nHe looks eagerly at the five coins in your other hand. \"The scarlet banner is the symbol of Magus Balhazar, who is noted for an almost human compassion at times. This quality sets him apart from the other magi, who have hearts of cold rock.\"\n\n\"Thanks for the advice,\" you say with a smile. You whip the first five coins out of his hand and give him the other five instead. \"Five before, and five after.\"\n\n\"You scurvy scum! You sly wretch! You pustule of gangrenous venom!\" he screams. \"Well, I lied, see. The scarlet banner's the worst one to take, in fact.\" Flushed with anger, he slopes back to where the other two stewards sit chortling gleefully.";
+
+            Choices.clear();
+
+            Controls = Story::Controls::Standard;
+        }
+
+        Book::Destination Continue(Party::Base &Party) { return {Book::Type::Book1, 332}; }
+    };
+
+    class Story167 : public Story::Base
+    {
+    public:
+        Story167()
+        {
+            Book = Book::Type::Book1;
+
+            Id = 167;
+
+            Text = "The gondolier speaks from behind his mournful mask. \"The fee is forty gold coins,\" he says, his voice thickly accented.";
+
+            Choices.clear();
+            Choices.push_back(Choice::Base("You are willing to pay what he demands", {Book::Type::Book1, 193}, Choice::Type::LoseMoney, "Who pays for the gondolier's fee (40 gold pieces)", 40));
+            Choices.push_back(Choice::Base("You cannot or will not pay him forty gold pieces", {Book::Type::Book1, 516}));
 
             Controls = Story::Controls::Standard;
         }
@@ -4629,6 +4726,11 @@ namespace Book1
     auto story160 = Story160();
     auto story161 = Story161();
     auto story162 = Story162();
+    auto story163 = Story163();
+    auto story164 = Story164();
+    auto story165 = Story165();
+    auto story166 = Story166();
+    auto story167 = Story167();
     auto story398 = Story398();
     auto story452 = Story452();
 
@@ -4652,7 +4754,7 @@ namespace Book1
             &story131, &story132, &story133, &story134, &story135, &story136, &story137, &story138, &story139, &story140,
             &story141, &story142, &story143, &story144, &story145, &story146, &story147, &story148, &story149, &story150,
             &story151, &story152, &story153, &story154, &story155, &story156, &story157, &story158, &story159, &story160,
-            &story161, &story162,
+            &story161, &story162, &story164, &story164, &story165, &story166, &story167,
             &story398,
             &story452};
     }
