@@ -38,6 +38,9 @@ namespace Character
         {Character::Class::Enchanter, "Forget the mundane arts of swordplay. You can use a sword if you have to, but your true forte is in the manipulation of occult powers of Sorcery."},
         {Character::Class::Imragarn, "He's been frozen in ice for almost a decade, since he entered the Battlepits with several companions as the champions of Magus Laglor."}};
 
+    // TODO:
+    // 1. Quick Thinking Deprecated in 2014 version
+    // 2. Ambidextrousness and Unarmed MartialArts only introduced in Book 5
     std::map<Character::Class, std::vector<Abilities::Type>> Abilities = {
         {Character::Class::None, {}},
         {Character::Class::Warrior, {Abilities::Type::Ambidextrousness, Abilities::Type::UnarmedMartialArts}},
@@ -79,6 +82,9 @@ namespace Character
 
         // if defending during a combat round
         bool Defending = false;
+
+        // if defended last combat round
+        bool Defended = false;
 
         // if has escaped (flee from combat)
         bool Escaped = false;

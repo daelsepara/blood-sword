@@ -377,6 +377,26 @@ namespace Interface
         return Result;
     }
 
+    bool EnemyAdjacent(Map::Base &Map, std::vector<Enemy::Base> &Enemies, Character::Base &character, int PlayerId)
+    {
+        auto isEnemyAdjacent = false;
+
+        for (auto i = 0; i < Enemies.size(); i++)
+        {
+            Enemy::Base &Enemy = Enemies[i];
+
+            if (Engine::IsAlive(Enemy) && Map.IsAdjacent(PlayerId, i))
+            {
+                isEnemyAdjacent = true;
+
+                break;
+            }
+        }
+
+        return isEnemyAdjacent;
+    }
+
+    // TODO: Deprecated in 2014 version
     bool AttackedWhileMoving(Map::Base &Map, std::vector<Enemy::Base> &Enemies, Character::Base &character, int PlayerId, int &Damages)
     {
         auto WasAttacked = false;
@@ -4071,6 +4091,12 @@ namespace Interface
                     if (Party.Members[GetId(CurrentCombatant)].Defending)
                     {
                         Party.Members[GetId(CurrentCombatant)].Defending = false;
+
+                        Party.Members[GetId(CurrentCombatant)].Defended = true;
+                    }
+                    else
+                    {
+                        Party.Members[GetId(CurrentCombatant)].Defended = false;
                     }
 
                     if (Party.Members[GetId(CurrentCombatant)].Engaged)
@@ -4489,76 +4515,55 @@ namespace Interface
 
                                     if (Map.Distance(CurrentX, CurrentY, SelectX, SelectY) > 1)
                                     {
-                                        auto CurrentPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
-
-                                        auto Damages = 0;
-
-                                        // get attacked by a nearby enemy that has a higher awareness
-                                        auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
-
-                                        if (CurrentPath.Points.size() > 0)
+                                        if (Interface::EnemyAdjacent(Map, Enemies, Character, PlayerId) && !Character.Defended)
                                         {
-                                            if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentPath, StartMap))
-                                            {
-                                                DisplayMessage("Path blocked!", intBK);
-                                            }
-                                            else
-                                            {
-                                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-
-                                                if (WasAttacked)
-                                                {
-                                                    Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " was attacked!"), intBK);
-
-                                                    Engine::Gain(Character, Attributes::Type::Endurance, Damages);
-
-                                                    if (!Engine::IsAlive(Character))
-                                                    {
-                                                        auto Destination = CurrentPath.Points.size() - 1;
-
-                                                        Map.Remove(CurrentPath.Points[Destination].X, CurrentPath.Points[Destination].Y);
-
-                                                        Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                                                    }
-                                                }
-
-                                                CycleCombatants();
-                                            }
+                                            DisplayMessage("There are enemies nearby!", intBK);
                                         }
                                         else
                                         {
-                                            DisplayMessage("Path blocked!", intBK);
+                                            auto CurrentPath = AStar::FindPath(Map, CurrentX, CurrentY, SelectX, SelectY);
+
+                                            if (CurrentPath.Points.size() > 0)
+                                            {
+                                                if (!Interface::FullMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentPath, StartMap))
+                                                {
+                                                    DisplayMessage("Path blocked!", intBK);
+                                                }
+                                                else
+                                                {
+                                                    Character.Defended = false;
+
+                                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+
+                                                    CycleCombatants();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                DisplayMessage("Path blocked!", intBK);
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        auto Damages = 0;
-
-                                        auto WasAttacked = AttackedWhileMoving(Map, Enemies, Character, PlayerId, Damages);
-
-                                        if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, SelectX, SelectY))
+                                        if (Interface::EnemyAdjacent(Map, Enemies, Character, PlayerId) && !Character.Defended)
                                         {
-                                            DisplayMessage("Path Blocked!", intBK);
+                                            DisplayMessage("There are enemies nearby!", intBK);
                                         }
                                         else
                                         {
-                                            Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-
-                                            if (WasAttacked)
+                                            if (!Interface::AnimateMove(Renderer, Controls, intBK, Map, Party, Enemies, CurrentX, CurrentY, SelectX, SelectY))
                                             {
-                                                Interface::RenderMessage(Renderer, Controls, Map, intBK, ("The " + std::string(Character::ClassName[Character.Class]) + " was attacked!"), intBK);
-
-                                                Engine::Gain(Character, Attributes::Type::Endurance, Damages);
-
-                                                if (!Engine::IsAlive(Character))
-                                                {
-                                                    Map.Remove(SelectX, SelectY);
-
-                                                    Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
-                                                }
+                                                DisplayMessage("Path Blocked!", intBK);
                                             }
+                                            else
+                                            {
+                                                Character.Defended = false;
 
-                                            CycleCombatants();
+                                                Interface::GenerateMapControls(Map, Controls, Party, Enemies, StartMap);
+
+                                                CycleCombatants();
+                                            }
                                         }
                                     }
                                 }

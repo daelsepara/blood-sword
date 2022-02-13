@@ -841,6 +841,8 @@ namespace Engine
         for (auto i = 0; i < party.Members.size(); i++)
         {
             party.Members[i].Defending = false;
+
+            party.Members[i].Defended = false;
         }
     }
 
