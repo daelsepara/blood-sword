@@ -143,7 +143,7 @@ namespace Interface
         auto ScrollSpeed = 1;
 
         auto ItemOffset = 0;
-        auto Limit = (8 * FontSize) / (2 * FontSize + 2 * text_space);
+        auto Limit = (8 * FontSize) / (2 * FontSize + 3 * text_space);
         auto Last = ItemOffset + Limit;
 
         std::vector<Equipment::Base> &Equipment = Party.Members[Character].Equipment;
@@ -1300,7 +1300,7 @@ namespace Interface
             auto ScrollSpeed = 1;
 
             auto Offset = 0;
-            auto Limit = (Screen.TextBounds) / (3 * FontSize + 2 * text_space);
+            auto Limit = (Screen.TextBounds) / (3 * FontSize + 3 * text_space);
             auto Last = Offset + Limit;
 
             if (Last > Story->Choices.size())
