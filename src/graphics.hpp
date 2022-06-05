@@ -6,6 +6,8 @@
 
 namespace Graphics
 {
+    SDL_Rect *CreateRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
+    
     SDL_Surface *CreateHeaderButton(SDL_Window *window, const char *font, int font_size, const char *text, SDL_Color color, Uint32 bg, int w, int h, int x);
     SDL_Surface *CreateImage(const char *image);
     SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
@@ -28,7 +30,7 @@ namespace Graphics
     void RenderButtons(SDL_Renderer *renderer, std::vector<Button> controls, int current, int space, int pts);
     void RenderCaption(SDL_Renderer *renderer, Button &control, SDL_Color color, Uint32 bg);
     void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y);
-    void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset);
+    void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int bounds, int offset);
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y, int bounds, int offset);
     void RenderText(SDL_Renderer *renderer, SDL_Surface *text, Uint32 bg, int x, int y);
     void RenderTextButtons(SDL_Renderer *renderer, std::vector<TextButton> controls, const char *ttf, int current, int fontsize, int style);
@@ -80,31 +82,38 @@ namespace Graphics
         }
     }
 
-    void DrawRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
+    SDL_Rect *CreateRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
     {
-        SDL_Rect rect;
+        SDL_Rect *rect;
 
-        rect.w = w;
-        rect.h = h;
-        rect.x = x;
-        rect.y = y;
+        rect->w = w;
+        rect->h = h;
+        rect->x = x;
+        rect->y = y;
 
         SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
-        SDL_RenderDrawRect(renderer, &rect);
+
+        return rect;
+    }
+
+    void DrawRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
+    {
+        SDL_RenderDrawRect(renderer, Graphics::CreateRect(renderer, w, h, x, y, color));
     }
 
     void FillRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
     {
-        SDL_Rect rect;
+        SDL_RenderFillRect(renderer, Graphics::CreateRect(renderer, w, h, x, y, color));
+    }
 
-        rect.w = w;
-        rect.h = h;
-        rect.x = x;
-        rect.y = y;
+    void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts)
+    {
+        auto space = 2 * pts;
 
-        SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
-
-        SDL_RenderFillRect(renderer, &rect);
+        for (auto size = pts; size >= 0; size--)
+        {
+            Graphics::DrawRect(renderer, w + 2 * (space - size), h + 2 * (space - size), x - space + size, y - space + size, color);
+        }
     }
 
     void FillWindow(SDL_Renderer *renderer, Uint32 color)
@@ -169,10 +178,11 @@ namespace Graphics
     {
         if (renderer)
         {
-            TTF_SetFontStyle(font, style);
-
             auto w = 0;
+
             auto h = 0;
+
+            TTF_SetFontStyle(font, style);
 
             TTF_SizeText(font, text, &w, &h);
 
@@ -526,26 +536,26 @@ namespace Graphics
     }
 
     // Render a portion of the image on bounded surface within the specified window
-    void RenderImage(SDL_Renderer *renderer, SDL_Surface *text, int x, int y, int bounds, int offset)
+    void RenderImage(SDL_Renderer *renderer, SDL_Surface *image, int x, int y, int bounds, int offset)
     {
         if (renderer)
         {
-            if (text && renderer)
+            if (image && renderer)
             {
                 SDL_Rect dst;
                 SDL_Rect src;
 
-                src.w = text->w;
-                src.h = text->h < bounds ? text->h : bounds;
+                src.w = image->w;
+                src.h = image->h < bounds ? image->h : bounds;
                 src.y = offset;
                 src.x = 0;
 
-                dst.w = text->w;
-                dst.h = text->h < bounds ? text->h : bounds;
+                dst.w = image->w;
+                dst.h = image->h < bounds ? image->h : bounds;
                 dst.x = x;
                 dst.y = y;
 
-                auto texture = SDL_CreateTextureFromSurface(renderer, text);
+                auto texture = SDL_CreateTextureFromSurface(renderer, image);
 
                 if (texture)
                 {
@@ -613,6 +623,7 @@ namespace Graphics
                 if (bg != 0)
                 {
                     SDL_SetRenderDrawColor(renderer, R(bg), G(bg), B(bg), A(bg));
+                    
                     SDL_RenderFillRect(renderer, &dst);
                 }
 
@@ -653,6 +664,7 @@ namespace Graphics
                 if (bg != 0)
                 {
                     SDL_SetRenderDrawColor(renderer, R(bg), G(bg), B(bg), A(bg));
+                    
                     SDL_RenderFillRect(renderer, &dst);
                 }
 
@@ -747,25 +759,6 @@ namespace Graphics
             SDL_FreeSurface(surface);
 
             surface = NULL;
-        }
-    }
-
-    void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts)
-    {
-        SDL_Rect rect;
-
-        auto space = 2 * pts;
-
-        for (auto size = pts; size >= 0; size--)
-        {
-            rect.w = w + 2 * (space - size);
-            rect.h = h + 2 * (space - size);
-            rect.x = x - space + size;
-            rect.y = y - space + size;
-
-            SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
-
-            SDL_RenderDrawRect(renderer, &rect);
         }
     }
 
@@ -1134,6 +1127,5 @@ namespace Graphics
 
         return controls;
     }
-
 }
 #endif
