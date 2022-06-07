@@ -6,8 +6,8 @@
 
 namespace Graphics
 {
-    SDL_Rect *CreateRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
-    
+    SDL_Rect CreateRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color);
+
     SDL_Surface *CreateHeaderButton(SDL_Window *window, const char *font, int font_size, const char *text, SDL_Color color, Uint32 bg, int w, int h, int x);
     SDL_Surface *CreateImage(const char *image);
     SDL_Surface *CreateImage(const char *image, int w, Uint32 bg);
@@ -82,14 +82,14 @@ namespace Graphics
         }
     }
 
-    SDL_Rect *CreateRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
+    SDL_Rect CreateRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
     {
-        SDL_Rect *rect;
+        SDL_Rect rect;
 
-        rect->w = w;
-        rect->h = h;
-        rect->x = x;
-        rect->y = y;
+        rect.w = w;
+        rect.h = h;
+        rect.x = x;
+        rect.y = y;
 
         SDL_SetRenderDrawColor(renderer, R(color), G(color), B(color), A(color));
 
@@ -98,12 +98,16 @@ namespace Graphics
 
     void DrawRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
     {
-        SDL_RenderDrawRect(renderer, Graphics::CreateRect(renderer, w, h, x, y, color));
+        auto rect = Graphics::CreateRect(renderer, w, h, x, y, color);
+
+        SDL_RenderDrawRect(renderer, &rect);
     }
 
     void FillRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color)
     {
-        SDL_RenderFillRect(renderer, Graphics::CreateRect(renderer, w, h, x, y, color));
+        auto rect = Graphics::CreateRect(renderer, w, h, x, y, color);
+
+        SDL_RenderFillRect(renderer, &rect);
     }
 
     void ThickRect(SDL_Renderer *renderer, int w, int h, int x, int y, int color, int pts)
@@ -623,7 +627,7 @@ namespace Graphics
                 if (bg != 0)
                 {
                     SDL_SetRenderDrawColor(renderer, R(bg), G(bg), B(bg), A(bg));
-                    
+
                     SDL_RenderFillRect(renderer, &dst);
                 }
 
@@ -664,7 +668,7 @@ namespace Graphics
                 if (bg != 0)
                 {
                     SDL_SetRenderDrawColor(renderer, R(bg), G(bg), B(bg), A(bg));
-                    
+
                     SDL_RenderFillRect(renderer, &dst);
                 }
 
