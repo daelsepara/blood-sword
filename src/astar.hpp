@@ -15,6 +15,9 @@
 // This version uses smart pointers
 namespace AStar
 {
+    template <typename T>
+    using Smart = std::shared_ptr<T>;
+
     // Cartesian coordinates (see Path class below)
     class Point
     {
@@ -59,7 +62,7 @@ namespace AStar
 
         int Distance = 0;
 
-        std::shared_ptr<AStar::Node> Parent = nullptr;
+        Smart<AStar::Node> Parent = nullptr;
 
         Node()
         {
@@ -72,7 +75,7 @@ namespace AStar
             Y = y;
         }
 
-        Node(int x, int y, int cost, std::shared_ptr<AStar::Node> &parent)
+        Node(int x, int y, int cost, Smart<AStar::Node> &parent)
         {
             X = x;
 
@@ -93,13 +96,15 @@ namespace AStar
         // So how many nodes left and right, up and down, ignoring obstacles, to get there.
         //
         // Computes the 2D Manhattan Distance
-        void SetDistance(std::shared_ptr<AStar::Node> &node)
+        void SetDistance(Smart<AStar::Node> &node)
         {
             Distance = std::abs(node->X - X) + std::abs(node->Y - Y);
         }
     };
 
-    bool IsPassable(Map::Base &map, std::shared_ptr<AStar::Node> &target, int X, int Y, bool isEnemy, bool ignore)
+    typedef std::vector<Smart<AStar::Node>> Moves;
+
+    bool IsPassable(Map::Base &map, Smart<AStar::Node> &target, int X, int Y, bool isEnemy, bool ignore)
     {
         auto IsValid = (X >= 0 && X < map.Width && Y >= 0 && Y < map.Height);
 
@@ -128,25 +133,25 @@ namespace AStar
     }
 
     // Get all traversible nodes from current node
-    std::vector<std::shared_ptr<AStar::Node>> Nodes(Map::Base &map, std::shared_ptr<AStar::Node> &current, std::shared_ptr<AStar::Node> &target, bool isEnemy, bool ignore)
+    Moves Nodes(Map::Base &map, Smart<AStar::Node> &current, Smart<AStar::Node> &target, bool isEnemy, bool ignore)
     {
         // Define neighbors (X, Y): Up, Down, Left, Right
         std::vector<std::pair<int, int>> neighbors = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
 
-        auto traversable = std::vector<std::shared_ptr<AStar::Node>>();
+        auto traversable = Moves();
 
         if (map.Width > 0 && map.Height > 0)
         {
             auto index = 0;
 
-            for (auto i = 0; i < neighbors.size(); i++)
+            for (auto &neighbor : neighbors)
             {
                 // Check if within map boundaries and if passable and/or leads to destination
-                if (AStar::IsPassable(map, target, current->X + neighbors[i].first, current->Y + neighbors[i].second, isEnemy, ignore))
+                if (AStar::IsPassable(map, target, current->X + neighbor.first, current->Y + neighbor.second, isEnemy, ignore))
                 {
-                    auto X = current->X + neighbors[i].first;
+                    auto X = current->X + neighbor.first;
 
-                    auto Y = current->Y + neighbors[i].second;
+                    auto Y = current->Y + neighbor.second;
 
                     auto Cost = current->Cost + 1;
 
@@ -163,40 +168,28 @@ namespace AStar
     }
 
     // Get index of node from a list
-    int Index(std::vector<std::shared_ptr<AStar::Node>> &nodes, std::shared_ptr<AStar::Node> &node)
+    Moves::iterator Find(Moves &nodes, Smart<AStar::Node> &node)
     {
-        auto index = -1;
-
-        for (auto i = 0; i < nodes.size(); i++)
-        {
-            if (nodes[i]->X == node->X && nodes[i]->Y == node->Y)
-            {
-                index = i;
-
-                break;
-            }
-        }
-
-        return index;
+        return std::find_if(nodes.begin(), nodes.end(), [node](const Smart<Node> &f) -> bool
+                            { return f->X == node->X && f->Y == node->Y; });
+        ;
     }
 
     // Remove node from list
-    void Remove(std::vector<std::shared_ptr<AStar::Node>> &nodes, std::shared_ptr<AStar::Node> &node)
+    void Remove(Moves &nodes, Smart<AStar::Node> &node)
     {
-        auto index = AStar::Index(nodes, node);
+        auto found = AStar::Find(nodes, node);
 
-        if (index >= 0 && index < nodes.size())
+        if (found != nodes.end())
         {
-            nodes.erase(nodes.begin() + index);
+            nodes.erase(found);
         }
     }
 
     // Check if node is on the list
-    bool Any(std::vector<std::shared_ptr<AStar::Node>> &nodes, std::shared_ptr<AStar::Node> &node)
+    bool Is(Moves &nodes, Smart<AStar::Node> &node)
     {
-        auto index = AStar::Index(nodes, node);
-
-        return (index >= 0 && index < nodes.size());
+        return AStar::Find(nodes, node) != nodes.end();
     }
 
     // Find path from src to dst using the A* algorithm
@@ -205,7 +198,7 @@ namespace AStar
         auto path = AStar::Path();
 
         auto ValidX = srcX >= 0 && srcX < map.Width && dstX >= 0 && dstX < map.Width;
-        
+
         auto ValidY = srcY >= 0 && srcY < map.Height && dstY >= 0 && dstY < map.Height;
 
         if (map.Width > 0 && map.Height > 0 && ValidX && ValidY)
@@ -217,19 +210,19 @@ namespace AStar
             start->SetDistance(end);
 
             // List of nodes to be checked
-            auto active = std::vector<std::shared_ptr<AStar::Node>>();
+            auto active = Moves();
 
             // List of nodes already visited
-            auto visited = std::vector<std::shared_ptr<AStar::Node>>();
+            auto visited = Moves();
 
             active.push_back(start);
 
             auto isEnemy = map.Tiles[srcY][srcX].IsEnemy();
 
-            while (active.size() > 0)
+            while (!active.empty())
             {
                 // Sort based on CostDistance
-                std::sort(active.begin(), active.end(), [](std::shared_ptr<AStar::Node> &src, std::shared_ptr<AStar::Node> &dst)
+                std::sort(active.begin(), active.end(), [](Smart<AStar::Node> &src, Smart<AStar::Node> &dst)
                           { return src->CostDistance() < dst->CostDistance(); });
 
                 auto check = active.front();
@@ -259,20 +252,18 @@ namespace AStar
 
                 auto nodes = AStar::Nodes(map, check, end, isEnemy, ignore);
 
-                for (auto i = 0; i < nodes.size(); i++)
+                for (auto &node : nodes)
                 {
-                    auto node = nodes[i];
-
                     // We have already visited this node so we don't need to do so again!
-                    if (AStar::Any(visited, node))
+                    if (AStar::Is(visited, node))
                     {
                         continue;
                     }
 
                     // It's already in the active list, but that's OK, maybe this new node has a better value (e.g. We might zigzag earlier but this is now straighter).
-                    if (AStar::Any(active, node))
+                    if (AStar::Is(active, node))
                     {
-                        auto existing = active[AStar::Index(active, node)];
+                        auto existing = *AStar::Find(active, node);
 
                         if (existing->CostDistance() > node->CostDistance())
                         {
