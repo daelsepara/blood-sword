@@ -18,6 +18,13 @@ namespace AStar
     template <typename T>
     using Smart = std::shared_ptr<T>;
 
+    template <typename T, typename R = typename std::vector<T>::iterator>
+    R Find(std::vector<T> &vector, T &key, bool F(T &, T &))
+    {
+        return std::find_if(vector.begin(), vector.end(), [&](T &f)
+                            { return F(key, f); });
+    }
+
     // Cartesian coordinates (see Path class below)
     class Point
     {
@@ -167,12 +174,15 @@ namespace AStar
         return traversable;
     }
 
+    bool Compare(Smart<AStar::Node> &a, Smart<AStar::Node> &b)
+    {
+        return a->X == b->X && a->Y == b->Y;
+    }
+
     // Get index of node from a list
     Moves::iterator Find(Moves &nodes, Smart<AStar::Node> &node)
     {
-        return std::find_if(nodes.begin(), nodes.end(), [node](const Smart<Node> &f) -> bool
-                            { return f->X == node->X && f->Y == node->Y; });
-        ;
+        return AStar::Find(nodes, node, Compare);
     }
 
     // Remove node from list
