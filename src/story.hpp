@@ -180,8 +180,6 @@ namespace Story
     {
         Story::Base *story = &notImplemented;
 
-        bool found = false;
-
         if (Stories.size() > 0)
         {
             for (auto i = 0; i < Stories.size(); i++)
@@ -189,8 +187,6 @@ namespace Story
                 if (Stories[i]->Id == id)
                 {
                     story = Stories[i];
-
-                    found = true;
 
                     break;
                 }

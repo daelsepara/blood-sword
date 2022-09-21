@@ -2575,7 +2575,6 @@ namespace Interface
         auto ScrollUp = false;
         auto ScrollDown = false;
         auto Current = 0;
-        auto QuarterStaff = false;
 
         std::vector<TextButton> &Controls = Attacker.Enthraled ? FightControls1 : FightControls2;
 
@@ -2809,14 +2808,6 @@ namespace Interface
             {
                 if (Controls[Current].Type == Control::Type::ATTACK && !Hold)
                 {
-                    CurrentStage = Combat::Stage::FIGHT;
-
-                    Controls = DamageControls;
-                }
-                else if (Controls[Current].Type == Control::Type::QUARTERSTAFF && !Hold)
-                {
-                    QuarterStaff = true;
-
                     CurrentStage = Combat::Stage::FIGHT;
 
                     Controls = DamageControls;
