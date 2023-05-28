@@ -19,7 +19,7 @@ namespace Input
         }
 
         auto nJoysticks = SDL_NumJoysticks();
-        
+
         auto numGamepads = 0;
 
         // Count how many controllers there are
